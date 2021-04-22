@@ -4,17 +4,6 @@ import pandas as pd
 import numpy as np
 
 
-def add_gender(df: dd.DataFrame) -> None:
-	"""
-	Adds integer 'female' column for PS file, based on 'EL_SEX_CD' column
-	:param DataFrame df: Patient Summary
-	:rtype: None
-	"""
-	df['female'] = (df.EL_SEX_CD == 'F').astype(int)
-	df['female'] = df['female'].where((df.EL_SEX_CD == 'F') |
-	                                  (df.EL_SEX_CD == 'M'), -1)
-
-
 def flag_rural(df_ps: dd.DataFrame, method='ruca') -> dd.DataFrame:
 	"""
 	Classified benes into rural/ non-rural on the basis of RUCA/ RUCC of their resident ZIP/ FIPS codes

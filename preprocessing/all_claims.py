@@ -4,8 +4,21 @@ import numpy as np
 from calendar import isleap
 from datetime import datetime
 
-sys.path.append('../../../')
+sys.path.append('../')
 from common_utils import dataframe_utils
+
+
+def add_gender(df: dd.DataFrame) -> dd.DataFrame:
+	"""
+	Adds integer 'female' column for PS file, based on 'EL_SEX_CD' column
+	:param DataFrame df: Patient Summary
+	:rtype: None
+	"""
+	df['female'] = (df.EL_SEX_CD == 'F').astype(int)
+	df['female'] = df['female'].where((df.EL_SEX_CD == 'F') |
+	                                  (df.EL_SEX_CD == 'M'), -1)
+	return df
+
 
 def clean_diag_codes(df: dd.DataFrame) -> dd.DataFrame:
 	return df.map_partitions(
@@ -60,4 +73,7 @@ def process_date_cols(df: dd.DataFrame) -> dd.DataFrame:
 		                                          age=pdf.groupby(pdf.index)['age'].transform(max),
 		                                          ageday=pdf.groupby(pdf.index)['ageday'].transform(max),
 		                                          age2=pdf.groupby(pdf.index)['age2'].transform(max)))
+	if 'date_of_death' in df.columns:
+		df['death'] = ((df.date_of_death.dt.year.fillna(year + 10).astype(int) <= year) |
+		               (df.medicare_date_of_death.dt.year.fillna(year + 10).astype(int) <= year)).astype(int)
 	return df

@@ -8,9 +8,10 @@ import errno
 import shutil
 import re
 from math import ceil
+from logging.handlers import TimedRotatingFileHandler
 
 
-def log_assert(bool_: bool, message: str="", logger:str =None, logger_name: str="", verbose: bool=False):
+def log_assert(bool_: bool, message: str = "", logger: str = None, logger_name: str = "", verbose: bool = False):
     """Use this as a replacement for assert if you want the failing of the
     assert statement to be logged."""
     if logger is None:
@@ -49,18 +50,17 @@ def convert_to_int_str(x):
         return x
 
 
-def setup_custom_logger(logger_name: str, filename: str, level: str):
-    formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
-                                  datefmt='%Y-%m-%d %H:%M:%S')
-    handler = logging.FileHandler(filename, mode='a')
+def setup_logger(logger_name, log_file, level=logging.INFO):
+    formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(threadName)s : %(message)s',
+                                  datefmt='%a, %d %b %Y %H:%M:%S')
+    handler = TimedRotatingFileHandler(log_file,
+                                       when='W0', backupCount=0)
     handler.setFormatter(formatter)
-    screen_handler = logging.StreamHandler(stream=sys.stdout)
-    screen_handler.setFormatter(formatter)
     logger = logging.getLogger(logger_name)
-    logger.setLevel(level)
+    stream_handler = logging.StreamHandler()
     logger.addHandler(handler)
-    logger.addHandler(screen_handler)
-    return logger
+    logger.addHandler(stream_handler)
+    logger.setLevel(level)
 
 
 def remove_ignore_if_not_exists(filename: str):
