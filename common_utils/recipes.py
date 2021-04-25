@@ -51,7 +51,7 @@ def convert_to_int_str(x):
 
 
 def setup_logger(logger_name, log_file, level=logging.INFO):
-    formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(threadName)s : %(message)s',
+    formatter = logging.Formatter('%(asctime)s %(levelname)s : %(message)s',
                                   datefmt='%a, %d %b %Y %H:%M:%S')
     handler = TimedRotatingFileHandler(log_file,
                                        when='W0', backupCount=0)

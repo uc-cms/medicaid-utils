@@ -83,30 +83,6 @@ def flag_smm_events(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
     :param df_ip_claims:
     :return:
     """
-    """
-    ip["SMM_MYO"] = ip[["SMM_MYO_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_ANEURYSM"] = ip[["SMM_ANEURYSM_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_RENAL"] = ip[["SMM_RENAL_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_RESPIRATORY"] = ip[["SMM_RESPIRATORY_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_EMBOLISM"] = ip[["SMM_EMBOLISM_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_CARDIAC"] = ip[["SMM_CARDIAC_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_COAGULATION"] = ip[["SMM_COAGULATION_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_ECLAMPSIA"] = ip[["SMM_ECLAMPSIA_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_HEART"] = ip[["SMM_HEART_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_CEREBROVASCULAR"] = ip[["SMM_CEREBROVASCULAR_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_EDEMA"] = ip[["SMM_EDEMA_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_ANESTHESIA"] = ip[["SMM_ANESTHESIA_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_SEPSIS"] = ip[["SMM_SEPSIS_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_SHOCK"] = ip[["SMM_SHOCK_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_SICKLE"] = ip[["SMM_SICKLE_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_THROMBOTIC"] = ip[["SMM_THROMBOTIC_DIAG_CD_{}".format(x) for x in range(1,10)]].max(axis=1)
-            ip["SMM_CARDIAC_RHYTHM"] = ip[["SMM_CARDIAC_RHYTHM_PRCDR_CD_{}".format(x) for x in range(1,7)]].max(axis=1)
-            ip["SMM_TRANSFUSION"] = ip[["SMM_TRANSFUSION_PRCDR_CD_{}".format(x) for x in range(1,7)]].max(axis=1)
-            ip["SMM_HYSTERECTOMY"] = ip[["SMM_HYSTERECTOMY_PRCDR_CD_{}".format(x) for x in range(1,7)]].max(axis=1)
-            ip["SMM_TRACHEOSTOMY"] = ip[["SMM_TRACHEOSTOMY_PRCDR_CD_{}".format(x) for x in range(1,7)]].max(axis=1)
-            ip["SMM_VENTILATION"] = ip[["SMM_VENTILATION_PRCDR_CD_{}".format(x) for x in range(1,7)]].max(axis=1)
-
-    """
     df_ip_claims = df_ip_claims.map_partitions(
         lambda pdf: pdf.assign(
             hosp_smm_myo=pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
@@ -181,10 +157,28 @@ def flag_smm_events(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
     df_ip_claims['hosp_smm'] = df_ip_claims[df_ip_claims.columns[df_ip_claims.columns.str.startswith('hosp_smm_')]
                                             ].max(axis=1)
 
-    df_ip_claims["hosp_smm_no_blood"] = (((df_ip_claims['hosp_smm_transfusion'] == 0) & (df_ip_claims['smm'] == 1)) |
-                                         ((df_ip_claims['hosp_smm_transfusion'] == 1) &
-                                          (df_ip_claims[df_ip_claims.columns[df_ip_claims
-                                                                             .columns.str.startswith('hosp_smm_')]
-                                                        ].sum(axis=1) > 1))).astype(int)
+    df_ip_claims["hosp_smm_no_blood"] = df_ip_claims['hosp_smm'].where((df_ip_claims['hosp_smm_transfusion'] == 0) |
+                                                                       (df_ip_claims[df_ip_claims.columns[df_ip_claims
+                                                                        .columns.str.startswith('hosp_smm_')]
+                                                                        ].sum(axis=1) > 1),
+                                                                       0)
+
+    lst_smm_col = [col for col in df_ip_claims.columns if col.startswith('hosp_smm')]
+    df_ip_claims = df_ip_claims.assign(**dict([(col + '_on_index_hosp',
+                                                ((df_ip_claims[col] == 1) &
+                                                 (df_ip_claims['admsn_date'] == df_ip_claims[
+                                                     'index_admsn_date'])).astype(int))
+                                               for col in lst_smm_col]
+                                              ))
+    df_ip_claims = df_ip_claims.map_partitions(lambda pdf: pdf.assign(**dict([(col + '_12weeks_after_index_hosp',
+                                                                               ((pdf[col] == 1) &
+                                                                                pdf['admsn_date'].between(
+                                                                                    pdf['index_admsn_date'],
+                                                                                    pdf[
+                                                                                        "index_admsn_date"] + pd.Timedelta(
+                                                                                        days=83),
+                                                                                    inclusive=True)).astype(int)) for
+                                                                              col in lst_smm_col]
+                                                                             )))
     return df_ip_claims
 

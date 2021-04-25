@@ -20,7 +20,6 @@ def ip_process_date_cols(df_ip: dd.DataFrame) -> dd.DataFrame:
 	:param df_ip:
 	:rtype: DataFrame
 	"""
-	year = df_ip.head()['MAX_YR_DT'].values[0]
 	df_ip = all_claims.process_date_cols(df_ip)
 	df_ip['admsn'] = (~df_ip['admsn_date'].isnull()).astype(int)  # can be corrected to get more admissions
 	df_ip['flag_admsn_miss'] = 0
@@ -28,8 +27,9 @@ def ip_process_date_cols(df_ip: dd.DataFrame) -> dd.DataFrame:
 	df_ip['admsn_date'] = df_ip['admsn_date'].where(~df_ip['admsn_date'].isnull(), df_ip['srvc_bgn_date'])
 
 	df_ip['los'] = np.nan
-	mask_los = ((df_ip['admsn_date'].dt.year - year).between(-1, 0, inclusive=True) &
-	            (df_ip['srvc_end_date'].dt.year == year) & (df_ip['admsn_date'] <= df_ip['srvc_end_date']))
+	mask_los = ((df_ip['year'] >= df_ip['admsn_date'].dt.year) &
+# 	            (df_ip['srvc_end_date'].dt.year == df_ip['year']) & 
+                (df_ip['admsn_date'] <= df_ip['srvc_end_date']))
 	df_ip['los'] = df_ip['los'].where(~mask_los, (df_ip['srvc_end_date'] - df_ip['admsn_date']).dt.days + 1)
 
 	df_ip['ageday_admsn'] = (df_ip['admsn_date'] - df_ip['birth_date']).dt.days
@@ -53,9 +53,9 @@ def ip_ed_use(df_ip: dd.DataFrame) -> dd.DataFrame:
 	# ED code (99281–99285). http://bulletin.facs.org/2013/02/coding-for-hospital-admission
 	df_ip = df_ip.map_partitions(
 		lambda pdf: pdf.assign(**dict([('ip_ed_cpt_' + str(i),
-									    ((pd.to_numeric(pdf['PRCDR_CD_SYS_' + str(i)],
+		                                ((pd.to_numeric(pdf['PRCDR_CD_SYS_' + str(i)],
 									           errors='coerce') == 1) &
-									    (pd.to_numeric(pdf['PRCDR_CD_' + str(i)],
+		                                 (pd.to_numeric(pdf['PRCDR_CD_' + str(i)],
 									           errors='coerce').isin(
 									[99281, 99282, 99283, 99284, 99285]))).astype(int)
 									 ) for i in range(1, 7)])))
@@ -64,10 +64,10 @@ def ip_ed_use(df_ip: dd.DataFrame) -> dd.DataFrame:
 	# Inpatient files:  Revenue Center Codes 0450-0459, 0981,
 	# https://www.resdac.org/resconnect/articles/144
 	df_ip['ip_ed_ub92'] = df_ip.map_partitions(
-		lambda pdf: pdf[['UB_92_REV_CD_GP_' + str(i) for i in range(1, 24)]
-							].apply(pd.to_numeric, errors='coerce').isin([450, 451, 452, 453, 454, 455,
-		                                                                  456, 457, 458, 459, 981]
-		                                                                 ).astype(int).any(axis='columns').astype(int))
+		lambda pdf: pdf[['UB_92_REV_CD_GP_' + str(i) for i in range(1, 24)]]
+			.apply(pd.to_numeric, errors='coerce').isin([450, 451, 452, 453, 454, 455,
+		                                                 456, 457, 458, 459, 981]
+		                                                ).astype(int).any(axis='columns').astype(int))
 	# TOS - Type of Service
 	# 11=outpatient hospital ???? not every IP which called outpatient hospital is called ED,
 	# this may end up with too many ED
@@ -89,6 +89,7 @@ def flag_ip_duplicates(df: dd.DataFrame, index_col: str = 'MSIS_ID') -> dd.DataF
 	:param df dd.DataFrame:
 	:rtype: dd.DataFrame
 	"""
+
 	df_flagged = df.copy()
 	df_flagged['flag_ip_dup_drop'] = np.nan
 	df_flagged['flag_ip_undup'] = np.nan
@@ -103,39 +104,39 @@ def flag_ip_duplicates(df: dd.DataFrame, index_col: str = 'MSIS_ID') -> dd.DataF
 	def _mptn_check_ip_overlaps(pdf_partition):
 		pdf_partition.reset_index(drop=True, inplace=True)
 		# check duplicate claims (same ID, admission date), flag the largest payment amount
-		pdf_partition = pdf_partition.sort_values(by=['MSIS_ID', 'admsn_date', 'pymt_amt', 'los'],
-		                                          ascending=[True, True, False, False])
-		pdf_partition['flag_ip_dup_drop'] = (pdf_partition.groupby(['MSIS_ID', 'admsn_date'])['pymt_amt']
-		                                     .rank(method='first', ascending=False) != 1).astype(int)
-		pdf_partition['flag_ip_undup'] = (pdf_partition.groupby(['MSIS_ID',
-		                                                         'admsn_date'])['MSIS_ID'].transform(
-		    'count') == 1).astype(int)
+		pdf_partition = pdf_partition.sort_values(by=[index_col, 'admsn_date', 'pymt_amt', 'los'],
+	                                                        ascending=[True, True, False, False])
+		pdf_partition['flag_ip_dup_drop'] = (pdf_partition.groupby([index_col, 'admsn_date'])['pymt_amt']
+	                                                .rank(method='first', ascending=False) != 1).astype(int)
+		pdf_partition['flag_ip_undup'] = (pdf_partition.groupby([index_col,
+	                                                                        'admsn_date'])[index_col].transform(
+	                                                                            'count') == 1).astype(int)
 		overlap_mask = ((pd.to_numeric(pdf_partition['los'], errors='coerce') > 0) &
 		                (pdf_partition['flag_ip_dup_drop'] != 1))
 		pdf_partition.loc[overlap_mask,
 		                  'admsntime'] = pdf_partition.loc[overlap_mask,
-		                                                  ].groupby('MSIS_ID')['admsn_date'].rank(method='dense')
-		pdf_partition = pdf_partition.sort_values(by=['MSIS_ID', 'admsntime'])
+		                                                  ].groupby(index_col)['admsn_date'].rank(method='dense')
+		pdf_partition = pdf_partition.sort_values(by=[index_col, 'admsntime'])
 		pdf_partition.loc[overlap_mask,
 		                  'next_admsn_date'] = pdf_partition.loc[overlap_mask,
-		                                                        ].groupby('MSIS_ID')['admsn_date'].shift(-1)
+		                                                        ].groupby(index_col)['admsn_date'].shift(-1)
 		pdf_partition.loc[overlap_mask,
 		                  'next_pymt_amt'] = pdf_partition.loc[overlap_mask,
-		                                                      ].groupby('MSIS_ID')['pymt_amt'].shift(-1)
+		                                                      ].groupby(index_col)['pymt_amt'].shift(-1)
 		pdf_partition.loc[overlap_mask,
 		                  'next_srvc_end_date'] = pdf_partition.loc[overlap_mask,
-		                                                           ].groupby('MSIS_ID')['srvc_end_date'].shift(-1)
+		                                                           ].groupby(index_col)['srvc_end_date'].shift(-1)
 		pdf_partition.loc[overlap_mask,
 		                  'last_admsn_date'] = pdf_partition.loc[overlap_mask,
-		                                                        ].groupby('MSIS_ID')['admsn_date'].shift(1)
+		                                                        ].groupby(index_col)['admsn_date'].shift(1)
 		pdf_partition.loc[overlap_mask,
 		                  'last_pymt_amt'] = pdf_partition.loc[overlap_mask,
-		                                                      ].groupby('MSIS_ID')['pymt_amt'].shift(1)
+		                                                      ].groupby(index_col)['pymt_amt'].shift(1)
 		pdf_partition.loc[overlap_mask,
 		                  'last_srvc_end_date'] = pdf_partition.loc[overlap_mask,
-		                                                           ].groupby('MSIS_ID')['srvc_end_date'].shift(1)
-		pdf_partition = pdf_partition.sort_values(by=['MSIS_ID', 'admsn_date', 'pymt_amt'])
-		pdf_partition.set_index('MSIS_ID', drop=False, inplace=True)
+		                                                           ].groupby(index_col)['srvc_end_date'].shift(1)
+		pdf_partition = pdf_partition.sort_values(by=[index_col, 'admsn_date', 'pymt_amt'])
+		pdf_partition.set_index(index_col, drop=False, inplace=True)
 		return pdf_partition
 	df_flagged = df_flagged.map_partitions(_mptn_check_ip_overlaps, meta=df_flagged.head(1))
 	df_flagged['flag_overlap_next'] = (df_flagged['next_admsn_date'].notnull() & (

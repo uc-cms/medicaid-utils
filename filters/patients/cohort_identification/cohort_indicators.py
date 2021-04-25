@@ -3,6 +3,8 @@ import os
 import pandas as pd
 import numpy as np
 
+data_folder = os.path.join(os.path.dirname(__file__), 'data')
+
 
 def flag_rural(df_ps: dd.DataFrame, method='ruca') -> dd.DataFrame:
 	"""
@@ -18,13 +20,14 @@ def flag_rural(df_ps: dd.DataFrame, method='ruca') -> dd.DataFrame:
 	:param method:
 	:return: dd.DataFrame
 	"""
-	year = df_ps.head()['MAX_YR_DT'].values[0]
-	state = df_ps.head()['STATE_CD'].values[0]
-	if ((year == 2012) & (state == 'RI')):
-		df_ps['EL_RSDNC_ZIP_CD_LTST'] = df_ps['EL_RSDNC_ZIP_CD_LTST'].str[:-1]
-	if os.path.isfile(os.path.join("data", 'zip_state_pcsa_ruca_zcta.csv')):
-		df_pcsa_st_zip = pd.read_csv(os.path.join('data', 'pcsa_st_zip.csv'))
-		df_ruca = pd.read_excel(os.path.join('data', 'RUCA2010zipcode.xlsx'), sheet_name='Data',
+	index_col = df_ps.index.name
+	df_ps[index_col] = df_ps.index
+	df_ps['EL_RSDNC_ZIP_CD_LTST'] = df_ps['EL_RSDNC_ZIP_CD_LTST'].where(~((df_ps['STATE_CD'] == 'RI') &
+	                                                                      (df_ps['year'] == 2012)),
+	                                                                    df_ps['EL_RSDNC_ZIP_CD_LTST'].str[:-1])
+	if os.path.isfile(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv')):
+		df_pcsa_st_zip = pd.read_csv(os.path.join(data_folder, 'pcsa_st_zip.csv'))
+		df_ruca = pd.read_excel(os.path.join(data_folder, 'RUCA2010zipcode.xlsx'), sheet_name='Data',
 		                        dtype='object')
 		df_ruca['ZIP_CODE'] = df_ruca['ZIP_CODE'].astype(str).str.replace(' ', '').str.zfill(5)
 		df_ruca = df_ruca.rename(columns={'ZIP_CODE': 'zip',
@@ -37,9 +40,9 @@ def flag_rural(df_ps: dd.DataFrame, method='ruca') -> dd.DataFrame:
 		df_merged.loc[
 			pd.to_numeric(df_merged['zip'], errors='coerce').between(1, 199, inclusive=True), 'state_cd'] = 'AK'
 		df_merged.loc[df_merged['zip'] == '98189', 'state_cd'] = 'WA'
-		df_merged.to_csv(os.path.join('data', 'zip_state_pcsa_ruca_zcta.csv'), index=False)
+		df_merged.to_csv(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv'), index=False)
 
-	df_zip_state_pcsa = pd.read_csv(os.path.join('data', 'zip_state_pcsa_ruca_zcta.csv'))
+	df_zip_state_pcsa = pd.read_csv(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv'))
 	df_zip_state_pcsa['zip'] = df_zip_state_pcsa['zip'].str.replace(' ', '').str.zfill(9)
 	df_zip_state_pcsa = df_zip_state_pcsa.rename(columns={'zip': 'EL_RSDNC_ZIP_CD_LTST',
 	                                                      'state_cd': 'resident_state_cd'})
@@ -51,34 +54,35 @@ def flag_rural(df_ps: dd.DataFrame, method='ruca') -> dd.DataFrame:
 	df_ps = df_ps.merge(df_zip_state_pcsa[['EL_RSDNC_ZIP_CD_LTST', 'resident_state_cd', 'pcsa',
 	                                       'ruca_code']], how='left',
 	                    on='EL_RSDNC_ZIP_CD_LTST')
+	df_rucc = pd.read_excel(os.path.join(data_folder, 'ruralurbancodes2013.xls'),
+	                        sheet_name='Rural-urban Continuum Code 2013',
+	                        dtype='object')
+	df_rucc = df_rucc.rename(columns={'State': 'resident_state_cd',
+	                                  'RUCC_2013': 'rucc_code',
+	                                  'FIPS': 'EL_RSDNC_CNTY_CD_LTST'
+	                                  })
+	df_rucc['EL_RSDNC_CNTY_CD_LTST'] = df_rucc['EL_RSDNC_CNTY_CD_LTST'].str.strip().str[2:]
+	df_rucc['resident_state_cd'] = df_rucc['resident_state_cd'].str.strip().str.upper()
+	df_ps['EL_RSDNC_CNTY_CD_LTST'] = df_ps['EL_RSDNC_CNTY_CD_LTST'].str.strip()
+	df_ps['resident_state_cd'] = df_ps['resident_state_cd'].where(~df_ps['resident_state_cd'].isna(),
+	                                                              df_ps['STATE_CD'])
+	df_ps = df_ps.merge(df_rucc[['EL_RSDNC_CNTY_CD_LTST', 'resident_state_cd', 'rucc_code']], how='left',
+	                    on=['EL_RSDNC_CNTY_CD_LTST', 'resident_state_cd'])
 	if method == 'ruca':
 		df_ps = df_ps.map_partitions(
-			lambda pdf: pdf.assign(urban=np.select(
+			lambda pdf: pdf.assign(rural=np.select(
 				                       [pd.to_numeric(pdf['ruca_code'], errors='coerce').between(0, 4, inclusive=False),
 				                        (pd.to_numeric(pdf['ruca_code'], errors='coerce') >= 4)],
 				                       [0, 1],
 				                       default=-1)))
 	else:
-		df_rucc = pd.read_excel(os.path.join('data', 'ruralurbancodes2013.xls'),
-		                        sheet_name='Rural-urban Continuum Code 2013',
-		                        dtype='object')
-		df_rucc = df_rucc.rename(columns={'State': 'resident_state_cd',
-		                                  'RUCC_2013': 'rucc_code',
-		                                  'FIPS': 'EL_RSDNC_CNTY_CD_LTST'
-		                                  })
-		df_rucc['EL_RSDNC_CNTY_CD_LTST'] = df_rucc['EL_RSDNC_CNTY_CD_LTST'].str.strip().str[3:]
-		df_rucc['resident_state_cd'] = df_rucc['resident_state_cd'].str.strip().str.upper()
-		df_ps['EL_RSDNC_CNTY_CD_LTST'] = df_ps['EL_RSDNC_CNTY_CD_LTST'].str.strip()
-		df_ps['resident_state_cd'] = df_ps['resident_state_cd'].where(~df_ps['resident_state_cd'].isna(),
-		                                                              df_ps['STATE_CD'])
-		df_ps = df_ps.merge(df_rucc[['EL_RSDNC_CNTY_CD_LTST', 'resident_state_cd', 'rucc_code']], how='left',
-		                    on=['EL_RSDNC_CNTY_CD_LTST', 'resident_state_cd'])
 		df_ps = df_ps.map_partitions(
-			lambda pdf: pdf.assign(urban=np.select(
+			lambda pdf: pdf.assign(rural=np.select(
 				[pd.to_numeric(pdf['rucc_code'], errors='coerce').between(1, 7, inclusive=True),
 				 (pd.to_numeric(pdf['rucc_code'], errors='coerce') >= 8)],
 				[0, 1],
 				default=-1)))
+	df_ps = df_ps.set_index(index_col, drop=True)
 	return df_ps
 
 
