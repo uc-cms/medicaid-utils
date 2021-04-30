@@ -6,33 +6,31 @@ def flag_preterm(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
     """
     Detects preterm birth related hospitalization in claims
     New Column(s):
-        diag_preterm - integer column, 1 when claim denotes preterm birth and 0 otherwise
+        hosp_preterm - integer column, 1 when claim denotes preterm birth and 0 otherwise
     :param df_ip_claims:
     :rtype: dd.DataFrame
     """
     df_ip_claims = df_ip_claims.map_partitions(
         lambda pdf: pdf.assign(
-            hosp_preterm=(pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
-                          .apply(lambda x: x.str.upper().str.startswith(('V27'))).any(axis='columns') &
-                          (pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
-                           .apply(lambda x: x.str.upper().str.startswith(('6442', '6444',
-                                                                          '7650', '7651'))).any(axis='columns'))
+            hosp_preterm=((~pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
+                          .apply(lambda x: x.str.startswith(('76529', '76529',))).any(axis='columns')) &
+                          pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
+                           .apply(lambda x: x.str.startswith(('6440', '6442',
+                                                                          '7651', '7650',
+                                                                         '7652',))).any(axis='columns')
                           ).astype(int)))
     return df_ip_claims
 
 
-def flag_birth(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_delivery(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
     """
     Detects normal and stillbirths related hospitalization in claims
     New Column(s):
-        diag_birth - integer column, 1 when claim denotes live or still birth and 0 otherwise
+        hosp_birth - integer column, 1 when claim denotes live or still birth and 0 otherwise
     :param df_ip_claims:
     :rtype: dd.DataFrame
     """
-    df_ip_claims = df_ip_claims.map_partitions(
-        lambda pdf: pdf.assign(
-            hosp_birth=pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
-                .apply(lambda x: x.str.upper().str.startswith(('V27'))).any(axis='columns').astype(int)))
+    df_ip_claims = df_ip_claims.assign(hosp_birth = (dd.to_numeric(df_ip_claims['RCPNT_DLVRY_CD'], errors='coerce') == 1).astype(int))
     return df_ip_claims
 
 
@@ -40,7 +38,7 @@ def flag_abnormal_pregnancy(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
     """
         Detects ectopic, molar, or abnormal pregnancy, spontaneous or induced abortion related hospitalization
         New Column(s):
-            diag_abnormal_pregnancy - integer column, 1 when claim denotes ectopic, molar, or abnormal pregnancy,
+            hosp_abnormal_pregnancy - integer column, 1 when claim denotes ectopic, molar, or abnormal pregnancy,
             spontaneous or induced abortion and 0 otherwise
         :param df_ip_claims:
         :rtype: dd.DataFrame
@@ -113,7 +111,7 @@ def flag_smm_events(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
             hosp_smm_heart=pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
                             .isin(["9971"]).any(axis='columns').astype(int),
             hosp_smm_cerebrovascular=(pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
-                                      .apply(lambda x: x.str.startswith(('431', '432', '433', '434', '436', '437',
+                                      .apply(lambda x: x.str.startswith(('430', '431', '432', '433', '434', '436', '437',
                                                                          '6715', '6740',))).any(axis='columns') |
                                       pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
                                         .isin(["99702"]).any(axis='columns')).astype(int),

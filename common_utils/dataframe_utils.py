@@ -187,7 +187,7 @@ def export(df: dd.DataFrame, pq_engine: str, output_filename: str, pq_location: 
 	if df.head().shape[0] < 1:
 		df = df.repartition(npartitions=min(max(int(n_rows / 100000), 1), max(df.npartitions - 2, 1))).persist()
 	else:
-		df = df.repartition(npartitions=max(int(n_rows / 100000), df.npartitions)).persist()
+		df = df.repartition(partition_size="100MB").persist()#df.repartition(npartitions=max(int(n_rows / 100000), df.npartitions)).persist()
 	toggle_datetime_string(df, lst_datetime_col, to_string=True)
 	if is_dask:
 		if do_parquet:
