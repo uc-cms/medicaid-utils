@@ -28,6 +28,14 @@ def clean_diag_codes(df: dd.DataFrame) -> dd.DataFrame:
 		                               for col in pdf.columns if col.startswith('DIAG_CD_')])))
 
 
+def clean_proc_codes(df: dd.DataFrame) -> dd.DataFrame:
+	return df.map_partitions(
+		lambda pdf: pdf.assign(**dict([(col,
+		                                pdf[col].str.replace("[^a-zA-Z0-9]+", "", regex=True).str.upper())
+		                               for col in pdf.columns
+		                               if col.startswith('PRCDR_CD') and (not col.startswith('PRCDR_CD_SYS'))])))
+
+
 def process_date_cols(df: dd.DataFrame) -> dd.DataFrame:
 	"""Convert list of columns specified in a dataframe to datetime type,
        renames them

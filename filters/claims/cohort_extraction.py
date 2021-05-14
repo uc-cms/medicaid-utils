@@ -1,11 +1,13 @@
 import os
 import pandas as pd
 from itertools import product
+import numpy as np
+import logging
 
 data_folder = os.path.join(os.path.dirname(__file__), 'data')
 
 
-def get_patient_ids_with_conditions(dct_diag_codes: dict, dct_procedure_codes: dict,
+def get_patient_ids_with_conditions(dct_diag_codes: dict, dct_procedure_codes: dict, logger_name=__file__,
                                     **dct_claims) -> pd.DataFrame():
 	"""
 	Gets patient ids with conditions denoted by provided diagnosis codes or procedure codes
@@ -15,6 +17,7 @@ def get_patient_ids_with_conditions(dct_diag_codes: dict, dct_procedure_codes: d
 	:param df_ot:
 	:return:
 	"""
+	logger = logging.getLogger(logger_name)
 	lstdf_patient = []
 	pdf_patients = pd.DataFrame()
 	index_col = None
@@ -27,15 +30,16 @@ def get_patient_ids_with_conditions(dct_diag_codes: dict, dct_procedure_codes: d
 				raise Exception("Passed claims files do not have the same index")
 			index_col = df.index.name
 			if bool(dct_diag_codes):
-				df = df.map_partitions(
-					lambda pdf: pdf.assign(**dict([(f'diag_condn_{condn}',
-					                                pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
-					                                .apply(
-						                                lambda x: x.str.upper().str.startswith(
-							                                tuple([str(dx_code) for dx_code in dct_diag_codes[condn]]))
-					                                ).any(axis='columns').astype(int)
-					                                ) for condn in dct_diag_codes])
-					                       ))
+				df = df.map_partitions(lambda pdf: pdf.assign(**dict([(f'diag_condn_{condn}',
+				                                                       np.column_stack(
+					                                                       [pdf[col].str.startswith(
+						                                                       tuple([str(dx_code) for dx_code in
+						                                                              dct_diag_codes[condn]]),
+						                                                       na=False) for
+						                                                       col in pdf.columns if
+						                                                       col.startswith('DIAG_CD_')]).any(
+					                                                       axis=1).astype(int))
+				                                                      for condn in dct_diag_codes])))
 				df = df.assign(diag_condn=df[[col for col in df.columns
 				                              if col.startswith('diag_condn_')]].any(axis=1).astype(int))
 
@@ -45,24 +49,34 @@ def get_patient_ids_with_conditions(dct_diag_codes: dict, dct_procedure_codes: d
 				lst_sys_code = list(set([int(sys_code) for lst_sys_code in
 				                         [list(dct_procedure_codes[proc].keys()) for proc in dct_procedure_codes.keys()]
 				                         for sys_code in lst_sys_code if int(sys_code) != 1]))
+				if n_prcdr_cd_col == 1:
+					df = df.map_partitions(
+						lambda pdf: pdf.assign(**dict([("PRCDR_CD_1",
+						                                pdf['PRCDR_CD']),
+						                               ("PRCDR_CD_SYS_1",
+						                                pdf['PRCDR_CD_SYS'])
+						                               ]
+						                              )))
 				df = df.map_partitions(
 					lambda pdf: pdf.assign(**dict([(f"VALID_PRCDR_1_CD_{i}",
 					                                pdf[f'PRCDR_CD_{i}']
-					                                ) for i in range(1, n_prcdr_cd_col)] +
+					                                ) for i in range(1, n_prcdr_cd_col + 1)] +
 					                              [(f"VALID_PRCDR_{sys_code}_CD_{i}",
 					                                pdf[f'PRCDR_CD_{i}']
 					                                .where((pd.to_numeric(pdf[f'PRCDR_CD_SYS_{i}'],
 					                                                      errors='coerce') == sys_code), "")
 					                                ) for sys_code, i in product(lst_sys_code,
-					                                                             range(1, n_prcdr_cd_col))]
+					                                                             range(1, n_prcdr_cd_col + 1))]
 					                              )))
 				df = df.map_partitions(
 					lambda pdf: pdf.assign(**dict([(f'proc_condn_{proc}_{sys_code}',
-					                                pdf[[col for col in pdf.columns if
-					                                     col.startswith((f'VALID_PRCDR_{sys_code}_CD_',))]]
-					                                .apply(lambda x: x.str.upper().str.strip()
-					                                       .str.startswith(tuple(dct_procedure_codes[proc][sys_code])))
-					                                .any(axis='columns').astype(int)) for sublist in
+					                                np.column_stack([pdf[col].str.startswith(
+						                                tuple(dct_procedure_codes[proc][sys_code]), na=False) for col in
+					                                                 pdf.columns if
+					                                                 col.startswith(
+						                                                 (f'VALID_PRCDR_{sys_code}_CD_',))]).any(
+						                                axis=1).astype(int))
+					                               for sublist in
 					                               [product([proc], list(dct_procedure_codes[proc].keys()))
 					                                for proc in dct_procedure_codes] for proc, sys_code in sublist])))
 
@@ -75,13 +89,13 @@ def get_patient_ids_with_conditions(dct_diag_codes: dict, dct_procedure_codes: d
 				df = df.assign(proc_condn=df[[col for col in df.columns
 				                              if col.startswith('proc_condn_')]].any(axis=1).astype(int))
 			df[index_col] = df.index
-			df = df.loc[df[['proc_condn', 'diag_condn']].any(axis=1)][[index_col] +
-			                                                          [col for col in df.columns
-			                                                           if col.startswith(('proc_condn',
-			                                                                              'diag_condn'))]
-																	  ].drop_duplicates()
+			df = df.map_partitions(
+				lambda pdf: pdf.loc[pdf[['proc_condn', 'diag_condn']].any(axis=1)]
+				[[index_col] + [col for col in pdf.columns if col.startswith(('proc_condn', 'diag_condn'))]
+				].drop_duplicates()).compute().drop_duplicates()
 			df = df.rename(columns=dict([(col, f'{claim_type}_{col}') for col in df.columns if col != index_col]))
-			lstdf_patient.append(df.compute())
+			lstdf_patient.append(df)
+			logger.info(f"Finishing processing {claim_type} claims")
 	pdf_patients = pd.concat(lstdf_patient, ignore_index=True)
 	if pdf_patients.shape[0] > 0:
 		pdf_patients = pdf_patients.fillna(0).groupby(index_col).max().astype(int)
@@ -102,15 +116,16 @@ def flag_diagnoses_and_procedures(dct_diag_codes: dict, dct_procedure_codes: dic
 		df = dct_claims[claim_type]
 		if df is not None:
 			if bool(dct_diag_codes):
-				df = df.map_partitions(
-					lambda pdf: pdf.assign(**dict([(f'diag_{condn}',
-					                                pdf[pdf.columns[pdf.columns.str.startswith('DIAG_CD_')]]
-					                                .apply(
-						                                lambda x: x.str.upper().str.startswith(
-							                                tuple([str(dx_code) for dx_code in dct_diag_codes[condn]]))
-					                                ).any(axis='columns').astype(int)
-					                                ) for condn in dct_diag_codes])
-					                       ))
+				df = df.map_partitions(lambda pdf: pdf.assign(**dict([(f'diag_{condn}',
+				                                                       np.column_stack(
+					                                                       [pdf[col].str.startswith(
+						                                                       tuple([str(dx_code) for dx_code in
+						                                                              dct_diag_codes[condn]]),
+						                                                       na=False) for
+						                                                       col in pdf.columns if
+						                                                       col.startswith('DIAG_CD_')]).any(
+					                                                       axis=1).astype(int))
+				                                                      for condn in dct_diag_codes])))
 
 			if bool(dct_procedure_codes):
 				n_prcdr_cd_col = len([col for col in df.columns if col.startswith('PRCDR_CD_') and
@@ -118,24 +133,34 @@ def flag_diagnoses_and_procedures(dct_diag_codes: dict, dct_procedure_codes: dic
 				lst_sys_code = list(set([int(sys_code) for lst_sys_code in
 				                         [list(dct_procedure_codes[proc].keys()) for proc in dct_procedure_codes.keys()]
 				                         for sys_code in lst_sys_code if int(sys_code) != 1]))
+				if n_prcdr_cd_col == 1:
+					df = df.map_partitions(
+						lambda pdf: pdf.assign(**dict([("PRCDR_CD_1",
+						                                pdf['PRCDR_CD']),
+						                               ("PRCDR_CD_SYS_1",
+						                                pdf['PRCDR_CD_SYS'])
+						                               ]
+						                              )))
 				df = df.map_partitions(
 					lambda pdf: pdf.assign(**dict([(f"VALID_PRCDR_1_CD_{i}",
 					                                pdf[f'PRCDR_CD_{i}']
-					                                ) for i in range(1, n_prcdr_cd_col)] +
+					                                ) for i in range(1, n_prcdr_cd_col + 1)] +
 					                              [(f"VALID_PRCDR_{sys_code}_CD_{i}",
 					                                pdf[f'PRCDR_CD_{i}']
 					                                .where((pd.to_numeric(pdf[f'PRCDR_CD_SYS_{i}'],
 					                                                      errors='coerce') == sys_code), "")
 					                                ) for sys_code, i in product(lst_sys_code,
-					                                                             range(1, n_prcdr_cd_col))]
+					                                                             range(1, n_prcdr_cd_col + 1))]
 					                              )))
 				df = df.map_partitions(
 					lambda pdf: pdf.assign(**dict([(f'proc_{proc}_{sys_code}',
-					                                pdf[[col for col in pdf.columns if
-					                                     col.startswith((f'VALID_PRCDR_{sys_code}_CD_',))]]
-					                                .apply(lambda x: x.str.upper().str.strip()
-					                                       .str.startswith(tuple(dct_procedure_codes[proc][sys_code])))
-					                                .any(axis='columns').astype(int)) for sublist in
+					                                np.column_stack([pdf[col].str.startswith(
+						                                tuple(dct_procedure_codes[proc][sys_code]), na=False) for col in
+						                                pdf.columns if
+						                                col.startswith(
+							                                (f'VALID_PRCDR_{sys_code}_CD_',))]).any(
+						                                axis=1).astype(int))
+					                               for sublist in
 					                               [product([proc], list(dct_procedure_codes[proc].keys()))
 					                                for proc in dct_procedure_codes] for proc, sys_code in sublist])))
 
