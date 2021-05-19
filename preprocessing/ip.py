@@ -13,11 +13,30 @@ from common_utils import dataframe_utils, links
 class IP(cms_file.CMSFile):
 	def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True):
 		super(IP, self).__init__('ip', year, st, data_root, index_col, clean, preprocess)
+		self.dct_default_filters = {'missing_dob': 1, 'missing_admsn_date': 1}
 		if clean:
 			self.clean_diag_codes()
 			self.clean_proc_codes()
+			self.flag_common_exclusions()
 		if preprocess:
 			self.flag_ed_use()
+
+	def flag_common_exclusions(self) -> None:
+		self.df = self.df.assign(excl_missing_dob=self.df['birth_date'].isnull().astypt(int),
+		                         excl_missing_admsn_date=self.df['admsn_date'].isnull().astype(int),
+		                         excl_encounter_claim=((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 77) |
+		                                               ((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
+		                                                (dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce') == 3))
+		                                               ).astype(int),
+		                         excl_capitation_claim=((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
+		                                                (dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce') == 2)
+		                                                ).astype(int),
+		                         excl_ffs_claim=(~((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 77) |
+		                                           ((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
+		                                            dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce').isin([2, 3]))
+		                                           )).astype(int),
+		                         excl_delivery=(dd.to_numeric(self.df['RCPNT_DLVRY_CD'], errors='coerce') == 1).astype(int)
+		                         )
 
 	def flag_ip_duplicates(self) -> None:
 		"""

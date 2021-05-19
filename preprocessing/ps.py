@@ -15,14 +15,16 @@ data_folder = os.path.join(os.path.dirname(__file__), 'data')
 class PS(cms_file.CMSFile):
 	def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, rural_method='ruca'):
 		super(PS, self).__init__('ps', year, st, data_root, index_col, clean, preprocess)
+		self.dct_default_filters = {'duplicated_bene_id': 1}
 		if clean:
-			# Remove BENE_IDs that are duplicated
-			self.df[f"_{self.index_col}"] = self.df.index
-			self.df = self.df.drop_duplicates(subset=[index_col], keep=False)
-			self.df = self.df.drop([f"_{self.index_col}"], axis=1)
+			pass
 		if preprocess:
 			self.flag_rural(rural_method)
 			self.add_eligibility_status_columns()
+
+	def flag_common_exclusions(self) -> None:
+		self.df = self.df.map_partitions(
+			lambda pdf: pdf.assign(excl_duplicated_bene_id=pdf.duplicated(['BENE_ID'], keep=False).astype(int)))
 
 	def flag_rural(self, method='ruca') -> None:
 		"""

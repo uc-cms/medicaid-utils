@@ -12,6 +12,7 @@ class OT(cms_file.CMSFile):
 
     def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True):
         super(OT, self).__init__('ot', year, st, data_root, index_col, clean, preprocess)
+        self.dct_default_filters = {'missing_dob': 1, 'missing_admsn_date': 1}
         if clean:
             self.clean_diag_codes()
             self.clean_proc_codes()
@@ -20,6 +21,22 @@ class OT(cms_file.CMSFile):
             self.flag_transport()
             self.flag_dental()
             self.flag_em()
+
+    def flag_common_exclusions(self) -> None:
+        self.df = self.df.assign(excl_missing_dob=self.df['birth_date'].isnull().astypt(int),
+                                 excl_missing_admsn_date=self.df['srvc_bgn_date'].isnull().astype(int),
+                                 excl_encounter_claim=((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 77) |
+                                                       ((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
+                                                        (dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce') == 3))
+                                                       ).astype(int),
+                                 excl_capitation_claim=((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
+                                                        (dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce') == 2)
+                                                        ).astype(int),
+                                 excl_ffs_claim=(~((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 77) |
+                                                   ((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
+                                                    dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce').isin([2, 3]))
+                                                   )).astype(int)
+                                 )
 
     def flag_em(self) -> None:
         """

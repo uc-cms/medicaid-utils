@@ -30,7 +30,7 @@ def flag_delivery(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
     :param df_ip_claims:
     :rtype: dd.DataFrame
     """
-    df_ip_claims = df_ip_claims.assign(hosp_birth = (dd.to_numeric(df_ip_claims['RCPNT_DLVRY_CD'], errors='coerce') == 1).astype(int))
+    df_ip_claims = df_ip_claims.assign(hosp_birth=(dd.to_numeric(df_ip_claims['RCPNT_DLVRY_CD'], errors='coerce') == 1).astype(int))
     return df_ip_claims
 
 

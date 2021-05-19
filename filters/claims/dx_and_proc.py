@@ -36,7 +36,10 @@ def get_patient_ids_with_conditions(dct_diag_codes: dict, dct_procedure_codes: d
 			if bool(dct_procedure_codes):
 				df = df.assign(proc_condn=df[[f'proc_{proc}' for proc in dct_procedure_codes]].any(axis=1).astype(int))
 				lst_col.extend([f'proc_{proc}' for proc in dct_procedure_codes])
-			df = df.loc[df[lst_col].any(axis=1)][lst_col].groupby(index_col).max().compute().reset_index(drop=False)
+			df = df.loc[df[lst_col].any(axis=1)][lst_col]
+			logger.info(f"Restricting {claim_type} to condition diagnoses/ procedures reduces the claim count "
+			            f"to {df.shape[0].compute()}")
+			df = df.groupby(index_col).max().compute().reset_index(drop=False)
 			df = df.rename(columns=dict([(col, f'{claim_type}_{col}') for col in df.columns if col != index_col]))
 			pdf_patient_ids = pd.concat([pdf_patient_ids, df.copy()], ignore_index=True)
 			logger.info(f"Finished processing {claim_type} claims")
