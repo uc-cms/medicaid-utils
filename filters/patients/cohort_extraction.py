@@ -2,6 +2,7 @@ import sys
 import os
 import logging
 import pandas as pd
+import numpy as np
 import dask.dataframe as dd
 
 sys.path.append('../../')
@@ -9,6 +10,26 @@ from preprocessing import cms_file, ip, ot, ps
 from filters.claims import dx_and_proc
 
 data_folder = os.path.join(os.path.dirname(__file__), 'data')
+
+
+def apply_range_filter(tpl_range, df, filter_name, col_name, data_type, f_type, logger_name=__file__):
+	logger = logging.getLogger(logger_name)
+	start = pd.to_datetime(tpl_range[0], format='%Y%m%d', errors='coerce') \
+		if data_type is 'date' else pd.to_numeric(tpl_range[0], errors='coerce')
+	end = pd.to_datetime(tpl_range[1], format='%Y%m%d', errors='coerce') \
+		if data_type is 'date' else pd.to_numeric(tpl_range[1], errors='coerce')
+	if (~np.isnan(start)) | (~np.isnan(end)):
+		if ~(np.isnan(start) | np.isnan(end)):
+			df = df.loc[df[col_name].between(start, end, inclusive=True)]
+		elif np.isnan(start):
+			df = df.loc[df[col_name] <= end]
+		else:
+			df = df.loc[df[col_name] >= start]
+		logger.info(f"Restricting the {filter_name} to  {tpl_range} reduces "
+		            f"{f_type} claim count to {df.shape[0].compute()}")
+	else:
+		logger.info(f"{filter_name} range {tpl_range} is invalid.")
+	return df
 
 
 def filter_claim_files(claim, dct_claim_filters, f_type, st, year, logger_name=__file__):
@@ -26,17 +47,15 @@ def filter_claim_files(claim, dct_claim_filters, f_type, st, year, logger_name=_
 			else:
 				logger.info(f"Filter {filter} is currently not supported")
 		if 'observation_period' in dct_filter:
-			claim.df = claim.df.loc[
-				(claim.df["admsn_date"] >= pd.Timestamp(dct_filter['observation_period'][0])) &
-				(claim.df["admsn_date"] <= pd.Timestamp(dct_filter['observation_period'][1]))]
-			logger.info(f"Restricting the observation period to  {dct_filter['observation_period']} reduces "
-			            f"{f_type} claim count to {claim.df.shape[0].compute()}")
-		if 'age_admsn_range' in dct_filter:
-			claim.df = claim.df.loc[
-				claim.df['age_admsn'].between(dct_filter['age_admsn_range'][0],
-				                              dct_filter['age_admsn_range'][1], inclusive=True)]
-			logger.info(f"Restricting the age as on admission date to  {dct_filter['age_admsn_range']} reduces "
-			            f"{f_type} claim count to {claim.df.shape[0].compute()}")
+			if f_type in ['ip', 'ot']:
+				claim.df = apply_range_filter(dct_filter['observation_period'], claim.df, 'observation_period',
+				                              'admsn_date' if f_type == 'ip' else 'srvc_bgn_date',
+				                              'date', f_type, logger_name=logger_name)
+		if 'age_range' in dct_filter:
+			if f_type in ['ip', 'ot', 'ps']:
+				claim.df = apply_range_filter(dct_filter['age_range'], claim.df, 'age_range',
+				                              'age_admsn' if f_type in ['ip', 'ot'] else 'age_decimal',
+				                              'numeric', f_type, logger_name=logger_name)
 	return claim
 
 
