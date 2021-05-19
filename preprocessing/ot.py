@@ -10,9 +10,9 @@ from common_utils import dataframe_utils
 
 class OT(cms_file.CMSFile):
 
-    def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True):
+    def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, df_ip=None):
         super(OT, self).__init__('ot', year, st, data_root, index_col, clean, preprocess)
-        self.dct_default_filters = {'missing_dob': 1, 'missing_admsn_date': 1}
+        self.dct_default_filters = {'missing_dob': 0, 'missing_admsn_date': 0}
         if clean:
             self.clean_diag_codes()
             self.clean_proc_codes()
@@ -21,6 +21,9 @@ class OT(cms_file.CMSFile):
             self.flag_transport()
             self.flag_dental()
             self.flag_em()
+            if df_ip is not None:
+                self.find_ot_ip_overlaps(df_ip)
+                self.add_ot_flags()
 
     def flag_common_exclusions(self) -> None:
         self.df = self.df.assign(excl_missing_dob=self.df['birth_date'].isnull().astypt(int),
@@ -35,7 +38,8 @@ class OT(cms_file.CMSFile):
                                  excl_ffs_claim=(~((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 77) |
                                                    ((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
                                                     dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce').isin([2, 3]))
-                                                   )).astype(int)
+                                                   )).astype(int),
+                                 excl_female=(self.df['female'] == 1).astype(int)
                                  )
 
     def flag_em(self) -> None:
@@ -135,7 +139,7 @@ class OT(cms_file.CMSFile):
         self.df.drop('_' + self.index_col, axis=1)
         return None
 
-    def add_ot_flags(self, year: int) -> None:
+    def add_ot_flags(self) -> None:
         """
         Assign flags for IP, OT and ED calculation
         Based on hierarchical principal: IP first,then ED, and then OT
@@ -148,7 +152,6 @@ class OT(cms_file.CMSFile):
                       service in any visits corresponding this claim
             flag_drop - 0 or 1, 1 when ip_incl, ed_incl and ot_incl are all null
         :param df:
-        :param year:
         :rtype: None
         """
         self.df['ip_incl'] = 0
@@ -160,11 +163,9 @@ class OT(cms_file.CMSFile):
         dental_mask = (self.df['dental'] != 1)
         overlap_mask = (self.df['overlap'] == 1)
         ed_claim_mask = (self.df['any_ed'] == 1)
-        duration_mask = ((self.df['duration'] >= 0) | (self.df['srvc_end_date'].isna() &
-                                                  ((self.df.srvc_bgn_date.dt.year == year) |
-                                                   (self.df.srvc_bgn_date.dt.year == (year - 1))
-                                                   )
-                                                  ))
+        duration_mask = ((self.df['duration'] >= 0) |
+                         (self.df['srvc_end_date'].isna() &
+                          (self.df.srvc_bgn_date.dt.year <= self.df.year)))
 
         ip_mask = transport_mask & dental_mask & overlap_mask
         ed_mask = transport_mask & dental_mask & (~overlap_mask) & duration_mask & ed_claim_mask

@@ -15,7 +15,7 @@ data_folder = os.path.join(os.path.dirname(__file__), 'data')
 class PS(cms_file.CMSFile):
 	def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, rural_method='ruca'):
 		super(PS, self).__init__('ps', year, st, data_root, index_col, clean, preprocess)
-		self.dct_default_filters = {'duplicated_bene_id': 1}
+		self.dct_default_filters = {'duplicated_bene_id': 0}
 		if clean:
 			pass
 		if preprocess:

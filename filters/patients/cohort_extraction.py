@@ -32,30 +32,30 @@ def apply_range_filter(tpl_range, df, filter_name, col_name, data_type, f_type, 
 	return df
 
 
-def filter_claim_files(claim, dct_claim_filters, f_type, st, year, logger_name=__file__):
+def filter_claim_files(claim, dct_claim_filters, logger_name=__file__):
 	logger = logging.getLogger(logger_name)
-	logger.info(f"{st} ({year}) has {claim.df.shape[0].compute()} {f_type} claims")
+	logger.info(f"{claim.st} ({claim.year}) has {claim.df.shape[0].compute()} {claim.ftype} claims")
 	dct_filter = claim.dct_default_filters.copy()
-	if f_type in dct_claim_filters:
-		dct_filter.update(dct_claim_filters[f_type])
+	if claim.ftype in dct_claim_filters:
+		dct_filter.update(dct_claim_filters[claim.ftype])
 	for filter in dct_filter:
 		if filter not in ['observation_period', 'age_range']:
 			if f'excl_{filter}' in claim.df.columns:
-				claim.df = claim.df.loc[claim.df[f'excl_{filter}'] == int(dct_filter[f'excl_{filter}'] != 1)]
-				logger.info(f"Applying {filter} = {dct_filter[filter]} exclusion reduces {f_type} claim count to "
+				claim.df = claim.df.loc[claim.df[f'excl_{filter}'] == int(dct_filter[filter])]
+				logger.info(f"Applying {filter} = {dct_filter[filter]} filter reduces {claim.ftype} claim count to "
 				            f"{claim.df.shape[0].compute()}")
 			else:
 				logger.info(f"Filter {filter} is currently not supported")
 		if 'observation_period' in dct_filter:
-			if f_type in ['ip', 'ot']:
+			if claim.ftype in ['ip', 'ot']:
 				claim.df = apply_range_filter(dct_filter['observation_period'], claim.df, 'observation_period',
-				                              'admsn_date' if f_type == 'ip' else 'srvc_bgn_date',
-				                              'date', f_type, logger_name=logger_name)
+				                              'admsn_date' if claim.ftype == 'ip' else 'srvc_bgn_date',
+				                              'date', claim.ftype, logger_name=logger_name)
 		if 'age_range' in dct_filter:
-			if f_type in ['ip', 'ot', 'ps']:
+			if claim.ftype in ['ip', 'ot', 'ps']:
 				claim.df = apply_range_filter(dct_filter['age_range'], claim.df, 'age_range',
-				                              'age_admsn' if f_type in ['ip', 'ot'] else 'age_decimal',
-				                              'numeric', f_type, logger_name=logger_name)
+				                              'age_admsn' if claim.ftype in ['ip', 'ot'] else 'age_decimal',
+				                              'numeric', claim.ftype, logger_name=logger_name)
 	return claim
 
 
@@ -77,8 +77,7 @@ def extract_cohort(st, year, dct_diag_codes, dct_proc_codes, dct_cohort_filters,
 	os.makedirs(dest_folder, exist_ok=True)
 
 	for f_type in ['ip', 'ot', 'ps']:
-		dct_claims[f_type] = filter_claim_files(dct_claims[f_type], dct_cohort_filters, f_type, st, year,
-		                                        logger_name)
+		dct_claims[f_type] = filter_claim_files(dct_claims[f_type], dct_cohort_filters, logger_name)
 
 	pdf_patients = dx_and_proc.get_patient_ids_with_conditions(dct_diag_codes,
 	                                                           dct_proc_codes,

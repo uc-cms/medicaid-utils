@@ -21,6 +21,7 @@ class CMSFile():
 				errno.ENOENT, os.strerror(errno.ENOENT), self.fileloc)
 		self.df = dd.read_parquet(self.fileloc, index=False,
 		                          engine='fastparquet').set_index(index_col)
+		self.lst_raw_col = list(self.df.columns)
 		if clean:
 			self.process_date_cols()
 			self.add_gender()
