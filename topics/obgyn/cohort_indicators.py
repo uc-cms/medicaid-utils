@@ -20,11 +20,18 @@ def flag_religious_npis(df_claims: dd.DataFrame) -> dd.DataFrame:
     lst_religious_npi = pdf_cath_npi.loc[pdf_cath_npi["CODE"] == "2"].NPI.tolist()
     lst_nonreligious_npi = pdf_cath_npi.loc[pdf_cath_npi["CODE"] == "3"].NPI.tolist()
     df_claims["EIN"] = df_claims["PRVDR_ID_NMBR"].str[:9]
-    df_claims = df_claims.assign(catholic=(df_claims["NPI"].isin(lst_cath_npi) |
-                                           df_claims["EIN"].isin(lst_cath_ein)).astype(int),
-                                 religious=df_claims["NPI"].isin(lst_religious_npi).astype(int),
-                                 secular=(df_claims["NPI"].isin(lst_nonreligious_npi) &
-                                          (~df_claims["EIN"].isin(lst_cath_ein))).astype(int)
-                                 )
+    df_claims = df_claims.map_partitions(lambda pdf: pdf.assign(catholic=(pdf["NPI"].isin(lst_cath_npi) |
+                                                                          pdf["EIN"].isin(lst_cath_ein)).astype(int),
+                                                                religious=pdf["NPI"].isin(lst_religious_npi).astype(
+                                                                    int),
+                                                                secular=(pdf["NPI"].isin(lst_nonreligious_npi) &
+                                                                         (~pdf["EIN"].isin(lst_cath_ein))).astype(int)
+                                                                ))
 
-    return (df_claims)
+    return df_claims
+
+
+def flag_transfers(df_claims: dd.DataFrame) -> dd.DataFrame:
+    return df_claims.map_partitions(
+        lambda pdf: pdf.assign(transfer=pd.to_numeric(pdf['PATIENT_STATUS_CD'],
+                                                      errors='coerce').isin([2, 3, 4, 5, 61, 65, 66, 71]).astype(int)))

@@ -15,20 +15,20 @@ data_folder = os.path.join(os.path.dirname(__file__), 'data')
 def apply_range_filter(tpl_range, df, filter_name, col_name, data_type, f_type, logger_name=__file__):
 	logger = logging.getLogger(logger_name)
 	start = pd.to_datetime(tpl_range[0], format='%Y%m%d', errors='coerce') \
-		if data_type is 'date' else pd.to_numeric(tpl_range[0], errors='coerce')
+		if (data_type == 'date') else pd.to_numeric(tpl_range[0], errors='coerce')
 	end = pd.to_datetime(tpl_range[1], format='%Y%m%d', errors='coerce') \
-		if data_type is 'date' else pd.to_numeric(tpl_range[1], errors='coerce')
-	if (~np.isnan(start)) | (~np.isnan(end)):
-		if ~(np.isnan(start) | np.isnan(end)):
+		if (data_type == 'date') else pd.to_numeric(tpl_range[1], errors='coerce')
+	if pd.notnull(start) | pd.notnull(end):
+		if ~(pd.isnull(start) | pd.isnull(end)):
 			df = df.loc[df[col_name].between(start, end, inclusive=True)]
-		elif np.isnan(start):
+		elif pd.isnull(start):
 			df = df.loc[df[col_name] <= end]
 		else:
 			df = df.loc[df[col_name] >= start]
-		logger.info(f"Restricting the {filter_name} to  {tpl_range} reduces "
+		logger.info(f"Restricting {' '.join(filter_name.split('_')[2:])} range to {tpl_range} reduces "
 		            f"{f_type} claim count to {df.shape[0].compute()}")
 	else:
-		logger.info(f"{filter_name} range {tpl_range} is invalid.")
+		logger.info(f"{' '.join(filter_name.split('_')[2:])} range {tpl_range} is invalid.")
 	return df
 
 
@@ -38,24 +38,24 @@ def filter_claim_files(claim, dct_claim_filters, logger_name=__file__):
 	dct_filter = claim.dct_default_filters.copy()
 	if claim.ftype in dct_claim_filters:
 		dct_filter.update(dct_claim_filters[claim.ftype])
-	for filter in dct_filter:
-		if filter not in ['observation_period', 'age_range']:
-			if f'excl_{filter}' in claim.df.columns:
-				claim.df = claim.df.loc[claim.df[f'excl_{filter}'] == int(dct_filter[filter])]
-				logger.info(f"Applying {filter} = {dct_filter[filter]} filter reduces {claim.ftype} claim count to "
+	for filter_name in dct_filter:
+		if filter_name.startswith('range_'):
+			if "_".join(filter_name.split('_')[2:]) in claim.df.columns:
+				claim.df = apply_range_filter(dct_filter[filter_name], claim.df, filter_name,
+				                              "_".join(filter_name.split('_')[2:]),
+				                              filter_name.split('_')[1], claim.ftype,
+				                              logger_name=logger_name)
+			else:
+				logger.info(f"Filter {filter_name} is currently not supported for {claim.ftype} files")
+
+		else:
+			if f'excl_{filter_name}' in claim.df.columns:
+				claim.df = claim.df.loc[claim.df[f'excl_{filter_name}'] == int(dct_filter[filter_name])]
+				logger.info(f"Applying {filter_name} = {dct_filter[filter_name]} filter reduces {claim.ftype} claim count to "
 				            f"{claim.df.shape[0].compute()}")
 			else:
-				logger.info(f"Filter {filter} is currently not supported")
-		if 'observation_period' in dct_filter:
-			if claim.ftype in ['ip', 'ot']:
-				claim.df = apply_range_filter(dct_filter['observation_period'], claim.df, 'observation_period',
-				                              'admsn_date' if claim.ftype == 'ip' else 'srvc_bgn_date',
-				                              'date', claim.ftype, logger_name=logger_name)
-		if 'age_range' in dct_filter:
-			if claim.ftype in ['ip', 'ot', 'ps']:
-				claim.df = apply_range_filter(dct_filter['age_range'], claim.df, 'age_range',
-				                              'age_admsn' if claim.ftype in ['ip', 'ot'] else 'age_decimal',
-				                              'numeric', claim.ftype, logger_name=logger_name)
+				logger.info(f"Filter {filter_name} is currently not supported for {claim.ftype} files")
+
 	return claim
 
 

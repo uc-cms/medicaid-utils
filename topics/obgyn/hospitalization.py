@@ -47,6 +47,13 @@ def flag_abnormal_pregnancy(df_claims: dd.DataFrame) -> dd.DataFrame:
     return df_claims
 
 
+def flag_prenatal(df_claims: dd.DataFrame) -> dd.DataFrame:
+    dct_diag_codes = {'prenatal': {'incl': ["V22", "V23"]}}
+    df_claims = dx_and_proc.flag_diagnoses_and_procedures(dct_diag_codes, {}, df_claims)
+    df_claims = df_claims.rename(columns={'diag_prenatal': 'hosp_prenatal'})
+    return df_claims
+
+
 def flag_smm_events(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
 
     """
@@ -113,40 +120,82 @@ def flag_smm_events(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
                                                                         .columns.str.startswith('hosp_smm_')]
                                                                         ].sum(axis=1) > 1),
                                                                        0)
-
-    lst_smm_col = [col for col in df_ip_claims.columns if col.startswith('hosp_smm')]
-    df_ip_claims = df_ip_claims.assign(**dict([(col + '_on_index_hosp',
-                                                ((df_ip_claims[col] == 1) &
-                                                 (df_ip_claims['admsn_date'] == df_ip_claims['index_admsn_date'])
-                                                 ).astype(int))
-                                               for col in lst_smm_col]
-                                              ))
-    df_ip_claims = df_ip_claims.map_partitions(lambda pdf: pdf.assign(**dict([(col + '_12weeks_after_index_hosp',
-                                                                               ((pdf[col] == 1) &
-                                                                                pdf['admsn_date'].between(
-                                                                                    pdf['index_admsn_date'],
-                                                                                    pdf["index_admsn_date"] +
-                                                                                    pd.Timedelta(days=83),
-                                                                                    inclusive=True)).astype(int)) for
-                                                                              col in lst_smm_col]
-                                                                             )))
-    df_ip_claims = df_ip_claims.map_partitions(lambda pdf: pdf.assign(**dict([(col + '_6weeks_after_index_hosp',
-                                                                               ((pdf[col] == 1) &
-                                                                                pdf['admsn_date'].between(
-                                                                                    pdf['index_admsn_date'],
-                                                                                    pdf["index_admsn_date"] +
-                                                                                    pd.Timedelta(days=41),
-                                                                                    inclusive=True)).astype(int)) for
-                                                                              col in lst_smm_col]
-                                                                             )))
-    df_ip_claims = df_ip_claims.map_partitions(lambda pdf: pdf.assign(**dict([(col + '_6weeks_prior_index_hosp',
-                                                                               ((pdf[col] == 1) &
-                                                                                pdf['admsn_date'].between(
-                                                                                    pdf["index_admsn_date"] -
-                                                                                    pd.Timedelta(days=41),
-                                                                                    pdf['index_admsn_date'],
-                                                                                    inclusive=True)).astype(int)) for
-                                                                              col in lst_smm_col]
-                                                                             )))
+    if 'index_admsn_date' in df_ip_claims.columns:
+        admsn_col_name = 'admsn_date' if 'admsn_date' in df_ip_claims.columns else 'srvc_bgn_date'
+        lst_smm_col = [col for col in df_ip_claims.columns if col.startswith('hosp_smm')]
+        df_ip_claims = df_ip_claims.assign(**dict([(col + '_on_index_hosp',
+                                                    ((df_ip_claims[col] == 1) &
+                                                     (df_ip_claims[admsn_col_name] == df_ip_claims['index_admsn_date'])
+                                                     ).astype(int))
+                                                   for col in lst_smm_col]
+                                                  ))
+        df_ip_claims = df_ip_claims.map_partitions(lambda pdf: pdf.assign(**dict([(col + '_12weeks_after_index_hosp',
+                                                                                   ((pdf[col] == 1) &
+                                                                                    pdf[admsn_col_name].between(
+                                                                                        pdf['index_admsn_date'],
+                                                                                        pdf["index_admsn_date"] +
+                                                                                        pd.Timedelta(days=83),
+                                                                                        inclusive=True)).astype(int)) for
+                                                                                  col in lst_smm_col]
+                                                                                 )))
+        df_ip_claims = df_ip_claims.map_partitions(lambda pdf: pdf.assign(**dict([(col + '_6weeks_after_index_hosp',
+                                                                                   ((pdf[col] == 1) &
+                                                                                    pdf[admsn_col_name].between(
+                                                                                        pdf['index_admsn_date'],
+                                                                                        pdf["index_admsn_date"] +
+                                                                                        pd.Timedelta(days=41),
+                                                                                        inclusive=True)).astype(int)) for
+                                                                                  col in lst_smm_col]
+                                                                                 )))
+        df_ip_claims = df_ip_claims.map_partitions(lambda pdf: pdf.assign(**dict([(col + '_6weeks_prior_index_hosp',
+                                                                                   ((pdf[col] == 1) &
+                                                                                    pdf[admsn_col_name].between(
+                                                                                        pdf["index_admsn_date"] -
+                                                                                        pd.Timedelta(days=41),
+                                                                                        pdf['index_admsn_date'],
+                                                                                        inclusive=True)).astype(int)) for
+                                                                                  col in lst_smm_col]
+                                                                                 )))
     return df_ip_claims
+
+
+def calculate_conception(df_claims: dd.DataFrame) -> (dd.DataFrame, dd.DataFrame):
+    lst_hosp_pregnancy_col = ["hosp_abnormal_pregnancy", "hosp_birth", "hosp_preterm", "hosp_prenatal"]
+    lst_missing_col = [col for col in lst_hosp_pregnancy_col if col not in df_claims.columns]
+    if len(lst_missing_col) > 0:
+        df_claims = df_claims.assign(**dict([(col, 0) for col in lst_missing_col]))
+
+    lst_conception_col = ['abortive', 'full_term_delivery', 'preterm_delivery', 'prenatal']
+
+    df_claims = df_claims.assign(abortive=(df_claims["hosp_abnormal_pregnancy"] == 1).astype(int),
+                                 full_term_delivery=((df_claims["hosp_abnormal_pregnancy"] == 0) &
+                                                (df_claims["hosp_birth"] == 1) &
+                                                (df_claims["hosp_preterm"] == 0)).astype(int),
+                                 preterm_delivery=((df_claims["hosp_abnormal_pregnancy"] == 0) &
+                                                   (df_claims["hosp_birth"] == 1) &
+                                                   (df_claims["hosp_preterm"] == 1)).astype(int),
+                                 prenatal=((df_claims["hosp_abnormal_pregnancy"] == 0) &
+                                           (df_claims["hosp_birth"] == 0) &
+                                           (df_claims["hosp_prenatal"] == 1)).astype(int)
+                                 )
+    df_conception = df_claims.loc[df_claims[lst_conception_col].sum(axis=1) == 1]
+    df_check = df_claims.loc[df_claims[lst_conception_col].sum(axis=1) > 1].compute()
+
+    df_conception = df_conception.map_partitions(
+        lambda pdf: pdf.assign(
+            conception=pdf['service_date'] - np.select([(pdf['abortive'] == 1),
+                                                            (pdf['full_term_delivery'] == 1),
+                                                            (pdf['preterm_delivery'] == 1),
+                                                            (pdf['prenatal'] == 1)],
+                                                           [pd.Timedelta(days=75),
+                                                            pd.Timedelta(days=270) - pd.Timedelta(days=15),
+                                                            pd.Timedelta(days=245) - pd.Timedelta(days=15),
+                                                            pd.Timedelta(days=45)],
+                                                           default=np.nan
+                                                           )
+            )
+    )
+    df_conception = df_conception.drop(lst_conception_col, axis=1)
+
+    return df_conception, df_check
 

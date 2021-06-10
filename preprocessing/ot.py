@@ -12,35 +12,57 @@ class OT(cms_file.CMSFile):
 
     def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, df_ip=None):
         super(OT, self).__init__('ot', year, st, data_root, index_col, clean, preprocess)
-        self.dct_default_filters = {'missing_dob': 0, 'missing_admsn_date': 0}
+        self.dct_default_filters = {'missing_dob': 0, 'duplicated': 0, 'missing_srvc_bgn_date': 0}
         if clean:
-            self.clean_diag_codes()
-            self.clean_proc_codes()
+            self.clean()
         if preprocess:
-            self.flag_ed_use()
-            self.flag_transport()
-            self.flag_dental()
-            self.flag_em()
-            if df_ip is not None:
-                self.find_ot_ip_overlaps(df_ip)
-                self.add_ot_flags()
+            self.preprocess(df_ip)
+
+    def clean(self):
+        super(OT, self).clean()
+        self.clean_diag_codes()
+        self.clean_proc_codes()
+        self.flag_common_exclusions()
+        self.flag_duplicates()
+
+    def preprocess(self):
+        super(OT, self).preprocess()
+        self.calculate_payment()
+        self.flag_ed_use()
+        self.flag_transport()
+        self.flag_dental()
+        self.flag_em()
+
+    def flag_ip_overlaps_and_ed(self, df_ip):
+        self.find_ot_ip_overlaps(df_ip)
+        self.add_ot_flags()
 
     def flag_common_exclusions(self) -> None:
-        self.df = self.df.assign(excl_missing_dob=self.df['birth_date'].isnull().astypt(int),
-                                 excl_missing_admsn_date=self.df['srvc_bgn_date'].isnull().astype(int),
-                                 excl_encounter_claim=((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 77) |
-                                                       ((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
-                                                        (dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce') == 3))
-                                                       ).astype(int),
-                                 excl_capitation_claim=((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
-                                                        (dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce') == 2)
-                                                        ).astype(int),
-                                 excl_ffs_claim=(~((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 77) |
-                                                   ((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
-                                                    dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce').isin([2, 3]))
-                                                   )).astype(int),
-                                 excl_female=(self.df['female'] == 1).astype(int)
-                                 )
+        self.df = dataframe_utils.fix_index(self.df, self.index_col, drop_column=True)
+        self.df = self.df.map_partitions(
+            lambda pdf: pdf.assign(excl_missing_dob=pdf['birth_date'].isnull().astype(int),
+                                   excl_missing_srvc_bgn_date=pdf['srvc_bgn_date'].isnull().astype(int),
+                                   excl_encounter_claim=((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 77) |
+                                                         ((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 88) &
+                                                          (pd.to_numeric(pdf['TYPE_CLM_CD'], errors='coerce') == 3))
+                                                         ).astype(int),
+                                   excl_capitation_claim=((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 88) &
+                                                          (pd.to_numeric(pdf['TYPE_CLM_CD'], errors='coerce') == 2)
+                                                          ).astype(int),
+                                   excl_ffs_claim=(~((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 77) |
+                                                     ((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 88) &
+                                                      pd.to_numeric(pdf['TYPE_CLM_CD'], errors='coerce').isin([2, 3]))
+                                                     )).astype(int),
+                                   excl_female=(pdf['female'] == 1).astype(int)
+                                   ))
+
+    def flag_duplicates(self):
+        self.df = dataframe_utils.fix_index(self.df, self.index_col, True)
+        self.df = self.df.map_partitions(
+            lambda pdf: pdf.assign(
+                excl_duplicated=pdf.assign(_index_col=pdf.index)[[col for col in pdf.columns
+                                                                  if col != 'excl_duplicated']]
+                    .duplicated(keep='first').astype(int)))
 
     def flag_em(self) -> None:
         """
@@ -71,9 +93,8 @@ class OT(cms_file.CMSFile):
         :param dask.DataFrame df: OT Dataframe
         :rtype: None
         """
-        self.df = self.df.map_partitions(lambda pdf: pdf.assign(dental_TOS = pd.to_numeric(pdf['MAX_TOS'],  # TOS: TYPE OF SERVICE
-                                                                       errors='coerce') == 9).astype(int))
-        self.df = self.df.assign(dental_PROC = (self.df.PRCDR_CD.astype(str).str.slice(stop=1) == 'D').astype(int))
+        self.df = self.df.assign(dental_TOS=(dd.to_numeric(self.df['MAX_TOS'], errors='coerce') == 9).astype(int))
+        self.df = self.df.assign(dental_PROC=(self.df.PRCDR_CD.astype(str).str.slice(stop=1) == 'D').astype(int))
         self.df['dental'] = self.df[['dental_TOS', 'dental_PROC']].any(axis='columns').astype(int)
         return None
 
@@ -90,9 +111,9 @@ class OT(cms_file.CMSFile):
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(transport_TOS=(pd.to_numeric(pdf['MAX_TOS'],  # TOS: TYPE OF SERVICE
                                                                 errors='coerce') == 26).astype(int),
-                                   transport_POS=(pd.to_numeric(pdf['PLC_OF_SRVC_CD'],
+                                   transport_POS=pd.to_numeric(pdf['PLC_OF_SRVC_CD'],
                                                                 # # 41 = AMBULANCE - LAND 42 = AMBULANCE - AIR OR WATER
-                                                                errors='coerce').isin([41, 42])).astype(
+                                                                errors='coerce').isin([41, 42]).astype(
                                        int)))
 
         self.df['transport'] = self.df[['transport_TOS', 'transport_POS']].any(axis='columns').astype(int)
@@ -107,8 +128,7 @@ class OT(cms_file.CMSFile):
         :param DataFrame df_ip: IP DataFrame
         :return: None
         """
-        self.df['_' + self.index_col] = self.df.index
-        df_ot_ip = self.df[['srvc_bgn_date', 'srvc_end_date']] \
+        df_ot_ip = self.df[['srvc_bgn_date', 'srvc_end_date']].repartition(partition_size="10MB") \
             .merge(df_ip[['admsn_date', 'srvc_end_date']]
                    .rename(columns={'srvc_end_date': 'ip_srvc_end_date'}),
                    left_index=True,
@@ -116,27 +136,31 @@ class OT(cms_file.CMSFile):
                    how='left')
         df_ot_ip = dataframe_utils.fix_index(df_ot_ip, self.index_col)
 
-        df_ot_ip['overlap'] = (((df_ot_ip['admsn_date'] <= df_ot_ip['srvc_bgn_date']) &
-                                 (df_ot_ip['srvc_bgn_date'] <= df_ot_ip['ip_srvc_end_date'])) |
-                                ((df_ot_ip['admsn_date'] <= df_ot_ip['srvc_end_date']) &
-                                 (df_ot_ip['srvc_end_date'] <= df_ot_ip['ip_srvc_end_date']))).astype(int)
-        df_ot_ip = df_ot_ip.map_partitions(lambda pdf: pdf.groupby(['MSIS_ID',
+        df_ot_ip = df_ot_ip.map_partitions(
+            lambda pdf: pdf.assign(overlap=(pdf['srvc_bgn_date'].between(pdf['admsn_date'],
+                                                                         pdf['ip_srvc_end_date'],
+                                                                         inclusive=True) |
+                                            pdf['srvc_end_date'].between(pdf['admsn_date'],
+                                                                         pdf['ip_srvc_end_date'],
+                                                                         inclusive=True)).astype(int)
+                                   )
+        )
+
+        df_ot_ip = df_ot_ip.map_partitions(lambda pdf: pdf.groupby([self.index_col,
                                                                     'srvc_bgn_date',
                                                                     'srvc_end_date'])['overlap'].max() \
                                                             .reset_index(drop=False) \
-                                                            .set_index('MSIS_ID')
+                                                            .set_index(self.index_col)
                                            )
         df_ot_ip = dataframe_utils.fix_index(df_ot_ip, self.index_col)
 
         df_ot_ip = df_ot_ip.compute()
 
         self.df = self.df[self.df.columns.difference(['overlap'])].merge(df_ot_ip,
-                            on=['MSIS_ID', 'srvc_bgn_date', 'srvc_end_date'],
+                            on=[self.index_col, 'srvc_bgn_date', 'srvc_end_date'],
                             how='inner'
                             )
-        self.df[self.index_col] = self.df['_' + self.index_col]
         self.df = dataframe_utils.fix_index(self.df, self.index_col)
-        self.df.drop('_' + self.index_col, axis=1)
         return None
 
     def add_ot_flags(self) -> None:

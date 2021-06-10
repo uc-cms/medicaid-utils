@@ -17,14 +17,24 @@ class PS(cms_file.CMSFile):
 		super(PS, self).__init__('ps', year, st, data_root, index_col, clean, preprocess)
 		self.dct_default_filters = {'duplicated_bene_id': 0}
 		if clean:
-			pass
+			self.clean()
 		if preprocess:
-			self.flag_rural(rural_method)
-			self.add_eligibility_status_columns()
+			self.preprocess(rural_method)
+
+	def clean(self):
+		super(PS, self).clean()
+		self.flag_common_exclusions()
+
+	def preprocess(self, rural_method='ruca'):
+		super(PS, self).preprocess()
+		self.flag_rural(rural_method)
+		self.add_eligibility_status_columns()
 
 	def flag_common_exclusions(self) -> None:
+		self.df = self.df.assign(**dict([(f"_{self.index_col}", self.df.index)]))
 		self.df = self.df.map_partitions(
-			lambda pdf: pdf.assign(excl_duplicated_bene_id=pdf.duplicated(['BENE_ID'], keep=False).astype(int)))
+			lambda pdf: pdf.assign(excl_duplicated_bene_id=pdf.duplicated([f"_{self.index_col}"], keep=False).astype(int)))
+		self.df = self.df.drop([f"_{self.index_col}"], axis=1)
 
 	def flag_rural(self, method='ruca') -> None:
 		"""
@@ -48,7 +58,7 @@ class PS(cms_file.CMSFile):
 		if os.path.isfile(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv')):
 			df_pcsa_st_zip = pd.read_csv(os.path.join(data_folder, 'pcsa_st_zip.csv'))
 			df_ruca = pd.read_excel(os.path.join(data_folder, 'RUCA2010zipcode.xlsx'), sheet_name='Data',
-			                        dtype='object')
+			                        dtype='object', engine='openpyxl')
 			df_ruca['ZIP_CODE'] = df_ruca['ZIP_CODE'].astype(str).str.replace(' ', '').str.zfill(5)
 			df_ruca = df_ruca.rename(columns={'ZIP_CODE': 'zip',
 			                                  'ZIP_TYPE': 'zip_type',

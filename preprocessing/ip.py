@@ -13,34 +13,56 @@ from common_utils import dataframe_utils, links
 class IP(cms_file.CMSFile):
 	def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True):
 		super(IP, self).__init__('ip', year, st, data_root, index_col, clean, preprocess)
-		self.dct_default_filters = {'missing_dob': 0, 'missing_admsn_date': 0}
+		self.dct_default_filters = {'missing_dob': 0, 'duplicated': 0}
 		if clean:
-			self.clean_diag_codes()
-			self.clean_proc_codes()
-			self.flag_common_exclusions()
+			self.clean()
+
 		if preprocess:
-			self.flag_ed_use()
-			self.flag_ip_duplicates()
+			self.preprocess()
+
+	def clean(self):
+		super(IP, self).clean()
+		self.clean_diag_codes()
+		self.clean_proc_codes()
+		self.flag_common_exclusions()
+		self.flag_duplicates()
+
+	def preprocess(self):
+		super(IP, self).preprocess()
+		self.calculate_payment()
+		self.flag_ed_use()
+		self.flag_ip_overlaps()
 
 	def flag_common_exclusions(self) -> None:
-		self.df = self.df.assign(excl_missing_dob=self.df['birth_date'].isnull().astypt(int),
-		                         excl_missing_admsn_date=self.df['admsn_date'].isnull().astype(int),
-		                         excl_encounter_claim=((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 77) |
-		                                               ((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
-		                                                (dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce') == 3))
-		                                               ).astype(int),
-		                         excl_capitation_claim=((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
-		                                                (dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce') == 2)
-		                                                ).astype(int),
-		                         excl_ffs_claim=(~((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 77) |
-		                                           ((dd.to_numeric(self.df['PHP_TYPE'], errors='coerce') == 88) &
-		                                            dd.to_numeric(self.df['TYPE_CLM_CD'], errors='coerce').isin([2, 3]))
-		                                           )).astype(int),
-		                         excl_delivery=(dd.to_numeric(self.df['RCPNT_DLVRY_CD'], errors='coerce') == 1).astype(int),
-		                         excl_female=(self.df['female'] == 1).astype(int)
-		                         )
+		self.df = self.df.map_partitions(
+			lambda pdf: pdf.assign(excl_missing_dob=pdf['birth_date'].isnull().astype(int),
+			                       excl_missing_admsn_date=pdf['admsn_date'].isnull().astype(int),
+			                       excl_missing_prncpl_proc_date=pdf['prncpl_proc_date'].isnull().astype(int),
+			                       excl_encounter_claim=((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 77) |
+			                                             ((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 88) &
+			                                              (pd.to_numeric(pdf['TYPE_CLM_CD'], errors='coerce') == 3))
+			                                             ).astype(int),
+			                       excl_capitation_claim=((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 88) &
+			                                              (pd.to_numeric(pdf['TYPE_CLM_CD'], errors='coerce') == 2)
+			                                              ).astype(int),
+			                       excl_ffs_claim=(~((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 77) |
+			                                         ((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 88) &
+			                                          pd.to_numeric(pdf['TYPE_CLM_CD'], errors='coerce').isin([2, 3]))
+			                                         )).astype(int),
+			                       excl_delivery=(pd.to_numeric(pdf['RCPNT_DLVRY_CD'], errors='coerce') == 1).astype(
+				                       int),
+			                       excl_female=(pdf['female'] == 1).astype(int)
+			                       ))
 
-	def flag_ip_duplicates(self) -> None:
+	def flag_duplicates(self):
+		self.df = dataframe_utils.fix_index(self.df, self.index_col, True)
+		self.df = self.df.map_partitions(
+			lambda pdf: pdf.assign(
+				excl_duplicated=pdf.assign(_index_col=pdf.index)[[col for col in pdf.columns
+				                                                  if col != 'excl_duplicated']]
+					.duplicated(keep='first').astype(int)))
+
+	def flag_ip_overlaps(self) -> None:
 		"""
 		Identifies duplicate/ overlapping claims.
 		When several/ overlapping claims exist with the same MSIS_ID, claim with the largest payment amount is retained.
@@ -54,6 +76,7 @@ class IP(cms_file.CMSFile):
 		"""
 
 		df_flagged = self.df.copy()
+		df_flagged[self.index_col] = df_flagged.index
 		df_flagged['flag_ip_dup_drop'] = np.nan
 		df_flagged['flag_ip_undup'] = np.nan
 		df_flagged['admsntime'] = np.nan
@@ -69,7 +92,8 @@ class IP(cms_file.CMSFile):
 			# check duplicate claims (same ID, admission date), flag the largest payment amount
 			pdf_partition = pdf_partition.sort_values(by=[self.index_col, 'admsn_date', 'pymt_amt', 'los'],
 			                                          ascending=[True, True, False, False])
-			pdf_partition['flag_ip_dup_drop'] = (pdf_partition.groupby([self.index_col, 'admsn_date'])['pymt_amt']
+			pdf_partition['flag_ip_dup_drop'] = (pdf_partition.groupby([self.index_col, 'admsn_date',
+			                                                            'los'])['pymt_amt']
 			                                     .rank(method='first', ascending=False) != 1).astype(int)
 			pdf_partition['flag_ip_undup'] = (pdf_partition.groupby([self.index_col,
 			                                                         'admsn_date'])[self.index_col].transform(
@@ -116,9 +140,10 @@ class IP(cms_file.CMSFile):
 		df_flagged['ip_incl'] = ((df_flagged['los'].astype(float) > 0) & (df_flagged['flag_ip_dup_drop'] != 1) & (
 				df_flagged['flag_overlap_drop'] != 1)).astype(int)
 
-		df_flagged = dataframe_utils.fix_index(df_flagged, self.index_col)
-		self.df = df_flagged.copy()
+		df_flagged = dataframe_utils.fix_index(df_flagged, self.index_col, True)
+		self.df = df_flagged
 		return None
+
 
 
 

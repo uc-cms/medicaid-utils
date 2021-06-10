@@ -51,8 +51,8 @@ def get_patient_ids_with_conditions(dct_diag_codes: dict, dct_procedure_codes: d
 def flag_diagnoses_and_procedures(dct_diag_codes: dict, dct_proc_codes: dict, df_claims: dd.DataFrame) -> dd.DataFrame:
 	"""
 	Create flags for claims containing provided diagnosis or procedure codes
-	:param dct_diag_codes:
-	:param dct_proc_codes:
+	:param diag_include:
+	:param proc_include:
 	:param df_claims:
 	:param logger_name:
 	:return:
@@ -116,8 +116,10 @@ def flag_diagnoses_and_procedures(dct_diag_codes: dict, dct_proc_codes: dict, df
 				                                ) for i in range(1, n_prcdr_cd_col + 1)] +
 				                              [(f"VALID_PRCDR_{sys_code}_CD_{i}",
 				                                pdf[f'PRCDR_CD_{i}']
-				                                .where((pd.to_numeric(pdf[f'PRCDR_CD_SYS_{i}'],
-				                                                      errors='coerce') == sys_code), "")
+				                                .where(pd.isnull(pd.to_numeric(pdf[f'PRCDR_CD_SYS_{i}'],
+				                                                               errors='coerce')) |
+				                                       pd.to_numeric(pdf[f'PRCDR_CD_SYS_{i}'],
+				                                                     errors='coerce').isin([sys_code, 99, 88]), "")
 				                                ) for sys_code, i in product(lst_sys_code,
 				                                                             range(1, n_prcdr_cd_col + 1))]
 				                              )))
@@ -144,4 +146,3 @@ def flag_diagnoses_and_procedures(dct_diag_codes: dict, dct_proc_codes: dict, df
 			                             for proc in dct_proc_codes.keys()] for item in subitem] +
 			                           [col for col in df_claims.columns if col.startswith('VALID_PRCDR_')], axis=1)
 	return df_claims
-
