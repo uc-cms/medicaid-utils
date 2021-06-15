@@ -169,8 +169,8 @@ def calculate_conception(df_claims: dd.DataFrame) -> (dd.DataFrame, dd.DataFrame
 
     df_claims = df_claims.assign(abortive=(df_claims["hosp_abnormal_pregnancy"] == 1).astype(int),
                                  full_term_delivery=((df_claims["hosp_abnormal_pregnancy"] == 0) &
-                                                (df_claims["hosp_birth"] == 1) &
-                                                (df_claims["hosp_preterm"] == 0)).astype(int),
+                                                     (df_claims["hosp_birth"] == 1) &
+                                                     (df_claims["hosp_preterm"] == 0)).astype(int),
                                  preterm_delivery=((df_claims["hosp_abnormal_pregnancy"] == 0) &
                                                    (df_claims["hosp_birth"] == 1) &
                                                    (df_claims["hosp_preterm"] == 1)).astype(int),
@@ -184,16 +184,16 @@ def calculate_conception(df_claims: dd.DataFrame) -> (dd.DataFrame, dd.DataFrame
     df_conception = df_conception.map_partitions(
         lambda pdf: pdf.assign(
             conception=pdf['service_date'] - np.select([(pdf['abortive'] == 1),
-                                                            (pdf['full_term_delivery'] == 1),
-                                                            (pdf['preterm_delivery'] == 1),
-                                                            (pdf['prenatal'] == 1)],
-                                                           [pd.Timedelta(days=75),
-                                                            pd.Timedelta(days=270) - pd.Timedelta(days=15),
-                                                            pd.Timedelta(days=245) - pd.Timedelta(days=15),
-                                                            pd.Timedelta(days=45)],
-                                                           default=np.nan
-                                                           )
-            )
+                                                        (pdf['full_term_delivery'] == 1),
+                                                        (pdf['preterm_delivery'] == 1),
+                                                        (pdf['prenatal'] == 1)],
+                                                       [pd.Timedelta(days=75),
+                                                        pd.Timedelta(days=270) - pd.Timedelta(days=15),
+                                                        pd.Timedelta(days=245) - pd.Timedelta(days=15),
+                                                        pd.Timedelta(days=45)],
+                                                       default=np.nan
+                                                       )
+        )
     )
     df_conception = df_conception.drop(lst_conception_col, axis=1)
 

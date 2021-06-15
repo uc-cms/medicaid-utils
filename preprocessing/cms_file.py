@@ -122,45 +122,43 @@ class CMSFile():
 			                                       format='%Y%m%d') - df.birth_date).dt.days,
 			               age_decimal=(dd.to_datetime((df.year * 10000 + 12 * 100 + 31).apply(str),
 			                                           format='%Y%m%d') - df.birth_date) / np.timedelta64(1, 'Y'))
-			df['adult'] = df['age'].between(18, 115, inclusive=True).astype(int)
-			df['child'] = df['age'].between(0, 17, inclusive=True).astype(int)
-			df['adult'] = df['adult'].where(~(df['age'].isna()), np.nan)
-			df = df.map_partitions(lambda pdf: pdf.assign(adult=pdf.groupby(pdf.index)['adult'].transform(max),
-			                                              age=pdf.groupby(pdf.index)['age'].transform(max),
-			                                              age_day=pdf.groupby(pdf.index)['age_day'].transform(max),
-			                                              age_decimal=pdf.groupby(pdf.index)['age_decimal'].transform(max)))
+			df = df.assign(adult=df['age'].between(18, 115, inclusive=True).astype(pd.Int64Dtype()),
+			               child=df['age'].between(0, 17, inclusive=True).astype(pd.Int64Dtype()))
+			df = df.assign(adult=df['adult'].where(~(df['age'].isna()), np.nan),
+			               child=df['child'].where(~(df['age'].isna()), np.nan))
+			if self.ftype != 'ps':
+				df = df.map_partitions(lambda pdf: pdf.assign(adult=pdf.groupby(pdf.index)['adult'].transform(max),
+				                                              age=pdf.groupby(pdf.index)['age'].transform(max),
+				                                              age_day=pdf.groupby(pdf.index)['age_day'].transform(max),
+				                                              age_decimal=pdf.groupby(pdf.index)['age_decimal'].transform(max)))
 			if 'date_of_death' in df.columns:
-				df['death'] = ((df.date_of_death.dt.year.fillna(df.year + 10).astype(int) <= df.year) |
-				               (df.medicare_date_of_death.dt.year.fillna(df.year + 10).astype(int) <= df.year)).astype(int)
-
+				df = df.assign(death=((df.date_of_death.dt.year.fillna(df.year + 10).astype(int) <= df.year) |
+				                      (df.medicare_date_of_death.dt.year.fillna(df.year + 10).astype(int) <= df.year)
+				                      ).astype(int))
 			if self.ftype == 'ip':
-				df['admsn'] = (~df['admsn_date'].isnull()).astype(int)  # can be corrected to get more admissions
-				df['flag_admsn_miss'] = 0
-				df['flag_admsn_miss'] = df['flag_admsn_miss'].where(~df['admsn_date'].isnull(), 1)
-				df['admsn_date'] = df['admsn_date'].where(~df['admsn_date'].isnull(), df['srvc_bgn_date'])
+				df = df.assign(missing_admsn_date=df['admsn_date'].isnull().astype(int),
+				               missing_prncpl_proc_date=df['prncpl_proc_date'].isnull().astype(int))
 
-				df['los'] = np.nan
-				mask_los = ((df['year'] >= df['admsn_date'].dt.year) &
-				            # 	            (df_ip['srvc_end_date'].dt.year == df_ip['year']) &
-				            (df['admsn_date'] <= df['srvc_end_date']))
-				df['los'] = df['los'].where(~mask_los, (df['srvc_end_date'] - df['admsn_date']).dt.days + 1)
-				df['prncpl_proc_date'] = df['prncpl_proc_date'].where(~df['prncpl_proc_date'].isnull(),
-				                                                      df['admsn_date'])
+				df = df.assign(admsn_date=df['admsn_date'].where(~df['admsn_date'].isnull(), df['srvc_bgn_date']),
+				               los=(df['srvc_end_date'] - df['admsn_date']).dt.days + 1)
+				df = df.assign(los=df['los'].where(((df['year'] >= df['admsn_date'].dt.year) &
+				                                    (df['admsn_date'] <= df['srvc_end_date'])),
+				                                   np.nan))
+				df = df.assign(prncpl_proc_date=df['prncpl_proc_date'].where(~df['prncpl_proc_date'].isnull(),
+				                                                             df['admsn_date']))
 
-				df['age_day_admsn'] = (df['admsn_date'] - df['birth_date']).dt.days
-				df['age_day_prnpl_proc'] = (df['prncpl_proc_date'] - df['birth_date']).dt.days
-
-				df['age_admsn'] = (df['age_day_admsn'].fillna(0) / 365.25).astype(int)
-				df['age_prncpl_proc'] = (df['age_day_prnpl_proc'].fillna(0) / 365.25).astype(int)
+				df = df.assign(age_day_admsn=(df['admsn_date'] - df['birth_date']).dt.days,
+				               age_day_prnpl_proc=(df['prncpl_proc_date'] - df['birth_date']).dt.days)
+				df = df.assign(age_admsn=(df['age_day_admsn'].fillna(0) / 365.25).astype(int),
+				               age_prncpl_proc=(df['age_day_prnpl_proc'].fillna(0) / 365.25).astype(int))
 
 			if self.ftype == 'ot':
-				df['diff'] = (df['srvc_end_date'] - df['srvc_bgn_date']).dt.days
-				df['duration'] = np.nan
-				duration_mask = (df['srvc_bgn_date'] <= df['srvc_end_date'])
-				df['duration'] = df['duration'].where(~duration_mask,
-				                                      (df['srvc_end_date'] - df['srvc_bgn_date']).dt.days)
-				df['age_day_admsn'] = (df['srvc_bgn_date'] - df['birth_date']).dt.days
-				df['age_admsn'] = (df['age_day_admsn'].fillna(0) / 365.25).astype(int)
+				df = df.assign(duration=(df['srvc_end_date'] - df['srvc_bgn_date']).dt.days,
+				               age_day_admsn=(df['srvc_bgn_date'] - df['birth_date']).dt.days
+				               )
+				df = df.assign(duration=df['duration'].where((df['srvc_bgn_date'] <= df['srvc_end_date']),
+				                                             np.nan),
+				               age_admsn=(df['age_day_admsn'].fillna(0) / 365.25).astype(int))
 			self.df = df
 		return None
 
