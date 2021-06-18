@@ -54,7 +54,7 @@ def flag_prenatal(df_claims: dd.DataFrame) -> dd.DataFrame:
     return df_claims
 
 
-def flag_smm_events(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_smm_events(df_ip_claims: dd.DataFrame, index_admsn_date_col='index_admsn_date') -> dd.DataFrame:
 
     """
     Adds flags for SMM related hospitaliztions
@@ -120,20 +120,20 @@ def flag_smm_events(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
                                                                         .columns.str.startswith('hosp_smm_')]
                                                                         ].sum(axis=1) > 1),
                                                                        0)
-    if 'index_admsn_date' in df_ip_claims.columns:
+    if index_admsn_date_col in df_ip_claims.columns:
         admsn_col_name = 'admsn_date' if 'admsn_date' in df_ip_claims.columns else 'srvc_bgn_date'
         lst_smm_col = [col for col in df_ip_claims.columns if col.startswith('hosp_smm')]
         df_ip_claims = df_ip_claims.assign(**dict([(col + '_on_index_hosp',
                                                     ((df_ip_claims[col] == 1) &
-                                                     (df_ip_claims[admsn_col_name] == df_ip_claims['index_admsn_date'])
+                                                     (df_ip_claims[admsn_col_name] == df_ip_claims[index_admsn_date_col])
                                                      ).astype(int))
                                                    for col in lst_smm_col]
                                                   ))
         df_ip_claims = df_ip_claims.map_partitions(lambda pdf: pdf.assign(**dict([(col + '_12weeks_after_index_hosp',
                                                                                    ((pdf[col] == 1) &
                                                                                     pdf[admsn_col_name].between(
-                                                                                        pdf['index_admsn_date'],
-                                                                                        pdf["index_admsn_date"] +
+                                                                                        pdf[index_admsn_date_col],
+                                                                                        pdf[index_admsn_date_col] +
                                                                                         pd.Timedelta(days=83),
                                                                                         inclusive=True)).astype(int)) for
                                                                                   col in lst_smm_col]
@@ -141,8 +141,8 @@ def flag_smm_events(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
         df_ip_claims = df_ip_claims.map_partitions(lambda pdf: pdf.assign(**dict([(col + '_6weeks_after_index_hosp',
                                                                                    ((pdf[col] == 1) &
                                                                                     pdf[admsn_col_name].between(
-                                                                                        pdf['index_admsn_date'],
-                                                                                        pdf["index_admsn_date"] +
+                                                                                        pdf[index_admsn_date_col],
+                                                                                        pdf[index_admsn_date_col] +
                                                                                         pd.Timedelta(days=41),
                                                                                         inclusive=True)).astype(int)) for
                                                                                   col in lst_smm_col]
@@ -150,9 +150,9 @@ def flag_smm_events(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
         df_ip_claims = df_ip_claims.map_partitions(lambda pdf: pdf.assign(**dict([(col + '_6weeks_prior_index_hosp',
                                                                                    ((pdf[col] == 1) &
                                                                                     pdf[admsn_col_name].between(
-                                                                                        pdf["index_admsn_date"] -
+                                                                                        pdf[index_admsn_date_col] -
                                                                                         pd.Timedelta(days=41),
-                                                                                        pdf['index_admsn_date'],
+                                                                                        pdf[index_admsn_date_col],
                                                                                         inclusive=True)).astype(int)) for
                                                                                   col in lst_smm_col]
                                                                                  )))
