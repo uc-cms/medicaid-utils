@@ -10,20 +10,23 @@ from common_utils import dataframe_utils
 
 class OT(cms_file.CMSFile):
 
-    def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, df_ip=None):
-        super(OT, self).__init__('ot', year, st, data_root, index_col, clean, preprocess)
+    def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, df_ip=None,
+                 tmp_folder=None):
+        super(OT, self).__init__('ot', year, st, data_root, index_col, False, False, tmp_folder)
         self.dct_default_filters = {'missing_dob': 0, 'duplicated': 0, 'missing_srvc_bgn_date': 0}
         if clean:
             self.clean()
         if preprocess:
-            self.preprocess(df_ip)
+            self.preprocess()
 
     def clean(self):
         super(OT, self).clean()
+        self.df = self.cache_results()
         self.clean_diag_codes()
         self.clean_proc_codes()
         self.flag_common_exclusions()
         self.flag_duplicates()
+        self.df = self.cache_results()
 
     def preprocess(self):
         super(OT, self).preprocess()
@@ -32,10 +35,12 @@ class OT(cms_file.CMSFile):
         self.flag_transport()
         self.flag_dental()
         self.flag_em()
+        self.df = self.cache_results()
 
     def flag_ip_overlaps_and_ed(self, df_ip):
         self.find_ot_ip_overlaps(df_ip)
         self.add_ot_flags()
+        self.df = self.cache_results()
 
     def flag_common_exclusions(self) -> None:
         self.df = dataframe_utils.fix_index(self.df, self.index_col, drop_column=True)
@@ -202,3 +207,4 @@ class OT(cms_file.CMSFile):
         self.df['ot_incl'] = self.df['ot_incl'].where(~ot_mask, 1)
         self.df['flag_drop'] = (self.df[['ip_incl', 'ed_incl', 'ot_incl']].sum(axis=1) < 1).astype(int)
         return None
+

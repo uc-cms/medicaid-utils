@@ -4,23 +4,25 @@ import errno
 import sys
 import numpy as np
 import pandas as pd
+import shutil
 
 sys.path.append('../../')
 from common_utils import links, dataframe_utils
 
 
 class CMSFile():
-	def __init__(self, ftype, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True):
+	def __init__(self, ftype, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, tmp_folder=None):
 		self.fileloc = links.get_parquet_loc(data_root, ftype, st, year)
 		self.ftype = ftype
 		self.index_col = index_col
 		self.year = year
 		self.st = st
+		self.tmp_folder = tmp_folder
 		if not os.path.exists(self.fileloc):
 			raise FileNotFoundError(
 				errno.ENOENT, os.strerror(errno.ENOENT), self.fileloc)
 		self.df = dd.read_parquet(self.fileloc, index=False,
-		                          engine='fastparquet').set_index(index_col)
+		                          engine='fastparquet').set_index(index_col, sorted=True)
 		self.df = self.df.assign(HAS_BENE=(self.df['BENE_ID'].fillna("").str.len() > 0).astype(int))
 		self.lst_raw_col = list(self.df.columns)
 		self.dct_default_filters = {}
@@ -28,6 +30,22 @@ class CMSFile():
 			self.clean()
 		if preprocess:
 			self.preprocess()
+
+	def cache_results(self):
+		if self.tmp_folder is not None:
+			return self.pq_export(self.tmp_folder)
+		return self.df
+
+	def pq_export(self, dest_name):
+		if os.path.exists(dest_name + '_tmp'):
+			shutil.rmtree(dest_name + '_tmp')
+		self.df.to_parquet(dest_name + '_tmp', engine='fastparquet', write_index=True)
+		del self.df
+		if os.path.exists(dest_name):
+			shutil.rmtree(dest_name)
+		os.rename(dest_name + '_tmp', dest_name)
+		return dd.read_parquet(dest_name, index=False,
+		                          engine='fastparquet').set_index(self.index_col, sorted=True)
 
 	def clean(self):
 		self.process_date_cols()
@@ -118,9 +136,9 @@ class CMSFile():
 			               birth_day=df.birth_date.dt.day)
 			df = df.assign(age=df.year - df.birth_year)
 			df = df.assign(age=df['age'].where(df['age'].between(0, 115, inclusive=True), np.nan))
-			df = df.assign(age_day=(dd.to_datetime((df.year * 10000 + 12 * 100 + 31).apply(str),
+			df = df.assign(age_day=(dd.to_datetime(df.year.astype(str) + '1231',
 			                                       format='%Y%m%d') - df.birth_date).dt.days,
-			               age_decimal=(dd.to_datetime((df.year * 10000 + 12 * 100 + 31).apply(str),
+			               age_decimal=(dd.to_datetime(df.year.astype(str) + '1231',
 			                                           format='%Y%m%d') - df.birth_date) / np.timedelta64(1, 'Y'))
 			df = df.assign(adult=df['age'].between(18, 115, inclusive=True).astype(pd.Int64Dtype()),
 			               child=df['age'].between(0, 17, inclusive=True).astype(pd.Int64Dtype()))
@@ -148,17 +166,17 @@ class CMSFile():
 				                                                             df['admsn_date']))
 
 				df = df.assign(age_day_admsn=(df['admsn_date'] - df['birth_date']).dt.days,
-				               age_day_prnpl_proc=(df['prncpl_proc_date'] - df['birth_date']).dt.days)
+				               age_day_prncpl_proc=(df['prncpl_proc_date'] - df['birth_date']).dt.days)
 				df = df.assign(age_admsn=(df['age_day_admsn'].fillna(0) / 365.25).astype(int),
-				               age_prncpl_proc=(df['age_day_prnpl_proc'].fillna(0) / 365.25).astype(int))
+				               age_prncpl_proc=(df['age_day_prncpl_proc'].fillna(0) / 365.25).astype(int))
 
 			if self.ftype == 'ot':
 				df = df.assign(duration=(df['srvc_end_date'] - df['srvc_bgn_date']).dt.days,
-				               age_day_admsn=(df['srvc_bgn_date'] - df['birth_date']).dt.days
+				               age_day_srvc_bgn=(df['srvc_bgn_date'] - df['birth_date']).dt.days
 				               )
 				df = df.assign(duration=df['duration'].where((df['srvc_bgn_date'] <= df['srvc_end_date']),
 				                                             np.nan),
-				               age_admsn=(df['age_day_admsn'].fillna(0) / 365.25).astype(int))
+				               age_srvc_bgn=(df['age_day_srvc_bgn'].fillna(0) / 365.25).astype(int))
 			self.df = df
 		return None
 

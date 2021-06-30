@@ -5,6 +5,7 @@ import numpy as np
 import dask.dataframe as dd
 import sys
 import os
+import shutil
 import csv
 from typing import List
 import logging
@@ -253,3 +254,6 @@ def get_first_day_gap(df, index_col, time_col, start_date_col, threshold):
 	df = df.assign(gap_start_date=df.groupby(index_col)['prev_care_date'].transform('min'))
 	df = df[[index_col, 'gap_start_date']].drop_duplicates().reset_index(drop=True)
 	return df
+
+
+

@@ -36,15 +36,25 @@ def get_patient_ids_with_conditions(dct_diag_codes: dict, dct_procedure_codes: d
 			if bool(dct_procedure_codes):
 				df = df.assign(proc_condn=df[[f'proc_{proc}' for proc in dct_procedure_codes]].any(axis=1).astype(int))
 				lst_col.extend([f'proc_{proc}' for proc in dct_procedure_codes])
-			df = df.loc[df[lst_col].any(axis=1)][lst_col]
+			df = df.loc[df[lst_col].any(axis=1)][lst_col + ['service_date']]
 			logger.info(f"Restricting {claim_type} to condition diagnoses/ procedures reduces the claim count "
 			            f"to {df.shape[0].compute()}")
+			df = df.assign(**dict([(f'{col}_date', df['service_date'].where(df[col] == 1,
+			                                                                np.nan)) for col in lst_col]))
+			df = df.drop(['service_date'], axis=1)
+			df = df.map_partitions(
+				lambda pdf: pdf.assign(**dict([(f'{col}_date',
+				                                pdf.groupby(pdf.index)[f'{col}_date'].transform('min'))
+				                               for col in lst_col])))
 			df = df.groupby(index_col).max().compute().reset_index(drop=False)
 			df = df.rename(columns=dict([(col, f'{claim_type}_{col}') for col in df.columns if col != index_col]))
 			pdf_patient_ids = pd.concat([pdf_patient_ids, df.copy()], ignore_index=True)
 			logger.info(f"Finished processing {claim_type} claims")
 	if pdf_patient_ids.shape[0] > 0:
-		pdf_patient_ids = pdf_patient_ids.fillna(0).groupby(index_col).max().astype(int)
+		pdf_patient_ids = pdf_patient_ids.groupby(index_col).max()
+		pdf_patient_ids = pdf_patient_ids.assign(**dict([(col, pdf_patient_ids[col].fillna(0).astype(int))
+		                                                 for col in pdf_patient_ids.columns if not col.endswith('_date')
+		                                                 ]))
 	return pdf_patient_ids
 
 

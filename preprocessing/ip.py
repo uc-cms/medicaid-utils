@@ -11,8 +11,8 @@ from common_utils import dataframe_utils, links
 
 
 class IP(cms_file.CMSFile):
-	def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True):
-		super(IP, self).__init__('ip', year, st, data_root, index_col, clean, preprocess)
+	def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, tmp_folder=None):
+		super(IP, self).__init__('ip', year, st, data_root, index_col, False, False, tmp_folder)
 		self.dct_default_filters = {'missing_dob': 0, 'duplicated': 0}
 		if clean:
 			self.clean()
