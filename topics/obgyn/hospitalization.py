@@ -19,6 +19,28 @@ def flag_preterm(df_claims: dd.DataFrame) -> dd.DataFrame:
     return df_claims
 
 
+def flag_delivery_mode(df_claims: dd.DataFrame) -> dd.DataFrame:
+    """
+        Identifies mode of birth
+        New Column(s):
+            hosp_vag_dlvry - vaginal delivery, int, 0 or 1
+            hosp_csrn_dlvry - caesarian delivery, int, 0 or 1
+        :param df_claims:
+        :rtype: dd.DataFrame
+        """
+    dct_proc_codes = {'vag_dlvry': {1: [str(cd) for cd in range(59400, 59411)],
+                                    6: [str(cd) for cd in range(59400, 59411)]},
+                      'csrn_dlvry': {1: [str(cd) for cd in range(59510, 59516)] +
+                                        [str(cd) for cd in range(59618, 59623)],
+                                     6: [str(cd) for cd in range(59510, 59516)] +
+                                        [str(cd) for cd in range(59618, 59623)]
+                                     }}
+    df_claims = dx_and_proc.flag_diagnoses_and_procedures({}, dct_proc_codes, df_claims)
+    df_claims = df_claims.rename(columns={'proc_vag_dlvry': 'hosp_vag_dlvry',
+                                          'proc_csrn_dlvry': 'hosp_csrn_dlvry',})
+    return df_claims
+
+
 def flag_delivery(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
     """
     Detects normal and stillbirths related hospitalization in claims

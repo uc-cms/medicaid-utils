@@ -83,48 +83,41 @@ def extract_cohort(st, year, dct_diag_codes, dct_proc_codes, dct_cohort_filters,
 		logger.exception(ex)
 		return 1
 	os.makedirs(dest_folder, exist_ok=True)
-
 	os.makedirs(tmp_folder, exist_ok=True)
-
-	pdf_patients = dx_and_proc.get_patient_ids_with_conditions(dct_diag_codes,
-	                                                           dct_proc_codes,
-	                                                           logger_name=logger_name,
-	                                                           ip=dct_claims['ip'].df.rename(
-		                                                           columns={'prncpl_proc_date': 'service_date'})[
-		                                                           [col for col in dct_claims['ip'].df.columns if
-		                                                            col.startswith(('PRCDR', 'DIAG',))] + [
-			                                                           'service_date']],
-	                                                           ot=dct_claims['ot'].df.rename(
-		                                                           columns={'srvc_bgn_date': 'service_date'})[
-		                                                           [col for col in dct_claims['ot'].df.columns if
-		                                                            col.startswith(('PRCDR', 'DIAG',))] + [
-			                                                           'service_date']]
-	                                                           )
-	pdf_patients['YEAR'] = year
-	pdf_patients['STATE_CD'] = st
-	pdf_patients['include'] = 0
-
-	logger.info(f"{st} ({year}) has {pdf_patients.shape[0]} benes with specified conditions/ procedures")
+	
 	for f_type in dct_cohort_filters:
-		logger.info(f"{st} ({year}) has {dct_claims[f_type].df.shape[0].compute()} {f_type} claims")
-		dct_claims[f_type].df[f'_{dct_claims[f_type].index_col}'] = dct_claims[f_type].df.index
-		dct_claims[f_type].df = dct_claims[f_type].df.loc[dct_claims[f_type].df[f'_{dct_claims[f_type].index_col}']
-			.isin(pdf_patients.index.tolist())]
-		dct_claims[f_type].df = dct_claims[f_type].df.drop([f'_{dct_claims[f_type].index_col}'], axis=1)
-		dct_claims[f_type].df = dct_claims[f_type].cache_results()
-		logger.info(f"{st} ({year}) has {dct_claims[f_type].df.shape[0].compute()} {f_type} claims for benes with "
-		            f"specified conditions/ procedures")
-
 		dct_claims[f_type] = filter_claim_files(dct_claims[f_type],
 		                                        dct_cohort_filters,
 		                                        os.path.join(tmp_folder, f_type),
 		                                        logger_name)
-		pdf_patients['include'] = (pdf_patients['include'] |
-		                           (pdf_patients.index.isin(dct_claims[f_type].df.index.compute().tolist()))).astype(int)
-		if f_type != 'ps':
-			del dct_claims[f_type]
-			gc.collect()
-
+	pdf_patients = None
+	if bool(dct_diag_codes) | bool(dct_proc_codes):
+		pdf_patients = dx_and_proc.get_patient_ids_with_conditions(dct_diag_codes,
+		                                                           dct_proc_codes,
+		                                                           logger_name=logger_name,
+		                                                           ip=dct_claims['ip'].df.rename(
+			                                                           columns={'prncpl_proc_date': 'service_date'})[
+			                                                           [col for col in dct_claims['ip'].df.columns if
+			                                                            col.startswith(('PRCDR', 'DIAG',))] + [
+				                                                           'service_date']],
+		                                                           ot=dct_claims['ot'].df.rename(
+			                                                           columns={'srvc_bgn_date': 'service_date'})[
+			                                                           [col for col in dct_claims['ot'].df.columns if
+			                                                            col.startswith(('PRCDR', 'DIAG',))] + [
+				                                                           'service_date']]
+		                                                           )
+		pdf_patients['include'] = 1
+	else:
+		pdf_patients = pd.concat([dct_claims[f_type].df.assign(**dict([(dct_claims[f_type].index_col,
+		                                                                dct_claims[f_type].df.index),
+		                                                               ('include', 1)]))[
+			                          [dct_claims[f_type].index_col, 'include']].compute() for f_type in
+		                          dct_claims]).drop_duplicates().set_index(dct_claims['ps'].index_col)
+	pdf_patients['YEAR'] = year
+	pdf_patients['STATE_CD'] = st
+		
+	logger.info(f"{st} ({year}) has {pdf_patients.shape[0]} benes with specified conditions/ procedures")
+	
 	if 'ps' not in dct_cohort_filters:
 		dct_claims['ps'].df = dct_claims['ps'].df.loc[
 			dct_claims['ps'].df.index.isin(pdf_patients.loc[pdf_patients['include'] == 1].index.tolist())]
@@ -133,16 +126,19 @@ def extract_cohort(st, year, dct_diag_codes, dct_proc_codes, dct_cohort_filters,
 		                                      {},
 		                                      os.path.join(tmp_folder, 'ps'),
 		                                      logger_name)
-
-	logger.info(f"{st} ({year}) has {pdf_patients.loc[pdf_patients['include'] ==1].shape[0]} benes with specified "
-	            f"conditions who also meet the cohort inclusion criteria")
-	pdf_patients['include'] = pdf_patients['include'].where(
-		pdf_patients.index.isin(dct_claims['ps'].df.index.compute().tolist()), 0)
-	logger.info(f"For {st} ({year}), {pdf_patients.loc[pdf_patients['include'] ==1].shape[0]} benes remain after "
-	            f"cleaning PS")
-	pdf_patients.to_csv(os.path.join(dest_folder, f'cohort_{year}_{st}.csv'), index=True)
+		logger.info(f"{st} ({year}) has {pdf_patients.loc[pdf_patients['include'] == 1].shape[0]} benes with specified "
+		            f"conditions who also meet the cohort inclusion criteria")
+		pdf_patients['include'] = pdf_patients['include'].where(
+			pdf_patients.index.isin(dct_claims['ps'].df.index.compute().tolist()), 0)
+		logger.info(f"For {st} ({year}), {pdf_patients.loc[pdf_patients['include'] == 1].shape[0]} benes remain after "
+		            f"cleaning PS")
+	pdf_dob = dct_claims['ps'].df[['birth_date']].compute()
 	del dct_claims
 	gc.collect()
+	
+	pdf_patients = pdf_patients.merge(pdf_dob, left_index=True, right_index=True, how='inner')
+	pdf_patients.to_csv(os.path.join(dest_folder, f'cohort_{st}_{year}.csv'), index=True)
+	
 	shutil.rmtree(tmp_folder)
 	export_cohort_datasets(pdf_patients, year, st, data_root, lst_types_to_export, dest_folder, dct_export_filters,
 	                       clean_exports, preprocess_exports, logger_name)
@@ -150,35 +146,43 @@ def extract_cohort(st, year, dct_diag_codes, dct_proc_codes, dct_cohort_filters,
 
 
 def export_cohort_datasets(pdf_cohort, year, st, data_root, lst_types_to_export, dest_folder, dct_export_filters,
-                       clean_exports=False, preprocess_exports=False, logger_name=__file__):
+                           clean_exports=False, preprocess_exports=False, logger_name=__file__):
 	logger = logging.getLogger(logger_name)
 	tmp_folder = os.path.join(dest_folder, 'tmp_files')
 	os.makedirs(dest_folder, exist_ok=True)
 	os.makedirs(tmp_folder, exist_ok=True)
+	dct_claims = dict()
 	for f_type in sorted(lst_types_to_export):
-		logger.info(f"Exporting {f_type}")
-		claim = None
-		if f_type == 'ip':
-			claim = ip.IP(year, st, data_root, clean=False, preprocess=False)
-		if f_type == 'ot':
-			claim = ot.OT(year, st, data_root, clean=False, preprocess=False,
-			              tmp_folder=os.path.join(tmp_folder, f_type))
-		if f_type == 'ps':
-			claim = ps.PS(year, st, data_root, clean=False, preprocess=False,
-			              tmp_folder=os.path.join(tmp_folder, f_type))
+		try:
+			if f_type == 'ip':
+				dct_claims[f_type] = ip.IP(year, st, data_root, clean=False, preprocess=False)
+			elif f_type == 'ot':
+				dct_claims[f_type] = ot.OT(year, st, data_root, clean=False, preprocess=False,
+				                           tmp_folder=os.path.join(tmp_folder, f_type))
+			elif f_type == 'ps':
+				dct_claims[f_type] = ps.PS(year, st, data_root, clean=False, preprocess=False,
+				                           tmp_folder=os.path.join(tmp_folder, f_type))
+			else:
+				dct_claims[f_type] = cms_file.CMSFile(f_type, year, st, data_root, clean=False, preprocess=False)
+		except Exception as ex:
+			logger.warning(f"{year} {f_type} data is missing for {st}")
+			logger.exception(ex)
+			return 1
+	for f_type in sorted(lst_types_to_export):
+		logger.info(f"Exporting {f_type} for {st} ({year})")
+		dct_claims[f_type].df = dct_claims[f_type].df.loc[
+			dct_claims[f_type].df.index.isin(pdf_cohort.loc[pdf_cohort['include'] == 1].index.tolist())]
+		dct_claims[f_type].df = dct_claims[f_type].cache_results()
 
-		claim.df = claim.df.loc[
-			claim.df.index.isin(pdf_cohort.loc[pdf_cohort['include'] == 1].index.tolist())]
-		claim.df = claim.cache_results()
 		if clean_exports or preprocess_exports:
 			if clean_exports:
-				claim.clean()
+				dct_claims[f_type].clean()
 			if preprocess_exports:
-				claim.preprocess()
-			claim.df = claim.cache_results()
+				dct_claims[f_type].preprocess()
+			dct_claims[f_type].df = dct_claims[f_type].cache_results()
 		if bool(dct_export_filters):
-			claim = filter_claim_files(claim, dct_export_filters,
-			                           os.path.join(tmp_folder, f'{f_type}'),
-			                           logger_name)
-		claim.export(dest_folder)
+			dct_claims[f_type] = filter_claim_files(dct_claims[f_type], dct_export_filters,
+			                                        os.path.join(tmp_folder, f'{f_type}'),
+			                                        logger_name)
+		dct_claims[f_type].export(dest_folder)
 	shutil.rmtree(tmp_folder)
