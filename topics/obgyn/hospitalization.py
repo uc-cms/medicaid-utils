@@ -19,6 +19,21 @@ def flag_preterm(df_claims: dd.DataFrame) -> dd.DataFrame:
     return df_claims
 
 
+def flag_multiple_births(df_claims: dd.DataFrame) -> dd.DataFrame:
+    """
+            Identifies multiple births
+            New Column(s):
+                hosp_multiple_births -
+            :param df_claims:
+            :rtype: dd.DataFrame
+            """
+    dct_diag_codes = {'multiple_births': {'incl': ['V272', 'V273', 'V274',
+                                                  'V275', 'V276', 'V277']}}
+    df_claims = dx_and_proc.flag_diagnoses_and_procedures(dct_diag_codes, {}, df_claims)
+    df_claims = df_claims.rename(columns={'diag_multiple_births': 'hosp_multiple_births'})
+    return df_claims
+
+
 def flag_delivery_mode(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
         Identifies mode of birth
@@ -32,6 +47,7 @@ def flag_delivery_mode(df_claims: dd.DataFrame) -> dd.DataFrame:
                                     6: [str(cd) for cd in range(59400, 59411)]},
                       'csrn_dlvry': {1: [str(cd) for cd in range(59510, 59516)] +
                                         [str(cd) for cd in range(59618, 59623)],
+                                     2: ['74'],
                                      6: [str(cd) for cd in range(59510, 59516)] +
                                         [str(cd) for cd in range(59618, 59623)]
                                      }}
@@ -220,4 +236,5 @@ def calculate_conception(df_claims: dd.DataFrame) -> (dd.DataFrame, dd.DataFrame
     df_conception = df_conception.drop(lst_conception_col, axis=1)
 
     return df_conception, df_check
+
 
