@@ -36,35 +36,35 @@ def get_phi(pdf_x):
     phi = (prod_diag - prod_nondiag) / np.sqrt(prod_margins)
     return phi
 
+
 def get_contingency_table(pdf_included, lst_metrics, pop_col_name, lst_count_col, dct_labels):
     lst_pop_val = sorted(pdf_included.loc[~pdf_included[pop_col_name].isna()][pop_col_name].astype(int).unique().tolist())
     dct_labels = dict([(val, dct_labels[val]) for val in list(dct_labels.keys()) if (val in lst_pop_val)])
     lst_pop_val = sorted([val for val in lst_pop_val if val in dct_labels])
     lst_labels = [dct_labels[val] for val in lst_pop_val]
     lst_pop_size = [pdf_included.loc[pdf_included[pop_col_name] == pop_val].shape[0] for pop_val in lst_pop_val]
-    n_1  = pdf_included.loc[pdf_included[pop_col_name] == 1].shape[0]
-    n_0 = pdf_included.loc[pdf_included[pop_col_name] == 0].shape[0]
+
     lst_crosstab = []
-    lst_crosstab_pretty = []
     pdf_included = pdf_included.assign(**dict([(col, pd.to_numeric(pdf_included[col], errors='coerce'))
                                                for col in lst_count_col]))
     pdf_included = pdf_included.assign(**dict([(col, pd.to_numeric(pdf_included[col], errors='ignore'))
                                                for col in lst_metrics]))
+    lstpdf_crosstab_pretty = []
+
     for col in lst_metrics + lst_count_col:
         pdf_temp = pdf_included.copy()[[pop_col_name, col]]
         pdf_temp = pdf_temp.loc[pd.notnull(pdf_temp[col])]
         lst_metric_pop_size = [pdf_temp.loc[pdf_temp[pop_col_name] == pop_val].shape[0] for pop_val in lst_pop_val]
-        n_1_metric = pdf_temp.loc[pdf_temp[pop_col_name] == 1].shape[0]
-        n_0_metric = pdf_temp.loc[pdf_temp[pop_col_name] == 0].shape[0]
+
         if col in lst_count_col:
             pdf_temp = pdf_temp.assign(**dict([(col, (pdf_temp[col] > 0).astype(int))]))
         pdf_temp = pdf_temp.sort_values(by=[pop_col_name, col])
-        corr = pdf_temp[[pop_col_name] + [col]].corr()
-        corr = np.nan if ((corr.shape[1] < 2) or (len(lst_pop_val) > 2)) else corr.iloc[0, 1]
+        phi = pdf_temp[[pop_col_name] + [col]].corr()
+        phi = np.nan if ((phi.shape[1] < 2) or (len(lst_pop_val) > 2)) else phi.iloc[0, 1]
         pdf_crosstab = None
         if pdf_temp[col].nunique() > 1:
             pdf_crosstab = pd.crosstab(pdf_temp[pop_col_name],
-                                      pdf_temp[col])
+                                       pdf_temp[col])
             # phi = get_phi(pdf_crosstab)
             p_val = st.chi2_contingency(pdf_crosstab)[1]
             cramers_v = cramers_corrected_stat(pdf_crosstab)
@@ -74,9 +74,9 @@ def get_contingency_table(pdf_included, lst_metrics, pop_col_name, lst_count_col
                                                                             for lev in pdf_crosstab.index.tolist()]
             pdf_crosstab['p_val'] = p_val
 
-            pdf_crosstab['phi'] = corr if (len(pdf_crosstab.index) == 1) else np.nan
+            pdf_crosstab['phi'] = phi if (len(pdf_crosstab.index) == 1) else np.nan
             # pdf_crosstab['phi'] = phi
-            pdf_crosstab['cramers_v'] = cramers_v if (len(pdf_crosstab.index) == 1) else np.nan
+            pdf_crosstab['cramers_v'] = cramers_v # if (len(pdf_crosstab.index) == 1) else np.nan
             pdf_crosstab.index.name = 'metric'
             lst_crosstab.append(pdf_crosstab)
         else:
@@ -84,45 +84,35 @@ def get_contingency_table(pdf_included, lst_metrics, pop_col_name, lst_count_col
             pdf_crosstab.index.name = 'metric'
             lst_crosstab.append(pdf_crosstab)
 
-        pdf_crosstab_pretty = pdf_crosstab.rename(columns=dict(zip(lst_pop_val, lst_labels)))
-        # {0: false_val_name,
-        #                                             1: true_val_name})
-        pdf_crosstab_pretty = pdf_crosstab_pretty.assign(**dict([(col, np.nan) for col in lst_labels
-                                                                 if col not in pdf_crosstab_pretty.columns]))
-        # if false_val_name not in pdf_crosstab_pretty.columns:
-        #     pdf_crosstab_pretty[false_val_name] = np.nan
-        # if true_val_name not in pdf_crosstab_pretty.columns:
-        #     pdf_crosstab_pretty[true_val_name] = np.nan
-        pdf_crosstab_pretty = pdf_crosstab_pretty.assign(**dict([(tpl_label_n[0], pdf_crosstab_pretty[tpl_label_n[0]].fillna(0).apply(
-                lambda x: '{:0.2f} % (N: {}, denom: {})'.format((x * 100 / tpl_label_n[1]) if (tpl_label_n[1] != 0) else np.nan, int(x),
-                                                     tpl_label_n[1]))) for tpl_label_n in zip(lst_labels, lst_metric_pop_size)]))
-        # pdf_crosstab_pretty[false_val_name] = \
-        #     pdf_crosstab_pretty[false_val_name].fillna(0).apply(
-        #         lambda x: '{:0.2f} % (N: {}, denom: {})'.format((x * 100 / n_0_metric) if (n_0_metric != 0) else np.nan, int(x),
-        #                                              n_0_metric))
-        # pdf_crosstab_pretty[true_val_name] = \
-        #     pdf_crosstab_pretty[true_val_name].fillna(0).apply(
-        #         lambda x: '{:0.2f} % (N: {}, denom: {})'.format((x * 100 / n_1_metric) if (n_1_metric != 0) else np.nan, str(int(x)),
-        #                                                         n_1_metric))
-        lst_crosstab_pretty.append(pdf_crosstab_pretty)
+        pdf_pretty = pdf_crosstab.rename(columns=dict(zip(lst_pop_val, lst_labels)))
+        pdf_pretty = pdf_pretty.assign(**dict([(col, np.nan) for col in lst_labels
+                                    if col not in pdf_pretty.columns]))
+
+        pdf_pretty = pdf_pretty.assign(
+            **dict([(tpl_label_n[0] + '_N', pdf_pretty[tpl_label_n[0]].fillna(0).apply(
+                lambda x: int(x))) for tpl_label_n in zip(lst_labels, lst_metric_pop_size)] +
+                   [(tpl_label_n[0] + '_%', pdf_pretty[tpl_label_n[0]].fillna(0).apply(
+                       lambda x: (x * 100 / tpl_label_n[1]) if (tpl_label_n[1] != 0) else np.nan))
+                    for tpl_label_n in zip(lst_labels, lst_metric_pop_size)] +
+                   [(tpl_label_n[0] + '_denom', pdf_pretty[tpl_label_n[0]].fillna(0).apply(
+                       lambda x: tpl_label_n[1])) for tpl_label_n in zip(lst_labels, lst_metric_pop_size)] +
+                   [('pop_size', sum(lst_metric_pop_size))]))
+
+        pdf_lbls = {}
+
+        for lbl in lst_labels:
+            pdf_lbl = pdf_pretty[[lbl + '_N', lbl + '_%', lbl + '_denom']].rename(
+                columns=dict([(lbl + '_N', 'N'),
+                              (lbl + '_%', '%'),
+                              (lbl + '_denom', 'denominator')]))
+            pdf_lbls[lbl] = pdf_lbl
+        pdf_lbls = pd.concat(pdf_lbls, axis=1)
+        pdf_lbls = pdf_lbls.assign(
+            **dict([(col, pdf_pretty[col]) for col in ['p_val', 'phi', 'cramers_v', 'pop_size']]))
+        lstpdf_crosstab_pretty.append(pdf_lbls)
 
     pdf_crosstab = pd.concat(lst_crosstab)
-    pdf_crosstab_pretty = pd.concat(lst_crosstab_pretty)
-
-    pdf_crosstab_pretty = pdf_crosstab_pretty.rename(columns=dict([(tpl_label_n[0],
-                                                                    tpl_label_n[0] + ' (N: {0})'.format(tpl_label_n[1]))
-         for tpl_label_n in zip(lst_labels, lst_pop_size)] +
-                                                             [('phi', 'correlation with cohort indicator')]     ))
-    # pdf_crosstab_pretty = pdf_crosstab_pretty.rename(columns={false_val_name: false_val_name + ' (N: {0})'.format(n_0),
-    #                                             true_val_name: true_val_name + ' (N: {0})'.format(n_1),
-    #                                             'phi': 'correlation with cohort indicator'})
-
-    # pdf_crosstab_pretty[false_val_name + ' (N: {0})'.format(n_0)] = \
-    #     pdf_crosstab_pretty[false_val_name + ' (N: {0})'.format(n_0)].fillna(0).apply(
-    #         lambda x: '{:0.2f} % (N: {})'.format(x * 100 / n_0, int(x)))
-    # pdf_crosstab_pretty[true_val_name + ' (N: {0})'.format(n_1)] = \
-    #     pdf_crosstab_pretty[true_val_name + ' (N: {0})'.format(n_1)].fillna(0).apply(
-    #         lambda x: '{:0.2f} % (N: {})'.format(x * 100 / n_1, str(int(x))))
+    pdf_crosstab_pretty = pd.concat(lstpdf_crosstab_pretty)
 
     return pdf_crosstab, pdf_crosstab_pretty
 

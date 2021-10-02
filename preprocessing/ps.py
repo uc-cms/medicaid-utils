@@ -61,7 +61,8 @@ class PS(cms_file.CMSFile):
 		                                                                        self.df['EL_RSDNC_ZIP_CD_LTST'].str[
 		                                                                        :-1])
 		if os.path.isfile(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv')):
-			df_pcsa_st_zip = pd.read_csv(os.path.join(data_folder, 'pcsa_st_zip.csv'))
+			df_pcsa_st_zip = pd.read_csv(os.path.join(data_folder, 'pcsa_st_zip.csv'),
+			                             dtype=object)
 			df_ruca = pd.read_excel(os.path.join(data_folder, 'RUCA2010zipcode.xlsx'), sheet_name='Data',
 			                        dtype='object', engine='openpyxl')
 			df_ruca['ZIP_CODE'] = df_ruca['ZIP_CODE'].astype(str).str.replace(' ', '').str.zfill(5)
@@ -77,7 +78,8 @@ class PS(cms_file.CMSFile):
 			df_merged.loc[df_merged['zip'] == '98189', 'state_cd'] = 'WA'
 			df_merged.to_csv(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv'), index=False)
 
-		df_zip_state_pcsa = pd.read_csv(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv'))
+		df_zip_state_pcsa = pd.read_csv(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv'),
+		                                dtype=object)
 		df_zip_state_pcsa['zip'] = df_zip_state_pcsa['zip'].str.replace(' ', '').str.zfill(9)
 		df_zip_state_pcsa = df_zip_state_pcsa.rename(columns={'zip': 'EL_RSDNC_ZIP_CD_LTST',
 		                                                      'state_cd': 'resident_state_cd'})
