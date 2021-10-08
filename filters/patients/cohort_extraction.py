@@ -147,6 +147,8 @@ def extract_cohort(st, year, dct_diag_codes, dct_proc_codes, dct_cohort_filters,
 
 def export_cohort_datasets(pdf_cohort, year, st, data_root, lst_types_to_export, dest_folder, dct_export_filters,
                            clean_exports=False, preprocess_exports=False, logger_name=__file__):
+
+	#TODO: Concat exported files
 	logger = logging.getLogger(logger_name)
 	tmp_folder = os.path.join(dest_folder, 'tmp_files')
 	os.makedirs(dest_folder, exist_ok=True)

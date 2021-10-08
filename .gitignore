@@ -6,6 +6,7 @@ notebooks
 dask-tmp
 logs
 rop
-other_datasets
+other_datasets/data/nppes
+other_datasets/data/uds
 interpregnancy-interval
 smm_and_religious_hospitals
