@@ -1,0 +1,9 @@
+betos_cat,betos_cat_name,betos_code_start,betos_code_abbr
+1,EVALUATION AND MANAGEMENT,M,betos_eval
+2,PROCEDURES,P,betos_proc
+3,IMAGING,I,betos_img
+4,TESTS,T,betos_test
+5,DURABLE MEDICAL EQUIPMENT,D,betos_dme
+6,OTHER,O,betos_oth
+7,EXCEPTIONS/UNCLASSIFIED,Y,betos_uncla
+7,EXCEPTIONS/UNCLASSIFIED,Z,betos_uncla

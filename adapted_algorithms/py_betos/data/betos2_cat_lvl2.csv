@@ -1,0 +1,39 @@
+betos_code_start,betos_level2_cat_name,betos_level2_cat,betos_code_abbr
+AA,Anesthesia,1,betos_level2_anes
+EB,Behavioral health services,2,betos_level2_beha
+EC,Critical care services,3,betos_level2_crit
+EE,Ophthalmological  services,4,betos_level2_opht
+EH,Home services,5,betos_level2_home
+EI,Hospital inpatient services,6,betos_level2_hosp
+EM,Care management/coordination,7,betos_level2_care
+EN,Nursing facility services,8,betos_level2_nurs
+EO,Observation care services,9,betos_level2_obse
+ER,Emergency department services,10,betos_level2_emer
+EV,Office/ outpatient services,11,betos_level2_offi
+EX,Miscellaneous,12,betos_level2_misc
+IC,CT,13,betos_level2_ct
+IM,MR,14,betos_level2_mr
+IN,Nuclear,15,betos_level2_nucl
+IS,Standard X-ray,16,betos_level2_stan
+IU,Ultrasound,17,betos_level2_ultr
+IX,Miscellaneous,18,betos_level2_misc
+NA,Exceptions Unclassified,19,betos_level2_exce
+PC,Cardiovascular,20,betos_level2_cardv
+PE,Eye,21,betos_level2_eye
+PG,Digestive/gastrointestinal,22,betos_level2_dige
+PM,Musculoskeletal,23,betos_level2_musc
+PO,Other organ systems,24,betos_level2_othe
+PS,Skin,25,betos_level2_skin
+PV,Vascular,26,betos_level2_vasc
+RB,Chiropractic,27,betos_level2_chir
+RD,Dialysis,28,betos_level2_dial
+RH,Chemotherapy administration,29,betos_level2_chem
+RI,Injections and Infusions - non-oncologic,30,betos_level2_inje
+RR,Radiation oncology,31,betos_level2_radi
+RT,"Physical, occupational, and speech therapy",32,betos_level2_phys
+RX,Miscellaneous,33,betos_level2_misc
+TA,Anatomic pathology,34,betos_level2_anat
+TC,Cardiography,35,betos_level2_cardg
+TN,Neurologic,36,betos_level2_neur
+TP,Pulmonary function,37,betos_level2_pulm
+TX,Miscellaneous,38,betos_level2_misc

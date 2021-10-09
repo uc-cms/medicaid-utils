@@ -1,0 +1,56 @@
+family,family_label
+10,New office visits
+11,Established office visits
+12,Annual wellness visits
+13,Opthalmology visits
+14,Psychotherapy
+15,Transition care management
+20,Percutaneous coronary artery angioplasty and stenting
+21,Coronary artery bypass graft
+22,Revascularization lower extremity
+23,Transluminal balloon angioplasty - non-cardiac
+24,Varicose vein ablation
+25,Colonoscopy
+26,Esophagogastroduodenoscopy
+27,Knee arthroplasty
+28,Arthrocentesis
+29,Arthrodesis spine
+30,Nerve block injection
+31,Hip arthroplasty
+32,Femoral fracture repair
+33,Spinal instrumentation
+34,Destruction benign skin lesion
+35,Mohs surgery
+36,Nail procedure
+37,Skin biopsy
+38,Debridement
+39,Skin grafting
+40,Paring/cutting hyperkerototic lesion
+41,Wound repair - complex
+42,Skin lesion excision
+43,Cataract surgery
+44,Discission secondary membranous cataract
+45,Cystourethroscopy
+50,Intensity-modulated radiation therapy (IMRT)
+51,Physical therapy treatment
+52,Physical therapy evaluation
+53,Injection (including vaccinations)
+61,CT/CTA – abdomen and pelvis
+62,CT/CTA – head/brain & neck
+63,CT/CTA – chest
+64,MRI/MRA – spine
+65,MRI/MRA – brain/head
+66,Echocardiography (transthoracic)
+67,Ultrasound - abdomen/retroperitoneal
+68,Mammography
+69,Chest x-ray
+70,Cardiac catheterization
+71,Fundus photography
+72,Myocardial perfusion scan
+73,Positron emission tomography (PET)
+74,Computerized ophthalmic imaging
+80,Surgical pathology examination
+81,Electrocardiogram
+82,External electrocardiographic monitoring
+83,Sleep study
+99,Other

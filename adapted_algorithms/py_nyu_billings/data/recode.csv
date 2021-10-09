@@ -1,0 +1,185 @@
+origin,target,comments,updates,deleted,starts_with
+"['042', '043', '044']",042,,,0,1
+['0781'],0781,,,0,1
+['2501'],2501,,,0,1
+['2780'],2780,,,0,1
+['4151'],4151,,,0,1
+['493'],493,,,0,1
+['5301'],5301,,,0,1
+['5751'],5751,,,0,1
+['6860'],6860,,,0,1
+['7807'],7807,,,0,1
+"['78700', '78701', '78702', '78703']",7870,,,0,0
+"['78840', '78841', '78842', '78843']",7884,,,0,0
+['7890'],7890,,,0,1
+['850'],850,,,0,1
+"['8540', '8541']",854,,,0,1
+['9898'],9898,,,0,1
+['9955'],9955,,,0,1
+['9970'],9970,,,0,1
+"['99810', '99811', '99812', '99813']",9981,,,0,0
+"['v72', 'V72']",V72,,,0,1
+"['0049', '0085', '0088']",0059,,Beth Israel ed docs,0,0
+"['0389', '7907']",0381,,Beth Israel ed docs,0,0
+['0579'],05700,,Beth Israel ed docs,0,0
+"['0542', '0740', '5282']",5280,acs,Beth Israel ed docs,0,0
+"['0792', '0799', '07999']",075,,Beth Israel ed docs,0,0
+"['1104', '1108', '1109', '1110']",1100,,Beth Israel ed docs,0,0
+['1319'],13101,,Beth Israel ed docs,0,0
+['25001'],25000,,Beth Israel ed docs,0,0
+['2510'],2512,acs,Beth Israel ed docs,0,0
+"['28261', '28262']",28260,,Beth Israel ed docs,0,0
+"['29532', '29590', '2989']",29530,,Beth Israel ed docs,0,0
+"['30001', '3009', '3061', '78601']",30000,,Beth Israel ed docs,0,0
+"['30400', '30500', '30560', '3058', '30590']",30390,,Beth Israel ed docs,0,0
+"['30781', '3469 ', '34690']",7840,,Beth Israel ed docs,0,0
+['3559'],3549,,Beth Israel ed docs,0,0
+"['37200', '37203', '37214', '37230']",0779,,Beth Israel ed docs,0,0
+['38101'],3829,acs,Beth Israel ed docs,0,0
+['41090'],4111,acs,Beth Israel ed docs,0,0
+['436'],4359,,Beth Israel ed docs,0,0
+['4549'],4540,,Beth Israel ed docs,0,0
+"['4553', '4556']",4550,,Beth Israel ed docs,0,0
+['4558'],4552,,Beth Israel ed docs,0,0
+"['0340', '4620', '463']",462,acs,Beth Israel ed docs,0,0
+"['460', '4658', '4659', '4660', '490']",4660,acs,Beth Israel ed docs,0,0
+['4779'],4739,,Beth Israel ed docs,0,0
+"['4809', '486']",485,acs,Beth Israel ed docs,0,0
+"['5210', '5225']",5220,acs,Beth Israel ed docs,0,0
+"['5233', '5234', '5239']",5231,acs,Beth Israel ed docs,0,0
+['53390'],5339,,Beth Israel ed docs,0,0
+['53550'],53500,,Beth Israel ed docs,0,0
+['5889'],586,,Beth Israel ed docs,0,0
+"['5921', '5929', '5941', '7880']",5920,,Beth Israel ed docs,0,0
+"['59780', '7887']",0980,,Beth Israel ed docs,0,0
+['5959'],5990,acs,Beth Israel ed docs,0,0
+['6159'],6149,,Beth Israel ed docs,0,0
+"['61610', '6168']",6160,,Beth Israel ed docs,0,0
+['6269'],6268,,Beth Israel ed docs,0,0
+"['64003', '64093', '64193']",64000,,Beth Israel ed docs,0,0
+['64390'],64303,,Beth Israel ed docs,0,0
+['64413'],64410,,Beth Israel ed docs,0,0
+['6809'],6806,,Beth Israel ed docs,0,0
+"['68102', '68110', '68111']",68100,,Beth Israel ed docs,0,0
+"['682', '684', '6869']",682,,Beth Israel ed docs,0,1
+"['6926', '6929', '7821']",6918,,Beth Israel ed docs,0,0
+['7079'],7071,acs,Beth Israel ed docs,0,0
+['70890'],7089,,Beth Israel ed docs,0,0
+"['71590', '71596', '71690', '71697', '71940', '71941', '71943']",71946,,Beth Israel ed docs,0,0
+"['7210', '7231']",7235,,Beth Israel ed docs,0,0
+"['72190', '7242', '7245']",7248,,Beth Israel ed docs,0,0
+['73399'],7329,,Beth Israel ed docs,0,0
+['78052'],78050,,Beth Israel ed docs,0,0
+['80702'],80700,,Beth Israel ed docs,0,0
+"['81209', '81220', '81240', '81241']",81200,,Beth Israel ed docs,0,0
+"['81342', '81344', '81381', '81400']",81341,,Beth Israel ed docs,0,0
+"['81600', '81601', '81602']",81500,,Beth Israel ed docs,0,0
+['8248'],8242,,Beth Israel ed docs,0,0
+"['82525', '8260']",82520,,Beth Israel ed docs,0,0
+['83101'],83100,,Beth Israel ed docs,0,0
+['83209'],83200,,Beth Israel ed docs,0,0
+['8419'],8409,,Beth Israel ed docs,0,0
+['84210'],84200,,Beth Israel ed docs,0,0
+['8449'],8439,,Beth Israel ed docs,0,0
+"['84509', '84510']",84500,,Beth Israel ed docs,0,0
+"['8469', '8479']",8460,,Beth Israel ed docs,0,0
+['8509'],8501,already rolled into 850,Beth Israel ed docs,1,0
+['85400'],8540,already rolled into 854,Beth Israel ed docs,1,0
+['8709'],8708,,Beth Israel ed docs,0,0
+['87261'],38420,,Beth Israel ed docs,0,0
+['8731'],8730,,Beth Israel ed docs,0,0
+"['87340', '87341', '87342', '87343', '87344', '87353', '87360', '87364']",87320,,Beth Israel ed docs,0,0
+"['8760', '8770']",8750,,Beth Israel ed docs,0,0
+"['88003', '88100', '8840']",88000,,Beth Israel ed docs,0,0
+['8820'],88102,,Beth Israel ed docs,0,0
+['8910'],8900,,Beth Israel ed docs,0,0
+['8930'],8920,,Beth Israel ed docs,0,0
+"['9110', '9130', '9150', '9160', '9170', '9190']",9100,,Beth Israel ed docs,0,0
+['9189'],9181,,Beth Israel ed docs,0,0
+['9195'],9194,,Beth Israel ed docs,0,0
+['9196'],9156,,Beth Israel ed docs,0,0
+"['9212', '9213', '9219']",920,,Beth Israel ed docs,0,0
+"['9222', '9223']",9221,,Beth Israel ed docs,0,0
+"['92310', '92311', '92320', '9233', '9238', '9239']",92300,,Beth Israel ed docs,0,0
+"['92401', '92411', '92420', '92421', '9243', '9245']",92400,,Beth Israel ed docs,0,0
+['9330'],933,,Beth Israel ed docs,0,0
+['938'],936,,Beth Israel ed docs,0,0
+"['94321', '94421', '94500', '94522', '94526', '9462', '9490']",94120,,Beth Israel ed docs,0,0
+['9700'],9691,,Beth Israel ed docs,0,0
+"['V709', 'v709']",V708 ,,Beth Israel ed docs,0,0
+['0380'],0381,,Washington DC docs,0,0
+"['25060', '25061', '25081', '25082', '25083']",25080,,Washington DC docs,0,0
+['2740'],2749,,Washington DC docs,0,0
+['2761'],2765,,Washington DC docs,0,0
+['2768'],2767,,Washington DC docs,0,0
+['2910'],29181,,Washington DC docs,0,0
+['30300'],30301,,Washington DC docs,0,0
+['30420'],30561,,Washington DC docs,0,0
+['3080'],3089,,Washington DC docs,0,0
+['3090'],311,,Washington DC docs,0,0
+['38100'],3814,,Washington DC docs,0,0
+['38200'],38110,,Washington DC docs,0,0
+"['40291', '40391', '40493']",4019,,Washington DC docs,0,0
+"['41001', '41011', '41021', '41041', '41071']",41091,,Washington DC docs,0,0
+"['41400', '41401']",4149,,Washington DC docs,0,0
+['4260'],42613,,Washington DC docs,0,0
+['42732'],42731,,Washington DC docs,0,0
+['4279'],42789,,Washington DC docs,0,0
+"['43311', '43401', '43411', '43491']",4359,,Washington DC docs,0,0
+['4554'],4552,,Washington DC docs,0,0
+['4610'],4619,,Washington DC docs,0,0
+"['4661', '46611']",46619,,Washington DC docs,0,0
+['4730'],4739,,Washington DC docs,0,0
+['4770'],4781,,Washington DC docs,0,0
+"['481', '4821', '4824', '48283', '48289']",485,,Washington DC docs,0,0
+['53081'],5301,,Washington DC docs,0,0
+"['53100', '53140', '53240']",5339,,Washington DC docs,0,0
+"['5400', '5401', '5409']",541,,Washington DC docs,0,0
+['56081'],5609,,Washington DC docs,0,0
+"['57400', '57410', '5750']",57420,,Washington DC docs,0,0
+"['5770', '5771']",5772,,Washington DC docs,0,0
+['5950'],5990,,Washington DC docs,0,0
+['6089'],6084,,Washington DC docs,0,0
+"['6142', '6143']",6149,,Washington DC docs,0,0
+"['6331', '6338']",6339,,Washington DC docs,0,0
+"['63491', '63492']",63490,,Washington DC docs,0,0
+"['64183', '64313']",64303,,Washington DC docs,0,0
+['6850'],6851,,Washington DC docs,0,0
+['71696'],71695,,Washington DC docs,0,0
+['71949'],71947,,Washington DC docs,0,0
+"['7213', '72210', '7241']",7243,,Washington DC docs,0,0
+['72709'],72705,,Washington DC docs,0,0
+"['7803', '78031']",78039,,Washington DC docs,0,0
+['8024'],8028,,Washington DC docs,0,0
+"['80700', '80703']",80701,,Washington DC docs,0,0
+"['81201', '81305']",81200,,Washington DC docs,0,0
+['81343'],81383,,Washington DC docs,0,0
+['82101'],82100,,Washington DC docs,0,0
+"['82380', '82381']",82382,,Washington DC docs,0,0
+"['8240', '8244', '8246']",8242,,Washington DC docs,0,0
+['8250'],82520,,Washington DC docs,0,0
+['83104'],83100,,Washington DC docs,0,0
+['8408'],8409,,Washington DC docs,0,0
+['84213'],84209,,Washington DC docs,0,0
+['8441'],8448,,Washington DC docs,0,0
+['8471'],8472,,Washington DC docs,0,0
+"['87200', '8728']",87201,,Washington DC docs,0,0
+"['8738', '8748']",8744,,Washington DC docs,0,0
+['88110'],88120,,Washington DC docs,0,0
+['8821'],8822,,Washington DC docs,0,0
+"['8831', '8832']",8830,,Washington DC docs,0,0
+['8921'],8920,,Washington DC docs,0,0
+"['9104', '9114']",9105,,Washington DC docs,0,0
+['9134'],9135,,Washington DC docs,0,0
+['9140'],9141,,Washington DC docs,0,0
+"['9164', '9165']",9175,,Washington DC docs,0,0
+['9180'],9181,,Washington DC docs,0,0
+['92232'],92231,,Washington DC docs,0,0
+"['9331', '9351']",933,,Washington DC docs,0,0
+['9404'],9409,,Washington DC docs,0,0
+['94524'],94420,,Washington DC docs,0,0
+['9592'],9593,,Washington DC docs,0,0
+"['9630', '9690']",9654,,Washington DC docs,0,0
+['9694'],9691,,Washington DC docs,0,0
+"['9985', '99859', '99889']",99883,,Washington DC docs,0,0
+['V589'],V5889,,Washington DC docs,0,0
