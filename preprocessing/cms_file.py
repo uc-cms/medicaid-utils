@@ -11,7 +11,21 @@ from common_utils import links, dataframe_utils
 
 
 class CMSFile():
-	def __init__(self, ftype, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, tmp_folder=None):
+	"""Parent class for all cms file classes, each of which will have clean and preprocess functions"""
+	def __init__(self, ftype: str, year: int, st: str, data_root: str, index_col: str = 'BENE_MSIS', clean: bool = True,
+	             preprocess: bool = True, tmp_folder: str = None):
+		"""
+		Initializes cms file object by preloading and preprocessing(if opted in) the file
+		:param ftype: Type of CMS file. Options: ip, ot, rx, ps, cc
+		:param year: Year
+		:param st: State
+		:param data_root: Root folder with cms data
+		:param index_col: Column to use as index. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
+		sorted with with index column
+		:param clean: Run cleaning routines if True
+		:param preprocess: Add commonly used constructed variable columns, if True
+		:param tmp_folder: Folder to use to store temporary files
+		"""
 		self.fileloc = links.get_parquet_loc(data_root, ftype, st, year)
 		self.ftype = ftype
 		self.index_col = index_col
@@ -25,6 +39,8 @@ class CMSFile():
 		                          engine='fastparquet').set_index(index_col, sorted=True)
 		self.df = self.df.assign(HAS_BENE=(self.df['BENE_ID'].fillna("").str.len() > 0).astype(int))
 		self.lst_raw_col = list(self.df.columns)
+
+		# This dictionary variable can be used to filter out data that will not met minimum quality expections
 		self.dct_default_filters = {}
 		if clean:
 			self.clean()
@@ -32,45 +48,49 @@ class CMSFile():
 			self.preprocess()
 
 	def cache_results(self):
+		"""Save results in intermediate steps of some lengthy processing"""
 		if self.tmp_folder is not None:
 			return self.pq_export(self.tmp_folder)
 		return self.df
 
 	def pq_export(self, dest_name):
-		if os.path.exists(dest_name + '_tmp'):
-			shutil.rmtree(dest_name + '_tmp')
+		"""Export parquet files (overwrite safe)"""
+		shutil.rmtree(dest_name + '_tmp', ignore_errors=True)
 		self.df.to_parquet(dest_name + '_tmp', engine='fastparquet', write_index=True)
 		del self.df
-		if os.path.exists(dest_name):
-			shutil.rmtree(dest_name)
+		shutil.rmtree(dest_name, ignore_errors=True)
 		os.rename(dest_name + '_tmp', dest_name)
 		return dd.read_parquet(dest_name, index=False,
-		                          engine='fastparquet').set_index(self.index_col, sorted=True)
+		                       engine='fastparquet').set_index(self.index_col, sorted=True)
 
 	def clean(self):
+		"""Cleaning routines"""
 		self.process_date_cols()
 		self.add_gender()
 
 	def preprocess(self):
+		"""Add basic constructed variables"""
 		pass
 
 	def export(self, dest_folder, format='csv'):
+		"""Exports the file"""
 		self.df.to_csv(os.path.join(dest_folder, f'{self.ftype}_{self.year}_{self.st}.csv'), index=True,
 		               single_file=True)
 
 	def add_gender(self) -> None:
 		"""
-		Adds integer 'female' column for PS file, based on 'EL_SEX_CD' column
-		:param DataFrame df: Patient Summary
+		Adds integer 'female' column based on 'EL_SEX_CD' column
+		:param DataFrame df:
 		:rtype: None
 		"""
 		if 'EL_SEX_CD' in self.df.columns:
-			self.df['female'] = (self.df.EL_SEX_CD == 'F').astype(int)
-			self.df['female'] = self.df['female'].where((self.df.EL_SEX_CD == 'F') |
-			                                            (self.df.EL_SEX_CD == 'M'), -1)
+			self.df['female'] = -1
+			self.df['female'] = self.df['female'].where(~self.df.EL_SEX_CD.isin(['F', 'M']),
+			                                            (self.df.EL_SEX_CD == 'F').astype(int))
 		return None
 
 	def clean_diag_codes(self) -> None:
+		"""Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
 		if len([col for col in self.df.columns if col.startswith('DIAG_CD_')]) > 0:
 			self.df = self.df.map_partitions(
 				lambda pdf: pdf.assign(**dict([(col,
@@ -79,8 +99,9 @@ class CMSFile():
 		return None
 
 	def clean_proc_codes(self) -> None:
-		if len([col for col in self.df.columns if col.startswith('PRCDR_CD')
-		                                          and (not col.startswith('PRCDR_CD_SYS'))]) > 0:
+		"""Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
+		if len([col for col in self.df.columns
+		        if col.startswith('PRCDR_CD') and (not col.startswith('PRCDR_CD_SYS'))]) > 0:
 			self.df = self.df.map_partitions(
 				lambda pdf: pdf.assign(**dict([(col,
 				                                pdf[col].str.replace("[^a-zA-Z0-9]+", "", regex=True).str.upper())
@@ -89,28 +110,43 @@ class CMSFile():
 		return None
 
 	def process_date_cols(self) -> None:
-		"""Convert list of columns specified in a dataframe to datetime type
+		"""Convert datetime columns to datetime type and add basic date based constructed variables
 			New columns:
 	            birth_year, birth_month, birth_day - date compoments of EL_DOB (date of birth)
-	            death - 0 or 1
+	            birth_date - birth date (EL_DOB)
+	            death - 0 or 1, if EL_DOD or MDCR_DOD is not empty and falls in the claim year or before
 	            age - age in years, integer format
 	            age_decimal - age in years, with decimals
 	            age_day - age in days
 	            adult - 0 or 1, 1 when patient's age is in [18,115]
+	            child - 0 or 1, 1 when patient's age is in [0,17]
 	        if ftype == 'ip':
 	            Clean/ impute admsn_date and add ip duration related columns
 				New column(s):
-				    admsn - 0 or 1, 1 when admsn_date is not null
+					admsn_date - Admission date (ADMSN_DT)
+					srvc_bgn_date - Service begin date (SRVC_BGN_DT)
+					srvc_end_date - Service end date (SRVC_END_DT)
+					prncpl_proc_date - Principal procedure date (PRNCPL_PRCDR_DT)
+					missing_admsn_date - 0 or 1, 1 when admission date is missing
+					missing_prncpl_proc_date - 0 or 1, 1 when principal procedure date is missing
 				    flag_admsn_miss - 0 or 1, 1 when admsn_date was imputed
 				    los - ip service duration in days
 				    ageday_admsn - age in days as on admsn_date
 				    age_admsn - age in years, with decimals, as on admsn_date
+				    age_prncpl_proc - age in years as on principal procedure date
+				    age_day_prncpl_proc - age in days as on principal procedure date
 			if ftype == 'ot':
 				Adds duration column, provided service end and begin dates are clean
 				New Column(s):
-		        diff & duration - duration of service in days
-		        age_day_admsn - age in days as on admsn_date
-		        age_admsn - age in years, with decimals, as on admsn_date
+					srvc_bgn_date - Service begin date (SRVC_BGN_DT)
+					srvc_end_date - Service end date (SRVC_END_DT)
+		            diff & duration - duration of service in days
+		            age_day_srvc_bgn - age in days as on service begin date
+		            age_srvc_bgn - age in years, with decimals, as on service begin date
+		    if ftype == 'ps:
+		        New Column(s):
+		            date_of_death - Date of death (EL_DOD)
+		            medicare_date_of_death - Medicare date of death (MDCR_DOD)
 	        :rtype:None
 	    """
 		if self.ftype in ['ip', 'lt', 'ot', 'ps', 'rx']:
@@ -157,7 +193,8 @@ class CMSFile():
 				df = df.assign(missing_admsn_date=df['admsn_date'].isnull().astype(int),
 				               missing_prncpl_proc_date=df['prncpl_proc_date'].isnull().astype(int))
 
-				df = df.assign(admsn_date=df['admsn_date'].where(~df['admsn_date'].isnull(), df['srvc_bgn_date']),
+				df = df.assign(admsn_date=df['admsn_date'].where(~df['admsn_date'].isnull(),
+				                                                 df['srvc_bgn_date']),
 				               los=(df['srvc_end_date'] - df['admsn_date']).dt.days + 1)
 				df = df.assign(los=df['los'].where(((df['year'] >= df['admsn_date'].dt.year) &
 				                                    (df['admsn_date'] <= df['srvc_end_date'])),
@@ -182,11 +219,10 @@ class CMSFile():
 
 	def calculate_payment(self) -> None:
 		"""
-		Calculates payment amount (inplace)
+		Calculates payment amount
 		New Column(s):
 			pymt_amt - name of payment amount column
 		:param DataFrame df: Claims data
-		:param str payment_col_name:
 		:rtype: None
 		"""
 		# cost
