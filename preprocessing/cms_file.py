@@ -21,7 +21,7 @@ class CMSFile():
 		:param st: State
 		:param data_root: Root folder with cms data
 		:param index_col: Column to use as index. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
-		sorted with with index column
+		sorted with index column
 		:param clean: Run cleaning routines if True
 		:param preprocess: Add commonly used constructed variable columns, if True
 		:param tmp_folder: Folder to use to store temporary files
@@ -48,7 +48,8 @@ class CMSFile():
 			self.preprocess()
 
 	def cache_results(self):
-		"""Save results in intermediate steps of some lengthy processing"""
+		"""Save results in intermediate steps of some lengthy processing. Saving intermediate results speeds up
+		processing"""
 		if self.tmp_folder is not None:
 			return self.pq_export(self.tmp_folder)
 		return self.df
@@ -64,7 +65,9 @@ class CMSFile():
 		                       engine='fastparquet').set_index(self.index_col, sorted=True)
 
 	def clean(self):
-		"""Cleaning routines"""
+		"""Cleaning routines for date and gender columns in all CMS files"""
+		# Date columns will be cleaned and all commonly used date based variables are constructed
+		# in this step
 		self.process_date_cols()
 		self.add_gender()
 
@@ -277,8 +280,7 @@ class CMSFile():
 					                                .any(axis=1).astype(int)),
 					                               ('ed_tos',
 					                                (pd.to_numeric(pdf['MAX_TOS'], errors='coerce') == 11).astype(int))])))
-
-				self.df['ed_use'] = self.df[['ed_ub92', 'ed_cpt', 'ed_tos']].any(axis='columns').astype(int)
+				self.df = self.df.assign(ed_use=self.df[['ed_ub92', 'ed_cpt', 'ed_tos']].any(axis='columns').astype(int))
 			else:
 				# UB92: # ??????? 450,451,452,453,454,455,456,457,458,459,981 ????????
 				self.df = self.df.map_partitions(
@@ -289,7 +291,7 @@ class CMSFile():
 					                               ('ed_pos',
 					                                (pd.to_numeric(pdf['PLC_OF_SRVC_CD'], errors='coerce') == 23).astype(
 						                                int))])))
-				self.df['ed_use'] = self.df[['ed_pos', 'ed_cpt', 'ed_ub92']].any(axis='columns').astype(int)
+				self.df = self.df.assign(ed_use=self.df[['ed_pos', 'ed_cpt', 'ed_ub92']].any(axis='columns').astype(int))
 				# check ED use in other claims from the same visit
 				self.df = self.df.map_partitions(lambda pdf: pdf.assign(any_ed=pdf.groupby([pdf.index,
 				                                                                            'srvc_bgn_date'])[
