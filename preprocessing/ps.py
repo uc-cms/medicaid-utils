@@ -60,6 +60,10 @@ class PS(cms_file.CMSFile):
 		:return:
 		"""
 		self.df = self.df.assign(**dict([(f"_{self.index_col}", self.df.index)]))
+		# Some BENE_MSIS's are repeated in PS files. Some patients share the same BENE_ID and yet have different
+		# MSIS_IDs. Some of them even have different 'dates of birth'. Since we cannot find any explanation for
+		# such patterns, we decided on removing these BENE_MSIS's as per issue #29 in FARA project
+		# (https://rcg.bsd.uchicago.edu/gitlab/mmurugesan/hrsa_max_feature_extraction/issues/29)
 		self.df = self.df.map_partitions(
 			lambda pdf: pdf.assign(
 				excl_duplicated_bene_id=pdf.duplicated([f"_{self.index_col}"], keep=False).astype(int)))
