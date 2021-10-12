@@ -10,6 +10,7 @@ from preprocessing import cms_file
 from common_utils import dataframe_utils
 
 data_folder = os.path.join(os.path.dirname(__file__), 'data')
+other_data_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'other_datasets', 'data')
 
 
 class PS(cms_file.CMSFile):
@@ -84,6 +85,7 @@ class PS(cms_file.CMSFile):
 		:return: None
 		"""
 		index_col = self.df.index.name
+		zip_folder = os.path.join(other_data_folder, 'zip')
 		self.df = self.df.assign(**dict([(index_col, self.df.index)]))
 
 		# 2012 RI claims report zip codes have problems. They are all invalid unless the last character is dropped. So
@@ -94,30 +96,12 @@ class PS(cms_file.CMSFile):
 			                                                           self.df['EL_RSDNC_ZIP_CD_LTST'].str[
 			                                                           :-1]))
 
-		# if os.path.isfile(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv')):
-		# 	df_pcsa_st_zip = pd.read_csv(os.path.join(data_folder, 'pcsa_st_zip.csv'),
-		# 	                             dtype=object)
-		# 	df_ruca = pd.read_excel(os.path.join(data_folder, 'RUCA2010zipcode.xlsx'), sheet_name='Data',
-		# 	                        dtype='object', engine='openpyxl')
-		# 	df_ruca['ZIP_CODE'] = df_ruca['ZIP_CODE'].astype(str).str.replace(' ', '').str.zfill(5)
-		# 	df_ruca = df_ruca.rename(columns={'ZIP_CODE': 'zip',
-		# 	                                  'ZIP_TYPE': 'zip_type',
-		# 	                                  'RUCA2': 'ruca_code'})
-		# 	df_merged = df_pcsa_st_zip.merge(df_ruca[['zip', 'zip_type', 'ruca_code']], on='zip', how='outer')
-		# 	df_merged.rename(columns={'PCSA': 'pcsa',
-		# 	                          'ZCTA': 'zcta'},
-		# 	                 inplace=True)
-		# 	df_merged.loc[
-		# 		pd.to_numeric(df_merged['zip'], errors='coerce').between(1, 199, inclusive=True), 'state_cd'] = 'AK'
-		# 	df_merged.loc[df_merged['zip'] == '98189', 'state_cd'] = 'WA'
-		# 	df_merged.to_csv(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv'), index=False)
-
 		# zip_state_pcsa_ruca_zcta.csv was constructed with RUCA 3.1
 		# (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673),
 		# ZCTAs x zipcode mappings from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),
 		# zipcodes from multiple sources, and distance between centroids of zipcodes using NBER data
 		# (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)
-		df_zip_state_pcsa = pd.read_csv(os.path.join(data_folder, 'zip_state_pcsa_ruca_zcta.csv'),
+		df_zip_state_pcsa = pd.read_csv(os.path.join(zip_folder, 'zip_state_pcsa_ruca_zcta.csv'),
 		                                dtype=object)
 		df_zip_state_pcsa = df_zip_state_pcsa.assign(zip=df_zip_state_pcsa['zip'].str.replace(' ', '').str.zfill(9))
 		df_zip_state_pcsa = df_zip_state_pcsa.rename(columns={'zip': 'EL_RSDNC_ZIP_CD_LTST',
@@ -132,7 +116,7 @@ class PS(cms_file.CMSFile):
 		                        on='EL_RSDNC_ZIP_CD_LTST')
 
 		# RUCC codes were downloaded from https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372
-		df_rucc = pd.read_excel(os.path.join(data_folder, 'ruralurbancodes2013.xls'),
+		df_rucc = pd.read_excel(os.path.join(zip_folder, 'ruralurbancodes2013.xls'),
 		                        sheet_name='Rural-urban Continuum Code 2013',
 		                        dtype='object')
 		df_rucc = df_rucc.rename(columns={'State': 'resident_state_cd',
