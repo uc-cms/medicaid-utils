@@ -298,3 +298,23 @@ def cleanup_raw_npi_files(lst_year: List[int], pq_engine: str = 'fastparquet') -
 		generate_npi_taxonomy_mappings(year, pq_engine)
 
 
+def generate_oscar_fqhc_npis(lst_year, pq_engine='fastparquet'):
+	"""Saves list of NPIs with FQHC range oscar provider ids into a pickle file"""
+	df_npi_provider = dd.concat([dd.read_parquet(os.path.join(nppes_lookup_folder,
+	                                                          str(yr),
+	                                                          'npi_provider_parquet_cleaned'),
+	                                             engine=pq_engine,
+	                                             index=False) for yr in lst_year])
+	df_npi_provider['ccn'] = df_npi_provider['provider_id'].str.strip().str[-4:]
+	df_npi_provider = df_npi_provider.map_partitions(lambda pdf: pdf.assign(ccn=pd.to_numeric(pdf['ccn'],
+	                                                                                          errors='coerce')))
+
+	# Oscar provider numbers for FQHCs end in the range 1800 - 1989 or 1000 - 1199
+	pdf_fqhc_npi = df_npi_provider.loc[df_npi_provider['ccn'].between(1800, 1989, inclusive='both') |
+	                                   df_npi_provider['ccn'].between(1000, 1199, inclusive='both')].compute()
+	pdf_fqhc_npi.loc[(pdf_fqhc_npi['provider_id_type'] == 6)].to_pickle(
+		os.path.join(nppes_lookup_folder, 'nppes_fqhc_range_npis.pickle'))
+
+
+
+
