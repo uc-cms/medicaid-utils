@@ -58,12 +58,12 @@ class CMSFile():
 		"""Export parquet files (overwrite safe)"""
 		shutil.rmtree(dest_name + '_tmp', ignore_errors=True)
 		self.df.to_parquet(dest_name + '_tmp', engine='fastparquet', write_index=True)
-
 		del self.df
 		shutil.rmtree(dest_name, ignore_errors=True)
 		os.rename(dest_name + '_tmp', dest_name)
-		return dd.read_parquet(dest_name, index=False,
+		self.df = dd.read_parquet(dest_name, index=False,
 		                       engine='fastparquet').set_index(self.index_col, sorted=True)
+		return self.df
 
 	def clean(self):
 		"""Cleaning routines for date and gender columns in all CMS files"""

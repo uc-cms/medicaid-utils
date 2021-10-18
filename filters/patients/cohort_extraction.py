@@ -120,7 +120,7 @@ def extract_cohort(st, year, dct_diag_codes, dct_proc_codes, dct_cohort_filters,
 	
 	if 'ps' not in dct_cohort_filters:
 		dct_claims['ps'].df = dct_claims['ps'].df.loc[
-			dct_claims['ps'].df.index.isin(pdf_patients.loc[pdf_patients['include'] == 1].index.tolist())]
+			dct_claims['ps'].df.index.isin(pdf_patients.loc[pdf_patients['include'] == 1].index.tolist())].persist()
 		dct_claims['ps'].df = dct_claims['ps'].cache_results()
 		dct_claims['ps'] = filter_claim_files(dct_claims['ps'],
 		                                      {},
