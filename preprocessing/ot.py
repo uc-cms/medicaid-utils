@@ -80,10 +80,10 @@ class OT(cms_file.CMSFile):
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
                 EM=((pd.to_numeric(pdf['PRCDR_CD_SYS'], errors='coerce') == 1) &
-                    (pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99201, 99205, inclusive=True) |
-                     pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99211, 99215, inclusive=True) |
-                     pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99381, 99387, inclusive=True) |
-                     pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99391, 99397, inclusive=True)
+                    (pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99201, 99205, inclusive='both') |
+                     pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99211, 99215, inclusive='both') |
+                     pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99381, 99387, inclusive='both') |
+                     pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99391, 99397, inclusive='both')
                      )).astype(
                     int)))
         return None

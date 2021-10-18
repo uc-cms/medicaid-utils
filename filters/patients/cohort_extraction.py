@@ -25,7 +25,7 @@ def apply_range_filter(tpl_range, df, filter_name, col_name, data_type, f_type, 
 		if (data_type == 'date') else pd.to_numeric(tpl_range[1], errors='coerce')
 	if pd.notnull(start) | pd.notnull(end):
 		if ~(pd.isnull(start) | pd.isnull(end)):
-			df = df.loc[df[col_name].between(start, end, inclusive=True)]
+			df = df.loc[df[col_name].between(start, end, inclusive='both')]
 		elif pd.isnull(start):
 			df = df.loc[df[col_name] <= end]
 		else:

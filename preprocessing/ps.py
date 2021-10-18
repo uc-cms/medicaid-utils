@@ -142,7 +142,7 @@ class PS(cms_file.CMSFile):
 		if method == 'ruca':
 			self.df = self.df.map_partitions(
 				lambda pdf: pdf.assign(rural=np.select(
-					[pdf['ruca_code'].between(0, 4, inclusive=False),
+					[pdf['ruca_code'].between(0, 4, inclusive='neither'),
 					 (pdf['ruca_code'] >= 4)],
 					[0, 1],
 					default=-1)))
@@ -150,7 +150,7 @@ class PS(cms_file.CMSFile):
 			# RUCC codes >= 8 denote rural and the rest denote urban
 			self.df = self.df.map_partitions(
 				lambda pdf: pdf.assign(rural=np.select(
-					[pdf['rucc_code'].between(1, 7, inclusive=True),
+					[pdf['rucc_code'].between(1, 7, inclusive='both'),
 					 (pdf['rucc_code'] >= 8)],
 					[0, 1],
 					default=-1)))

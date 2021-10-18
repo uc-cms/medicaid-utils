@@ -58,6 +58,7 @@ class CMSFile():
 		"""Export parquet files (overwrite safe)"""
 		shutil.rmtree(dest_name + '_tmp', ignore_errors=True)
 		self.df.to_parquet(dest_name + '_tmp', engine='fastparquet', write_index=True)
+
 		del self.df
 		shutil.rmtree(dest_name, ignore_errors=True)
 		os.rename(dest_name + '_tmp', dest_name)
@@ -174,13 +175,13 @@ class CMSFile():
 			               birth_month=df.birth_date.dt.month,
 			               birth_day=df.birth_date.dt.day)
 			df = df.assign(age=df.year - df.birth_year)
-			df = df.assign(age=df['age'].where(df['age'].between(0, 115, inclusive=True), np.nan))
+			df = df.assign(age=df['age'].where(df['age'].between(0, 115, inclusive='both'), np.nan))
 			df = df.assign(age_day=(dd.to_datetime(df.year.astype(str) + '1231',
 			                                       format='%Y%m%d') - df.birth_date).dt.days,
 			               age_decimal=(dd.to_datetime(df.year.astype(str) + '1231',
 			                                           format='%Y%m%d') - df.birth_date) / np.timedelta64(1, 'Y'))
-			df = df.assign(adult=df['age'].between(18, 115, inclusive=True).astype(pd.Int64Dtype()),
-			               child=df['age'].between(0, 17, inclusive=True).astype(pd.Int64Dtype()))
+			df = df.assign(adult=df['age'].between(18, 115, inclusive='both').astype(pd.Int64Dtype()),
+			               child=df['age'].between(0, 17, inclusive='both').astype(pd.Int64Dtype()))
 			df = df.assign(adult=df['adult'].where(~(df['age'].isna()), np.nan),
 			               child=df['child'].where(~(df['age'].isna()), np.nan))
 			if self.ftype != 'ps':
