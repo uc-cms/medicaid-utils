@@ -57,7 +57,7 @@ def setup_logger(logger_name, log_file, level=logging.INFO):
                                        when='W0', backupCount=0)
     handler.setFormatter(formatter)
     logger = logging.getLogger(logger_name)
-    stream_handler = logging.StreamHandler()
+    stream_handler = logging.StreamHandler(stream=sys.stdout)
     logger.addHandler(handler)
     logger.addHandler(stream_handler)
     logger.setLevel(level)

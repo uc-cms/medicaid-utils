@@ -51,6 +51,7 @@ class CMSFile():
 		"""Save results in intermediate steps of some lengthy processing. Saving intermediate results speeds up
 		processing"""
 		if self.tmp_folder is not None:
+			self.df = self.df.repartition(partition_size="64MB").persist() # Patch, currently to_parquet results in error when any of the partitions is empty
 			return self.pq_export(self.tmp_folder)
 		return self.df
 
