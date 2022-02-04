@@ -1,18 +1,15 @@
-import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import sys
-import os
-import errno
 
-sys.path.append('../')
-from preprocessing import cms_file
-from common_utils import dataframe_utils, links
+sys.path.append('../../')
+from medicaid_utils.preprocessing import max_file
+from medicaid_utils.common_utils import dataframe_utils
 
 
-class IP(cms_file.CMSFile):
+class MAXIP(max_file.MAXFile):
 	def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, tmp_folder=None):
-		super(IP, self).__init__('ip', year, st, data_root, index_col, False, False, tmp_folder)
+		super(MAXIP, self).__init__('ip', year, st, data_root, index_col, False, False, tmp_folder)
 		self.dct_default_filters = {'missing_dob': 0, 'duplicated': 0}
 		if clean:
 			self.clean()
@@ -21,14 +18,14 @@ class IP(cms_file.CMSFile):
 			self.preprocess()
 
 	def clean(self):
-		super(IP, self).clean()
+		super(MAXIP, self).clean()
 		self.clean_diag_codes()
 		self.clean_proc_codes()
 		self.flag_common_exclusions()
 		self.flag_duplicates()
 
 	def preprocess(self):
-		super(IP, self).preprocess()
+		super(MAXIP, self).preprocess()
 		self.calculate_payment()
 		self.flag_ed_use()
 		self.flag_ip_overlaps()

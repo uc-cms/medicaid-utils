@@ -3,14 +3,11 @@ import os
 import logging
 import pandas as pd
 import gc
-import numpy as np
-import dask.dataframe as dd
 import shutil
 
-sys.path.append('../../')
-from preprocessing import cms_file, ip, ot, ps
-from filters.claims import dx_and_proc
-from common_utils import dataframe_utils
+sys.path.append('../../../')
+from medicaid_utils.preprocessing import cms_file, ip, ot, ps
+from medicaid_utils.filters.claims import dx_and_proc
 
 data_folder = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -71,12 +68,12 @@ def extract_cohort(st, year, dct_diag_codes, dct_proc_codes, dct_cohort_filters,
 	tmp_folder = os.path.join(dest_folder, 'tmp_files')
 	dct_claims = dict()
 	try:
-		dct_claims['ip'] = ip.IP(year, st, data_root, clean=True, preprocess=True)
-		dct_claims['ot'] = ot.OT(year, st, data_root, clean=True, preprocess=True, tmp_folder=os.path.join(tmp_folder, 'ot'))
-		dct_claims['rx'] = cms_file.CMSFile('rx', year, st, data_root, clean=False, preprocess=False)
-		dct_claims['ps'] = ps.PS(year, st, data_root, clean=True,
-		                         preprocess=True if 'ps' in dct_cohort_filters else False,
-		                         tmp_folder=os.path.join(tmp_folder, 'ps'))
+		dct_claims['ip'] = ip.MAXIP(year, st, data_root, clean=True, preprocess=True)
+		dct_claims['ot'] = ot.MAXOT(year, st, data_root, clean=True, preprocess=True, tmp_folder=os.path.join(tmp_folder, 'ot'))
+		dct_claims['rx'] = cms_file.MAXFile('rx', year, st, data_root, clean=False, preprocess=False)
+		dct_claims['ps'] = ps.MAXPS(year, st, data_root, clean=True,
+		                            preprocess=True if 'ps' in dct_cohort_filters else False,
+		                            tmp_folder=os.path.join(tmp_folder, 'ps'))
 		logger.info(f"{st} ({year}) has {dct_claims['ps'].df.shape[0].compute()} benes")
 	except Exception as ex:
 		logger.warning(f"{year} data is missing for {st}")
@@ -157,15 +154,15 @@ def export_cohort_datasets(pdf_cohort, year, st, data_root, lst_types_to_export,
 	for f_type in sorted(lst_types_to_export):
 		try:
 			if f_type == 'ip':
-				dct_claims[f_type] = ip.IP(year, st, data_root, clean=False, preprocess=False)
+				dct_claims[f_type] = ip.MAXIP(year, st, data_root, clean=False, preprocess=False)
 			elif f_type == 'ot':
-				dct_claims[f_type] = ot.OT(year, st, data_root, clean=False, preprocess=False,
-				                           tmp_folder=os.path.join(tmp_folder, f_type))
+				dct_claims[f_type] = ot.MAXOT(year, st, data_root, clean=False, preprocess=False,
+				                              tmp_folder=os.path.join(tmp_folder, f_type))
 			elif f_type == 'ps':
-				dct_claims[f_type] = ps.PS(year, st, data_root, clean=False, preprocess=False,
-				                           tmp_folder=os.path.join(tmp_folder, f_type))
+				dct_claims[f_type] = ps.MAXPS(year, st, data_root, clean=False, preprocess=False,
+				                              tmp_folder=os.path.join(tmp_folder, f_type))
 			else:
-				dct_claims[f_type] = cms_file.CMSFile(f_type, year, st, data_root, clean=False, preprocess=False)
+				dct_claims[f_type] = cms_file.MAXFile(f_type, year, st, data_root, clean=False, preprocess=False)
 		except Exception as ex:
 			logger.warning(f"{year} {f_type} data is missing for {st}")
 			logger.exception(ex)

@@ -3,17 +3,15 @@ import pandas as pd
 import numpy as np
 import os
 import sys
-from statistics import mode
 
-sys.path.append('../')
-from preprocessing import cms_file
-from common_utils import dataframe_utils
+sys.path.append('../../')
+from medicaid_utils.preprocessing import max_file
 
 data_folder = os.path.join(os.path.dirname(__file__), 'data')
 other_data_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'other_datasets', 'data')
 
 
-class PS(cms_file.CMSFile):
+class MAXPS(max_file.MAXFile):
 	"""Scripts to preprocess PS file"""
 	def __init__(self, year: int, st: str, data_root: str, index_col: str = 'BENE_MSIS',
 	             clean: bool = True, preprocess: bool = True, rural_method: str = 'ruca',
@@ -30,7 +28,7 @@ class PS(cms_file.CMSFile):
 		:param rural_method: Method to use for rural variable construction. Available options: 'ruca', 'rucc'
 		:param tmp_folder: Folder to use to store temporary files
 		"""
-		super(PS, self).__init__('ps', year, st, data_root, index_col, False, False, tmp_folder)
+		super(MAXPS, self).__init__('ps', year, st, data_root, index_col, False, False, tmp_folder)
 
 		# Default filters to filter out benes that do not meet minimum standard of cleanliness criteria
 		# duplicated_bene_id exclusion will remove benes with duplicated BENE_MSIS ids
@@ -42,13 +40,13 @@ class PS(cms_file.CMSFile):
 
 	def clean(self):
 		"""Runs cleaning routines and created common exclusion flags based on default filters"""
-		super(PS, self).clean()
+		super(MAXPS, self).clean()
 		self.flag_common_exclusions()
 		self.df = self.cache_results()
 
 	def preprocess(self, rural_method='ruca'):
 		"""Adds rural and eligibility criteria indicator variables"""
-		super(PS, self).preprocess()
+		super(MAXPS, self).preprocess()
 		self.flag_rural(rural_method)
 		self.add_eligibility_status_columns()
 		self.df = self.cache_results()

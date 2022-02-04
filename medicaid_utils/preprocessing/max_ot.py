@@ -1,18 +1,17 @@
 import dask.dataframe as dd
-import numpy as np
 import pandas as pd
 import sys
 
-sys.path.append('../')
-from preprocessing import cms_file
-from common_utils import dataframe_utils
+sys.path.append('../../')
+from medicaid_utils.preprocessing import max_file
+from medicaid_utils.common_utils import dataframe_utils
 
 
-class OT(cms_file.CMSFile):
+class MAXOT(max_file.MAXFile):
 
     def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, df_ip=None,
                  tmp_folder=None):
-        super(OT, self).__init__('ot', year, st, data_root, index_col, False, False, tmp_folder)
+        super(MAXOT, self).__init__('ot', year, st, data_root, index_col, False, False, tmp_folder)
         self.dct_default_filters = {'missing_dob': 0, 'duplicated': 0, 'missing_srvc_bgn_date': 0}
         if clean:
             self.clean()
@@ -20,7 +19,7 @@ class OT(cms_file.CMSFile):
             self.preprocess()
 
     def clean(self):
-        super(OT, self).clean()
+        super(MAXOT, self).clean()
         self.df = self.cache_results()
         self.clean_diag_codes()
         self.clean_proc_codes()
@@ -29,7 +28,7 @@ class OT(cms_file.CMSFile):
         self.df = self.cache_results()
 
     def preprocess(self):
-        super(OT, self).preprocess()
+        super(MAXOT, self).preprocess()
         self.calculate_payment()
         self.flag_ed_use()
         self.flag_transport()

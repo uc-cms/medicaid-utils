@@ -2,16 +2,16 @@ import pandas as pd
 import numpy as np
 import sys
 
-sys.path.append('../')
-from preprocessing import cms_file
+sys.path.append('../../')
+from medicaid_utils.preprocessing import max_file
 
 
-class CC(cms_file.CMSFile):
+class MAXCC(max_file.MAXFile):
 	"""Scripts to preprocess CC file"""
 	def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True):
 
 		# CC files are not separated by state. So load the single CC file for the year and filter to the specific state
-		super(CC, self).__init__('cc', year, '', data_root, index_col, clean, preprocess)
+		super(MAXCC, self).__init__('cc', year, '', data_root, index_col, clean, preprocess)
 		self.df = self.df.loc[self.df['STATE_CD'] == st]
 
 		if clean:

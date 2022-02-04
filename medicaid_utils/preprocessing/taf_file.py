@@ -6,11 +6,11 @@ import numpy as np
 import pandas as pd
 import shutil
 
-sys.path.append('../../')
-from common_utils import links, dataframe_utils
+sys.path.append('../../../')
+from medicaid_utils.common_utils import dataframe_utils, links
 
 
-class CMSFile():
+class TAFFile():
 	"""Parent class for all cms file classes, each of which will have clean and preprocess functions"""
 	def __init__(self, ftype: str, year: int, st: str, data_root: str, index_col: str = 'BENE_MSIS', clean: bool = True,
 	             preprocess: bool = True, tmp_folder: str = None):

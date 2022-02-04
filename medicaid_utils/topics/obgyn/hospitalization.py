@@ -1,7 +1,7 @@
 import dask.dataframe as dd
 import pandas as pd
 import numpy as np
-from filters.claims import dx_and_proc
+from medicaid_utils.filters.claims import dx_and_proc
 
 
 def flag_preterm(df_claims: dd.DataFrame) -> dd.DataFrame:

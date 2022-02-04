@@ -1,22 +1,17 @@
 import sys
 import os
 import requests
-import copy
 import re
 from time import sleep
 from datetime import datetime
 from fuzzywuzzy import process, fuzz
-import ast
-from collections import Counter
 import dask.dataframe as dd
 import pandas as pd
-import glob
 import numpy as np
 import usaddress
 
-sys.path.append('../../')
-from other_datasets import hcris
-from common_utils.usps_address import USPSAddress
+sys.path.append('../../../')
+from medicaid_utils.common_utils.usps_address import USPSAddress
 
 
 hcris_lookup_folder = os.path.join(os.path.dirname(__file__), 'data', 'hcris')

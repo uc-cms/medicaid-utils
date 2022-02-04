@@ -590,7 +590,7 @@ def generate_dxgrp_file():
 
     df_pqi_dxgroup['lst_dx'] =  df_pqi_dxgroup['lst_dx'].str.replace(' ', '', regex=True)
 
-    df_pqi_dxgroup.to_csv(os.path.join('../..', 'data', 'lookups', 'py_ip_pqi', 'dxgrp.csv'), index=False)
+    df_pqi_dxgroup.to_csv(os.path.join('../../..', 'data', 'lookups', 'py_ip_pqi', 'dxgrp.csv'), index=False)
 
 def generate_prgrp_file():
     df_pqi_prgrp = pd.DataFrame(columns=['primary_outcome', 'lst_pr', 'var_name', 'comments'])
@@ -798,7 +798,7 @@ def generate_prgrp_file():
                                                      'comments': 'Lower extremity amputation rate(ACSCLEA) - ACSC #16'},
                                                     index=[0]), ignore_index=True)
     df_pqi_prgrp['lst_pr'] = df_pqi_prgrp['lst_pr'].str.replace(' ', '', regex=True)
-    df_pqi_prgrp.to_csv(os.path.join('../..', 'data', 'lookups', 'py_ip_pqi', 'prgrp.csv'), index=False)
+    df_pqi_prgrp.to_csv(os.path.join('../../..', 'data', 'lookups', 'py_ip_pqi', 'prgrp.csv'), index=False)
 
 generate_dxgrp_file()
 generate_prgrp_file()
