@@ -5,8 +5,8 @@
 # from the environment for the first two.
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
-SOURCEDIR     = docs/sphinx/config/source
-BUILDDIR      = docs/sphinx/config/build
+SOURCEDIR     = docs/sphinx/source
+BUILDDIR      = docs/sphinx/build
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -18,3 +18,6 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+black:
+	black --line-length 79 --experimental-string-processing --extend-exclude '/(\.git | \.toml | \.hg | \.toml | \.hg | \.eggs | \__pycache__ | \.csv | \.parquet | \.txt | \.rst | \.tox | \.nox | \.venv | _build | buck-out | build | dist)/' .

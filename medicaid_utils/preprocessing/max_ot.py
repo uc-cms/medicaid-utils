@@ -2,17 +2,31 @@ import dask.dataframe as dd
 import pandas as pd
 import sys
 
-sys.path.append('../../')
+sys.path.append("../../")
 from medicaid_utils.preprocessing import max_file
 from medicaid_utils.common_utils import dataframe_utils
 
 
 class MAXOT(max_file.MAXFile):
-
-    def __init__(self, year, st, data_root, index_col='BENE_MSIS', clean=True, preprocess=True, df_ip=None,
-                 tmp_folder=None):
-        super(MAXOT, self).__init__('ot', year, st, data_root, index_col, False, False, tmp_folder)
-        self.dct_default_filters = {'missing_dob': 0, 'duplicated': 0, 'missing_srvc_bgn_date': 0}
+    def __init__(
+        self,
+        year,
+        st,
+        data_root,
+        index_col="BENE_MSIS",
+        clean=True,
+        preprocess=True,
+        df_ip=None,
+        tmp_folder=None,
+    ):
+        super(MAXOT, self).__init__(
+            "ot", year, st, data_root, index_col, False, False, tmp_folder
+        )
+        self.dct_default_filters = {
+            "missing_dob": 0,
+            "duplicated": 0,
+            "missing_srvc_bgn_date": 0,
+        }
         if clean:
             self.clean()
         if preprocess:
@@ -42,31 +56,58 @@ class MAXOT(max_file.MAXFile):
         self.df = self.cache_results()
 
     def flag_common_exclusions(self) -> None:
-        self.df = dataframe_utils.fix_index(self.df, self.index_col, drop_column=True)
+        self.df = dataframe_utils.fix_index(
+            self.df, self.index_col, drop_column=True
+        )
         self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(excl_missing_dob=pdf['birth_date'].isnull().astype(int),
-                                   excl_missing_srvc_bgn_date=pdf['srvc_bgn_date'].isnull().astype(int),
-                                   excl_encounter_claim=((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 77) |
-                                                         ((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 88) &
-                                                          (pd.to_numeric(pdf['TYPE_CLM_CD'], errors='coerce') == 3))
-                                                         ).astype(int),
-                                   excl_capitation_claim=((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 88) &
-                                                          (pd.to_numeric(pdf['TYPE_CLM_CD'], errors='coerce') == 2)
-                                                          ).astype(int),
-                                   excl_ffs_claim=(~((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 77) |
-                                                     ((pd.to_numeric(pdf['PHP_TYPE'], errors='coerce') == 88) &
-                                                      pd.to_numeric(pdf['TYPE_CLM_CD'], errors='coerce').isin([2, 3]))
-                                                     )).astype(int),
-                                   excl_female=(pdf['female'] == 1).astype(int)
-                                   ))
+            lambda pdf: pdf.assign(
+                excl_missing_dob=pdf["birth_date"].isnull().astype(int),
+                excl_missing_srvc_bgn_date=pdf["srvc_bgn_date"]
+                .isnull()
+                .astype(int),
+                excl_encounter_claim=(
+                    (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 77)
+                    | (
+                        (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 88)
+                        & (
+                            pd.to_numeric(pdf["TYPE_CLM_CD"], errors="coerce")
+                            == 3
+                        )
+                    )
+                ).astype(int),
+                excl_capitation_claim=(
+                    (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 88)
+                    & (pd.to_numeric(pdf["TYPE_CLM_CD"], errors="coerce") == 2)
+                ).astype(int),
+                excl_ffs_claim=(
+                    ~(
+                        (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 77)
+                        | (
+                            (
+                                pd.to_numeric(pdf["PHP_TYPE"], errors="coerce")
+                                == 88
+                            )
+                            & pd.to_numeric(
+                                pdf["TYPE_CLM_CD"], errors="coerce"
+                            ).isin([2, 3])
+                        )
+                    )
+                ).astype(int),
+                excl_female=(pdf["female"] == 1).astype(int),
+            )
+        )
 
     def flag_duplicates(self):
         self.df = dataframe_utils.fix_index(self.df, self.index_col, True)
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
-                excl_duplicated=pdf.assign(_index_col=pdf.index)[[col for col in pdf.columns
-                                                                  if col != 'excl_duplicated']]
-                    .duplicated(keep='first').astype(int)))
+                excl_duplicated=pdf.assign(_index_col=pdf.index)[
+                    [col for col in pdf.columns if col != "excl_duplicated"]
+                ]
+                .duplicated(keep="first")
+                .astype(int)
+            )
+        )
 
     def flag_em(self) -> None:
         """
@@ -78,13 +119,25 @@ class MAXOT(max_file.MAXFile):
         """
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
-                EM=((pd.to_numeric(pdf['PRCDR_CD_SYS'], errors='coerce') == 1) &
-                    (pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99201, 99205, inclusive='both') |
-                     pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99211, 99215, inclusive='both') |
-                     pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99381, 99387, inclusive='both') |
-                     pd.to_numeric(pdf['PRCDR_CD'], errors='coerce').between(99391, 99397, inclusive='both')
-                     )).astype(
-                    int)))
+                EM=(
+                    (pd.to_numeric(pdf["PRCDR_CD_SYS"], errors="coerce") == 1)
+                    & (
+                        pd.to_numeric(
+                            pdf["PRCDR_CD"], errors="coerce"
+                        ).between(99201, 99205, inclusive="both")
+                        | pd.to_numeric(
+                            pdf["PRCDR_CD"], errors="coerce"
+                        ).between(99211, 99215, inclusive="both")
+                        | pd.to_numeric(
+                            pdf["PRCDR_CD"], errors="coerce"
+                        ).between(99381, 99387, inclusive="both")
+                        | pd.to_numeric(
+                            pdf["PRCDR_CD"], errors="coerce"
+                        ).between(99391, 99397, inclusive="both")
+                    )
+                ).astype(int)
+            )
+        )
         return None
 
     def flag_dental(self) -> None:
@@ -97,9 +150,21 @@ class MAXOT(max_file.MAXFile):
         :param dask.DataFrame df: OT Dataframe
         :rtype: None
         """
-        self.df = self.df.assign(dental_TOS=(dd.to_numeric(self.df['MAX_TOS'], errors='coerce') == 9).astype(int))
-        self.df = self.df.assign(dental_PROC=(self.df.PRCDR_CD.astype(str).str.slice(stop=1) == 'D').astype(int))
-        self.df['dental'] = self.df[['dental_TOS', 'dental_PROC']].any(axis='columns').astype(int)
+        self.df = self.df.assign(
+            dental_TOS=(
+                dd.to_numeric(self.df["MAX_TOS"], errors="coerce") == 9
+            ).astype(int)
+        )
+        self.df = self.df.assign(
+            dental_PROC=(
+                self.df.PRCDR_CD.astype(str).str.slice(stop=1) == "D"
+            ).astype(int)
+        )
+        self.df["dental"] = (
+            self.df[["dental_TOS", "dental_PROC"]]
+            .any(axis="columns")
+            .astype(int)
+        )
         return None
 
     def flag_transport(self) -> None:
@@ -113,14 +178,28 @@ class MAXOT(max_file.MAXFile):
         :rtype: dask.DataFrame
         """
         self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(transport_TOS=(pd.to_numeric(pdf['MAX_TOS'],  # TOS: TYPE OF SERVICE
-                                                                errors='coerce') == 26).astype(int),
-                                   transport_POS=pd.to_numeric(pdf['PLC_OF_SRVC_CD'],
-                                                                # # 41 = AMBULANCE - LAND 42 = AMBULANCE - AIR OR WATER
-                                                                errors='coerce').isin([41, 42]).astype(
-                                       int)))
+            lambda pdf: pdf.assign(
+                transport_TOS=(
+                    pd.to_numeric(
+                        pdf["MAX_TOS"], errors="coerce"  # TOS: TYPE OF SERVICE
+                    )
+                    == 26
+                ).astype(int),
+                transport_POS=pd.to_numeric(
+                    pdf["PLC_OF_SRVC_CD"],
+                    # # 41 = AMBULANCE - LAND 42 = AMBULANCE - AIR OR WATER
+                    errors="coerce",
+                )
+                .isin([41, 42])
+                .astype(int),
+            )
+        )
 
-        self.df['transport'] = self.df[['transport_TOS', 'transport_POS']].any(axis='columns').astype(int)
+        self.df["transport"] = (
+            self.df[["transport_TOS", "transport_POS"]]
+            .any(axis="columns")
+            .astype(int)
+        )
         return None
 
     def find_ot_ip_overlaps(self, df_ip: dd.DataFrame) -> None:
@@ -132,38 +211,54 @@ class MAXOT(max_file.MAXFile):
         :param DataFrame df_ip: IP DataFrame
         :return: None
         """
-        df_ot_ip = self.df[['srvc_bgn_date', 'srvc_end_date']].repartition(partition_size="10MB") \
-            .merge(df_ip[['admsn_date', 'srvc_end_date']]
-                   .rename(columns={'srvc_end_date': 'ip_srvc_end_date'}),
-                   left_index=True,
-                   right_index=True,
-                   how='left')
+        df_ot_ip = (
+            self.df[["srvc_bgn_date", "srvc_end_date"]]
+            .repartition(partition_size="10MB")
+            .merge(
+                df_ip[["admsn_date", "srvc_end_date"]].rename(
+                    columns={"srvc_end_date": "ip_srvc_end_date"}
+                ),
+                left_index=True,
+                right_index=True,
+                how="left",
+            )
+        )
         df_ot_ip = dataframe_utils.fix_index(df_ot_ip, self.index_col)
 
         df_ot_ip = df_ot_ip.map_partitions(
-            lambda pdf: pdf.assign(overlap=(pdf['srvc_bgn_date'].between(pdf['admsn_date'],
-                                                                         pdf['ip_srvc_end_date'],
-                                                                         inclusive=True) |
-                                            pdf['srvc_end_date'].between(pdf['admsn_date'],
-                                                                         pdf['ip_srvc_end_date'],
-                                                                         inclusive=True)).astype(int)
-                                   )
+            lambda pdf: pdf.assign(
+                overlap=(
+                    pdf["srvc_bgn_date"].between(
+                        pdf["admsn_date"],
+                        pdf["ip_srvc_end_date"],
+                        inclusive=True,
+                    )
+                    | pdf["srvc_end_date"].between(
+                        pdf["admsn_date"],
+                        pdf["ip_srvc_end_date"],
+                        inclusive=True,
+                    )
+                ).astype(int)
+            )
         )
 
-        df_ot_ip = df_ot_ip.map_partitions(lambda pdf: pdf.groupby([self.index_col,
-                                                                    'srvc_bgn_date',
-                                                                    'srvc_end_date'])['overlap'].max() \
-                                                            .reset_index(drop=False) \
-                                                            .set_index(self.index_col)
-                                           )
+        df_ot_ip = df_ot_ip.map_partitions(
+            lambda pdf: pdf.groupby(
+                [self.index_col, "srvc_bgn_date", "srvc_end_date"]
+            )["overlap"]
+            .max()
+            .reset_index(drop=False)
+            .set_index(self.index_col)
+        )
         df_ot_ip = dataframe_utils.fix_index(df_ot_ip, self.index_col)
 
         df_ot_ip = df_ot_ip.compute()
 
-        self.df = self.df[self.df.columns.difference(['overlap'])].merge(df_ot_ip,
-                            on=[self.index_col, 'srvc_bgn_date', 'srvc_end_date'],
-                            how='inner'
-                            )
+        self.df = self.df[self.df.columns.difference(["overlap"])].merge(
+            df_ot_ip,
+            on=[self.index_col, "srvc_bgn_date", "srvc_end_date"],
+            how="inner",
+        )
         self.df = dataframe_utils.fix_index(self.df, self.index_col)
         return None
 
@@ -182,28 +277,46 @@ class MAXOT(max_file.MAXFile):
         :param df:
         :rtype: None
         """
-        self.df['ip_incl'] = 0
-        self.df['ed_incl'] = 0
-        self.df['ed_incl_dental'] = 0
-        self.df['ot_incl'] = 0
+        self.df["ip_incl"] = 0
+        self.df["ed_incl"] = 0
+        self.df["ed_incl_dental"] = 0
+        self.df["ot_incl"] = 0
 
-        transport_mask = (self.df['transport'] != 1)
-        dental_mask = (self.df['dental'] != 1)
-        overlap_mask = (self.df['overlap'] == 1)
-        ed_claim_mask = (self.df['any_ed'] == 1)
-        duration_mask = ((self.df['duration'] >= 0) |
-                         (self.df['srvc_end_date'].isna() &
-                          (self.df.srvc_bgn_date.dt.year <= self.df.year)))
+        transport_mask = self.df["transport"] != 1
+        dental_mask = self.df["dental"] != 1
+        overlap_mask = self.df["overlap"] == 1
+        ed_claim_mask = self.df["any_ed"] == 1
+        duration_mask = (self.df["duration"] >= 0) | (
+            self.df["srvc_end_date"].isna()
+            & (self.df.srvc_bgn_date.dt.year <= self.df.year)
+        )
 
         ip_mask = transport_mask & dental_mask & overlap_mask
-        ed_mask = transport_mask & dental_mask & (~overlap_mask) & duration_mask & ed_claim_mask
-        ed_mask_dental_allowed = transport_mask & (~overlap_mask) & duration_mask & ed_claim_mask
-        ot_mask = transport_mask & dental_mask & (~overlap_mask) & duration_mask & (~ed_claim_mask)
+        ed_mask = (
+            transport_mask
+            & dental_mask
+            & (~overlap_mask)
+            & duration_mask
+            & ed_claim_mask
+        )
+        ed_mask_dental_allowed = (
+            transport_mask & (~overlap_mask) & duration_mask & ed_claim_mask
+        )
+        ot_mask = (
+            transport_mask
+            & dental_mask
+            & (~overlap_mask)
+            & duration_mask
+            & (~ed_claim_mask)
+        )
 
-        self.df['ip_incl'] = self.df['ip_incl'].where(~ip_mask, 1)
-        self.df['ed_incl'] = self.df['ed_incl'].where(~ed_mask, 1)
-        self.df['ed_incl_dental'] = self.df['ed_incl_dental'].where(~ed_mask_dental_allowed, 1)
-        self.df['ot_incl'] = self.df['ot_incl'].where(~ot_mask, 1)
-        self.df['flag_drop'] = (self.df[['ip_incl', 'ed_incl', 'ot_incl']].sum(axis=1) < 1).astype(int)
+        self.df["ip_incl"] = self.df["ip_incl"].where(~ip_mask, 1)
+        self.df["ed_incl"] = self.df["ed_incl"].where(~ed_mask, 1)
+        self.df["ed_incl_dental"] = self.df["ed_incl_dental"].where(
+            ~ed_mask_dental_allowed, 1
+        )
+        self.df["ot_incl"] = self.df["ot_incl"].where(~ot_mask, 1)
+        self.df["flag_drop"] = (
+            self.df[["ip_incl", "ed_incl", "ot_incl"]].sum(axis=1) < 1
+        ).astype(int)
         return None
-
