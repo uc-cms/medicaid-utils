@@ -10,7 +10,7 @@ from typing import List
 import logging
 import pyarrow as pa
 
-sys.path.append("../../")
+# sys.path.append("../../medicaid_utils")
 from medicaid_utils.common_utils import recipes
 
 
