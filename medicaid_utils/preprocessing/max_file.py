@@ -36,7 +36,7 @@ class MAXFile:
         :param preprocess: Add commonly used constructed variable columns, if True
         :param tmp_folder: Folder to use to store temporary files
         """
-        self.fileloc = links.get_parquet_loc(data_root, ftype, st, year)
+        self.fileloc = links.get_max_parquet_loc(data_root, ftype, st, year)
         self.ftype = ftype
         self.index_col = index_col
         self.year = year

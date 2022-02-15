@@ -119,17 +119,30 @@ def get_patient_ids_with_conditions(
 
 
 def flag_diagnoses_and_procedures(
-    dct_diag_codes: dict, dct_proc_codes: dict, df_claims: dd.DataFrame
+    dct_diag_codes: dict, dct_proc_codes: dict, df_claims: dd.DataFrame,
+        cms_format: str = 'MAX'
 ) -> dd.DataFrame:
     """
-    Create flags for claims containing provided diagnosis or procedure codes
-    :param diag_include:
-    :param proc_include:
-    :param df_claims:
-    :param logger_name:
-    :return:
+
+
+    Parameters
+    ----------
+    dct_diag_codes
+    dct_proc_codes
+    df_claims
+    cms_format
+
+    Returns
+    -------
+
     """
     if df_claims is not None:
+        lst_diag_col = [col for col in df_claims.columns if col.startswith('DIAG_CD_')] if (cms_format == 'MAX') \
+            else [col for col in df_claims.columns if col.startswith("DGNS_CD_") or (col == ['ADMTG_DGNS_CD'])]
+        lst_proc_col = [col for col in df_claims.columns if col.startswith("PRCDR_CD_")
+                        and (not col.startswith("PRCDR_CD_SYS_"))] if (cms_format == 'MAX') \
+            else [col for col in df_claims.columns if col.startswith("PRCDR_CD")
+                  and (not (col.startswith("PRCDR_CD_SYS") | col.startswith("PRCDR_CD_DT")))]
         if bool(dct_diag_codes):
             lst_incl_excl_condn = [
                 condn
@@ -185,8 +198,7 @@ def flag_diagnoses_and_procedures(
                                                 na=False,
                                             )
                                         )
-                                        for col in pdf.columns
-                                        if col.startswith("DIAG_CD_")
+                                        for col in lst_diag_col
                                     ]
                                 )
                                 .any(axis=1)
@@ -212,8 +224,7 @@ def flag_diagnoses_and_procedures(
                                             ),
                                             na=False,
                                         )
-                                        for col in pdf.columns
-                                        if col.startswith("DIAG_CD_")
+                                        for col in lst_diag_col
                                     ]
                                 )
                                 .any(axis=1)
@@ -241,8 +252,7 @@ def flag_diagnoses_and_procedures(
                                                 na=False,
                                             )
                                         )
-                                        for col in pdf.columns
-                                        if col.startswith("DIAG_CD_")
+                                        for col in lst_diag_col
                                     ]
                                 )
                                 .any(axis=1)
@@ -255,14 +265,7 @@ def flag_diagnoses_and_procedures(
             )
 
         if bool(dct_proc_codes):
-            n_prcdr_cd_col = len(
-                [
-                    col
-                    for col in df_claims.columns
-                    if col.startswith("PRCDR_CD_")
-                    and (not col.startswith("PRCDR_CD_SYS_"))
-                ]
-            )
+            n_prcdr_cd_col = len(lst_proc_col)
             lst_sys_code = list(
                 set(
                     [

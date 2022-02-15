@@ -2,11 +2,11 @@ import numpy as np
 import pandas as pd
 import sys
 
-from medicaid_utils.preprocessing import max_file
+from medicaid_utils.preprocessing import taf_file
 from medicaid_utils.common_utils import dataframe_utils
 
 
-class MAXIP(max_file.MAXFile):
+class TAFIP(taf_file.TAFFile):
     def __init__(
         self,
         year,
@@ -17,7 +17,7 @@ class MAXIP(max_file.MAXFile):
         preprocess=True,
         tmp_folder=None,
     ):
-        super(MAXIP, self).__init__(
+        super(TAFIP, self).__init__(
             "ip", year, st, data_root, index_col, False, False, tmp_folder
         )
         self.dct_default_filters = {"missing_dob": 0, "duplicated": 0}
@@ -28,14 +28,14 @@ class MAXIP(max_file.MAXFile):
             self.preprocess()
 
     def clean(self):
-        super(MAXIP, self).clean()
+        super(TAFIP, self).clean()
         self.clean_diag_codes()
         self.clean_proc_codes()
         self.flag_common_exclusions()
         self.flag_duplicates()
 
     def preprocess(self):
-        super(MAXIP, self).preprocess()
+        super(TAFIP, self).preprocess()
         self.calculate_payment()
         self.flag_ed_use()
         self.flag_ip_overlaps()

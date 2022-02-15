@@ -36,23 +36,21 @@ class TAFFile:
         :param preprocess: Add commonly used constructed variable columns, if True
         :param tmp_folder: Folder to use to store temporary files
         """
-        self.fileloc = links.get_parquet_loc(data_root, ftype, st, year)
+        self.dct_fileloc = links.get_taf_parquet_loc(data_root, ftype, st, year)
         self.ftype = ftype
         self.index_col = index_col
         self.year = year
         self.st = st
         self.tmp_folder = tmp_folder
-        if not os.path.exists(self.fileloc):
+        if any(not os.path.exists(fileloc) for fileloc in self.dct_fileloc.values()):
             raise FileNotFoundError(
-                errno.ENOENT, os.strerror(errno.ENOENT), self.fileloc
+                errno.ENOENT, os.strerror(errno.ENOENT), ", ".join(self.dct_fileloc.values())
             )
-        self.df = dd.read_parquet(
-            self.fileloc, index=False, engine="fastparquet"
-        ).set_index(index_col, sorted=True)
-        self.df = self.df.assign(
-            HAS_BENE=(self.df["BENE_ID"].fillna("").str.len() > 0).astype(int)
-        )
-        self.lst_raw_col = list(self.df.columns)
+        self.dct_files = dict([(ftype, dd.read_parquet(
+            self.dct_fileloc[ftype], index=False, engine="fastparquet"
+        ).set_index(index_col, sorted=True)) for ftype in self.dct_fileloc])
+
+        self.dct_collist = dict([(ftype, self.dct_files[ftype]) for ftype in self.dct_files])
 
         # This dictionary variable can be used to filter out data that will not met minimum quality expections
         self.dct_default_filters = {}
@@ -61,31 +59,31 @@ class TAFFile:
         if preprocess:
             self.preprocess()
 
-    def cache_results(self, repartition=False):
+    def cache_results(self, f_subtype, repartition=False):
         """Save results in intermediate steps of some lengthy processing. Saving intermediate results speeds up
         processing"""
         if self.tmp_folder is not None:
             if repartition:
-                self.df = self.df.repartition(
+                self.dct_files[f_subtype] = self.dct_files[f_subtype].repartition(
                     partition_size="20MB"
                 ).persist()  # Patch, currently to_parquet results
                 # in error when any of the partitions is empty
-            return self.pq_export(self.tmp_folder)
-        return self.df
+            self.pq_export(f_subtype, os.path.join(self.tmp_folder, f_subtype))
+        return None
 
-    def pq_export(self, dest_name):
+    def pq_export(self, f_subtype, dest_name):
         """Export parquet files (overwrite safe)"""
         shutil.rmtree(dest_name + "_tmp", ignore_errors=True)
-        self.df.to_parquet(
+        self.dct_files[f_subtype].to_parquet(
             dest_name + "_tmp", engine="fastparquet", write_index=True
         )
-        del self.df
+        del self.dct_files[f_subtype]
         shutil.rmtree(dest_name, ignore_errors=True)
         os.rename(dest_name + "_tmp", dest_name)
-        self.df = dd.read_parquet(
+        self.dct_files[f_subtype] = dd.read_parquet(
             dest_name, index=False, engine="fastparquet"
         ).set_index(self.index_col, sorted=True)
-        return self.df
+        return None
 
     def clean(self):
         """Cleaning routines for date and gender columns in all CMS files"""
@@ -124,8 +122,9 @@ class TAFFile:
 
     def clean_diag_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
+        lst_diag_cd_col = [col for col in self.df.columns if col.startswith("DGNS_CD_") or (col == ['ADMTG_DGNS_CD'])]
         if (
-            len([col for col in self.df.columns if col.startswith("DIAG_CD_")])
+            len(lst_diag_cd_col)
             > 0
         ):
             self.df = self.df.map_partitions(
@@ -138,8 +137,7 @@ class TAFFile:
                                 .str.replace("[^a-zA-Z0-9]+", "", regex=True)
                                 .str.upper(),
                             )
-                            for col in pdf.columns
-                            if col.startswith("DIAG_CD_")
+                            for col in lst_diag_cd_col
                         ]
                     )
                 )
@@ -148,14 +146,11 @@ class TAFFile:
 
     def clean_proc_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
+        lst_prcdr_cd_col = [col for col in self.df.columns if col.startswith("PRCDR_CD")
+                            and (not (col.startswith("PRCDR_CD_SYS") | col.startswith("PRCDR_CD_DT")))]
         if (
             len(
-                [
-                    col
-                    for col in self.df.columns
-                    if col.startswith("PRCDR_CD")
-                    and (not col.startswith("PRCDR_CD_SYS"))
-                ]
+                lst_prcdr_cd_col
             )
             > 0
         ):
@@ -169,9 +164,7 @@ class TAFFile:
                                 .str.replace("[^a-zA-Z0-9]+", "", regex=True)
                                 .str.upper(),
                             )
-                            for col in pdf.columns
-                            if col.startswith("PRCDR_CD")
-                            and (not col.startswith("PRCDR_CD_SYS"))
+                            for col in lst_prcdr_cd_col
                         ]
                     )
                 )
@@ -219,31 +212,29 @@ class TAFFile:
         :rtype:None
         """
         if self.ftype in ["ip", "lt", "ot", "ps", "rx"]:
-            df = self.df.assign(
-                **dict(
-                    [
-                        ("year", self.df[col].astype(int))
-                        for col in ["MAX_YR_DT", "YR_NUM"]
-                        if col in self.df.columns
-                    ]
-                )
-            )
+            # df = self.df.assign(
+            #     **dict(
+            #         [
+            #             ("year", self.df[col].astype(int))
+            #             for col in ["MAX_YR_DT", "YR_NUM"]
+            #             if col in self.df.columns
+            #         ]
+            #     )
+            # )
             dct_date_col = {
-                "EL_DOB": "birth_date",
-                "ADMSN_DT": "admsn_date",
+                "IP_FIL_DT": "filing_date",
+                "BIRTH_DT": "birth_date",
+                "ADMSM_DT": "admsn_date",
                 "SRVC_BGN_DT": "srvc_bgn_date",
                 "SRVC_END_DT": "srvc_end_date",
-                "EL_DOD": "date_of_death",
-                "MDCR_DOD": "medicare_date_of_death",
-                "PRNCPL_PRCDR_DT": "prncpl_proc_date",
             }
             for date_col in [
-                col for col in dct_date_col if col not in df.columns
+                col for col in dct_date_col if col not in self.df.columns
             ]:
                 dct_date_col.pop(date_col, None)
 
-            df = df.assign(
-                **dict([(dct_date_col[col], df[col]) for col in dct_date_col])
+            df = self.df.assign(
+                **dict([(dct_date_col[col], self.df[col]) for col in dct_date_col])
             )
             # converting lst_col columns to datetime type
             lst_col_to_convert = [
@@ -260,6 +251,7 @@ class TAFFile:
                 df, lst_col_to_convert
             )
             df = df.assign(
+                year=df.filing_date.dt.year,
                 birth_year=df.birth_date.dt.year,
                 birth_month=df.birth_date.dt.month,
                 birth_day=df.birth_date.dt.day,
@@ -329,10 +321,7 @@ class TAFFile:
                 )
             if self.ftype == "ip":
                 df = df.assign(
-                    missing_admsn_date=df["admsn_date"].isnull().astype(int),
-                    missing_prncpl_proc_date=df["prncpl_proc_date"]
-                    .isnull()
-                    .astype(int),
+                    missing_admsn_date=df["admsn_date"].isnull().astype(int)
                 )
 
                 df = df.assign(
@@ -350,27 +339,16 @@ class TAFFile:
                         np.nan,
                     )
                 )
-                df = df.assign(
-                    prncpl_proc_date=df["prncpl_proc_date"].where(
-                        ~df["prncpl_proc_date"].isnull(), df["admsn_date"]
-                    )
-                )
 
                 df = df.assign(
                     age_day_admsn=(
                         df["admsn_date"] - df["birth_date"]
-                    ).dt.days,
-                    age_day_prncpl_proc=(
-                        df["prncpl_proc_date"] - df["birth_date"]
                     ).dt.days,
                 )
                 df = df.assign(
                     age_admsn=(df["age_day_admsn"].fillna(0) / 365.25).astype(
                         int
                     ),
-                    age_prncpl_proc=(
-                        df["age_day_prncpl_proc"].fillna(0) / 365.25
-                    ).astype(int),
                 )
 
             if self.ftype == "ot":
