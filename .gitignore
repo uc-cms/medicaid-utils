@@ -6,6 +6,7 @@ notebooks
 dask-tmp
 logs
 rop
+data
 medicaid_utils/other_datasets/data/nppes
 medicaid_utils/other_datasets/data/uds
 interpregnancy-interval

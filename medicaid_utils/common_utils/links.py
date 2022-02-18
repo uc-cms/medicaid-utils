@@ -21,7 +21,7 @@ def get_taf_parquet_loc(root, type, state, year):
         str(year),
         'taf')
     if type in ['ip', 'ot']:
-        dct_fileloc['header'] = os.path.join(data_folder, f'TAF{type.upper}H', 'parquet', state.upper())
-        dct_fileloc['line'] = os.path.join(data_folder, f'TAF{type.upper}L', 'parquet', state.upper())
-        dct_fileloc['occurrence_code'] = os.path.join(data_folder, f'TAF{type.upper}OCCR', 'parquet', state.upper())
+        dct_fileloc['header'] = os.path.join(data_folder, f'TAF{type.upper()}H', 'parquet', state.upper())
+        dct_fileloc['line'] = os.path.join(data_folder, f'TAF{type.upper()}L', 'parquet', state.upper())
+        dct_fileloc['occurrence_code'] = os.path.join(data_folder, f'TAF{type.upper()}OCCR', 'parquet', state.upper())
     return dct_fileloc

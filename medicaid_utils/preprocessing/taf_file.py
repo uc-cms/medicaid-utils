@@ -42,10 +42,14 @@ class TAFFile:
         self.year = year
         self.st = st
         self.tmp_folder = tmp_folder
-        if any(not os.path.exists(fileloc) for fileloc in self.dct_fileloc.values()):
-            raise FileNotFoundError(
-                errno.ENOENT, os.strerror(errno.ENOENT), ", ".join(self.dct_fileloc.values())
-            )
+        for fileloc in list(self.dct_fileloc.keys()):
+            if not os.path.exists(self.dct_fileloc[fileloc]):
+                print(f"{fileloc} does not exist for {st}")
+                if fileloc != 'occurrence_code':
+                    raise FileNotFoundError(
+                        errno.ENOENT, os.strerror(errno.ENOENT), ", ".join(self.dct_fileloc.values())
+                    )
+                self.dct_fileloc.pop(fileloc)
         self.dct_files = dict([(ftype, dd.read_parquet(
             self.dct_fileloc[ftype], index=False, engine="fastparquet"
         ).set_index(index_col, sorted=True)) for ftype in self.dct_fileloc])
@@ -122,53 +126,56 @@ class TAFFile:
 
     def clean_diag_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
-        lst_diag_cd_col = [col for col in self.df.columns if col.startswith("DGNS_CD_") or (col == ['ADMTG_DGNS_CD'])]
-        if (
-            len(lst_diag_cd_col)
-            > 0
-        ):
-            self.df = self.df.map_partitions(
-                lambda pdf: pdf.assign(
-                    **dict(
-                        [
-                            (
-                                col,
-                                pdf[col]
-                                .str.replace("[^a-zA-Z0-9]+", "", regex=True)
-                                .str.upper(),
-                            )
-                            for col in lst_diag_cd_col
-                        ]
+        for ftype in self.dct_files:
+            df = self.dct_files[ftype]
+            lst_diag_cd_col = [col for col in df.columns if col.startswith("DGNC_CD_") or (col == ['ADMTG_DGNS_CD'])]
+            if (len(lst_diag_cd_col) > 0):
+                df = df.map_partitions(
+                    lambda pdf: pdf.assign(
+                        **dict(
+                            [
+                                (
+                                    col,
+                                    pdf[col]
+                                    .str.replace("[^a-zA-Z0-9]+", "", regex=True)
+                                    .str.upper(),
+                                )
+                                for col in lst_diag_cd_col
+                            ]
+                        )
                     )
                 )
-            )
+                self.dct_files[ftype] = df
         return None
 
     def clean_proc_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
-        lst_prcdr_cd_col = [col for col in self.df.columns if col.startswith("PRCDR_CD")
+        for ftype in self.dct_files:
+            df = self.dct_files[ftype]
+            lst_prcdr_cd_col = [col for col in df.columns if col.startswith("PRCDR_CD")
                             and (not (col.startswith("PRCDR_CD_SYS") | col.startswith("PRCDR_CD_DT")))]
-        if (
-            len(
-                lst_prcdr_cd_col
-            )
-            > 0
-        ):
-            self.df = self.df.map_partitions(
-                lambda pdf: pdf.assign(
-                    **dict(
-                        [
-                            (
-                                col,
-                                pdf[col]
-                                .str.replace("[^a-zA-Z0-9]+", "", regex=True)
-                                .str.upper(),
-                            )
-                            for col in lst_prcdr_cd_col
-                        ]
+            if (
+                len(
+                    lst_prcdr_cd_col
+                )
+                > 0
+            ):
+                df = df.map_partitions(
+                    lambda pdf: pdf.assign(
+                        **dict(
+                            [
+                                (
+                                    col,
+                                    pdf[col]
+                                    .str.replace("[^a-zA-Z0-9]+", "", regex=True)
+                                    .str.upper(),
+                                )
+                                for col in lst_prcdr_cd_col
+                            ]
+                        )
                     )
                 )
-            )
+                self.dct_files[ftype] = df
         return None
 
     def process_date_cols(self) -> None:
@@ -211,164 +218,166 @@ class TAFFile:
                     medicare_date_of_death - Medicare date of death (MDCR_DOD)
         :rtype:None
         """
-        if self.ftype in ["ip", "lt", "ot", "ps", "rx"]:
-            # df = self.df.assign(
-            #     **dict(
-            #         [
-            #             ("year", self.df[col].astype(int))
-            #             for col in ["MAX_YR_DT", "YR_NUM"]
-            #             if col in self.df.columns
-            #         ]
-            #     )
-            # )
-            dct_date_col = {
-                "IP_FIL_DT": "filing_date",
-                "BIRTH_DT": "birth_date",
-                "ADMSM_DT": "admsn_date",
-                "SRVC_BGN_DT": "srvc_bgn_date",
-                "SRVC_END_DT": "srvc_end_date",
-            }
-            for date_col in [
-                col for col in dct_date_col if col not in self.df.columns
-            ]:
-                dct_date_col.pop(date_col, None)
+        for ftype in self.dct_files:
+            df = self.dct_files[ftype]
+            if self.ftype in ["ip", "lt", "ot", "ps", "rx"]:
+                # df = self.df.assign(
+                #     **dict(
+                #         [
+                #             ("year", self.df[col].astype(int))
+                #             for col in ["MAX_YR_DT", "YR_NUM"]
+                #             if col in self.df.columns
+                #         ]
+                #     )
+                # )
+                dct_date_col = {
+                    "IP_FIL_DT": "filing_date",
+                    "BIRTH_DT": "birth_date",
+                    "ADMSM_DT": "admsn_date",
+                    "SRVC_BGN_DT": "srvc_bgn_date",
+                    "SRVC_END_DT": "srvc_end_date",
+                }
+                for date_col in [
+                    col for col in dct_date_col if col not in df.columns
+                ]:
+                    dct_date_col.pop(date_col, None)
 
-            df = self.df.assign(
-                **dict([(dct_date_col[col], self.df[col]) for col in dct_date_col])
-            )
-            # converting lst_col columns to datetime type
-            lst_col_to_convert = [
-                dct_date_col[col]
-                for col in dct_date_col.keys()
-                if (
-                    df[[dct_date_col[col]]]
-                    .select_dtypes(include=[np.datetime64])
-                    .shape[1]
-                    == 0
-                )
-            ]
-            df = dataframe_utils.convert_ddcols_to_datetime(
-                df, lst_col_to_convert
-            )
-            df = df.assign(
-                year=df.filing_date.dt.year,
-                birth_year=df.birth_date.dt.year,
-                birth_month=df.birth_date.dt.month,
-                birth_day=df.birth_date.dt.day,
-            )
-            df = df.assign(age=df.year - df.birth_year)
-            df = df.assign(
-                age=df["age"].where(
-                    df["age"].between(0, 115, inclusive="both"), np.nan
-                )
-            )
-            df = df.assign(
-                age_day=(
-                    dd.to_datetime(
-                        df.year.astype(str) + "1231", format="%Y%m%d"
-                    )
-                    - df.birth_date
-                ).dt.days,
-                age_decimal=(
-                    dd.to_datetime(
-                        df.year.astype(str) + "1231", format="%Y%m%d"
-                    )
-                    - df.birth_date
-                )
-                / np.timedelta64(1, "Y"),
-            )
-            df = df.assign(
-                adult=df["age"]
-                .between(18, 115, inclusive="both")
-                .astype(pd.Int64Dtype()),
-                child=df["age"]
-                .between(0, 17, inclusive="both")
-                .astype(pd.Int64Dtype()),
-            )
-            df = df.assign(
-                adult=df["adult"].where(~(df["age"].isna()), np.nan),
-                child=df["child"].where(~(df["age"].isna()), np.nan),
-            )
-            if self.ftype != "ps":
-                df = df.map_partitions(
-                    lambda pdf: pdf.assign(
-                        adult=pdf.groupby(pdf.index)["adult"].transform(max),
-                        age=pdf.groupby(pdf.index)["age"].transform(max),
-                        age_day=pdf.groupby(pdf.index)["age_day"].transform(
-                            max
-                        ),
-                        age_decimal=pdf.groupby(pdf.index)[
-                            "age_decimal"
-                        ].transform(max),
-                    )
-                )
-            if "date_of_death" in df.columns:
                 df = df.assign(
-                    death=(
-                        (
-                            df.date_of_death.dt.year.fillna(
-                                df.year + 10
-                            ).astype(int)
-                            <= df.year
+                    **dict([(dct_date_col[col], df[col]) for col in dct_date_col])
+                )
+                # converting lst_col columns to datetime type
+                lst_col_to_convert = [
+                    dct_date_col[col]
+                    for col in dct_date_col.keys()
+                    if (
+                        df[[dct_date_col[col]]]
+                        .select_dtypes(include=[np.datetime64])
+                        .shape[1]
+                        == 0
+                    )
+                ]
+                df = dataframe_utils.convert_ddcols_to_datetime(
+                    df, lst_col_to_convert
+                )
+                df = df.assign(
+                    year=df.filing_date.dt.year,
+                    birth_year=df.birth_date.dt.year,
+                    birth_month=df.birth_date.dt.month,
+                    birth_day=df.birth_date.dt.day,
+                )
+                df = df.assign(age=df.year - df.birth_year)
+                df = df.assign(
+                    age=df["age"].where(
+                        df["age"].between(0, 115, inclusive="both"), np.nan
+                    )
+                )
+                df = df.assign(
+                    age_day=(
+                        dd.to_datetime(
+                            df.year.astype(str) + "1231", format="%Y%m%d"
                         )
-                        | (
-                            df.medicare_date_of_death.dt.year.fillna(
-                                df.year + 10
-                            ).astype(int)
-                            <= df.year
+                        - df.birth_date
+                    ).dt.days,
+                    age_decimal=(
+                        dd.to_datetime(
+                            df.year.astype(str) + "1231", format="%Y%m%d"
                         )
-                    ).astype(int)
-                )
-            if self.ftype == "ip":
-                df = df.assign(
-                    missing_admsn_date=df["admsn_date"].isnull().astype(int)
-                )
-
-                df = df.assign(
-                    admsn_date=df["admsn_date"].where(
-                        ~df["admsn_date"].isnull(), df["srvc_bgn_date"]
-                    ),
-                    los=(df["srvc_end_date"] - df["admsn_date"]).dt.days + 1,
-                )
-                df = df.assign(
-                    los=df["los"].where(
-                        (
-                            (df["year"] >= df["admsn_date"].dt.year)
-                            & (df["admsn_date"] <= df["srvc_end_date"])
-                        ),
-                        np.nan,
+                        - df.birth_date
                     )
+                    / np.timedelta64(1, "Y"),
                 )
+                df = df.assign(
+                    adult=df["age"]
+                    .between(18, 115, inclusive="both")
+                    .astype(pd.Int64Dtype()),
+                    child=df["age"]
+                    .between(0, 17, inclusive="both")
+                    .astype(pd.Int64Dtype()),
+                )
+                df = df.assign(
+                    adult=df["adult"].where(~(df["age"].isna()), np.nan),
+                    child=df["child"].where(~(df["age"].isna()), np.nan),
+                )
+                if self.ftype != "ps":
+                    df = df.map_partitions(
+                        lambda pdf: pdf.assign(
+                            adult=pdf.groupby(pdf.index)["adult"].transform(max),
+                            age=pdf.groupby(pdf.index)["age"].transform(max),
+                            age_day=pdf.groupby(pdf.index)["age_day"].transform(
+                                max
+                            ),
+                            age_decimal=pdf.groupby(pdf.index)[
+                                "age_decimal"
+                            ].transform(max),
+                        )
+                    )
+                if "date_of_death" in df.columns:
+                    df = df.assign(
+                        death=(
+                            (
+                                df.date_of_death.dt.year.fillna(
+                                    df.year + 10
+                                ).astype(int)
+                                <= df.year
+                            )
+                            | (
+                                df.medicare_date_of_death.dt.year.fillna(
+                                    df.year + 10
+                                ).astype(int)
+                                <= df.year
+                            )
+                        ).astype(int)
+                    )
+                if self.ftype == "ip":
+                    df = df.assign(
+                        missing_admsn_date=df["admsn_date"].isnull().astype(int)
+                    )
 
-                df = df.assign(
-                    age_day_admsn=(
-                        df["admsn_date"] - df["birth_date"]
-                    ).dt.days,
-                )
-                df = df.assign(
-                    age_admsn=(df["age_day_admsn"].fillna(0) / 365.25).astype(
-                        int
-                    ),
-                )
+                    df = df.assign(
+                        admsn_date=df["admsn_date"].where(
+                            ~df["admsn_date"].isnull(), df["srvc_bgn_date"]
+                        ),
+                        los=(df["srvc_end_date"] - df["admsn_date"]).dt.days + 1,
+                    )
+                    df = df.assign(
+                        los=df["los"].where(
+                            (
+                                (df["year"] >= df["admsn_date"].dt.year)
+                                & (df["admsn_date"] <= df["srvc_end_date"])
+                            ),
+                            np.nan,
+                        )
+                    )
 
-            if self.ftype == "ot":
-                df = df.assign(
-                    duration=(
-                        df["srvc_end_date"] - df["srvc_bgn_date"]
-                    ).dt.days,
-                    age_day_srvc_bgn=(
-                        df["srvc_bgn_date"] - df["birth_date"]
-                    ).dt.days,
-                )
-                df = df.assign(
-                    duration=df["duration"].where(
-                        (df["srvc_bgn_date"] <= df["srvc_end_date"]), np.nan
-                    ),
-                    age_srvc_bgn=(
-                        df["age_day_srvc_bgn"].fillna(0) / 365.25
-                    ).astype(int),
-                )
-            self.df = df
+                    df = df.assign(
+                        age_day_admsn=(
+                            df["admsn_date"] - df["birth_date"]
+                        ).dt.days,
+                    )
+                    df = df.assign(
+                        age_admsn=(df["age_day_admsn"].fillna(0) / 365.25).astype(
+                            int
+                        ),
+                    )
+
+                if self.ftype == "ot":
+                    df = df.assign(
+                        duration=(
+                            df["srvc_end_date"] - df["srvc_bgn_date"]
+                        ).dt.days,
+                        age_day_srvc_bgn=(
+                            df["srvc_bgn_date"] - df["birth_date"]
+                        ).dt.days,
+                    )
+                    df = df.assign(
+                        duration=df["duration"].where(
+                            (df["srvc_bgn_date"] <= df["srvc_end_date"]), np.nan
+                        ),
+                        age_srvc_bgn=(
+                            df["age_day_srvc_bgn"].fillna(0) / 365.25
+                        ).astype(int),
+                    )
+                self.dct_files[ftype] = df
         return None
 
     def calculate_payment(self) -> None:
