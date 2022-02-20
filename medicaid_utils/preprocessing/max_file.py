@@ -76,9 +76,14 @@ class MAXFile:
     def pq_export(self, dest_name):
         """Export parquet files (overwrite safe)"""
         shutil.rmtree(dest_name + "_tmp", ignore_errors=True)
-        self.df.to_parquet(
-            dest_name + "_tmp", engine="fastparquet", write_index=True
-        )
+        try:
+            self.df.to_parquet(
+                dest_name + "_tmp", engine="fastparquet", write_index=True
+            )
+        except Exception as ex:
+            self.df.to_parquet(
+                dest_name + "_tmp", engine="pyarrow", write_index=True
+            )
         del self.df
         shutil.rmtree(dest_name, ignore_errors=True)
         os.rename(dest_name + "_tmp", dest_name)
