@@ -9,7 +9,6 @@ Published online May 31, 2016. doi:10.1001/jamainternmed.2016.2086.
 __author__ = "Manoradhan Murugesan"
 __email__ = "manorathan@uchicago.edu"
 
-import math
 import pandas as pd
 import os
 import numpy as np
@@ -156,15 +155,13 @@ class LowValueCare:
 
     @classmethod
     def construct_low_value_care_measures(
-        cls, dct_msr_spec, dct_denom_spec, pdf_dates, year
+        cls, dct_msr_spec, dct_denom_spec, pdf_dates
     ):
         for idx, row in pdf_dates.iterrows():
             for service, measure in dct_msr_spec:
                 dct_service = dct_msr_spec[(service, measure)]
-
-                dct_denom_pop = dict()
-                dct_denom_pop_msr = dict()
-
+                lst_denom_condns = []
+                lst_denom_with_msr = []
                 lst_msr_dates = (
                     row[f"msr_{service}_all_dates"]
                     if (
@@ -172,19 +169,12 @@ class LowValueCare:
                         & (dct_service["exclude_ed"] != 1)
                     )
                     else (
-                        (
-                            row[f"msr_{service}_ip_dates"]
-                            + row[f"msr_{service}_ot_dates"]
-                        )
+                        row[f"msr_{service}_ip_dates"]
+                        + row[f"msr_{service}_ot_dates"]
                         if (dct_service["exclude_ip"] != 1)
                         else (row[f"msr_{service}_ot_dates"])
                     )
                 )
-
-                srvc_prior_gap = dct_service["prior_months"] * 30
-                srvc_followup_gap = dct_service["followup_months"] * 30
-                min_enrolled_months = dct_service["min_enrolled_months"]
-
                 for denom_condn in dct_service["denom_description"]:
                     lst_denom_dates = (
                         row[f"denom_{denom_condn}_all_dates"]
@@ -219,195 +209,111 @@ class LowValueCare:
                         )
                     )
                     if bool(lst_denom_dates):
-                        if (
-                            f"excl_chronic_{denom_condn}"
-                            in dct_service["denom_description"]
-                        ):
-                            lst_denom_dates = min(
-                                x for x in lst_denom_dates if x.year == year
-                            )
-                        if (
-                            f"{denom_condn.replace('excl_chronic', '')}"
-                            in dct_service["denom_description"]
-                        ):
-                            lst_denom_dates = [
-                                x
-                                for x in lst_denom_dates
-                                if x
-                                < min(
-                                    x
-                                    for x in lst_denom_dates
-                                    if x.year == year
-                                )
-                            ]
-
-                        denom_prior_gap = (
+                        lst_denom_condns.append(denom_condn)
+                    prior_gap = (
+                        dct_denom_spec[(measure, denom_condn)]["prior_days"]
+                        if pd.notnull(
                             dct_denom_spec[(measure, denom_condn)][
                                 "prior_days"
                             ]
-                            if pd.notnull(
-                                dct_denom_spec[(measure, denom_condn)][
-                                    "prior_days"
-                                ]
-                            )
-                            else dct_denom_spec[(measure, denom_condn)][
-                                "prior_months"
-                            ]
-                            * 30
                         )
-                        denom_followup_gap = (
+                        else dct_denom_spec[(measure, denom_condn)][
+                            "prior_months"
+                        ]
+                        * 30
+                    )
+                    if pd.isnull(prior_gap):
+                        prior_gap = dct_service["prior_months"] * 30
+                    followup_gap = (
+                        dct_denom_spec[(measure, denom_condn)]["followup_days"]
+                        if pd.notnull(
                             dct_denom_spec[(measure, denom_condn)][
                                 "followup_days"
                             ]
-                            if pd.notnull(
-                                dct_denom_spec[(measure, denom_condn)][
-                                    "followup_days"
-                                ]
-                            )
-                            else dct_denom_spec[(measure, denom_condn)][
-                                "followup_months"
-                            ]
-                            * 30
                         )
+                        else dct_denom_spec[(measure, denom_condn)][
+                            "followup_months"
+                        ]
+                        * 30
+                    )
+                    if pd.isnull(followup_gap):
+                        followup_gap = dct_service["followup_months"] * 30
 
-                        gap = np.nan
-                        if pd.notnull(denom_prior_gap):
-                            lst_denom_dates = [
-                                denom_date
-                                for denom_date in lst_denom_dates
-                                if len(
-                                    row["eligibility_pattern"][
-                                        : (
-                                            denom_date.month
-                                            + (denom_date.year - year)
-                                            - 1
-                                        )
-                                    ].replace("0", "")
-                                )
-                                >= (
-                                    math.ceil(denom_prior_gap / 30)
-                                    if pd.isnull(min_enrolled_months)
-                                    else min_enrolled_months
-                                )
-                            ]
-                            gap = denom_prior_gap
+                    gap = (
+                        prior_gap
+                        if not (pd.isnull(prior_gap))
+                        else (-1 * followup_gap)
+                    )
 
-                        if pd.notnull(denom_followup_gap) or pd.notnull(
-                            srvc_prior_gap
-                        ):
-                            followup_gap = max(
-                                (
-                                    0
-                                    if pd.isnull(denom_followup_gap)
-                                    else denom_followup_gap
-                                ),
-                                (
-                                    0
-                                    if pd.isnull(srvc_prior_gap)
-                                    else srvc_prior_gap
-                                ),
-                            )
-                            lst_denom_dates = [
-                                denom_date
-                                for denom_date in lst_denom_dates
-                                if len(
-                                    row["eligibility_pattern"][
-                                        (
-                                            denom_date.month
-                                            + (denom_date.year - year)
-                                            - 1
-                                        ) :
-                                    ].replace("0", "")
-                                )
-                                >= (
-                                    math.ceil(followup_gap / 30)
-                                    if pd.isnull(min_enrolled_months)
-                                    else min_enrolled_months
-                                )
-                            ]
-                            gap = -1 * followup_gap
-
-                        if bool(lst_denom_dates):
-                            dct_denom_pop = {denom_condn: lst_denom_dates[-1]}
-
-                        offset = (
+                    offset = (
+                        dct_denom_spec[(measure, denom_condn)]["offset_days"]
+                        if pd.notnull(
                             dct_denom_spec[(measure, denom_condn)][
                                 "offset_days"
                             ]
-                            if pd.notnull(
-                                dct_denom_spec[(measure, denom_condn)][
-                                    "offset_days"
-                                ]
-                            )
-                            else dct_denom_spec[(measure, denom_condn)][
-                                "offset_months"
-                            ]
-                            * 30
                         )
-
-                        offset = (
-                            0
-                            if pd.isnull(offset)
-                            else (
-                                (-1 * offset)
-                                if (pd.notnull(gap) & (gap < 0))
-                                else offset
-                            )
-                        )
-
-                        lst_denom_gaps = [
-                            ((y - x).days, x, y)
-                            for x, y in product(lst_denom_dates, lst_msr_dates)
+                        else dct_denom_spec[(measure, denom_condn)][
+                            "offset_months"
                         ]
+                        * 30
+                    )
+                    if pd.isnull(offset):
+                        offset = 0
+                    if pd.notnull(gap) & (gap < 0):
+                        offset = -1 * offset
 
-                        if pd.notnull(gap):
-                            lst_matches = []
-                            if gap < 0:
-                                lst_matches = [
-                                    x
-                                    for x in lst_denom_gaps
-                                    if (offset >= x[0] >= gap)
-                                ]
-                            if gap > 0:
-                                lst_matches = [
-                                    x
-                                    for x in lst_denom_gaps
-                                    if (gap >= x[0] >= offset)
-                                ]
+                    lst_denom_gaps = [
+                        ((y - x).days, x, y)
+                        for x, y in product(lst_denom_dates, lst_msr_dates)
+                    ]
+
+                    if pd.notnull(gap):
+                        if gap < 0:
+                            lst_matches = [
+                                x
+                                for x in lst_denom_gaps
+                                if (offset >= x[0] >= gap)
+                            ]
                             if bool(lst_matches):
-                                dct_denom_pop_msr[denom_condn] = lst_matches[
-                                    0
-                                ][2]
-                        else:
-                            if bool(lst_denom_dates) & bool(lst_msr_dates):
-                                dct_denom_pop_msr[
-                                    denom_condn
-                                ] = lst_denom_gaps[-1][2]
-                if bool(dct_denom_pop) & (
+                                lst_denom_with_msr.append(
+                                    (denom_condn, lst_matches[0])
+                                )
+                        if gap > 0:
+                            lst_matches = [
+                                x
+                                for x in lst_denom_gaps
+                                if (offset >= x[0] >= gap)
+                            ]
+                            if bool(lst_matches):
+                                lst_denom_with_msr.append(
+                                    (denom_condn, lst_matches[0])
+                                )
+                    else:
+                        if bool(lst_denom_dates) & bool(lst_msr_dates):
+                            lst_denom_with_msr.append(
+                                (denom_condn, lst_denom_gaps[-1])
+                            )
+                if bool(lst_denom_condns) & (
                     not any(
                         condn
-                        for condn in dct_denom_pop
+                        for condn in lst_denom_condns
                         if condn.startswith("excl_")
                     )
                 ):
                     pdf_dates.loc[idx, f"pop_denom_{measure}"] = 1
-                    pdf_dates.loc[idx, f"date_pop_denom_{measure}"] = max(
-                        x for x in dct_denom_pop.values()
-                    )
-                if bool(dct_denom_pop_msr) & (
+                if bool(lst_denom_with_msr) & (
                     not any(
                         condn
-                        for condn in dct_denom_pop_msr
-                        if condn.startswith("excl_")
+                        for condn in lst_denom_with_msr
+                        if condn[0].startswith("excl_")
                     )
                 ):
                     pdf_dates.at[
                         idx, f"service_with_denom_{service}_{measure}"
                     ] = 1
                     pdf_dates.at[
-                        idx,
-                        f"date_service_with_denom_dates_{service}_{measure}",
-                    ] = max(x for x in dct_denom_pop_msr.values())
+                        idx, f"service_with_denom_dates_{service}_{measure}"
+                    ] = lst_denom_with_msr[0][1][1]
         return pdf_dates
 
     @classmethod
