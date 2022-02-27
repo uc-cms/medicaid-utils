@@ -4,7 +4,6 @@ import numpy as np
 import os
 import sys
 
-sys.path.append("../../")
 from medicaid_utils.preprocessing import max_file
 
 data_folder = os.path.join(os.path.dirname(__file__), "data")
@@ -456,7 +455,9 @@ class MAXPS(max_file.MAXFile):
         self.df = self.df.assign(
             total_elg_mon=self.df[[f"elg_mon_{i}" for i in range(1, 13)]].sum(
                 axis=1
-            ),
+            )
+        )
+        self.df = self.df.assign(
             elg_full_year=(self.df["total_elg_mon"] == 12).astype(int),
             elg_over_9mon=(self.df["total_elg_mon"] >= 9).astype(int),
             elg_over_6mon=(self.df["total_elg_mon"] >= 6).astype(int),
