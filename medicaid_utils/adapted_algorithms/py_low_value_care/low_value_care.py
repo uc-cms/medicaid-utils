@@ -482,14 +482,16 @@ class LowValueCare:
 	@classmethod
 	def combine_dates_in_claims(cls, st, year, lst_condn, index_col, claims_folder):
 		pdf_dates = cls.get_dates(st, year, lst_condn, index_col, claims_folder)
-		pdf_prior_dates = cls.get_dates(
-			st,
-			year - 1,
-			[condn for condn in lst_condn if not condn.startswith("msr_")],
-			index_col,
-			claims_folder
-		)
-		pdf_dates = pd.concat([pdf_dates, pdf_prior_dates])
+		if os.path.exists(os.path.join(claims_folder, 'ot', f"{st}_{year}.parquet")) \
+			& os.path.exists(os.path.join(claims_folder, 'ip', f"{st}_{year}.parquet")):
+			pdf_prior_dates = cls.get_dates(
+				st,
+				year - 1,
+				[condn for condn in lst_condn if not condn.startswith("msr_")],
+				index_col,
+				claims_folder
+			)
+			pdf_dates = pd.concat([pdf_dates, pdf_prior_dates])
 		pdf_dates = pdf_dates.groupby(pdf_dates.index).agg(
 			dict(
 				[
@@ -503,11 +505,14 @@ class LowValueCare:
 		)
 		pdf_ps = pd.read_parquet(os.path.join(claims_folder, 'ps', f'{st}_{year}.parquet'), engine='fastparquet',
 		                         index=False).set_index(index_col)[['eligibility_pattern']]
-		pdf_ps = pdf_ps.merge(pd.read_parquet(os.path.join(claims_folder, 'ps', f"{st}_{year - 1}.parquet"),
-		                                      engine='fastparquet', index=False).set_index(index_col)[
-			                      ['eligibility_pattern']]
-		                      .rename(columns={'eligibility_pattern': 'lookback_eligibility_pattern'}),
-		                      on=index_col, how='left')
+		if os.path.exists(os.path.join(claims_folder, 'ps', f"{st}_{year}.parquet")):
+			pdf_ps = pdf_ps.merge(pd.read_parquet(os.path.join(claims_folder, 'ps', f"{st}_{year - 1}.parquet"),
+			                                      engine='fastparquet', index=False).set_index(index_col)[
+				                      ['eligibility_pattern']]
+			                      .rename(columns={'eligibility_pattern': 'lookback_eligibility_pattern'}),
+			                      on=index_col, how='left')
+		else:
+			pdf_ps = pdf_ps.assign(lookback_eligibility_pattern='0'*12)
 		pdf_ps = pdf_ps.assign(eligibility_pattern=pdf_ps['lookback_eligibility_pattern'].fillna('0' * 12) +
 		                                           pdf_ps['eligibility_pattern'])
 		pdf_dates = pdf_dates.merge(pdf_ps, on=index_col, how='left')
@@ -638,6 +643,3 @@ def construct_low_value_care_measures(
 	pdf_dates = LowValueCare.construct_low_value_care_measures(
 		dct_measures, dct_denom, pdf_dates
 	)
-
-
-
