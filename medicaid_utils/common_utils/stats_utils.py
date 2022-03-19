@@ -35,8 +35,10 @@ def get_phi(pdf_x):
     ]
     lst_nondiag = [item for sublist in lst_nondiag for item in sublist]
     lst_margins = [
-        pdf_x.iloc[i, :].values.sum() for i in range(pdf_x.shape[0])
-    ] + [pdf_x.iloc[:, i].values.sum() for i in range(pdf_x.shape[1])]
+                      pdf_x.iloc[i, :].values.sum() for i in
+                      range(pdf_x.shape[0])
+                  ] + [pdf_x.iloc[:, i].values.sum() for i in
+                       range(pdf_x.shape[1])]
     prod_diag = reduce(mul, lst_diag, 1)
     prod_nondiag = reduce(mul, lst_nondiag, 1)
     prod_margins = reduce(mul, lst_margins, 1)
@@ -45,56 +47,57 @@ def get_phi(pdf_x):
 
 
 def get_contingency_table(
-    pdf_included, lst_metrics, pop_col_name, lst_count_col, dct_labels
+        pdf_dataset, lst_categorical_metrics, pop_col_name,
+        lst_numeric_col_to_binarize, dct_labels
 ):
     lst_pop_val = sorted(
-        pdf_included.loc[~pdf_included[pop_col_name].isna()][pop_col_name]
-        .astype(int)
-        .unique()
-        .tolist()
+        pdf_dataset.loc[~pdf_dataset[pop_col_name].isna()][pop_col_name]
+            .astype(int)
+            .unique()
+            .tolist()
     )
     dct_labels = dict(
         [
             (val, dct_labels[val])
-            for val in list(dct_labels.keys())
+            for val in dct_labels
             if (val in lst_pop_val)
         ]
     )
     lst_pop_val = sorted([val for val in lst_pop_val if val in dct_labels])
     lst_labels = [dct_labels[val] for val in lst_pop_val]
     lst_pop_size = [
-        pdf_included.loc[pdf_included[pop_col_name] == pop_val].shape[0]
+        pdf_dataset.loc[pdf_dataset[pop_col_name] == pop_val].shape[0]
         for pop_val in lst_pop_val
     ]
 
     lst_crosstab = []
-    pdf_included = pdf_included.assign(
+    pdf_dataset = pdf_dataset.assign(
         **dict(
             [
-                (col, pd.to_numeric(pdf_included[col], errors="coerce"))
-                for col in lst_count_col
+                (col, pd.to_numeric(pdf_dataset[col], errors="coerce"))
+                for col in lst_numeric_col_to_binarize
             ]
         )
     )
-    pdf_included = pdf_included.assign(
+    pdf_dataset = pdf_dataset.assign(
         **dict(
             [
-                (col, pd.to_numeric(pdf_included[col], errors="ignore"))
-                for col in lst_metrics
+                (col, pd.to_numeric(pdf_dataset[col], errors="ignore"))
+                for col in lst_categorical_metrics
             ]
         )
     )
     lstpdf_crosstab_pretty = []
 
-    for col in lst_metrics + lst_count_col:
-        pdf_temp = pdf_included.copy()[[pop_col_name, col]]
+    for col in lst_categorical_metrics + lst_numeric_col_to_binarize:
+        pdf_temp = pdf_dataset.copy()[[pop_col_name, col]]
         pdf_temp = pdf_temp.loc[pd.notnull(pdf_temp[col])]
         lst_metric_pop_size = [
             pdf_temp.loc[pdf_temp[pop_col_name] == pop_val].shape[0]
             for pop_val in lst_pop_val
         ]
 
-        if col in lst_count_col:
+        if col in lst_numeric_col_to_binarize:
             pdf_temp = pdf_temp.assign(
                 **dict([(col, (pdf_temp[col] > 0).astype(int))])
             )
@@ -108,18 +111,17 @@ def get_contingency_table(
         pdf_crosstab = None
         if pdf_temp[col].nunique() > 1:
             pdf_crosstab = pd.crosstab(pdf_temp[pop_col_name], pdf_temp[col])
-            # phi = get_phi(pdf_crosstab)
             p_val = st.chi2_contingency(pdf_crosstab)[1]
             cramers_v = cramers_corrected_stat(pdf_crosstab)
             pdf_crosstab = (
                 pd.DataFrame(pdf_crosstab.T.loc[1, :]).T
                 if (
-                    len(
-                        set(pdf_crosstab.columns.tolist()).difference(
-                            set([0, 1])
+                        len(
+                            set(pdf_crosstab.columns.tolist()).difference(
+                                set([0, 1])
+                            )
                         )
-                    )
-                    == 0
+                        == 0
                 )
                 else pd.DataFrame(pdf_crosstab.T)
             )
@@ -136,13 +138,11 @@ def get_contingency_table(
                 phi if (len(pdf_crosstab.index) == 1) else np.nan
             )
             # pdf_crosstab['phi'] = phi
-            pdf_crosstab[
-                "cramers_v"
-            ] = cramers_v  # if (len(pdf_crosstab.index) == 1) else np.nan
+            pdf_crosstab["cramers_v"] = cramers_v
             pdf_crosstab.index.name = "metric"
             lst_crosstab.append(pdf_crosstab)
         else:
-            pdf_crosstab = pd.DataFrame({"phi": corr}, index=[col])
+            pdf_crosstab = pd.DataFrame({"phi": phi}, index=[col])
             pdf_crosstab.index.name = "metric"
             lst_crosstab.append(pdf_crosstab)
 
@@ -165,8 +165,8 @@ def get_contingency_table(
                     (
                         tpl_label_n[0] + "_N",
                         pdf_pretty[tpl_label_n[0]]
-                        .fillna(0)
-                        .apply(lambda x: int(x)),
+                            .fillna(0)
+                            .apply(lambda x: int(x)),
                     )
                     for tpl_label_n in zip(lst_labels, lst_metric_pop_size)
                 ]
@@ -174,8 +174,8 @@ def get_contingency_table(
                     (
                         tpl_label_n[0] + "_%",
                         pdf_pretty[tpl_label_n[0]]
-                        .fillna(0)
-                        .apply(
+                            .fillna(0)
+                            .apply(
                             lambda x: (x * 100 / tpl_label_n[1])
                             if (tpl_label_n[1] != 0)
                             else np.nan
@@ -187,8 +187,8 @@ def get_contingency_table(
                     (
                         tpl_label_n[0] + "_denom",
                         pdf_pretty[tpl_label_n[0]]
-                        .fillna(0)
-                        .apply(lambda x: tpl_label_n[1]),
+                            .fillna(0)
+                            .apply(lambda x: tpl_label_n[1]),
                     )
                     for tpl_label_n in zip(lst_labels, lst_metric_pop_size)
                 ]
@@ -224,16 +224,15 @@ def get_contingency_table(
 
     pdf_crosstab = pd.concat(lst_crosstab)
     pdf_crosstab_pretty = pd.concat(lstpdf_crosstab_pretty)
-
     return pdf_crosstab, pdf_crosstab_pretty
 
 
-def get_ttest_table(pdf_included, lst_metrics, pop_col_name, dct_labels):
+def get_ranksum_table(pdf_dataset, lst_metrics, pop_col_name, dct_labels):
     lst_pop_val = sorted(
-        pdf_included.loc[~pdf_included[pop_col_name].isna()][pop_col_name]
-        .astype(int)
-        .unique()
-        .tolist()
+        pdf_dataset.loc[~pdf_dataset[pop_col_name].isna()][pop_col_name]
+            .astype(int)
+            .unique()
+            .tolist()
     )
     dct_labels = dict(
         [
@@ -245,27 +244,27 @@ def get_ttest_table(pdf_included, lst_metrics, pop_col_name, dct_labels):
     lst_pop_val = sorted([val for val in lst_pop_val if val in dct_labels])
     lst_labels = [dct_labels[val] for val in lst_pop_val]
     lst_pop_size = [
-        pdf_included.loc[pdf_included[pop_col_name] == pop_val].shape[0]
+        pdf_dataset.loc[pdf_dataset[pop_col_name] == pop_val].shape[0]
         for pop_val in lst_pop_val
     ]
-    n_1 = pdf_included.loc[pdf_included[pop_col_name] == 1].shape[0]
-    n_0 = pdf_included.loc[pdf_included[pop_col_name] == 0].shape[0]
-    lst_crosstab = []
-    lst_crosstab_pretty = []
+    n_1 = pdf_dataset.loc[pdf_dataset[pop_col_name] == 1].shape[0]
+    n_0 = pdf_dataset.loc[pdf_dataset[pop_col_name] == 0].shape[0]
+    lst_ranksum = []
+    lst_ranksum_pretty = []
     for col in lst_metrics:
         corr = np.nan
         if len(lst_pop_val) == 2:
-            corr = pdf_included[[pop_col_name] + [col]].corr().iloc[0, 1]
+            corr = pdf_dataset[[pop_col_name] + [col]].corr().iloc[0, 1]
         lst_pop_metric_mean = [
-            pdf_included[pdf_included[pop_col_name] == pop_val][col].mean()
+            pdf_dataset[pdf_dataset[pop_col_name] == pop_val][col].mean()
             for pop_val in lst_pop_val
         ]
         lst_pop_metric_std = [
-            pdf_included[pdf_included[pop_col_name] == pop_val][col].std()
+            pdf_dataset[pdf_dataset[pop_col_name] == pop_val][col].std()
             for pop_val in lst_pop_val
         ]
         lst_pop_metric_sem = [
-            pdf_included[pdf_included[pop_col_name] == pop_val][col].sem()
+            pdf_dataset[pdf_dataset[pop_col_name] == pop_val][col].sem()
             for pop_val in lst_pop_val
         ]
 
@@ -278,42 +277,31 @@ def get_ttest_table(pdf_included, lst_metrics, pop_col_name, dct_labels):
             )
         ]
 
-        # n1_mean = pdf_included[pdf_included[pop_col_name] == 1][col].mean()
-        # n1_std = pdf_included[pdf_included[pop_col_name] == 1][col].std()
-        # n1_sem = pdf_included[pdf_included[pop_col_name] == 1][col].sem()
-        # n1_ci1, n1_ci2 = st.t.interval(0.95, n_1 - 1,
-        #             loc=n1_mean, scale=n1_sem)
-        # n0_mean = pdf_included[pdf_included[pop_col_name] == 0][col].mean()
-        # n0_std = pdf_included[pdf_included[pop_col_name] == 0][col].std()
-        # n0_sem = pdf_included[pdf_included[pop_col_name] == 0][col].sem()
-        # n0_ci1, n0_ci2 = st.t.interval(0.95, n_0 - 1,
-        #                             loc=n0_mean, scale=n0_sem)
         z = np.nan
         p = np.nan
         try:
             if len(lst_pop_val) == 2:
                 z, p = st.ranksums(
                     *[
-                        pdf_included.loc[
-                            pdf_included[pop_col_name] == pop_val
-                        ][col].dropna()
+                        pdf_dataset.loc[
+                            pdf_dataset[pop_col_name] == pop_val
+                            ][col].dropna()
                         for pop_val in lst_pop_val
                     ]
                 )
             if len(lst_pop_val) > 2:
                 z, p = st.kruskal(
                     *[
-                        pdf_included.loc[
-                            pdf_included[pop_col_name] == pop_val
-                        ][col].dropna()
+                        pdf_dataset.loc[
+                            pdf_dataset[pop_col_name] == pop_val
+                            ][col].dropna()
                         for pop_val in lst_pop_val
                     ]
                 )
         except Exception as ex:
             pass
-        # t2, p2 = st.ttest_ind(pdf_included.loc[pdf_included[pop_col_name] == 1][col].dropna(),
-        #              pdf_included.loc[pdf_included[pop_col_name] == 0][col].dropna())
-        pdf_crosstab = pd.DataFrame(
+
+        pdf_ranksum = pd.DataFrame(
             dict(
                 [("metric", col)]
                 + [
@@ -335,8 +323,8 @@ def get_ttest_table(pdf_included, lst_metrics, pop_col_name, dct_labels):
             ),
             index=[0],
         )
-        lst_crosstab.append(pdf_crosstab)
-        pdf_crosstab_pretty = pd.DataFrame(
+        lst_ranksum.append(pdf_ranksum)
+        pdf_ranksum_pretty = pd.DataFrame(
             dict(
                 [
                     (
@@ -349,34 +337,26 @@ def get_ttest_table(pdf_included, lst_metrics, pop_col_name, dct_labels):
                         ),
                     )
                     for tpl_val in zip(
-                        lst_labels,
-                        lst_pop_size,
-                        lst_pop_metric_mean,
-                        lst_pop_metric_std,
-                        lst_pop_metric_ci,
-                    )
+                                        lst_labels,
+                                        lst_pop_size,
+                                        lst_pop_metric_mean,
+                                        lst_pop_metric_std,
+                                        lst_pop_metric_ci,
+                                        )
                 ]
-                + [  # (true_val_name + ' (N: {0})'.format(n_1),
-                    #  '{:0.2f} (STD: {:0.2f}) (CI: {:0.2f}, {:0.2f})'.format(n1_mean,
-                    #                                                         n1_std,
-                    #                                                         n1_ci1,
-                    #                                                         n1_ci2)),
-                    # (false_val_name + ' (N: {0})'.format(n_0),
-                    #  '{:0.2f} (STD: {:0.2f}) (CI: {:0.2f}, {:0.2f})'.format(n0_mean,
-                    #                                                         n0_std,
-                    #                                                         n0_ci1,
-                    #                                                         n0_ci2)),
+                + [
                     ("Z score", "{0} (p: {1})".format(str(z), str(p))),
                     ("Correlation with indicator variable", corr),
                 ]
             ),
             index=[col],
         )
-        pdf_crosstab_pretty.index.name = "metric"
-        lst_crosstab_pretty.append(pdf_crosstab_pretty)
-    pdf_crosstab = pd.concat(lst_crosstab, ignore_index=True)
-    pdf_crosstab_pretty = pd.concat(lst_crosstab_pretty)
-    return pdf_crosstab, pdf_crosstab_pretty
+        pdf_ranksum_pretty.index.name = "metric"
+        lst_ranksum_pretty.append(pdf_ranksum_pretty)
+    pdf_ranksum = pd.concat(lst_ranksum, ignore_index=True)
+    pdf_ranksum_pretty = pd.concat(lst_ranksum_pretty)
+
+    return pdf_ranksum, pdf_ranksum_pretty
 
 
 def get_cont_table_statewise(
