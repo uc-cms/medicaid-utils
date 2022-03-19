@@ -153,7 +153,7 @@ def get_contingency_table(
             **dict(
                 [
                     (col, np.nan)
-                    for col in lst_labels
+                    for col in lst_labels + ["p_val", "phi", "cramers_v", "pop_size"]
                     if col not in pdf_pretty.columns
                 ]
             )
@@ -368,12 +368,13 @@ def get_cont_table_statewise(
     lst_st,
     state_col_name,
 ):
-    lst_pdf_t = []
-    for st in lst_st + ["Σ All States"]:
-        pdf_t, pdf_t_pretty = get_contingency_table(
+    pdf_pretty_combined = {}
+    sorted(lst_st)
+    for st in ["All States"] + lst_st:
+        pdf_t, pdf_pretty = get_contingency_table(
             (
                 pdf_included.loc[pdf_included[state_col_name] == st]
-                if (st != "Σ All States")
+                if (st != "All States")
                 else pdf_included
             ),
             lst_metrics,
@@ -381,45 +382,9 @@ def get_cont_table_statewise(
             lst_count_metrics,
             dct_labels,
         )
-        pdf_t_pretty = pdf_t_pretty.reset_index()
-        lst_labels = [
-            lbl
-            for lbl in list(dct_labels.values())
-            if (
-                len(
-                    [
-                        col
-                        for col in pdf_t_pretty.columns
-                        if col.startswith(lbl)
-                    ]
-                )
-                > 0
-            )
-        ]
-        lst_pop_size = [
-            [col for col in pdf_t_pretty.columns if col.startswith(lbl)][0]
-            for lbl in lst_labels
-        ]
-        # true_val_N = [col for col in pdf_t_pretty.columns if col.startswith(true_val_name)][0]
-        # false_val_N = [col for col in pdf_t_pretty.columns if col.startswith(false_val_name)][0]
-        pdf_t_pretty = pdf_t_pretty.rename(
-            columns=dict(
-                zip(lst_pop_size, lst_labels)
-            )  # {true_val_N: true_val_name,
-            # false_val_N: false_val_name
-            # }
-        )
-        lst_columns = list(pdf_t_pretty.columns)
-        pdf_t_pretty[state_col_name] = (
-            st + " " + " ".join(lst_pop_size)
-        )  # true_val_N + ' ' + false_val_N
-        pdf_t_pretty = pdf_t_pretty[[state_col_name] + lst_columns]
-        lst_pdf_t.append(pdf_t_pretty)
-
-    pdf_all_t = pd.concat(lst_pdf_t, ignore_index=True)
-    return pdf_all_t.sort_values(by=["metric", state_col_name]).set_index(
-        "metric"
-    )
+        pdf_pretty_combined[st] = pdf_pretty
+    pdf_pretty_combined = pd.concat(pdf_pretty_combined, axis=1)
+    return pdf_pretty_combined
 
 
 def get_ttest_table_statewise(
@@ -427,7 +392,7 @@ def get_ttest_table_statewise(
 ):
     lst_pdf_t = []
     for st in lst_st + ["Σ All States"]:
-        pdf_t, pdf_t_pretty = get_ttest_table(
+        pdf_t, pdf_t_pretty = get_ranksum_table(
             (
                 pdf_included.loc[pdf_included[state_col_name] == st]
                 if (st != "Σ All States")
