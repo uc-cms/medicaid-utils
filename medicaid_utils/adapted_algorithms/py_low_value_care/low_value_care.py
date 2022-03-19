@@ -515,7 +515,7 @@ class LowValueCare:
 			pdf_ps = pdf_ps.assign(lookback_eligibility_pattern='0'*12)
 		pdf_ps = pdf_ps.assign(eligibility_pattern=pdf_ps['lookback_eligibility_pattern'].fillna('0' * 12) +
 		                                           pdf_ps['eligibility_pattern'])
-		pdf_dates = pdf_dates.merge(pdf_ps, on=index_col, how='right')
+		pdf_dates = pdf_dates.merge(pdf_ps, on=index_col, how='inner')
 		return pdf_dates
 
 	@classmethod
@@ -639,9 +639,9 @@ def construct_low_value_care_measures(
 	)
 
 	pdf_dates = LowValueCare.combine_dates_in_claims(st, year, lst_condn, index_col, out_folder)
+
 	pdf_dates = (
 		LowValueCare.construct_low_value_care_measures(
 			pdf_dates, year, dct_measures, dct_denom
 		)
 	)
-	return pdf_dates
