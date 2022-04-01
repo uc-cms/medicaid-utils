@@ -138,7 +138,7 @@ def flag_diagnoses_and_procedures(
     """
     if df_claims is not None:
         lst_diag_col = [col for col in df_claims.columns if col.startswith('DIAG_CD_')] if (cms_format == 'MAX') \
-            else [col for col in df_claims.columns if col.startswith("DGNC_CD_") or (col == ['ADMTG_DGNS_CD'])]
+            else [col for col in df_claims.columns if col.startswith("DGNS_CD_") or (col == 'ADMTG_DGNS_CD')]
         lst_proc_col = [col for col in df_claims.columns if col.startswith("PRCDR_CD_")
                         and (not col.startswith("PRCDR_CD_SYS_"))] if (cms_format == 'MAX') \
             else [col for col in df_claims.columns if col.startswith("PRCDR_CD")
