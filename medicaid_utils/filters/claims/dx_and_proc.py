@@ -187,26 +187,26 @@ def flag_diagnoses_and_procedures(
             lst_incl_excl_condn = [
                 condn
                 for condn in dct_diag_codes
-                if (("excl" in dct_diag_codes[condn]) & (
-                        bool(dct_diag_codes[condn]["excl"][9]) | bool(dct_diag_codes[condn]["excl"][10])))
-                   & (("incl" in dct_diag_codes[condn]) & (
-                        bool(dct_diag_codes[condn]["incl"][9]) | bool(dct_diag_codes[condn]["incl"][10])))
+                if (("excl" in dct_diag_codes[condn]) and (
+                        bool(dct_diag_codes[condn]["excl"][9]) or bool(dct_diag_codes[condn]["excl"][10])))
+                   & (("incl" in dct_diag_codes[condn]) and (
+                        bool(dct_diag_codes[condn]["incl"][9]) or bool(dct_diag_codes[condn]["incl"][10])))
             ]
             lst_incl_condn = [
                 condn
                 for condn in dct_diag_codes
-                if (("excl" not in dct_diag_codes[condn]) | (
-                    not (bool(dct_diag_codes[condn]["excl"][9]) | bool(dct_diag_codes[condn]["excl"][10]))))
-                   & (("incl" in dct_diag_codes[condn]) & (
-                        bool(dct_diag_codes[condn]["incl"][9]) | bool(dct_diag_codes[condn]["incl"][10])))
+                if (("excl" not in dct_diag_codes[condn]) or (
+                    not (bool(dct_diag_codes[condn]["excl"][9]) or bool(dct_diag_codes[condn]["excl"][10]))))
+                   & (("incl" in dct_diag_codes[condn]) and (
+                        bool(dct_diag_codes[condn]["incl"][9]) or bool(dct_diag_codes[condn]["incl"][10])))
             ]
             lst_excl_condn = [
                 condn
                 for condn in dct_diag_codes
-                if (("excl" in dct_diag_codes[condn]) & (
-                        bool(dct_diag_codes[condn]["excl"][9]) | bool(dct_diag_codes[condn]["excl"][10])))
+                if (("excl" in dct_diag_codes[condn]) and (
+                        bool(dct_diag_codes[condn]["excl"][9]) or bool(dct_diag_codes[condn]["excl"][10])))
                    & (("incl" not in dct_diag_codes[condn]) | (
-                    not (bool(dct_diag_codes[condn]["incl"][9]) | bool(dct_diag_codes[condn]["incl"][10]))))
+                    not (bool(dct_diag_codes[condn]["incl"][9]) or bool(dct_diag_codes[condn]["incl"][10]))))
             ]
 
             df_claims = df_claims.map_partitions(
