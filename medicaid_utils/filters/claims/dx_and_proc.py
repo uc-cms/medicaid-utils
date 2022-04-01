@@ -139,10 +139,11 @@ def flag_diagnoses_and_procedures(
     if df_claims is not None:
         lst_diag_col = [col for col in df_claims.columns if col.startswith('DIAG_CD_')] if (cms_format == 'MAX') \
             else [col for col in df_claims.columns if col.startswith("DGNS_CD_") or (col == 'ADMTG_DGNS_CD')]
-        lst_proc_col = [col for col in df_claims.columns if col.startswith("PRCDR_CD_")
-                        and (not col.startswith("PRCDR_CD_SYS_"))] if (cms_format == 'MAX') \
-            else [col for col in df_claims.columns if col.startswith("PRCDR_CD")
-                  and (not (col.startswith("PRCDR_CD_SYS") | col.startswith("PRCDR_CD_DT")))]
+        lst_proc_col = [col for col in df_claims.columns if col.startswith("PRCDR_CD")
+                        and (not col.startswith("PRCDR_CD_SYS"))] if (cms_format == 'MAX') \
+            else [col for col in df_claims.columns if (col.startswith("PRCDR_CD") or col.startswith("LINE_PRCDR_CD"))
+                  and (not (col.startswith("PRCDR_CD_SYS") or col.startswith("PRCDR_CD_DT") or
+                            col.startswith("LINE_PRCDR_CD_SYS") or col.startswith("LINE_PRCDR_CD_DT")))]
         if bool(dct_diag_codes) and bool(lst_diag_col):
             if any('_VRSN_' in colname for colname in df_claims.columns):
                 df_claims = df_claims.map_partitions(
@@ -152,12 +153,12 @@ def flag_diagnoses_and_procedures(
                                 pdf[col].where(
                                     pd.isnull(
                                         pd.to_numeric(
-                                            pdf[col.replace('DGNC_CD', 'DGNS_VRSN_CD')],
+                                            pdf[col.replace('DGNS_CD', 'DGNS_VRSN_CD')],
                                             errors="coerce",
                                         )
                                     )
                                     | pd.to_numeric(
-                                        pdf[col.replace('DGNC_CD', 'DGNS_VRSN_CD')],
+                                        pdf[col.replace('DGNS_CD', 'DGNS_VRSN_CD')],
                                         errors="coerce",
                                     ).isin([ver, 3]),
                                     "",
