@@ -321,7 +321,6 @@ def flag_diagnoses_and_procedures(
                     )))
 
         if bool(dct_proc_codes) and bool(lst_proc_col):
-            n_prcdr_cd_col = len(lst_proc_col)
             lst_sys_code = list(
                 set(
                     [
@@ -335,52 +334,37 @@ def flag_diagnoses_and_procedures(
                     ]
                 )
             )
-            if n_prcdr_cd_col == 1:
-                df_claims = df_claims.map_partitions(
-                    lambda pdf: pdf.assign(
-                        **dict(
-                            [
-                                ("PRCDR_CD_1", pdf["PRCDR_CD"]),
-                                ("PRCDR_CD_SYS_1", pdf["PRCDR_CD_SYS"]),
-                            ]
-                        )
-                    )
-                )
             df_claims = df_claims.map_partitions(
                 lambda pdf: pdf.assign(
                     **dict(
                         [
-                            (f"VALID_PRCDR_1_CD_{i}", pdf[f"PRCDR_CD_{i}"])
-                            for i in range(1, n_prcdr_cd_col + 1)
+                            (f"VALID_PRCDR_SYS_1_{proc_col}", pdf[proc_col])
+                            for proc_col in lst_proc_col
                         ]
                         + [
                             (
-                                f"VALID_PRCDR_{sys_code}_CD_{i}",
-                                pdf[f"PRCDR_CD_{i}"].where(
+                                f"VALID_PRCDR_SYS_{sys_code}_{proc_col}",
+                                pdf[proc_col].where(
                                     pd.isnull(
                                         pd.to_numeric(
-                                            pdf[f"PRCDR_CD_SYS_{i}"],
+                                            pdf[f"{proc_col.replace('PRCDR_CD', 'PRCDR_CD_SYS')}"],
                                             errors="coerce",
                                         )
                                     )
                                     | pd.to_numeric(
-                                        pdf[f"PRCDR_CD_SYS_{i}"],
+                                        pdf[f"{proc_col.replace('PRCDR_CD', 'PRCDR_CD_SYS')}"],
                                         errors="coerce",
                                     ).isin([sys_code, 99, 88]),
                                     "",
                                 ),
                             )
-                            for sys_code, i in product(
-                                lst_sys_code, range(1, n_prcdr_cd_col + 1)
+                            for sys_code, proc_col in product(
+                                lst_sys_code, lst_proc_col
                             )
                         ]
                     )
                 )
             )
-            if n_prcdr_cd_col == 1:
-                df_claims = df_claims.drop(
-                    ["PRCDR_CD_1", "PRCDR_CD_SYS_1"], axis=1
-                )
             df_claims = df_claims.map_partitions(
                 lambda pdf: pdf.assign(
                     **dict(
@@ -397,7 +381,7 @@ def flag_diagnoses_and_procedures(
                                         )
                                         for col in pdf.columns
                                         if col.startswith(
-                                            (f"VALID_PRCDR_{sys_code}_CD_",)
+                                            (f"VALID_PRCDR_SYS_{sys_code}_",)
                                         )
                                     ]
                                 )
@@ -439,7 +423,7 @@ def flag_diagnoses_and_procedures(
                                    [item for subitem in [[col for col in df_claims.columns
                                                           if col.startswith(f"proc_{proc}_")]
                                                          for proc in dct_proc_codes.keys()] for item in subitem] +
-                                   [col for col in df_claims.columns if col.startswith("VALID_PRCDR_")] +
+                                   [col for col in df_claims.columns if col.startswith("VALID_PRCDR_SYS_")] +
                                    [f'valid_icd_{ver}_{col}' for ver, col in product([9, 10], lst_diag_col)]
                                    ]]
     return df_claims
