@@ -128,7 +128,7 @@ class TAFFile:
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
         for ftype in self.dct_files:
             df = self.dct_files[ftype]
-            lst_diag_cd_col = [col for col in df.columns if col.startswith("DGNC_CD_") or (col == ['ADMTG_DGNS_CD'])]
+            lst_diag_cd_col = [col for col in df.columns if col.startswith("DGNS_CD_") or (col == ['ADMTG_DGNS_CD'])]
             if (len(lst_diag_cd_col) > 0):
                 df = df.map_partitions(
                     lambda pdf: pdf.assign(
@@ -152,8 +152,10 @@ class TAFFile:
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
         for ftype in self.dct_files:
             df = self.dct_files[ftype]
-            lst_prcdr_cd_col = [col for col in df.columns if col.startswith("PRCDR_CD")
-                            and (not (col.startswith("PRCDR_CD_SYS") | col.startswith("PRCDR_CD_DT")))]
+            lst_prcdr_cd_col = [col for col in df.columns if (col.startswith("PRCDR_CD")
+                                                              or col.startswith("LINE_PRCDR_CD"))
+                                and (not (col.startswith("PRCDR_CD_SYS") or col.startswith("PRCDR_CD_DT") or
+                                          col.startswith("LINE_PRCDR_CD_SYS") or col.startswith("LINE_PRCDR_CD_DT")))]
             if (
                 len(
                     lst_prcdr_cd_col
