@@ -4,6 +4,7 @@ import dask.dataframe as dd
 from itertools import product
 import numpy as np
 import logging
+import itertools
 
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 
@@ -136,6 +137,18 @@ def flag_diagnoses_and_procedures(
     -------
 
     """
+    # Validate procedure codes
+    dct_invalid_proc_codes = dict(
+        filter(lambda elem: len([code for code in itertools.chain(*elem[1].values()) if not code.isalnum()]),
+               dct_proc_codes.items()))
+    dct_invalid_diag_codes = dict(
+        filter(lambda elem: len([code for code in itertools.chain(*[list(itertools.chain(*x.values()))
+                                                                    for x in elem[1].values()])
+                                 if not code.isalnum()]),
+               dct_diag_codes.items()))
+    if bool(dct_invalid_proc_codes) or bool(dct_invalid_diag_codes):
+        raise ValueError(f"{','.join(list(dct_invalid_proc_codes.keys()) + list(dct_invalid_diag_codes.keys()))}"
+                         f"have codes with non-alphanumeric values")
     if df_claims is not None:
         lst_diag_col = [col for col in df_claims.columns if col.startswith('DIAG_CD_')] if (cms_format == 'MAX') \
             else [col for col in df_claims.columns if col.startswith("DGNS_CD_") or (col == 'ADMTG_DGNS_CD')]
@@ -145,7 +158,7 @@ def flag_diagnoses_and_procedures(
                   and (not (col.startswith("PRCDR_CD_SYS") or col.startswith("PRCDR_CD_DT") or
                             col.startswith("LINE_PRCDR_CD_SYS") or col.startswith("LINE_PRCDR_CD_DT")))]
         if bool(dct_diag_codes) and bool(lst_diag_col):
-            if any('_VRSN_' in colname for colname in df_claims.columns):
+            if any('DGNS_VRSN_' in colname for colname in df_claims.columns):
                 df_claims = df_claims.map_partitions(
                     lambda pdf: pdf.assign(**dict([
                             (
