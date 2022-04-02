@@ -883,7 +883,7 @@ class LowValueCare:
 
 
 def construct_low_value_care_measures(
-    state, year, lst_bene_msis_filter, index_col, max_data_root, out_folder
+    state, year, lst_bene_msis_filter, index_col, max_data_root, out_folder,
 ):
     """Construcs low value care measures"""
     (
@@ -902,6 +902,7 @@ def construct_low_value_care_measures(
         max_data_root,
         lst_bene_msis_filter,
         out_folder,
+        index_col=index_col
     )
 
     pdf_dates = LowValueCare.combine_dates_in_claims(
