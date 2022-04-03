@@ -10,7 +10,6 @@ def test_low_value_care(claims_folder):
         dct_measures,
         dct_denom,
         lst_condn,
-        pdf_combined_spec,
         pdf_denom_spec,
         pdf_measure_spec,
     ) = low_value_care.LowValueCare.get_denom_measure_spec()
