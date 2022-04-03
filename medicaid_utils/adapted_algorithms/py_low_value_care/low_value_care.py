@@ -495,6 +495,8 @@ class LowValueCare:
         index_col="BENE_MSIS",
     ):
         """Creates condition & eligibility pattern indicators"""
+        cache_folder = os.path.join(out_folder, 'cache')
+        os.makedirs(cache_folder, exist_ok=True)
         dct_diag_codes, dct_proc_codes = cls.get_diag_proc_codes(
             pdf_denom_spec, pdf_measure_spec
         )
@@ -540,7 +542,7 @@ class LowValueCare:
                 clean=False,
                 preprocess=False,
                 index_col=index_col,
-                tmp_folder=os.path.join(out_folder, "ot"),
+                tmp_folder=os.path.join(cache_folder, "ot"),
             )
             ot_claim.df = ot_claim.df.map_partitions(
                 lambda pdf: pdf.loc[pdf.index.isin(lst_bene_id_filter)]
