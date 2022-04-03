@@ -86,7 +86,6 @@ mistune
 msgpack 
 multidict==5.2.0
 munch==2.5.0
-nb-conda-kernels 
 nbclassic==0.3.4
 nbclient 
 nbconvert==6.2.0

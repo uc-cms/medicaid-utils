@@ -34,3 +34,11 @@ version_variable = 'setup.py:__version__'
 branch = 'main'
 upload_to_release = true
 upload_to_repository = false
+
+# pyproject.toml
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests"
+]

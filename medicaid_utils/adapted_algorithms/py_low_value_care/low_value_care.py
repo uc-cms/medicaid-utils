@@ -792,12 +792,6 @@ class LowValueCare:
             )
         )
 
-        pdf_denom_spec = pdf_denom_spec.drop(
-            ["icd_code", "proc_code", "proc_sys", "include", "except"], axis=1
-        ).drop_duplicates(keep="first")
-        pdf_measure_spec = pdf_measure_spec.drop(
-            ["icd_code", "proc_code", "proc_sys", "include", "except"], axis=1
-        ).drop_duplicates(keep="first")
         pdf_measure_spec = pdf_measure_spec.assign(
             **{
                 col: pd.to_numeric(pdf_measure_spec[col], errors="coerce")
@@ -825,6 +819,14 @@ class LowValueCare:
                 ]
             }
         )
+        pdf_denom_spec_codes = pdf_denom_spec.copy()
+        pdf_measure_spec_codes = pdf_measure_spec.copy()
+        pdf_denom_spec = pdf_denom_spec.drop(
+            ["icd_code", "proc_code", "proc_sys", "include", "except"], axis=1
+        ).drop_duplicates(subset=[], keep="first")
+        pdf_measure_spec = pdf_measure_spec.drop(
+            ["icd_code", "proc_code", "proc_sys", "include", "except"], axis=1
+        ).drop_duplicates(keep="first")
 
         pdf_combined_spec = pdf_measure_spec.merge(
             pdf_denom_spec.rename(
@@ -876,9 +878,8 @@ class LowValueCare:
             dct_measures,
             dct_denom,
             lst_condn,
-            pdf_denom_spec,
-            pdf_measure_spec,
-            pdf_combined_spec,
+            pdf_denom_spec_codes,
+            pdf_measure_spec_codes,
         )
 
 
@@ -890,15 +891,14 @@ def construct_low_value_care_measures(
         dct_measures,
         dct_denom,
         lst_condn,
-        _,
-        pdf_denom_spec,
-        pdf_measure_spec,
+        pdf_denom_spec_codes,
+        pdf_measure_spec_codes,
     ) = LowValueCare.get_denom_measure_spec()
     LowValueCare.generate_condn_and_eligibility_indicators(
         state,
         year,
-        pdf_denom_spec,
-        pdf_measure_spec,
+        pdf_denom_spec_codes,
+        pdf_measure_spec_codes,
         max_data_root,
         lst_bene_msis_filter,
         out_folder,
