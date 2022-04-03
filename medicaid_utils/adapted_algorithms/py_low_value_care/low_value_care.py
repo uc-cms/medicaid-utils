@@ -73,7 +73,7 @@ class LowValueCare:
         }
 
         dct_excl_diag_codes = {
-            f"{prefix}_excl_{condn}": {
+            f"{prefix}_{condn}": {
                 "incl": {
                     9: pdf.loc[
                         (pdf["description"] == condn)
@@ -115,7 +115,7 @@ class LowValueCare:
         }
 
         dct_excl_proc_codes = {
-            f"{prefix}_excl_{proc}": pdf_proc.loc[
+            f"{prefix}_{proc}": pdf_proc.loc[
                 pdf_proc["description"] == proc
             ][["proc_sys", "proc_code"]]
             .groupby("proc_sys")
