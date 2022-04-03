@@ -823,7 +823,7 @@ class LowValueCare:
         pdf_measure_spec_codes = pdf_measure_spec.copy()
         pdf_denom_spec = pdf_denom_spec.drop(
             ["icd_code", "proc_code", "proc_sys", "include", "except"], axis=1
-        ).drop_duplicates(subset=[], keep="first")
+        ).drop_duplicates(keep="first")
         pdf_measure_spec = pdf_measure_spec.drop(
             ["icd_code", "proc_code", "proc_sys", "include", "except"], axis=1
         ).drop_duplicates(keep="first")
