@@ -10,6 +10,7 @@ __author__ = "Manoradhan Murugesan"
 __email__ = "manorathan@uchicago.edu"
 
 import os
+from typing import List, Tuple
 import math
 import json
 from itertools import product
@@ -29,11 +30,24 @@ class LowValueCare:
     data_folder = os.path.join(package_folder, "data")
 
     @classmethod
-    def normalize_condition_names(cls, pdf):
-        """Normalizers condition names so they can be used as column names"""
-        pdf = pdf.assign(
+    def normalize_condition_names(cls, pdf_spec: pd.DataFrame) -> pd.DataFrame:
+        """
+        Normalizers condition names so they can be used as column names
+
+        Parameters
+        ----------
+        pdf_spec : pd.DataFrame
+            Diagnostic/ procedure code specifications dataframe
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with conditions names normalized
+
+        """
+        pdf_spec = pdf_spec.assign(
             **{
-                col: pdf[col]
+                col: pdf_spec[col]
                 .str.replace(r"\W", " ", regex=True)
                 .str.replace(r"\s+", " ", regex=True)
                 .str.lower()
@@ -41,64 +55,90 @@ class LowValueCare:
                 for col in ["description", "measure"]
             }
         )
-        return pdf
+        return pdf_spec
 
     @classmethod
-    def get_diag_proc_specs(cls, pdf, prefix):
-        """Returns DX & procedure code specs as dictionary"""
+    def get_diag_proc_specs(
+        cls, pdf_spec: pd.DataFrame, prefix: str
+    ) -> (dict, dict, dict, dict):
+        # pylint: disable=missing-param-doc
+        """
+        Returns DX & procedure code specs as dictionary
+
+        Parameters
+        ----------
+        pdf_spec : pd.DataFrame
+            Diagnostic/ procedure code specifications dataframe
+        prefix : {'denom', 'msr'}
+            Prefix to denote condition type
+
+        Returns
+        -------
+        dct_diag_codes : dict
+            Diagnosis codes dictionary
+        dct_excl_diag_codes : dict
+            Excluded Diagnosis codes dictionary
+        dct_proc_codes : dict
+            Procedure codes dictionary
+        dct_excl_proc_codes : dict
+            Excluded procedure codes dictionary
+
+        """
         dct_diag_codes = {
             f"{prefix}_{condn}": {
                 "incl": {
-                    9: pdf.loc[
-                        (pdf["description"] == condn)
-                        & (pdf["include"].astype(int) == 1)
-                        & (pdf["except"].astype(int) == 0)
-                        & pdf["icd_code"].notna()
+                    9: pdf_spec.loc[
+                        (pdf_spec["description"] == condn)
+                        & (pdf_spec["include"].astype(int) == 1)
+                        & (pdf_spec["except"].astype(int) == 0)
+                        & pdf_spec["icd_code"].notna()
                     ]["icd_code"].tolist(),
                     10: [],
                 },
                 "excl": {
-                    9: pdf.loc[
-                        (pdf["description"] == condn)
-                        & (pdf["include"].astype(int) == 1)
-                        & (pdf["except"].astype(int) == 1)
-                        & pdf["icd_code"].notna()
+                    9: pdf_spec.loc[
+                        (pdf_spec["description"] == condn)
+                        & (pdf_spec["include"].astype(int) == 1)
+                        & (pdf_spec["except"].astype(int) == 1)
+                        & pdf_spec["icd_code"].notna()
                     ]["icd_code"].tolist(),
                     10: [],
                 },
             }
-            for condn in pdf.loc[
-                pdf["icd_code"].notna() & (pdf["include"].astype(int) == 1)
+            for condn in pdf_spec.loc[
+                pdf_spec["icd_code"].notna()
+                & (pdf_spec["include"].astype(int) == 1)
             ].description.unique()
         }
 
         dct_excl_diag_codes = {
             f"{prefix}_{condn}": {
                 "incl": {
-                    9: pdf.loc[
-                        (pdf["description"] == condn)
-                        & (pdf["include"].astype(int) == 0)
-                        & (pdf["except"].astype(int) == 0)
-                        & pdf["icd_code"].notna()
+                    9: pdf_spec.loc[
+                        (pdf_spec["description"] == condn)
+                        & (pdf_spec["include"].astype(int) == 0)
+                        & (pdf_spec["except"].astype(int) == 0)
+                        & pdf_spec["icd_code"].notna()
                     ]["icd_code"].tolist(),
                     10: [],
                 },
                 "excl": {
-                    9: pdf.loc[
-                        (pdf["description"] == condn)
-                        & (pdf["include"].astype(int) == 0)
-                        & (pdf["except"].astype(int) == 1)
-                        & pdf["icd_code"].notna()
+                    9: pdf_spec.loc[
+                        (pdf_spec["description"] == condn)
+                        & (pdf_spec["include"].astype(int) == 0)
+                        & (pdf_spec["except"].astype(int) == 1)
+                        & pdf_spec["icd_code"].notna()
                     ]["icd_code"].tolist(),
                     10: [],
                 },
             }
-            for condn in pdf.loc[
-                pdf["icd_code"].notna() & (pdf["include"].astype(int) == 0)
+            for condn in pdf_spec.loc[
+                pdf_spec["icd_code"].notna()
+                & (pdf_spec["include"].astype(int) == 0)
             ].description.unique()
         }
 
-        pdf_proc = pdf.loc[pdf.proc_sys.notna()]
+        pdf_proc = pdf_spec.loc[pdf_spec.proc_sys.notna()]
         pdf_proc = pdf_proc.assign(proc_sys=pdf_proc["proc_sys"].astype(int))
 
         dct_proc_codes = {
@@ -115,9 +155,9 @@ class LowValueCare:
         }
 
         dct_excl_proc_codes = {
-            f"{prefix}_{proc}": pdf_proc.loc[
-                pdf_proc["description"] == proc
-            ][["proc_sys", "proc_code"]]
+            f"{prefix}_{proc}": pdf_proc.loc[pdf_proc["description"] == proc][
+                ["proc_sys", "proc_code"]
+            ]
             .groupby("proc_sys")
             .agg(list)
             .to_dict()["proc_code"]
@@ -136,14 +176,39 @@ class LowValueCare:
 
     @classmethod
     def construct_low_value_care_measures(
-        cls, pdf_dates, year, dct_msr_spec, dct_denom_spec
-    ):
-        """Constructs low value care measures"""
-        for idx, row in pdf_dates.iterrows():
+        cls,
+        pdf_dates: pd.DataFrame,
+        year: int,
+        dct_msr_spec: dict,
+        dct_denom_spec: dict,
+    ) -> pd.DataFrame:
+        """
+        Constructs low value care measures
+
+        Parameters
+        ----------
+        pdf_dates : pd.DataFrame
+            Dataframe with condition/ measure date lists and eligibility info
+        year : int
+            Year
+        dct_msr_spec
+            Measure spec dictionary
+        dct_denom_spec
+            Denomination spec dictionary
+
+        Returns
+        -------
+        pd.DataFrame
+
+        """
+        for (  # pylint: disable=too-many-nested-blocks
+            idx,
+            row,
+        ) in pdf_dates.iterrows():
             for service, measure in dct_msr_spec:
                 dct_service = dct_msr_spec[(service, measure)]
-                dct_denom_pop = dict()
-                dct_denom_pop_msr = dict()
+                dct_denom_pop = {}
+                dct_denom_pop_msr = {}
                 lst_msr_dates = (
                     row[f"msr_{service}_all_dates"]
                     if (
@@ -157,9 +222,9 @@ class LowValueCare:
                         else (row[f"msr_{service}_ot_dates"])
                     )
                 )
-                srvc_prior_gap = dct_service["prior_months"] * 30
-                srvc_followup_gap = dct_service["followup_months"] * 30
-                min_enrolled_months = dct_service["min_enrolled_months"]
+                # srvc_prior_gap = dct_service["prior_months"] * 30
+                # srvc_followup_gap = dct_service["followup_months"] * 30
+                # min_enrolled_months = dct_service["min_enrolled_months"]
                 for denom_condn in dct_service["denom_description"]:
                     index_date = pd.to_datetime("", errors="coerce")
                     lst_denom_dates = (
@@ -211,26 +276,17 @@ class LowValueCare:
                                     ),
                                 )
                             ]
-                        else:
-                            if denom_condn.startswith("excl_chronic") and (
-                                f"{denom_condn.replace('excl_chronic_', '')}"
-                                in dct_service["denom_description"]
-                            ):
-                                index_date = min(
-                                    (
-                                        x
-                                        for x in lst_denom_dates
-                                        if x.year == year
-                                    ),
-                                    default=pd.to_datetime(
-                                        "", errors="coerce"
-                                    ),
-                                )
-                                lst_denom_dates = [
-                                    x
-                                    for x in lst_denom_dates
-                                    if x < index_date
-                                ]
+                        elif denom_condn.startswith("excl_chronic") and (
+                            f"{denom_condn.replace('excl_chronic_', '')}"
+                            in dct_service["denom_description"]
+                        ):
+                            index_date = min(
+                                (x for x in lst_denom_dates if x.year == year),
+                                default=pd.to_datetime("", errors="coerce"),
+                            )
+                            lst_denom_dates = [
+                                x for x in lst_denom_dates if x < index_date
+                            ]
                         lst_denom_dates = [
                             x for x in lst_denom_dates if pd.notnull(x)
                         ]
@@ -254,7 +310,7 @@ class LowValueCare:
                                             "prior_months"
                                         ]
                                     )
-                                    else srvc_followup_gap
+                                    else dct_service["followup_months"] * 30
                                 )
                             )
                             denom_followup_gap = (
@@ -276,7 +332,7 @@ class LowValueCare:
                                             "followup_months"
                                         ]
                                     )
-                                    else srvc_prior_gap
+                                    else dct_service["prior_months"] * 30
                                 )
                             )
                             if pd.notnull(denom_prior_gap):
@@ -299,8 +355,14 @@ class LowValueCare:
                                         )
                                         >= (
                                             math.ceil(denom_prior_gap / 30)
-                                            if pd.isnull(min_enrolled_months)
-                                            else min_enrolled_months
+                                            if pd.isnull(
+                                                dct_service[
+                                                    "min_enrolled_months"
+                                                ]
+                                            )
+                                            else dct_service[
+                                                "min_enrolled_months"
+                                            ]
                                         )
                                     )
                                 ]
@@ -325,8 +387,14 @@ class LowValueCare:
                                         )
                                         >= (
                                             math.ceil(denom_followup_gap / 30)
-                                            if pd.isnull(min_enrolled_months)
-                                            else min_enrolled_months
+                                            if pd.isnull(
+                                                dct_service[
+                                                    "min_enrolled_months"
+                                                ]
+                                            )
+                                            else dct_service[
+                                                "min_enrolled_months"
+                                            ]
                                         )
                                     )
                                 ]
@@ -397,11 +465,10 @@ class LowValueCare:
                                         dct_denom_pop_msr[
                                             denom_condn
                                         ] = lst_matches[0]
-                            else:
-                                if bool(lst_denom_dates) & bool(lst_msr_dates):
-                                    dct_denom_pop_msr[
-                                        denom_condn
-                                    ] = lst_denom_gaps[-1]
+                            elif bool(lst_denom_dates) & bool(lst_msr_dates):
+                                dct_denom_pop_msr[
+                                    denom_condn
+                                ] = lst_denom_gaps[-1]
                 pdf_dates.loc[idx, f"pop_{service}_denom_{measure}"] = (
                     1
                     if (
@@ -452,8 +519,27 @@ class LowValueCare:
         return pdf_dates
 
     @classmethod
-    def get_diag_proc_codes(cls, pdf_denom_spec, pdf_measure_spec):
-        """Returns dictionaries of diagnosis & procedure codes"""
+    def get_diag_proc_codes(
+        cls, pdf_denom_spec: pd.DataFrame, pdf_measure_spec: pd.DataFrame
+    ) -> (dict, dict):
+        """
+        Returns dictionaries of diagnosis & procedure codes
+
+        Parameters
+        ----------
+        pdf_denom_spec : pd.DataFrame
+            Denom spec dataframe
+        pdf_measure_spec : pd.DataFrame
+            Measure spec dataframe
+
+        Returns
+        -------
+        dct_diag_codes : dict
+            Dictionary of diagnostic codes
+        dct_proc_codes : dict
+            Dictionary of procedure codes
+
+        """
         (
             dct_denom_diag_codes,
             dct_denom_excl_diag_codes,
@@ -485,17 +571,42 @@ class LowValueCare:
     @classmethod
     def generate_condn_and_eligibility_indicators(
         cls,
-        state,
-        year,
-        pdf_denom_spec,
-        pdf_measure_spec,
-        max_data_root,
-        lst_bene_id_filter,
-        out_folder,
+        state: str,
+        year: int,
+        pdf_denom_spec: pd.DataFrame,
+        pdf_measure_spec: pd.DataFrame,
+        max_data_root: str,
+        lst_bene_id_filter: List[str],
+        out_folder: str,
         index_col="BENE_MSIS",
-    ):
-        """Creates condition & eligibility pattern indicators"""
-        cache_folder = os.path.join(out_folder, 'cache')
+    ) -> None:
+        """
+        Creates condition & eligibility pattern indicators, and saves them as parquet files
+
+        Parameters
+        ----------
+        state : str
+            State
+        year : int
+            Year
+        pdf_denom_spec : pd.DataFrame
+            Denomination spec dataframe
+        pdf_measure_spec : pd.DataFrame
+            Measure spec dataframe
+        max_data_root : str
+            Max files folder
+        lst_bene_id_filter : List[str]
+            List of bene ids to filter to
+        out_folder : str
+            Folder where temporary files can be saved
+        index_col : str
+            Index column name
+
+        Returns
+        -------
+
+        """
+        cache_folder = os.path.join(out_folder, "cache")
         os.makedirs(cache_folder, exist_ok=True)
         dct_diag_codes, dct_proc_codes = cls.get_diag_proc_codes(
             pdf_denom_spec, pdf_measure_spec
@@ -609,9 +720,36 @@ class LowValueCare:
 
     @classmethod
     def get_dates(
-        cls, state, year, lst_condn, index_col, claims_folder
+        cls,
+        state: str,
+        year: int,
+        lst_condn: List[str],
+        index_col: str,
+        claims_folder: str,
     ) -> pd.DataFrame:
-        """Returns dates"""
+        """
+        Aggregates dates at bene level for each denom/ measure condition. Three versions of date lists are returned
+        based on the claim type the condition was present: ip, ed, ot, and all
+
+        Parameters
+        ----------
+        state : str
+            State
+        year : int
+            Year
+        lst_condn : list of str
+            List of conditions
+        index_col : str
+            Index column name
+        claims_folder : str
+            Folder where claim files with condition flags are present
+
+        Returns
+        -------
+        pdf_dates : pd.DataFrame
+            Dataframe with denom/ measure condition date lists at bene level
+
+        """
         pdf_dates = None
         for ftype in ["ip", "ot"]:
             pdf = pd.read_parquet(
@@ -706,10 +844,35 @@ class LowValueCare:
         return pdf_dates
 
     @classmethod
-    def combine_dates_in_claims(
-        cls, state, year, lst_condn, index_col, claims_folder
-    ):
-        """Combines dates in claims"""
+    def get_dates_with_eligibility(
+        cls,
+        state: str,
+        year: int,
+        lst_condn: List[str],
+        index_col: str,
+        claims_folder: str,
+    ) -> pd.DataFrame:
+        """
+        Returns eligibility info and dates for all conditions at bene level
+
+        Parameters
+        ----------
+        state : str
+            State
+        year : int
+            Year
+        lst_condn : List[str]
+            List of conditions
+        index_col : str
+            Index column name
+        claims_folder : str
+            Location of claims folder that contains flags for conditions
+
+        Returns
+        -------
+        pd.DataFrame
+
+        """
         pdf_dates = cls.get_dates(
             state, year, lst_condn, index_col, claims_folder
         )
@@ -769,8 +932,26 @@ class LowValueCare:
         return pdf_dates
 
     @classmethod
-    def get_denom_measure_spec(cls):
-        """Returns denom measure specs"""
+    def get_denom_measure_spec(
+        cls,
+    ) -> Tuple[dict, dict, List[str], pd.DataFrame, pd.DataFrame]:
+        """
+        Returns denom measure specs
+
+        Returns
+        -------
+        dct_measures : dict
+            Measures dictionary
+        dct_denom : dict
+            Denominator dictionary
+        lst_condn : list of str
+            List of conditions
+        pdf_denom_spec_codes : pd.DataFrame
+            Denominator spec codes dataframe
+        pdf_measure_spec_codes : pd.DataFrame
+            Measure spec codes dataframe
+
+        """
         pdf_denom_spec = pd.read_excel(
             os.path.join(cls.data_folder, "low_value_care.xlsx"),
             sheet_name="denominator",
@@ -843,19 +1024,17 @@ class LowValueCare:
         )
 
         lst_condn = list(
-            set(
-                [
-                    condn
-                    for condn in [
-                        "msr_" + condn
-                        for condn in pdf_combined_spec["description"]
-                    ]
-                    + [
-                        "denom_" + condn
-                        for condn in pdf_combined_spec["denom_description"]
-                    ]
+            {  # pylint: disable=unnecessary-comprehension
+                condn
+                for condn in [
+                    "msr_" + condn
+                    for condn in pdf_combined_spec["description"]
                 ]
-            )
+                + [
+                    "denom_" + condn
+                    for condn in pdf_combined_spec["denom_description"]
+                ]
+            }
         )
         dct_measures = (
             pdf_combined_spec.groupby(["description", "measure"])
@@ -886,9 +1065,37 @@ class LowValueCare:
 
 
 def construct_low_value_care_measures(
-    state, year, lst_bene_msis_filter, index_col, max_data_root, out_folder,
-):
-    """Construcs low value care measures"""
+    state: str,
+    year: int,
+    lst_bene_msis_filter: List[str],
+    index_col: str,
+    max_data_root: str,
+    out_folder: str,
+) -> pd.DataFrame:
+    """
+    Constructs low value care measures for the given year and state
+
+    Parameters
+    ----------
+    state : str
+        State
+    year : str
+        Year
+    lst_bene_msis_filter : List[str]
+        Bene id filder
+    index_col : str
+        Index column name
+    max_data_root : str
+        Location of claims files
+    out_folder : str
+        Location where temporary files will be saved
+
+    Returns
+    -------
+    pdf_dates : pd.DataFrame
+        Dataframe with low value care measures
+
+    """
     (
         dct_measures,
         dct_denom,
@@ -904,10 +1111,10 @@ def construct_low_value_care_measures(
         max_data_root,
         lst_bene_msis_filter,
         out_folder,
-        index_col=index_col
+        index_col=index_col,
     )
 
-    pdf_dates = LowValueCare.combine_dates_in_claims(
+    pdf_dates = LowValueCare.get_dates_with_eligibility(
         state, year, lst_condn, index_col, out_folder
     )
 

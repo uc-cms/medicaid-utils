@@ -13,7 +13,7 @@ def test_low_value_care(claims_folder):
         pdf_denom_spec,
         pdf_measure_spec,
     ) = low_value_care.LowValueCare.get_denom_measure_spec()
-    pdf_dates = low_value_care.LowValueCare.combine_dates_in_claims(
+    pdf_dates = low_value_care.LowValueCare.get_dates_with_eligibility(
         st, year, lst_condn, index_col, claims_folder
     )
 
