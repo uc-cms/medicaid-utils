@@ -65,32 +65,32 @@ class BillingsED:
     # Load recode csv file that has information for
     # recoding principal diagnosis
     # Load category data files to a dictionary
-    dct_category_dx_codes = {
-        f"{cat}": pd.read_csv(
-            os.path.join(data_folder, cat + "_check.csv"),  # pylint: disable=undefined-variable
-            dtype={
-                "start_index": "int",
-                "end_index": "float",
-                "code": "str",
-                "comments": "str",
-            },
+    dct_category_dx_codes = {}
+    for cat in lst_special_ed_categories:
+        dct_category_dx_codes[cat] = (
+            pd.read_csv(
+                os.path.join(data_folder, cat + "_check.csv"),
+                dtype={
+                    "start_index": "int",
+                    "end_index": "float",
+                    "code": "str",
+                    "comments": "str",
+                },
+            )
+            .apply(
+                lambda row: re.sub(
+                    r"[^a-zA-Z0-9]+",
+                    "",
+                    row.code[
+                        : (int(row.end_index) + 1)
+                        if pd.notnull(row.end_index)
+                        else len(row.code)
+                    ].upper(),
+                ),
+                axis=1,
+            )
+            .tolist()
         )
-        .apply(
-            lambda row: re.sub(
-                r"[^a-zA-Z0-9]+",
-                "",
-                row.code[
-                    : (int(row.end_index) + 1)
-                    if pd.notnull(row.end_index)
-                    else len(row.code)
-                ].upper(),
-            ),
-            axis=1,
-        )
-        .tolist()
-        .tolist()
-        for cat in lst_special_ed_categories
-    }
 
     # Probabilities lookup
     df_eddxs = pd.read_sas(os.path.join(data_folder, "eddxs.sas7bdat"))
