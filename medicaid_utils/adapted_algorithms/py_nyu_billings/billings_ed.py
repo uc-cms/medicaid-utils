@@ -408,7 +408,7 @@ def get_nyu_ed_proba(
             dict(
                 [
                     (col, "max")
-                    for col in ["injury", "drug", "psych", "alcohol"]
+                    for col in ["injury", "drug", "psych", "alcohol", 'adult']
                 ]
                 + [
                     (col, "mean")
@@ -422,7 +422,7 @@ def get_nyu_ed_proba(
     df = df.assign(
         peds_acs_ed_visit=df["adult"].where(
             df["adult"] == 0, (df["peds_acs_ed"] > 0.75).astype(int)
-        ),
+        ).astype(int),
         non_emergent_visit=(df[["ne", "epct"]].sum(axis=1) > 0.5).astype(int),
         emergent_visit=(df[["edcnpa", "edcnnpa"]].sum(axis=1) > 0.5).astype(
             int
