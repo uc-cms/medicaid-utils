@@ -1,4 +1,5 @@
 import os
+from typing import List
 import pandas as pd
 import dask.dataframe as dd
 from itertools import product
@@ -121,7 +122,7 @@ def get_patient_ids_with_conditions(
 
 def flag_diagnoses_and_procedures(
     dct_diag_codes: dict, dct_proc_codes: dict, df_claims: dd.DataFrame,
-        cms_format: str = 'MAX'
+        cms_format: str = 'MAX', lst_claim_diag_col: List[str] = None
 ) -> dd.DataFrame:
     """
 
@@ -132,6 +133,7 @@ def flag_diagnoses_and_procedures(
     dct_proc_codes
     df_claims
     cms_format
+    lst_claim_diag_col
 
     Returns
     -------
@@ -150,13 +152,15 @@ def flag_diagnoses_and_procedures(
         raise ValueError(f"{','.join(list(dct_invalid_proc_codes.keys()) + list(dct_invalid_diag_codes.keys()))}"
                          f"have codes with non-alphanumeric values")
     if df_claims is not None:
-        lst_diag_col = [col for col in df_claims.columns if col.startswith('DIAG_CD_')] if (cms_format == 'MAX') \
-            else [col for col in df_claims.columns if col.startswith("DGNS_CD_") or (col == 'ADMTG_DGNS_CD')]
-        lst_proc_col = [col for col in df_claims.columns if col.startswith("PRCDR_CD")
-                        and (not col.startswith("PRCDR_CD_SYS"))] if (cms_format == 'MAX') \
-            else [col for col in df_claims.columns if (col.startswith("PRCDR_CD") or col.startswith("LINE_PRCDR_CD"))
-                  and (not (col.startswith("PRCDR_CD_SYS") or col.startswith("PRCDR_CD_DT") or
-                            col.startswith("LINE_PRCDR_CD_SYS") or col.startswith("LINE_PRCDR_CD_DT")))]
+        lst_diag_col = lst_claim_diag_col if bool(lst_claim_diag_col) else \
+            ([col for col in df_claims.columns if col.startswith('DIAG_CD_')] if (cms_format == 'MAX')
+             else [col for col in df_claims.columns if col.startswith("DGNS_CD_") or (col == 'ADMTG_DGNS_CD')])
+        lst_proc_col = ([col for col in df_claims.columns if col.startswith("PRCDR_CD")
+                         and (not col.startswith("PRCDR_CD_SYS"))] if (cms_format == 'MAX') else
+                        [col for col in df_claims.columns if (col.startswith("PRCDR_CD")
+                                                              or col.startswith("LINE_PRCDR_CD"))
+                         and (not (col.startswith("PRCDR_CD_SYS") or col.startswith("PRCDR_CD_DT") or
+                                   col.startswith("LINE_PRCDR_CD_SYS") or col.startswith("LINE_PRCDR_CD_DT")))])
         if bool(dct_diag_codes) and bool(lst_diag_col):
             if any('DGNS_VRSN_' in colname for colname in df_claims.columns):
                 df_claims = df_claims.map_partitions(
@@ -203,7 +207,7 @@ def flag_diagnoses_and_procedures(
                 for condn in dct_diag_codes
                 if (("excl" in dct_diag_codes[condn]) and (
                         bool(dct_diag_codes[condn]["excl"][9]) or bool(dct_diag_codes[condn]["excl"][10])))
-                   & (("incl" in dct_diag_codes[condn]) and (
+                   and (("incl" in dct_diag_codes[condn]) and (
                         bool(dct_diag_codes[condn]["incl"][9]) or bool(dct_diag_codes[condn]["incl"][10])))
             ]
             lst_incl_condn = [
@@ -211,7 +215,7 @@ def flag_diagnoses_and_procedures(
                 for condn in dct_diag_codes
                 if (("excl" not in dct_diag_codes[condn]) or (
                     not (bool(dct_diag_codes[condn]["excl"][9]) or bool(dct_diag_codes[condn]["excl"][10]))))
-                   & (("incl" in dct_diag_codes[condn]) and (
+                   and (("incl" in dct_diag_codes[condn]) and (
                         bool(dct_diag_codes[condn]["incl"][9]) or bool(dct_diag_codes[condn]["incl"][10])))
             ]
             lst_excl_condn = [
@@ -219,7 +223,7 @@ def flag_diagnoses_and_procedures(
                 for condn in dct_diag_codes
                 if (("excl" in dct_diag_codes[condn]) and (
                         bool(dct_diag_codes[condn]["excl"][9]) or bool(dct_diag_codes[condn]["excl"][10])))
-                   & (("incl" not in dct_diag_codes[condn]) | (
+                   and (("incl" not in dct_diag_codes[condn]) or (
                     not (bool(dct_diag_codes[condn]["incl"][9]) or bool(dct_diag_codes[condn]["incl"][10]))))
             ]
 

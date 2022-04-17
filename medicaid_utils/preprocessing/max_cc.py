@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import sys
 
-sys.path.append("../../")
 from medicaid_utils.preprocessing import max_file
 
 

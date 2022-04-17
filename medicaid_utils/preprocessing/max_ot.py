@@ -2,7 +2,6 @@ import dask.dataframe as dd
 import pandas as pd
 import sys
 
-sys.path.append("../../")
 from medicaid_utils.preprocessing import max_file
 from medicaid_utils.common_utils import dataframe_utils
 

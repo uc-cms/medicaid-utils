@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import shutil
 
-sys.path.append("../../../")
 from medicaid_utils.common_utils import dataframe_utils, links
 
 
