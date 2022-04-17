@@ -23,6 +23,85 @@ class BillingsED:
     package_folder, filename = os.path.split(__file__)
     data_folder = os.path.join(package_folder, "data")
 
+    # Recoding diagnosis code lookups
+    pdf_recode = pd.read_csv(
+        os.path.join(data_folder, "recode.csv"),
+        dtype={
+            "origin": "str",
+            "target": "str",
+            "comments": "str",
+            "updates": "str",
+            "deleted": "int",
+            "starts_with": "int",
+        },
+    )
+
+    pdf_recode = pdf_recode.loc[
+        pdf_recode["deleted"] != 1,
+    ]
+    pdf_recode = pdf_recode.assign(
+        origin=pdf_recode.origin.apply(literal_eval)
+    )
+
+    pdf_startswith_recode = pdf_recode.loc[pdf_recode["starts_with"] == 1]
+    pdf_startswith_recode = (
+        pdf_startswith_recode[["origin", "target"]]
+        .explode("origin")
+        .drop_duplicates(["origin"], keep="first")
+    )
+
+    pdf_nonstartswith_recode = pdf_recode.loc[pdf_recode["starts_with"] == 0][
+        ["origin", "target"]
+    ].explode("origin")
+    pdf_nonstartswith_recode = pdf_nonstartswith_recode.drop_duplicates(
+        ["origin"], keep="first"
+    )
+    dct_recode_non_startswith = pdf_nonstartswith_recode.set_index(
+        "origin"
+    ).to_dict()["target"]
+
+    # Special categories lookups
+    lst_special_ed_categories = ["acs", "psych", "drug", "alcohol", "injury"]
+    # Load recode csv file that has information for
+    # recoding principal diagnosis
+    # Load category data files to a dictionary
+    dct_category_dx_codes = {
+        f"{cat}": pd.read_csv(
+            os.path.join(data_folder, cat + "_check.csv"),  # pylint: disable=undefined-variable
+            dtype={
+                "start_index": "int",
+                "end_index": "float",
+                "code": "str",
+                "comments": "str",
+            },
+        )
+        .apply(
+            lambda row: re.sub(
+                r"[^a-zA-Z0-9]+",
+                "",
+                row.code[
+                    : (int(row.end_index) + 1)
+                    if pd.notnull(row.end_index)
+                    else len(row.code)
+                ].upper(),
+            ),
+            axis=1,
+        )
+        .tolist()
+        .tolist()
+        for cat in lst_special_ed_categories
+    }
+
+    # Probabilities lookup
+    df_eddxs = pd.read_sas(os.path.join(data_folder, "eddxs.sas7bdat"))
+    df_eddxs = df_eddxs.assign(
+        prindx=df_eddxs.prindx.str.decode("utf-8")
+        .str.strip()
+        .str.upper()
+        .str.replace("[^a-zA-Z0-9]+", "", regex=True)
+    )
+    df_eddxs = df_eddxs.drop_duplicates(["prindx"], keep="first")
+
     @classmethod
     def recode_diag_code(cls, dx_code: str) -> str:
         """
@@ -38,48 +117,12 @@ class BillingsED:
         str
 
         """
-        pdf_recode = pd.read_csv(
-            os.path.join(cls.data_folder, "recode.csv"),
-            dtype={
-                "origin": "str",
-                "target": "str",
-                "comments": "str",
-                "updates": "str",
-                "deleted": "int",
-                "starts_with": "int",
-            },
-        )
-
-        pdf_recode = pdf_recode.loc[
-            pdf_recode["deleted"] != 1,
-        ]
-        pdf_recode = pdf_recode.assign(
-            origin=pdf_recode.origin.apply(literal_eval)
-        )
-
-        pdf_startswith_recode = pdf_recode.loc[pdf_recode["starts_with"] == 1]
-        pdf_startswith_recode = (
-            pdf_startswith_recode[["origin", "target"]]
-            .explode("origin")
-            .drop_duplicates(["origin"], keep="first")
-        )
-
-        pdf_nonstartswith_recode = pdf_recode.loc[
-            pdf_recode["starts_with"] == 0
-        ][["origin", "target"]].explode("origin")
-        pdf_nonstartswith_recode = pdf_nonstartswith_recode.drop_duplicates(
-            ["origin"], keep="first"
-        )
-        dct_recode_non_startswith = pdf_nonstartswith_recode.set_index(
-            "origin"
-        ).to_dict()["target"]
-
-        return dct_recode_non_startswith.get(
+        return cls.dct_recode_non_startswith.get(
             dx_code,
             next(
                 (
                     row.target
-                    for idx, row in pdf_startswith_recode.iterrows()
+                    for idx, row in cls.pdf_startswith_recode.iterrows()
                     if dx_code.startswith(row.origin)
                 ),
                 dx_code,
@@ -111,39 +154,9 @@ class BillingsED:
         dict
 
         """
-        lst_ed_categories = ["acs", "psych", "drug", "alcohol", "injury"]
-        # Load recode csv file that has information for
-        # recoding principal diagnosis
-        # Load category data files to a dictionary
-        dct_category_dx_codes = {
-            f"{cat}": pd.read_csv(
-                os.path.join(cls.data_folder, cat + "_check.csv"),
-                dtype={
-                    "start_index": "int",
-                    "end_index": "float",
-                    "code": "str",
-                    "comments": "str",
-                },
-            )
-            .apply(
-                lambda row: re.sub(
-                    r"[^a-zA-Z0-9]+",
-                    "",
-                    row.code[
-                        : (int(row.end_index) + 1)
-                        if pd.notnull(row.end_index)
-                        else len(row.code)
-                    ].upper(),
-                ),
-                axis=1,
-            )
-            .tolist()
-            .tolist()
-            for cat in lst_ed_categories
-        }
         return {
-            cat: int(dx_code.startswith(tuple(dct_category_dx_codes[cat])))
-            for cat in lst_ed_categories
+            cat: int(dx_code.startswith(tuple(cls.dct_category_dx_codes[cat])))
+            for cat in cls.lst_special_ed_categories
         }
 
     @classmethod
@@ -170,17 +183,8 @@ class BillingsED:
         dict
 
         """
-
-        df_eddxs = pd.read_sas(os.path.join(cls.data_folder, "eddxs.sas7bdat"))
-        df_eddxs = df_eddxs.assign(
-            prindx=df_eddxs.prindx.str.decode("utf-8")
-            .str.strip()
-            .str.upper()
-            .str.replace("[^a-zA-Z0-9]+", "", regex=True)
-        )
-        df_eddxs = df_eddxs.drop_duplicates(["prindx"], keep="first")
         return (
-            df_eddxs.set_index("prindx")
+            cls.df_eddxs.set_index("prindx")
             .to_dict(orient="index")
             .get(dx_code, {})
         )
