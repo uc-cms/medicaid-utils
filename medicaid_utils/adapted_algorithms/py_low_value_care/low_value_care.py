@@ -755,7 +755,7 @@ class LowValueCare:
             pdf = pd.read_parquet(
                 os.path.join(claims_folder, ftype, f"{state}_{year}.parquet"),
                 engine="pyarrow",
-                index=False,
+                # index=False,
             ).set_index(index_col)
             pdf = pdf.rename(
                 columns={
@@ -897,8 +897,8 @@ class LowValueCare:
         )
         pdf_ps = pd.read_parquet(
             os.path.join(claims_folder, "ps", f"{state}_{year}.parquet"),
-            engine="fastparquet",
-            index=False,
+            engine="pyarrow",
+            # index=False,
         ).set_index(index_col)[["eligibility_pattern"]]
         if os.path.exists(
             os.path.join(claims_folder, "ps", f"{state}_{year}.parquet")
@@ -909,7 +909,7 @@ class LowValueCare:
                         claims_folder, "ps", f"{state}_{year - 1}.parquet"
                     ),
                     engine="pyarrow",
-                    index=False,
+                    # index=False,
                 )
                 .set_index(index_col)[["eligibility_pattern"]]
                 .rename(
