@@ -754,7 +754,7 @@ class LowValueCare:
         for ftype in ["ip", "ot"]:
             pdf = pd.read_parquet(
                 os.path.join(claims_folder, ftype, f"{state}_{year}.parquet"),
-                engine="fastparquet",
+                engine="pyarrow",
                 index=False,
             ).set_index(index_col)
             pdf = pdf.rename(
@@ -908,7 +908,7 @@ class LowValueCare:
                     os.path.join(
                         claims_folder, "ps", f"{state}_{year - 1}.parquet"
                     ),
-                    engine="fastparquet",
+                    engine="pyarrow",
                     index=False,
                 )
                 .set_index(index_col)[["eligibility_pattern"]]
