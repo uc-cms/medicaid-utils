@@ -641,7 +641,7 @@ class LowValueCare:
 
             ip_claim.df.compute().to_parquet(
                 os.path.join(out_folder, "ip", f"{state}_{curr_year}.parquet"),
-                engine="fastparquet",
+                engine="pyarrow",
                 compression="snappy",
                 index=True,
             )
@@ -673,7 +673,7 @@ class LowValueCare:
             df_ot = ot_claim.df.compute()
             df_ot.to_parquet(
                 os.path.join(out_folder, "ot", f"{state}_{curr_year}.parquet"),
-                engine="fastparquet",
+                engine="pyarrow",
                 compression="snappy",
                 index=True,
             )
@@ -713,7 +713,7 @@ class LowValueCare:
             df_ps = ps_file.df.compute()
             df_ps.to_parquet(
                 os.path.join(out_folder, "ps", f"{state}_{curr_year}.parquet"),
-                engine="fastparquet",
+                engine="pyarrow",
                 compression="snappy",
                 index=True,
             )
