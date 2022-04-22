@@ -238,12 +238,20 @@ class BillingsED:
                 or bool(dct_nyu_ed_proba)
             )
         )
-        ne = dct_nyu_ed_proba.get("nonemerg", 0)
-        epct = dct_nyu_ed_proba.get("emergpc", 0)
-        # ne = (int(not any(dct_special_cat[cat] for cat in ["injury", "drug", "psych", "alcohol"]))
-        #       * dct_nyu_ed_proba.get('nonemerg', 0))
-        # epct = (int(not any(dct_special_cat[cat] for cat in ["injury", "drug", "psych", "alcohol"]))
-        #         * dct_nyu_ed_proba.get('emergpc', 0))
+        # ne = dct_nyu_ed_proba.get("nonemerg", 0)
+        # epct = dct_nyu_ed_proba.get("emergpc", 0)
+        ne = int(
+            not any(
+                dct_special_cat[cat]
+                for cat in ["injury", "drug", "psych", "alcohol"]
+            )
+        ) * dct_nyu_ed_proba.get("nonemerg", 0)
+        epct = int(
+            not any(
+                dct_special_cat[cat]
+                for cat in ["injury", "drug", "psych", "alcohol"]
+            )
+        ) * dct_nyu_ed_proba.get("emergpc", 0)
         edcnpa = dct_special_cat["acs"] * sum(
             [
                 dct_nyu_ed_proba.get("emedpa", 0),
@@ -257,9 +265,24 @@ class BillingsED:
             ]
         )
 
-        # edcnpa = (int(not any(dct_special_cat[cat] for cat in ["injury", "drug", "psych", "alcohol"]))
-        #           * edcnpa)
-        # edcnnpa = (int(not any(dct_special_cat[cat] for cat in ["injury", "drug", "psych", "alcohol"])) * edcnnpa)
+        edcnpa = (
+            int(
+                not any(
+                    dct_special_cat[cat]
+                    for cat in ["injury", "drug", "psych", "alcohol"]
+                )
+            )
+            * edcnpa
+        )
+        edcnnpa = (
+            int(
+                not any(
+                    dct_special_cat[cat]
+                    for cat in ["injury", "drug", "psych", "alcohol"]
+                )
+            )
+            * edcnnpa
+        )
 
         peds_acsed = max(peds_acsed, sum([ne, epct, edcnpa]))
 
@@ -408,7 +431,7 @@ def get_nyu_ed_proba(
             dict(
                 [
                     (col, "max")
-                    for col in ["injury", "drug", "psych", "alcohol", 'adult']
+                    for col in ["injury", "drug", "psych", "alcohol", "adult"]
                 ]
                 + [
                     (col, "mean")
@@ -420,9 +443,9 @@ def get_nyu_ed_proba(
     )
 
     df = df.assign(
-        peds_acs_ed_visit=df["adult"].where(
-            df["adult"] == 0, (df["peds_acs_ed"] > 0.75).astype(int)
-        ).astype(int),
+        peds_acs_ed_visit=df["adult"]
+        .where(df["adult"] == 0, (df["peds_acs_ed"] > 0.75).astype(int))
+        .astype(int),
         non_emergent_visit=(df[["ne", "epct"]].sum(axis=1) > 0.5).astype(int),
         emergent_visit=(df[["edcnpa", "edcnnpa"]].sum(axis=1) > 0.5).astype(
             int
@@ -441,6 +464,10 @@ def get_nyu_ed_proba(
             {
                 col: "sum"
                 for col in [
+                    "injury",
+                    "drug",
+                    "psych",
+                    "alcohol",
                     "peds_acs_ed_visit",
                     "non_emergent_visit",
                     "emergent_visit",
