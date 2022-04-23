@@ -1,13 +1,10 @@
+import os
+from operator import mul
+from functools import reduce
 import scipy.stats as st
 import numpy as np
 import pandas as pd
-from operator import mul
-from functools import reduce
-import hvplot.pandas
-import warnings
-from holoviews import dim, opts
-import os
-from scipy.stats import ttest_ind
+from holoviews import opts
 
 
 def cramers_corrected_stat(confusion_matrix):
@@ -35,10 +32,8 @@ def get_phi(pdf_x):
     ]
     lst_nondiag = [item for sublist in lst_nondiag for item in sublist]
     lst_margins = [
-                      pdf_x.iloc[i, :].values.sum() for i in
-                      range(pdf_x.shape[0])
-                  ] + [pdf_x.iloc[:, i].values.sum() for i in
-                       range(pdf_x.shape[1])]
+        pdf_x.iloc[i, :].values.sum() for i in range(pdf_x.shape[0])
+    ] + [pdf_x.iloc[:, i].values.sum() for i in range(pdf_x.shape[1])]
     prod_diag = reduce(mul, lst_diag, 1)
     prod_nondiag = reduce(mul, lst_nondiag, 1)
     prod_margins = reduce(mul, lst_margins, 1)
@@ -47,45 +42,36 @@ def get_phi(pdf_x):
 
 
 def get_contingency_table(
-        pdf_dataset, lst_categorical_metrics, pop_col_name,
-        lst_numeric_col_to_binarize, dct_labels
+    pdf_dataset,
+    lst_categorical_metrics,
+    pop_col_name,
+    lst_numeric_col_to_binarize,
+    dct_labels,
 ):
     lst_pop_val = sorted(
         pdf_dataset.loc[~pdf_dataset[pop_col_name].isna()][pop_col_name]
-            .astype(int)
-            .unique()
-            .tolist()
+        .astype(int)
+        .unique()
+        .tolist()
     )
-    dct_labels = dict(
-        [
-            (val, dct_labels[val])
-            for val in dct_labels
-            if (val in lst_pop_val)
-        ]
-    )
+    dct_labels = {
+        val: dct_labels[val] for val in dct_labels if (val in lst_pop_val)
+    }
     lst_pop_val = sorted([val for val in lst_pop_val if val in dct_labels])
     lst_labels = [dct_labels[val] for val in lst_pop_val]
-    lst_pop_size = [
-        pdf_dataset.loc[pdf_dataset[pop_col_name] == pop_val].shape[0]
-        for pop_val in lst_pop_val
-    ]
 
     lst_crosstab = []
     pdf_dataset = pdf_dataset.assign(
-        **dict(
-            [
-                (col, pd.to_numeric(pdf_dataset[col], errors="coerce"))
-                for col in lst_numeric_col_to_binarize
-            ]
-        )
+        **{
+            col: pd.to_numeric(pdf_dataset[col], errors="coerce")
+            for col in lst_numeric_col_to_binarize
+        }
     )
     pdf_dataset = pdf_dataset.assign(
-        **dict(
-            [
-                (col, pd.to_numeric(pdf_dataset[col], errors="ignore"))
-                for col in lst_categorical_metrics
-            ]
-        )
+        **{
+            col: pd.to_numeric(pdf_dataset[col], errors="ignore")
+            for col in lst_categorical_metrics
+        }
     )
     lstpdf_crosstab_pretty = []
 
@@ -99,7 +85,7 @@ def get_contingency_table(
 
         if col in lst_numeric_col_to_binarize:
             pdf_temp = pdf_temp.assign(
-                **dict([(col, (pdf_temp[col] > 0).astype(int))])
+                **{col: (pdf_temp[col] > 0).astype(int)}
             )
         pdf_temp = pdf_temp.sort_values(by=[pop_col_name, col])
         phi = pdf_temp[[pop_col_name] + [col]].corr()
@@ -116,12 +102,8 @@ def get_contingency_table(
             pdf_crosstab = (
                 pd.DataFrame(pdf_crosstab.T.loc[1, :]).T
                 if (
-                        len(
-                            set(pdf_crosstab.columns.tolist()).difference(
-                                set([0, 1])
-                            )
-                        )
-                        == 0
+                    len(set(pdf_crosstab.columns.tolist()).difference({0, 1}))
+                    == 0
                 )
                 else pd.DataFrame(pdf_crosstab.T)
             )
@@ -150,50 +132,38 @@ def get_contingency_table(
             columns=dict(zip(lst_pop_val, lst_labels))
         )
         pdf_pretty = pdf_pretty.assign(
-            **dict(
-                [
-                    (col, np.nan)
-                    for col in lst_labels + ["p_val", "phi", "cramers_v", "pop_size"]
-                    if col not in pdf_pretty.columns
-                ]
-            )
+            **{
+                col: np.nan
+                for col in lst_labels
+                + ["p_val", "phi", "cramers_v", "pop_size"]
+                if col not in pdf_pretty.columns
+            }
         )
 
         pdf_pretty = pdf_pretty.assign(
-            **dict(
-                [
-                    (
-                        tpl_label_n[0] + "_N",
-                        pdf_pretty[tpl_label_n[0]]
-                            .fillna(0)
-                            .apply(lambda x: int(x)),
-                    )
+            **{
+                **{
+                    tpl_label_n[0]
+                    + "_N": pdf_pretty[tpl_label_n[0]].fillna(0).astype(int)
                     for tpl_label_n in zip(lst_labels, lst_metric_pop_size)
-                ]
-                + [
-                    (
-                        tpl_label_n[0] + "_%",
-                        pdf_pretty[tpl_label_n[0]]
-                            .fillna(0)
-                            .apply(
-                            lambda x: (x * 100 / tpl_label_n[1])
-                            if (tpl_label_n[1] != 0)
-                            else np.nan
-                        ),
+                },
+                **{
+                    tpl_label_perc[0]
+                    + "_%": (
+                        pdf_pretty[tpl_label_perc[0]].fillna(0)
+                        * 100
+                        / tpl_label_perc[1]
                     )
-                    for tpl_label_n in zip(lst_labels, lst_metric_pop_size)
-                ]
-                + [
-                    (
-                        tpl_label_n[0] + "_denom",
-                        pdf_pretty[tpl_label_n[0]]
-                            .fillna(0)
-                            .apply(lambda x: tpl_label_n[1]),
-                    )
-                    for tpl_label_n in zip(lst_labels, lst_metric_pop_size)
-                ]
-                + [("pop_size", sum(lst_metric_pop_size))]
-            )
+                    if (tpl_label_perc[1] != 0)
+                    else np.nan
+                    for tpl_label_perc in zip(lst_labels, lst_metric_pop_size)
+                },
+                **{
+                    tpl_label_denom[0] + "_denom": tpl_label_denom[1]
+                    for tpl_label_denom in zip(lst_labels, lst_metric_pop_size)
+                },
+                **{"pop_size": sum(lst_metric_pop_size)},
+            }
         )
 
         pdf_lbls = {}
@@ -213,12 +183,10 @@ def get_contingency_table(
             pdf_lbls[lbl] = pdf_lbl
         pdf_lbls = pd.concat(pdf_lbls, axis=1)
         pdf_lbls = pdf_lbls.assign(
-            **dict(
-                [
-                    (col, pdf_pretty[col])
-                    for col in ["p_val", "phi", "cramers_v", "pop_size"]
-                ]
-            )
+            **{
+                col: pdf_pretty[col]
+                for col in ["p_val", "phi", "cramers_v", "pop_size"]
+            }
         )
         lstpdf_crosstab_pretty.append(pdf_lbls)
 
@@ -230,25 +198,21 @@ def get_contingency_table(
 def get_ranksum_table(pdf_dataset, lst_metrics, pop_col_name, dct_labels):
     lst_pop_val = sorted(
         pdf_dataset.loc[~pdf_dataset[pop_col_name].isna()][pop_col_name]
-            .astype(int)
-            .unique()
-            .tolist()
+        .astype(int)
+        .unique()
+        .tolist()
     )
-    dct_labels = dict(
-        [
-            (val, dct_labels[val])
-            for val in list(dct_labels.keys())
-            if (val in lst_pop_val)
-        ]
-    )
+    dct_labels = {
+        val: dct_labels[val]
+        for val in list(dct_labels.keys())
+        if (val in lst_pop_val)
+    }
     lst_pop_val = sorted([val for val in lst_pop_val if val in dct_labels])
     lst_labels = [dct_labels[val] for val in lst_pop_val]
     lst_pop_size = [
         pdf_dataset.loc[pdf_dataset[pop_col_name] == pop_val].shape[0]
         for pop_val in lst_pop_val
     ]
-    n_1 = pdf_dataset.loc[pdf_dataset[pop_col_name] == 1].shape[0]
-    n_0 = pdf_dataset.loc[pdf_dataset[pop_col_name] == 0].shape[0]
     lst_ranksum = []
     lst_ranksum_pretty = []
     for col in lst_metrics:
@@ -283,18 +247,18 @@ def get_ranksum_table(pdf_dataset, lst_metrics, pop_col_name, dct_labels):
             if len(lst_pop_val) == 2:
                 z, p = st.ranksums(
                     *[
-                        pdf_dataset.loc[
-                            pdf_dataset[pop_col_name] == pop_val
-                            ][col].dropna()
+                        pdf_dataset.loc[pdf_dataset[pop_col_name] == pop_val][
+                            col
+                        ].dropna()
                         for pop_val in lst_pop_val
                     ]
                 )
             if len(lst_pop_val) > 2:
                 z, p = st.kruskal(
                     *[
-                        pdf_dataset.loc[
-                            pdf_dataset[pop_col_name] == pop_val
-                            ][col].dropna()
+                        pdf_dataset.loc[pdf_dataset[pop_col_name] == pop_val][
+                            col
+                        ].dropna()
                         for pop_val in lst_pop_val
                     ]
                 )
@@ -305,17 +269,17 @@ def get_ranksum_table(pdf_dataset, lst_metrics, pop_col_name, dct_labels):
             dict(
                 [("metric", col)]
                 + [
-                    ("pop_{0}_mean".format(tpl_val[0]), tpl_val[1])
+                    (f"pop_{tpl_val[0]}_mean", tpl_val[1])
                     for tpl_val in zip(lst_pop_val, lst_pop_metric_mean)
                 ]
                 + [
-                    ("pop_{0}_std".format(tpl_val[0]), tpl_val[1])
+                    (f"pop_{tpl_val[0]}_std", tpl_val[1])
                     for tpl_val in zip(lst_pop_val, lst_pop_metric_std)
                 ]
                 + [
                     (
-                        "pop_{0}_ci".format(tpl_val[0]),
-                        "({0}, {1})".format(tpl_val[1][0], tpl_val[1][1]),
+                        f"pop_{tpl_val[0]}_ci",
+                        f"({tpl_val[1][0]}, {tpl_val[1][1]})",
                     )
                     for tpl_val in zip(lst_pop_val, lst_pop_metric_ci)
                 ]
@@ -328,24 +292,19 @@ def get_ranksum_table(pdf_dataset, lst_metrics, pop_col_name, dct_labels):
             dict(
                 [
                     (
-                        tpl_val[0] + " (N: {0})".format(tpl_val[1]),
-                        "{:0.2f} (STD: {:0.2f}) (CI: {:0.2f}, {:0.2f})".format(
-                            tpl_val[2],
-                            tpl_val[3],
-                            tpl_val[4][0],
-                            tpl_val[4][1],
-                        ),
+                        tpl_val[0] + f" (N: {tpl_val[1]})",
+                        f"{tpl_val[2]:0.2f} (STD: {tpl_val[3]:0.2f}) (CI: {tpl_val[4][0]:0.2f}, {tpl_val[4][1]:0.2f})",
                     )
                     for tpl_val in zip(
-                                        lst_labels,
-                                        lst_pop_size,
-                                        lst_pop_metric_mean,
-                                        lst_pop_metric_std,
-                                        lst_pop_metric_ci,
-                                        )
+                        lst_labels,
+                        lst_pop_size,
+                        lst_pop_metric_mean,
+                        lst_pop_metric_std,
+                        lst_pop_metric_ci,
+                    )
                 ]
                 + [
-                    ("Z score", "{0} (p: {1})".format(str(z), str(p))),
+                    ("Z score", f"{z} (p: {p})"),
                     ("Correlation with indicator variable", corr),
                 ]
             ),
@@ -370,11 +329,11 @@ def get_cont_table_statewise(
 ):
     pdf_pretty_combined = {}
     sorted(lst_st)
-    for st in ["All States"] + lst_st:
+    for state in ["All States"] + lst_st:
         pdf_t, pdf_pretty = get_contingency_table(
             (
-                pdf_included.loc[pdf_included[state_col_name] == st]
-                if (st != "All States")
+                pdf_included.loc[pdf_included[state_col_name] == state]
+                if (state != "All States")
                 else pdf_included
             ),
             lst_metrics,
@@ -382,64 +341,30 @@ def get_cont_table_statewise(
             lst_count_metrics,
             dct_labels,
         )
-        pdf_pretty_combined[st] = pdf_pretty
+        pdf_pretty_combined[state] = pdf_pretty
     pdf_pretty_combined = pd.concat(pdf_pretty_combined, axis=1)
     return pdf_pretty_combined
 
 
-def get_ttest_table_statewise(
+def get_ranksum_table_statewise(
     pdf_included, lst_metrics, pop_col_name, dct_labels, lst_st, state_col_name
 ):
-    lst_pdf_t = []
-    for st in lst_st + ["Σ All States"]:
-        pdf_t, pdf_t_pretty = get_ranksum_table(
+    pdf_pretty_combined = {}
+    sorted(lst_st)
+    for state in ["All States"] + lst_st:
+        pdf_t, pdf_pretty = get_ranksum_table(
             (
-                pdf_included.loc[pdf_included[state_col_name] == st]
-                if (st != "Σ All States")
+                pdf_included.loc[pdf_included[state_col_name] == state]
+                if (state != "All States")
                 else pdf_included
             ),
             lst_metrics,
             pop_col_name,
             dct_labels,
         )
-        pdf_t_pretty = pdf_t_pretty.reset_index()
-        lst_labels = [
-            lbl
-            for lbl in list(dct_labels.values())
-            if (
-                len(
-                    [
-                        col
-                        for col in pdf_t_pretty.columns
-                        if col.startswith(lbl)
-                    ]
-                )
-                > 0
-            )
-        ]
-        lst_pop_size = [
-            [col for col in pdf_t_pretty.columns if col.startswith(lbl)][0]
-            for lbl in lst_labels
-        ]
-        # true_val_N = [col for col in pdf_t_pretty.columns if col.startswith(true_val_name)][0]
-        # false_val_N = [col for col in pdf_t_pretty.columns if col.startswith(false_val_name)][0]
-        pdf_t_pretty = pdf_t_pretty.rename(
-            columns=dict(zip(lst_pop_size, lst_labels))
-            # {true_val_N: true_val_name,
-            #                              false_val_N: false_val_name
-            #                              }
-        )
-        lst_columns = list(pdf_t_pretty.columns)
-        pdf_t_pretty[state_col_name] = (
-            st + " " + " ".join(lst_pop_size)
-        )  # true_val_N + ' ' + false_val_N
-        pdf_t_pretty = pdf_t_pretty[[state_col_name] + lst_columns]
-        lst_pdf_t.append(pdf_t_pretty)
-
-    pdf_all_t = pd.concat(lst_pdf_t, ignore_index=True)
-    return pdf_all_t.sort_values(by=["metric", state_col_name]).set_index(
-        "metric"
-    )
+        pdf_pretty_combined[state] = pdf_pretty
+    pdf_pretty_combined = pd.concat(pdf_pretty_combined, axis=1)
+    return pdf_pretty_combined
 
 
 def color_positive_green(x):
@@ -454,10 +379,10 @@ def color_positive_green(x):
 
 def get_descriptives(pdf, lst_st, lst_col, state_col_name):
     lst_pdf_desc = []
-    for st in lst_st + ["Σ All States"]:
+    for state in lst_st + ["Σ All States"]:
         pdf_state = (
-            pdf.loc[pdf[state_col_name] == st]
-            if (st != "Σ All States")
+            pdf.loc[pdf[state_col_name] == state]
+            if (state != "Σ All States")
             else pdf
         )
         pdf_desc = (
@@ -466,7 +391,7 @@ def get_descriptives(pdf, lst_st, lst_col, state_col_name):
             .T.reset_index()
         )
         pdf_desc.rename(columns={"index": "metric"}, inplace=True)
-        pdf_desc[state_col_name] = st
+        pdf_desc[state_col_name] = state
         pdf_desc = pdf_desc[
             [state_col_name, "metric"]
             + [
@@ -618,17 +543,12 @@ def get_covar_plots(pdf, lst_covar, lst_hist_covar, cut_outliers=False):
     pdf_temp = pdf.copy()
     if cut_outliers:
         pdf_temp = pdf.assign(
-            **dict(
-                [
-                    (
-                        covar,
-                        pdf[covar].where(
-                            pdf[covar] <= pdf[covar].quantile(0.99)
-                        ),
-                    )
-                    for covar in lst_hist_covar
-                ]
-            )
+            **{
+                covar: pdf[covar].where(
+                    pdf[covar] <= pdf[covar].quantile(0.99)
+                )
+                for covar in lst_hist_covar
+            }
         )
 
     for covar in lst_covar:
@@ -655,9 +575,7 @@ def compute_descriptives(
 ):
     pdf_desc = get_descriptives(pdf, lst_states, lst_metrics, state_col_name)
     pdf_desc.to_excel(output_fname)
-    print(
-        "Statewise stats is saved at {0}".format(os.path.abspath(output_fname))
-    )
+    print(f"Statewise stats is saved at {os.path.abspath(output_fname)}")
     pdf_desc = pdf_desc.loc[pdf_desc[state_col_name].str.contains("All")]
     del pdf_desc[state_col_name]
     return pdf_desc
@@ -674,20 +592,14 @@ def compute_t_stats(
 ):
     if dct_labels is None:
         dct_labels = {0: "non-FQHC", 1: "FQHC"}
-    pdf_tstats = get_ttest_table_statewise(
+    pdf_tstats = get_ranksum_table_statewise(
         pdf, lst_metrics, pop_col_name, dct_labels, lst_states, state_col_name
     )
     pdf_tstats.to_excel(output_fname)
-    print(
-        "Statewise T stats is saved at {0}".format(
-            os.path.abspath(output_fname)
-        )
-    )
+    print(f"Statewise T stats is saved at {os.path.abspath(output_fname)}")
     pdf_tstats = pdf_tstats.loc[pdf_tstats[state_col_name].str.contains("All")]
     print(
-        "T stats for {0}".format(
-            pdf_tstats[state_col_name].values[0].replace("Σ", "")
-        )
+        f"T stats for {pdf_tstats[state_col_name].values[0].replace('Σ', '')}"
     )
     del pdf_tstats[state_col_name]
     return pdf_tstats.style.apply(color_positive_green, axis=None)
@@ -716,17 +628,13 @@ def compute_contingency_table(
     )
     pdf_crosstab.to_excel(output_fname)
     print(
-        "Statewise contingency table is saved at {0}".format(
-            os.path.abspath(output_fname)
-        )
+        f"Statewise contingency table is saved at {os.path.abspath(output_fname)}"
     )
     pdf_crosstab = pdf_crosstab.loc[
         pdf_crosstab[state_col_name].str.contains("All")
     ]
     print(
-        "Contingency table for {0}".format(
-            pdf_crosstab[state_col_name].values[0].replace("Σ", "")
-        )
+        f"Contingency table for {pdf_crosstab[state_col_name].values[0].replace('Σ', '')}"
     )
     del pdf_crosstab[state_col_name]
     return pdf_crosstab.style.apply(color_positive_green, axis=None)
@@ -798,17 +706,13 @@ def compute_missing_stats(df, output_fname, state_col_name="STATE_CD"):
     )
     pdf_missing_stats.to_excel(output_fname)
     print(
-        "Statewise missing stats is saved at {0}".format(
-            os.path.abspath(output_fname)
-        )
+        f"Statewise missing stats is saved at {os.path.abspath(output_fname)}"
     )
     pdf_missing_stats = pdf_missing_stats.loc[
         pdf_missing_stats[state_col_name].str.contains("All")
     ]
     print(
-        "Missing stats for {0}".format(
-            pdf_missing_stats[state_col_name].values[0].replace("Σ", "")
-        )
+        f"Missing stats for {pdf_missing_stats[state_col_name].values[0].replace('Σ', '')}"
     )
     del pdf_missing_stats[state_col_name]
     return pdf_missing_stats.T
