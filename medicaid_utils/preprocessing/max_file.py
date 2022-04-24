@@ -80,7 +80,10 @@ class MAXFile:
             )
         except Exception as ex:
             self.df.to_parquet(
-                dest_name + "_tmp", engine="pyarrow", write_index=True, schema='infer'
+                dest_name + "_tmp",
+                engine="pyarrow",
+                write_index=True,
+                schema="infer",
             )
         del self.df
         shutil.rmtree(dest_name, ignore_errors=True)

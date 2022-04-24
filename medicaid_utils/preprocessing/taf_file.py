@@ -22,6 +22,7 @@ class TAFFile:
         clean: bool = True,
         preprocess: bool = True,
         tmp_folder: str = None,
+        pq_engine: str = "pyarrow",
     ):
         """
         Initializes cms file object by preloading and preprocessing(if opted in) the file
@@ -34,26 +35,43 @@ class TAFFile:
         :param clean: Run cleaning routines if True
         :param preprocess: Add commonly used constructed variable columns, if True
         :param tmp_folder: Folder to use to store temporary files
+        :param pq_engine: Parquet engine, default=pyarrow
         """
-        self.dct_fileloc = links.get_taf_parquet_loc(data_root, ftype, st, year)
+        self.dct_fileloc = links.get_taf_parquet_loc(
+            data_root, ftype, st, year
+        )
         self.ftype = ftype
         self.index_col = index_col
         self.year = year
         self.st = st
         self.tmp_folder = tmp_folder
+        self.pq_engine = pq_engine
+        self.allowed_missing_ftypes = [
+            "occurrence_code",
+            "disability",
+            "mfp",
+            "waiver",
+        ]
         for fileloc in list(self.dct_fileloc.keys()):
             if not os.path.exists(self.dct_fileloc[fileloc]):
                 print(f"{fileloc} does not exist for {st}")
-                if fileloc != 'occurrence_code':
+                if fileloc not in self.allowed_missing_ftypes:
                     raise FileNotFoundError(
-                        errno.ENOENT, os.strerror(errno.ENOENT), ", ".join(self.dct_fileloc.values())
+                        errno.ENOENT,
+                        os.strerror(errno.ENOENT),
+                        ", ".join(self.dct_fileloc.values()),
                     )
                 self.dct_fileloc.pop(fileloc)
-        self.dct_files = dict([(ftype, dd.read_parquet(
-            self.dct_fileloc[ftype], index=False, engine="fastparquet"
-        ).set_index(index_col, sorted=True)) for ftype in self.dct_fileloc])
+        self.dct_files = {
+            ftype: dd.read_parquet(
+                self.dct_fileloc[ftype], index=False, engine=self.pq_engine
+            ).set_index(index_col, sorted=True)
+            for ftype in self.dct_fileloc
+        }
 
-        self.dct_collist = dict([(ftype, self.dct_files[ftype]) for ftype in self.dct_files])
+        self.dct_collist = {
+            ftype: self.dct_files[ftype] for ftype in self.dct_files
+        }
 
         # This dictionary variable can be used to filter out data that will not met minimum quality expections
         self.dct_default_filters = {}
@@ -62,29 +80,34 @@ class TAFFile:
         if preprocess:
             self.preprocess()
 
-    def cache_results(self, f_subtype, repartition=False):
+    def cache_results(self, repartition=False):
         """Save results in intermediate steps of some lengthy processing. Saving intermediate results speeds up
         processing"""
-        if self.tmp_folder is not None:
-            if repartition:
-                self.dct_files[f_subtype] = self.dct_files[f_subtype].repartition(
-                    partition_size="20MB"
-                ).persist()  # Patch, currently to_parquet results
-                # in error when any of the partitions is empty
-            self.pq_export(f_subtype, os.path.join(self.tmp_folder, f_subtype))
+        for f_subtype in self.dct_files:
+            if self.tmp_folder is not None:
+                if repartition:
+                    self.dct_files[f_subtype] = (
+                        self.dct_files[f_subtype]
+                        .repartition(partition_size="20MB")
+                        .persist()
+                    )  # Patch, currently to_parquet results
+                    # in error when any of the partitions is empty
+                self.pq_export(
+                    f_subtype, os.path.join(self.tmp_folder, f_subtype)
+                )
         return None
 
     def pq_export(self, f_subtype, dest_name):
         """Export parquet files (overwrite safe)"""
         shutil.rmtree(dest_name + "_tmp", ignore_errors=True)
         self.dct_files[f_subtype].to_parquet(
-            dest_name + "_tmp", engine="fastparquet", write_index=True
+            dest_name + "_tmp", engine=self.pq_engine, write_index=True
         )
         del self.dct_files[f_subtype]
         shutil.rmtree(dest_name, ignore_errors=True)
         os.rename(dest_name + "_tmp", dest_name)
         self.dct_files[f_subtype] = dd.read_parquet(
-            dest_name, index=False, engine="fastparquet"
+            dest_name, index=False, engine=self.pq_engine
         ).set_index(self.index_col, sorted=True)
         return None
 
@@ -93,7 +116,6 @@ class TAFFile:
         # Date columns will be cleaned and all commonly used date based variables are constructed
         # in this step
         self.process_date_cols()
-        self.add_gender()
 
     def preprocess(self):
         """Add basic constructed variables"""
@@ -109,26 +131,16 @@ class TAFFile:
             single_file=True,
         )
 
-    def add_gender(self) -> None:
-        """
-        Adds integer 'female' column based on 'EL_SEX_CD' column
-        :param DataFrame df:
-        :rtype: None
-        """
-        if "EL_SEX_CD" in self.df.columns:
-            self.df["female"] = -1
-            self.df["female"] = self.df["female"].where(
-                ~self.df.EL_SEX_CD.isin(["F", "M"]),
-                (self.df.EL_SEX_CD == "F").astype(int),
-            )
-        return None
-
     def clean_diag_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
         for ftype in self.dct_files:
             df = self.dct_files[ftype]
-            lst_diag_cd_col = [col for col in df.columns if col.startswith("DGNS_CD_") or (col == ['ADMTG_DGNS_CD'])]
-            if (len(lst_diag_cd_col) > 0):
+            lst_diag_cd_col = [
+                col
+                for col in df.columns
+                if col.startswith("DGNS_CD_") or (col == ["ADMTG_DGNS_CD"])
+            ]
+            if len(lst_diag_cd_col) > 0:
                 df = df.map_partitions(
                     lambda pdf: pdf.assign(
                         **dict(
@@ -136,7 +148,9 @@ class TAFFile:
                                 (
                                     col,
                                     pdf[col]
-                                    .str.replace("[^a-zA-Z0-9]+", "", regex=True)
+                                    .str.replace(
+                                        "[^a-zA-Z0-9]+", "", regex=True
+                                    )
                                     .str.upper(),
                                 )
                                 for col in lst_diag_cd_col
@@ -151,16 +165,23 @@ class TAFFile:
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
         for ftype in self.dct_files:
             df = self.dct_files[ftype]
-            lst_prcdr_cd_col = [col for col in df.columns if (col.startswith("PRCDR_CD")
-                                                              or col.startswith("LINE_PRCDR_CD"))
-                                and (not (col.startswith("PRCDR_CD_SYS") or col.startswith("PRCDR_CD_DT") or
-                                          col.startswith("LINE_PRCDR_CD_SYS") or col.startswith("LINE_PRCDR_CD_DT")))]
-            if (
-                len(
-                    lst_prcdr_cd_col
+            lst_prcdr_cd_col = [
+                col
+                for col in df.columns
+                if (
+                    col.startswith("PRCDR_CD")
+                    or col.startswith("LINE_PRCDR_CD")
                 )
-                > 0
-            ):
+                and (
+                    not (
+                        col.startswith("PRCDR_CD_SYS")
+                        or col.startswith("PRCDR_CD_DT")
+                        or col.startswith("LINE_PRCDR_CD_SYS")
+                        or col.startswith("LINE_PRCDR_CD_DT")
+                    )
+                )
+            ]
+            if len(lst_prcdr_cd_col) > 0:
                 df = df.map_partitions(
                     lambda pdf: pdf.assign(
                         **dict(
@@ -168,7 +189,9 @@ class TAFFile:
                                 (
                                     col,
                                     pdf[col]
-                                    .str.replace("[^a-zA-Z0-9]+", "", regex=True)
+                                    .str.replace(
+                                        "[^a-zA-Z0-9]+", "", regex=True
+                                    )
                                     .str.upper(),
                                 )
                                 for col in lst_prcdr_cd_col
@@ -222,30 +245,26 @@ class TAFFile:
         for ftype in self.dct_files:
             df = self.dct_files[ftype]
             if self.ftype in ["ip", "lt", "ot", "ps", "rx"]:
-                # df = self.df.assign(
-                #     **dict(
-                #         [
-                #             ("year", self.df[col].astype(int))
-                #             for col in ["MAX_YR_DT", "YR_NUM"]
-                #             if col in self.df.columns
-                #         ]
-                #     )
-                # )
                 dct_date_col = {
                     "IP_FIL_DT": "filing_date",
                     "BIRTH_DT": "birth_date",
                     "ADMSM_DT": "admsn_date",
                     "SRVC_BGN_DT": "srvc_bgn_date",
                     "SRVC_END_DT": "srvc_end_date",
+                    "DEATH_DT": "death_date",
+                    "IMGRTN_STUS_5YR_BAR_END_DT": "immigration_status_5yr_bar_end_date",
+                    "ENRLMT_START_DT": "enrollment_start_date",
+                    "ENRLMT_END_DT": "enrollment_end_date",
                 }
-                for date_col in [
-                    col for col in dct_date_col if col not in df.columns
-                ]:
-                    dct_date_col.pop(date_col, None)
-
+                dct_date_col = {
+                    col: dct_date_col[col]
+                    for col in dct_date_col
+                    if col in df.columns
+                }
                 df = df.assign(
-                    **dict([(dct_date_col[col], df[col]) for col in dct_date_col])
+                    **{dct_date_col[col]: df[col] for col in dct_date_col}
                 )
+
                 # converting lst_col columns to datetime type
                 lst_col_to_convert = [
                     dct_date_col[col]
@@ -257,21 +276,31 @@ class TAFFile:
                         == 0
                     )
                 ]
+                if not bool(lst_col_to_convert):
+                    continue
                 df = dataframe_utils.convert_ddcols_to_datetime(
                     df, lst_col_to_convert
                 )
-                df = df.assign(
-                    year=df.filing_date.dt.year,
-                    birth_year=df.birth_date.dt.year,
-                    birth_month=df.birth_date.dt.month,
-                    birth_day=df.birth_date.dt.day,
-                )
-                df = df.assign(age=df.year - df.birth_year)
-                df = df.assign(
-                    age=df["age"].where(
-                        df["age"].between(0, 115, inclusive="both"), np.nan
+
+                if self.ftype == "ip":
+                    df = df.assign(year=df.filing_date.dt.year)
+                else:
+                    df = df.assign(year=df.RFRNC_YR.astype(int))
+
+                if ("AGE" in df.columns) or ("birth_date" in df.columns):
+                    df = df.assign(
+                        birth_year=df.birth_date.dt.year,
+                        birth_month=df.birth_date.dt.month,
+                        birth_day=df.birth_date.dt.day,
                     )
-                )
+                if "AGE" not in df.columns:
+                    df = df.assign(age=df.year - df.birth_year)
+                else:
+                    df = df.assign(
+                        age=df["AGE"].astype("Int64"),
+                        age_group=df["AGE_GRP_CD"].astype("Int64"),
+                    )
+
                 df = df.assign(
                     age_day=(
                         dd.to_datetime(
@@ -289,65 +318,69 @@ class TAFFile:
                 )
                 df = df.assign(
                     adult=df["age"]
-                    .between(18, 115, inclusive="both")
-                    .astype(pd.Int64Dtype()),
-                    child=df["age"]
-                    .between(0, 17, inclusive="both")
-                    .astype(pd.Int64Dtype()),
+                    .between(18, 64, inclusive="both")
+                    .astype("Int64"),
+                    elderly=(df["age"] >= 65).astype("Int64"),
+                    child=(df["age"] <= 17).astype("Int64"),
                 )
-                df = df.assign(
-                    adult=df["adult"].where(~(df["age"].isna()), np.nan),
-                    child=df["child"].where(~(df["age"].isna()), np.nan),
-                )
+
                 if self.ftype != "ps":
                     df = df.map_partitions(
                         lambda pdf: pdf.assign(
-                            adult=pdf.groupby(pdf.index)["adult"].transform(max),
-                            age=pdf.groupby(pdf.index)["age"].transform(max),
-                            age_day=pdf.groupby(pdf.index)["age_day"].transform(
+                            adult=pdf.groupby(pdf.index)["adult"].transform(
                                 max
                             ),
+                            child=pdf.groupby(pdf.index)["child"].transform(
+                                max
+                            ),
+                            age=pdf.groupby(pdf.index)["age"].transform(max),
+                            age_day=pdf.groupby(pdf.index)[
+                                "age_day"
+                            ].transform(max),
                             age_decimal=pdf.groupby(pdf.index)[
                                 "age_decimal"
                             ].transform(max),
                         )
                     )
-                if "date_of_death" in df.columns:
+                if ("death_date" in df.columns) or ("DEATH_IND" in df.columns):
                     df = df.assign(
                         death=(
                             (
-                                df.date_of_death.dt.year.fillna(
+                                df.death_date.dt.year.fillna(
                                     df.year + 10
                                 ).astype(int)
                                 <= df.year
                             )
-                            | (
-                                df.medicare_date_of_death.dt.year.fillna(
-                                    df.year + 10
-                                ).astype(int)
-                                <= df.year
-                            )
-                        ).astype(int)
+                            | (df["DEATH_IND"].astype("Int64") == 1)
+                        )
+                        .astype("Int64")
+                        .fillna(0)
+                        .astype(int)
                     )
                 if self.ftype == "ip":
                     df = df.assign(
-                        missing_admsn_date=df["admsn_date"].isnull().astype(int)
+                        missing_admsn_date=df["admsn_date"]
+                        .isnull()
+                        .astype(int)
                     )
 
                     df = df.assign(
                         admsn_date=df["admsn_date"].where(
                             ~df["admsn_date"].isnull(), df["srvc_bgn_date"]
                         ),
-                        los=(df["srvc_end_date"] - df["admsn_date"]).dt.days + 1,
+                        los=(df["srvc_end_date"] - df["admsn_date"]).dt.days
+                        + 1,
                     )
                     df = df.assign(
-                        los=df["los"].where(
+                        los=df["los"]
+                        .where(
                             (
                                 (df["year"] >= df["admsn_date"].dt.year)
                                 & (df["admsn_date"] <= df["srvc_end_date"])
                             ),
                             np.nan,
                         )
+                        .astype("Int64")
                     )
 
                     df = df.assign(
@@ -356,9 +389,9 @@ class TAFFile:
                         ).dt.days,
                     )
                     df = df.assign(
-                        age_admsn=(df["age_day_admsn"].fillna(0) / 365.25).astype(
-                            int
-                        ),
+                        age_admsn=(
+                            df["age_day_admsn"].fillna(0) / 365.25
+                        ).astype("Int64"),
                     )
 
                 if self.ftype == "ot":
@@ -372,11 +405,12 @@ class TAFFile:
                     )
                     df = df.assign(
                         duration=df["duration"].where(
-                            (df["srvc_bgn_date"] <= df["srvc_end_date"]), np.nan
+                            (df["srvc_bgn_date"] <= df["srvc_end_date"]),
+                            np.nan,
                         ),
                         age_srvc_bgn=(
                             df["age_day_srvc_bgn"].fillna(0) / 365.25
-                        ).astype(int),
+                        ).astype("Int64"),
                     )
                 self.dct_files[ftype] = df
         return None

@@ -121,8 +121,11 @@ def get_patient_ids_with_conditions(
 
 
 def flag_diagnoses_and_procedures(
-    dct_diag_codes: dict, dct_proc_codes: dict, df_claims: dd.DataFrame,
-        cms_format: str = 'MAX', lst_claim_diag_col: List[str] = None
+    dct_diag_codes: dict,
+    dct_proc_codes: dict,
+    df_claims: dd.DataFrame,
+    cms_format: str = "MAX",
+    lst_claim_diag_col: List[str] = None,
 ) -> dd.DataFrame:
     """
 
@@ -141,90 +144,194 @@ def flag_diagnoses_and_procedures(
     """
     # Validate procedure codes
     dct_invalid_proc_codes = dict(
-        filter(lambda elem: len([code for code in itertools.chain(*elem[1].values()) if not code.isalnum()]),
-               dct_proc_codes.items()))
+        filter(
+            lambda elem: len(
+                [
+                    code
+                    for code in itertools.chain(*elem[1].values())
+                    if not code.isalnum()
+                ]
+            ),
+            dct_proc_codes.items(),
+        )
+    )
     dct_invalid_diag_codes = dict(
-        filter(lambda elem: len([code for code in itertools.chain(*[list(itertools.chain(*x.values()))
-                                                                    for x in elem[1].values()])
-                                 if not code.isalnum()]),
-               dct_diag_codes.items()))
+        filter(
+            lambda elem: len(
+                [
+                    code
+                    for code in itertools.chain(
+                        *[
+                            list(itertools.chain(*x.values()))
+                            for x in elem[1].values()
+                        ]
+                    )
+                    if not code.isalnum()
+                ]
+            ),
+            dct_diag_codes.items(),
+        )
+    )
     if bool(dct_invalid_proc_codes) or bool(dct_invalid_diag_codes):
-        raise ValueError(f"{','.join(list(dct_invalid_proc_codes.keys()) + list(dct_invalid_diag_codes.keys()))}"
-                         f"have codes with non-alphanumeric values")
+        raise ValueError(
+            f"{','.join(list(dct_invalid_proc_codes.keys()) + list(dct_invalid_diag_codes.keys()))}"
+            f"have codes with non-alphanumeric values"
+        )
     if df_claims is not None:
-        lst_diag_col = lst_claim_diag_col if bool(lst_claim_diag_col) else \
-            ([col for col in df_claims.columns if col.startswith('DIAG_CD_')] if (cms_format == 'MAX')
-             else [col for col in df_claims.columns if col.startswith("DGNS_CD_") or (col == 'ADMTG_DGNS_CD')])
-        lst_proc_col = ([col for col in df_claims.columns if col.startswith("PRCDR_CD")
-                         and (not col.startswith("PRCDR_CD_SYS"))] if (cms_format == 'MAX') else
-                        [col for col in df_claims.columns if (col.startswith("PRCDR_CD")
-                                                              or col.startswith("LINE_PRCDR_CD"))
-                         and (not (col.startswith("PRCDR_CD_SYS") or col.startswith("PRCDR_CD_DT") or
-                                   col.startswith("LINE_PRCDR_CD_SYS") or col.startswith("LINE_PRCDR_CD_DT")))])
+        lst_diag_col = (
+            lst_claim_diag_col
+            if bool(lst_claim_diag_col)
+            else (
+                [
+                    col
+                    for col in df_claims.columns
+                    if col.startswith("DIAG_CD_")
+                ]
+                if (cms_format == "MAX")
+                else [
+                    col
+                    for col in df_claims.columns
+                    if col.startswith("DGNS_CD_") or (col == "ADMTG_DGNS_CD")
+                ]
+            )
+        )
+        lst_proc_col = (
+            [
+                col
+                for col in df_claims.columns
+                if col.startswith("PRCDR_CD")
+                and (not col.startswith("PRCDR_CD_SYS"))
+            ]
+            if (cms_format == "MAX")
+            else [
+                col
+                for col in df_claims.columns
+                if (
+                    col.startswith("PRCDR_CD")
+                    or col.startswith("LINE_PRCDR_CD")
+                )
+                and (
+                    not (
+                        col.startswith("PRCDR_CD_SYS")
+                        or col.startswith("PRCDR_CD_DT")
+                        or col.startswith("LINE_PRCDR_CD_SYS")
+                        or col.startswith("LINE_PRCDR_CD_DT")
+                    )
+                )
+            ]
+        )
         if bool(dct_diag_codes) and bool(lst_diag_col):
-            if any('DGNS_VRSN_' in colname for colname in df_claims.columns):
+            if any("DGNS_VRSN_" in colname for colname in df_claims.columns):
                 df_claims = df_claims.map_partitions(
-                    lambda pdf: pdf.assign(**dict([
-                            (
-                                f"valid_icd_{ver + 8}_{col}",
-                                pdf[col].where(
-                                    pd.isnull(
-                                        pd.to_numeric(
-                                            pdf[col.replace('DGNS_CD', 'DGNS_VRSN_CD')],
-                                            errors="coerce",
+                    lambda pdf: pdf.assign(
+                        **dict(
+                            [
+                                (
+                                    f"valid_icd_{ver + 8}_{col}",
+                                    pdf[col].where(
+                                        pd.isnull(
+                                            pd.to_numeric(
+                                                pdf[
+                                                    col.replace(
+                                                        "DGNS_CD",
+                                                        "DGNS_VRSN_CD",
+                                                    )
+                                                ],
+                                                errors="coerce",
+                                            )
                                         )
-                                    )
-                                    | pd.to_numeric(
-                                        pdf[col.replace('DGNS_CD', 'DGNS_VRSN_CD')],
-                                        errors="coerce",
-                                    ).isin([ver, 3]),
-                                    "",
-                                ),
-                            )
-                            for ver, col in product(
-                                [1, 2], lst_diag_col
-                            )
-                        ])))
+                                        | pd.to_numeric(
+                                            pdf[
+                                                col.replace(
+                                                    "DGNS_CD", "DGNS_VRSN_CD"
+                                                )
+                                            ],
+                                            errors="coerce",
+                                        ).isin([ver, 3]),
+                                        "",
+                                    ),
+                                )
+                                for ver, col in product([1, 2], lst_diag_col)
+                            ]
+                        )
+                    )
+                )
             else:
                 df_claims = df_claims.map_partitions(
-                    lambda pdf: pdf.assign(**dict([
-                                                      (
-                                                          f"valid_icd_9_{col}",
-                                                          pdf[col])
-                                                      for col in lst_diag_col
-                                                  ] +
-                                                  [
-                                                      (
-                                                          f"valid_icd_10_{col}",
-                                                          "")
-                                                      for col in lst_diag_col
-                                                  ]
-                                                  )))
-            lst_icd9_diag_col = [f'valid_icd_9_{col}' for col in lst_diag_col]
-            lst_icd10_diag_col = [f'valid_icd_10_{col}' for col in lst_diag_col]
+                    lambda pdf: pdf.assign(
+                        **dict(
+                            [
+                                (f"valid_icd_9_{col}", pdf[col])
+                                for col in lst_diag_col
+                            ]
+                            + [
+                                (f"valid_icd_10_{col}", "")
+                                for col in lst_diag_col
+                            ]
+                        )
+                    )
+                )
+            lst_icd9_diag_col = [f"valid_icd_9_{col}" for col in lst_diag_col]
+            lst_icd10_diag_col = [
+                f"valid_icd_10_{col}" for col in lst_diag_col
+            ]
             lst_incl_excl_condn = [
                 condn
                 for condn in dct_diag_codes
-                if (("excl" in dct_diag_codes[condn]) and (
-                        bool(dct_diag_codes[condn]["excl"][9]) or bool(dct_diag_codes[condn]["excl"][10])))
-                   and (("incl" in dct_diag_codes[condn]) and (
-                        bool(dct_diag_codes[condn]["incl"][9]) or bool(dct_diag_codes[condn]["incl"][10])))
+                if (
+                    ("excl" in dct_diag_codes[condn])
+                    and (
+                        bool(dct_diag_codes[condn]["excl"][9])
+                        or bool(dct_diag_codes[condn]["excl"][10])
+                    )
+                )
+                and (
+                    ("incl" in dct_diag_codes[condn])
+                    and (
+                        bool(dct_diag_codes[condn]["incl"][9])
+                        or bool(dct_diag_codes[condn]["incl"][10])
+                    )
+                )
             ]
             lst_incl_condn = [
                 condn
                 for condn in dct_diag_codes
-                if (("excl" not in dct_diag_codes[condn]) or (
-                    not (bool(dct_diag_codes[condn]["excl"][9]) or bool(dct_diag_codes[condn]["excl"][10]))))
-                   and (("incl" in dct_diag_codes[condn]) and (
-                        bool(dct_diag_codes[condn]["incl"][9]) or bool(dct_diag_codes[condn]["incl"][10])))
+                if (
+                    ("excl" not in dct_diag_codes[condn])
+                    or (
+                        not (
+                            bool(dct_diag_codes[condn]["excl"][9])
+                            or bool(dct_diag_codes[condn]["excl"][10])
+                        )
+                    )
+                )
+                and (
+                    ("incl" in dct_diag_codes[condn])
+                    and (
+                        bool(dct_diag_codes[condn]["incl"][9])
+                        or bool(dct_diag_codes[condn]["incl"][10])
+                    )
+                )
             ]
             lst_excl_condn = [
                 condn
                 for condn in dct_diag_codes
-                if (("excl" in dct_diag_codes[condn]) and (
-                        bool(dct_diag_codes[condn]["excl"][9]) or bool(dct_diag_codes[condn]["excl"][10])))
-                   and (("incl" not in dct_diag_codes[condn]) or (
-                    not (bool(dct_diag_codes[condn]["incl"][9]) or bool(dct_diag_codes[condn]["incl"][10]))))
+                if (
+                    ("excl" in dct_diag_codes[condn])
+                    and (
+                        bool(dct_diag_codes[condn]["excl"][9])
+                        or bool(dct_diag_codes[condn]["excl"][10])
+                    )
+                )
+                and (
+                    ("incl" not in dct_diag_codes[condn])
+                    or (
+                        not (
+                            bool(dct_diag_codes[condn]["incl"][9])
+                            or bool(dct_diag_codes[condn]["incl"][10])
+                        )
+                    )
+                )
             ]
 
             df_claims = df_claims.map_partitions(
@@ -239,7 +346,13 @@ def flag_diagnoses_and_procedures(
                                             tuple(
                                                 [
                                                     str(dx_code)
-                                                    for dx_code in dct_diag_codes[condn]["incl"][9]
+                                                    for dx_code in dct_diag_codes[
+                                                        condn
+                                                    ][
+                                                        "incl"
+                                                    ][
+                                                        9
+                                                    ]
                                                 ]
                                             ),
                                             na=False,
@@ -249,20 +362,32 @@ def flag_diagnoses_and_procedures(
                                                 tuple(
                                                     [
                                                         str(dx_code)
-                                                        for dx_code in dct_diag_codes[condn]["excl"][9]
+                                                        for dx_code in dct_diag_codes[
+                                                            condn
+                                                        ][
+                                                            "excl"
+                                                        ][
+                                                            9
+                                                        ]
                                                     ]
                                                 ),
                                                 na=False,
                                             )
                                         )
                                         for col in lst_icd9_diag_col
-                                    ] +
-                                    [
+                                    ]
+                                    + [
                                         pdf[col].str.startswith(
                                             tuple(
                                                 [
                                                     str(dx_code)
-                                                    for dx_code in dct_diag_codes[condn]["incl"][10]
+                                                    for dx_code in dct_diag_codes[
+                                                        condn
+                                                    ][
+                                                        "incl"
+                                                    ][
+                                                        10
+                                                    ]
                                                 ]
                                             ),
                                             na=False,
@@ -272,7 +397,13 @@ def flag_diagnoses_and_procedures(
                                                 tuple(
                                                     [
                                                         str(dx_code)
-                                                        for dx_code in dct_diag_codes[condn]["excl"][10]
+                                                        for dx_code in dct_diag_codes[
+                                                            condn
+                                                        ][
+                                                            "excl"
+                                                        ][
+                                                            10
+                                                        ]
                                                     ]
                                                 ),
                                                 na=False,
@@ -281,61 +412,110 @@ def flag_diagnoses_and_procedures(
                                         for col in lst_icd10_diag_col
                                     ]
                                 )
-                                    .any(axis=1)
-                                    .astype(int),
+                                .any(axis=1)
+                                .astype(int),
                             )
                             for condn in lst_incl_excl_condn
-                        ] +
-                        [(f"diag_{condn}", np.column_stack(
-                            [
-                                pdf[col].str.startswith(
-                                    tuple(
-                                        [
-                                            str(dx_code)
-                                            for dx_code in dct_diag_codes[condn]["incl"][9]
-                                        ]
-                                    ),
-                                    na=False,
+                        ]
+                        + [
+                            (
+                                f"diag_{condn}",
+                                np.column_stack(
+                                    [
+                                        pdf[col].str.startswith(
+                                            tuple(
+                                                [
+                                                    str(dx_code)
+                                                    for dx_code in dct_diag_codes[
+                                                        condn
+                                                    ][
+                                                        "incl"
+                                                    ][
+                                                        9
+                                                    ]
+                                                ]
+                                            ),
+                                            na=False,
+                                        )
+                                        for col in lst_icd9_diag_col
+                                    ]
+                                    + [
+                                        pdf[col].str.startswith(
+                                            tuple(
+                                                [
+                                                    str(dx_code)
+                                                    for dx_code in dct_diag_codes[
+                                                        condn
+                                                    ][
+                                                        "incl"
+                                                    ][
+                                                        10
+                                                    ]
+                                                ]
+                                            ),
+                                            na=False,
+                                        )
+                                        for col in lst_icd10_diag_col
+                                    ]
                                 )
-                                for col in lst_icd9_diag_col
-                            ] +
-                            [
-                                pdf[col].str.startswith(
-                                    tuple(
-                                        [
-                                            str(dx_code)
-                                            for dx_code in dct_diag_codes[condn]["incl"][10]
-                                        ]
-                                    ),
-                                    na=False,
+                                .any(axis=1)
+                                .astype(int),
+                            )
+                            for condn in lst_incl_condn
+                        ]
+                        + [
+                            (
+                                f"diag_{condn}",
+                                np.column_stack(
+                                    [
+                                        (
+                                            ~pdf[col].str.startswith(
+                                                tuple(
+                                                    [
+                                                        str(dx_code)
+                                                        for dx_code in dct_diag_codes[
+                                                            condn
+                                                        ][
+                                                            "excl"
+                                                        ][
+                                                            9
+                                                        ]
+                                                    ]
+                                                ),
+                                                na=False,
+                                            )
+                                        )
+                                        for col in lst_icd9_diag_col
+                                    ]
+                                    + [
+                                        (
+                                            ~pdf[col].str.startswith(
+                                                tuple(
+                                                    [
+                                                        str(dx_code)
+                                                        for dx_code in dct_diag_codes[
+                                                            condn
+                                                        ][
+                                                            "excl"
+                                                        ][
+                                                            10
+                                                        ]
+                                                    ]
+                                                ),
+                                                na=False,
+                                            )
+                                        )
+                                        for col in lst_icd10_diag_col
+                                    ]
                                 )
-                                for col in lst_icd10_diag_col
-                            ]
-                        )
-                          .any(axis=1)
-                          .astype(int)) for condn in lst_incl_condn] +
-                        [(f"diag_{condn}",
-                          np.column_stack([(
-                              ~pdf[col].str.startswith(
-                                  tuple(
-                                      [
-                                          str(dx_code)
-                                          for dx_code in dct_diag_codes[condn]["excl"][9]
-                                      ]
-                                  ),
-                                  na=False,
-                              )) for col in lst_icd9_diag_col] + [
-                                              (~pdf[col].str.startswith(
-                                                  tuple(
-                                                      [
-                                                          str(dx_code)
-                                                          for dx_code in dct_diag_codes[condn]["excl"][10]
-                                                      ]
-                                                  ),
-                                                  na=False)) for col in lst_icd10_diag_col]
-                                          ).any(axis=1).astype(int),)
-                         for condn in lst_excl_condn]
-                    )))
+                                .any(axis=1)
+                                .astype(int),
+                            )
+                            for condn in lst_excl_condn
+                        ]
+                    )
+                )
+            )
 
         if bool(dct_proc_codes) and bool(lst_proc_col):
             lst_sys_code = list(
@@ -364,12 +544,16 @@ def flag_diagnoses_and_procedures(
                                 pdf[proc_col].where(
                                     pd.isnull(
                                         pd.to_numeric(
-                                            pdf[f"{proc_col.replace('PRCDR_CD', 'PRCDR_CD_SYS')}"],
+                                            pdf[
+                                                f"{proc_col.replace('PRCDR_CD', 'PRCDR_CD_SYS')}"
+                                            ],
                                             errors="coerce",
                                         )
                                     )
                                     | pd.to_numeric(
-                                        pdf[f"{proc_col.replace('PRCDR_CD', 'PRCDR_CD_SYS')}"],
+                                        pdf[
+                                            f"{proc_col.replace('PRCDR_CD', 'PRCDR_CD_SYS')}"
+                                        ],
                                         errors="coerce",
                                     ).isin([sys_code, 99, 88]),
                                     "",
@@ -436,11 +620,32 @@ def flag_diagnoses_and_procedures(
                     ]
                 )
             )
-            df_claims = df_claims[[col for col in df_claims.columns if col not in
-                                   [item for subitem in [[col for col in df_claims.columns
-                                                          if col.startswith(f"proc_{proc}_")]
-                                                         for proc in dct_proc_codes.keys()] for item in subitem] +
-                                   [col for col in df_claims.columns if col.startswith("VALID_PRCDR_SYS_")] +
-                                   [f'valid_icd_{ver}_{col}' for ver, col in product([9, 10], lst_diag_col)]
-                                   ]]
+            df_claims = df_claims[
+                [
+                    col
+                    for col in df_claims.columns
+                    if col
+                    not in [
+                        item
+                        for subitem in [
+                            [
+                                col
+                                for col in df_claims.columns
+                                if col.startswith(f"proc_{proc}_")
+                            ]
+                            for proc in dct_proc_codes.keys()
+                        ]
+                        for item in subitem
+                    ]
+                    + [
+                        col
+                        for col in df_claims.columns
+                        if col.startswith("VALID_PRCDR_SYS_")
+                    ]
+                    + [
+                        f"valid_icd_{ver}_{col}"
+                        for ver, col in product([9, 10], lst_diag_col)
+                    ]
+                ]
+            ]
     return df_claims

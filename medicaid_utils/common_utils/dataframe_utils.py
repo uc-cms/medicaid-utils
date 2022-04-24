@@ -45,17 +45,10 @@ def convert_ddcols_to_datetime(df: dd.DataFrame, lst_col) -> dd.DataFrame:
     """
     df = df.map_partitions(
         lambda pdf: pdf.assign(
-            **dict(
-                [
-                    (
-                        col,
-                        pd.to_datetime(
-                            pdf[col], format="%Y%m%d", errors="coerce"
-                        ),
-                    )
-                    for col in lst_col
-                ]
-            )
+            **{
+                col: pd.to_datetime(pdf[col], format="%Y%m%d", errors="coerce")
+                for col in lst_col
+            }
         )
     )
     return df

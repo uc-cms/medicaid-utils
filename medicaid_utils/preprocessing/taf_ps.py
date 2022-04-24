@@ -4,7 +4,7 @@ import numpy as np
 import os
 import sys
 
-from medicaid_utils.preprocessing import max_file
+from medicaid_utils.preprocessing import taf_file
 
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 other_data_folder = os.path.join(
@@ -12,7 +12,7 @@ other_data_folder = os.path.join(
 )
 
 
-class MAXPS(max_file.MAXFile):
+class TAFPS(taf_file.TAFFile):
     """Scripts to preprocess PS file"""
 
     def __init__(
@@ -38,7 +38,7 @@ class MAXPS(max_file.MAXFile):
         :param rural_method: Method to use for rural variable construction. Available options: 'ruca', 'rucc'
         :param tmp_folder: Folder to use to store temporary files
         """
-        super(MAXPS, self).__init__(
+        super(TAFPS, self).__init__(
             "ps", year, st, data_root, index_col, False, False, tmp_folder
         )
 
@@ -52,16 +52,17 @@ class MAXPS(max_file.MAXFile):
 
     def clean(self):
         """Runs cleaning routines and created common exclusion flags based on default filters"""
-        super(MAXPS, self).clean()
+        super(TAFPS, self).clean()
+        self.add_gender()
         self.flag_common_exclusions()
-        self.df = self.cache_results()
+        self.cache_results()
 
     def preprocess(self, rural_method="ruca"):
         """Adds rural and eligibility criteria indicator variables"""
-        super(MAXPS, self).preprocess()
+        super(TAFPS, self).preprocess()
         self.flag_rural(rural_method)
-        self.add_eligibility_status_columns()
-        self.df = self.cache_results()
+        # self.add_eligibility_status_columns()
+        self.cache_results()
 
     def flag_common_exclusions(self) -> None:
         """
@@ -70,21 +71,41 @@ class MAXPS(max_file.MAXFile):
                 excl_duplicated_bene_id - 0 or 1, 1 when bene's index column is repeated
         :return:
         """
-        self.df = self.df.assign(
-            **dict([(f"_{self.index_col}", self.df.index)])
-        )
+        df_base = self.dct_files["base"]
+        df_base = df_base.assign(**{f"_{self.index_col}": df_base.index})
         # Some BENE_MSIS's are repeated in PS files. Some patients share the same BENE_ID and yet have different
         # MSIS_IDs. Some of them even have different 'dates of birth'. Since we cannot find any explanation for
         # such patterns, we decided on removing these BENE_MSIS's as per issue #29 in FARA project
         # (https://rcg.bsd.uchicago.edu/gitlab/mmurugesan/hrsa_max_feature_extraction/issues/29)
-        self.df = self.df.map_partitions(
+        df_base = df_base.map_partitions(
             lambda pdf: pdf.assign(
                 excl_duplicated_bene_id=pdf.duplicated(
                     [f"_{self.index_col}"], keep=False
                 ).astype(int)
             )
         )
-        self.df = self.df.drop([f"_{self.index_col}"], axis=1)
+        df_base = df_base.drop([f"_{self.index_col}"], axis=1)
+        self.dct_files["base"] = df_base
+
+    def add_gender(self) -> None:
+        """
+        Adds integer 'female' column based on 'EL_SEX_CD' column
+        :param DataFrame df:
+        :rtype: None
+        """
+        df = self.dct_files["base"]
+        df = df.map_partitions(
+            female=np.select(
+                [
+                    df["SEX_CD"].str.strip().str.upper() == "F",
+                    df["SEX_CD"].str.strip().str.upper() == "M",
+                ],
+                [1, 0],
+                default=np.nan,
+            ).astype("Int64")
+        )
+        self.dct_files["base"] = df
+        return None
 
     def flag_rural(self, method="ruca") -> None:
         """
@@ -100,16 +121,20 @@ class MAXPS(max_file.MAXFile):
         :param method:
         :return: None
         """
-        index_col = self.df.index.name
+        df = self.dct_files["base"]
+        index_col = df.index.name
         zip_folder = os.path.join(other_data_folder, "zip")
-        self.df = self.df.assign(**dict([(index_col, self.df.index)]))
+        df = df.assign(**dict([(index_col, self.df.index)]))
 
-        # 2012 RI claims report zip codes have problems. They are all invalid unless the last character is dropped. So
-        # dropping it as per email exchange with Alex Knitter & Dr. Laiteerapong (May 2020)
-        self.df = self.df.assign(
-            EL_RSDNC_ZIP_CD_LTST=self.df["EL_RSDNC_ZIP_CD_LTST"].where(
-                ~((self.df["STATE_CD"] == "RI") & (self.df["year"] == 2012)),
-                self.df["EL_RSDNC_ZIP_CD_LTST"].str[:-1],
+        # RI Zip codes have problems. They are all invalid unless the last character is dropped and
+        # a zero is added to the left
+        df = df.assign(
+            BENE_ZIP_CD=df["BENE_ZIP_CD"].where(
+                ~(
+                    (df["STATE_CD"] == "RI")
+                    & (df["BENE_ZIP_CD"].str[-1] == "0")
+                ),
+                "0" + df["EL_RSDNC_ZIP_CD_LTST"].str.ljust(9, "0").str[:-1],
             )
         )
 
@@ -123,27 +148,27 @@ class MAXPS(max_file.MAXFile):
             dtype=object,
         )
         df_zip_state_pcsa = df_zip_state_pcsa.assign(
-            zip=df_zip_state_pcsa["zip"].str.replace(" ", "").str.zfill(9)
+            zip=df_zip_state_pcsa["zip"].str.replace(" ", "").str.just(9, "0")
         )
         df_zip_state_pcsa = df_zip_state_pcsa.rename(
             columns={
-                "zip": "EL_RSDNC_ZIP_CD_LTST",
+                "zip": "BENE_ZIP_CD",
                 "state_cd": "resident_state_cd",
             }
         )
-        self.df = self.df[
+        df = df[
             [
                 col
                 for col in self.df.columns
                 if col not in ["resident_state_cd", "pcsa", "ruca_code"]
             ]
         ]
-        self.df = self.df.assign(
-            EL_RSDNC_ZIP_CD_LTST=self.df["EL_RSDNC_ZIP_CD_LTST"]
-            .str.replace(" ", "")
-            .str.zfill(9)
+        df = df.assign(
+            BENE_ZIP_CD=df["BENE_ZIP_CD"]
+            .str.replace("[^a-zA-Z0-9]+", "", regex=True)
+            .str.ljust(9, "0")
         )
-        self.df = self.df.merge(
+        df = df.merge(
             df_zip_state_pcsa[
                 [
                     "EL_RSDNC_ZIP_CD_LTST",
@@ -153,7 +178,7 @@ class MAXPS(max_file.MAXFile):
                 ]
             ],
             how="left",
-            on="EL_RSDNC_ZIP_CD_LTST",
+            on="BENE_ZIP_CD",
         )
 
         # RUCC codes were downloaded from https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372
@@ -166,48 +191,40 @@ class MAXPS(max_file.MAXFile):
             columns={
                 "State": "resident_state_cd",
                 "RUCC_2013": "rucc_code",
-                "FIPS": "EL_RSDNC_CNTY_CD_LTST",
+                "FIPS": "BENE_CNTY_CD",
             }
         )
         df_rucc = df_rucc.assign(
-            EL_RSDNC_CNTY_CD_LTST=df_rucc["EL_RSDNC_CNTY_CD_LTST"]
-            .str.strip()
-            .str[2:],
+            BENE_CNTY_CD=df_rucc["BENE_CNTY_CD"].str.strip().str[2:],
             resident_state_cd=df_rucc["resident_state_cd"]
             .str.strip()
             .str.upper(),
         )
-        self.df = self.df.assign(
-            EL_RSDNC_CNTY_CD_LTST=self.df["EL_RSDNC_CNTY_CD_LTST"].str.strip(),
-            resident_state_cd=self.df["resident_state_cd"].where(
-                ~self.df["resident_state_cd"].isna(), self.df["STATE_CD"]
+        df = df.assign(
+            BENE_CNTY_CD=df["BENE_CNTY_CD"].str.strip(),
+            resident_state_cd=df["resident_state_cd"].where(
+                df["resident_state_cd"].notna(), df["STATE_CD"]
             ),
         )
 
-        self.df = self.df[
-            [col for col in self.df.columns if col not in ["rucc_code"]]
-        ]
-        self.df = self.df.merge(
-            df_rucc[
-                ["EL_RSDNC_CNTY_CD_LTST", "resident_state_cd", "rucc_code"]
-            ],
+        df = df[[col for col in df.columns if col not in ["rucc_code"]]]
+        df = df.merge(
+            df_rucc[["BENE_CNTY_CD", "resident_state_cd", "rucc_code"]],
             how="left",
-            on=["EL_RSDNC_CNTY_CD_LTST", "resident_state_cd"],
+            on=["BENE_CNTY_CD", "resident_state_cd"],
         )
-        self.df = self.df.assign(
-            **dict(
-                [
-                    (col, dd.to_numeric(self.df[col], errors="coerce"))
-                    for col in ["rucc_code", "ruca_code"]
-                ]
-            )
+        df = df.assign(
+            **{
+                col: dd.to_numeric(df[col], errors="coerce")
+                for col in ["rucc_code", "ruca_code"]
+            }
         )
 
         # RUCA codes >= 4 denote rural and the rest denote urban
         # as per https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1
         # and as in FARA year 1 papers
         if method == "ruca":
-            self.df = self.df.map_partitions(
+            df = df.map_partitions(
                 lambda pdf: pdf.assign(
                     rural=np.select(
                         [
@@ -217,13 +234,13 @@ class MAXPS(max_file.MAXFile):
                             (pdf["ruca_code"] >= 4),
                         ],
                         [0, 1],
-                        default=-1,
-                    )
+                        default=np.nan,
+                    ).astype("Int64")
                 )
             )
         else:
             # RUCC codes >= 8 denote rural and the rest denote urban
-            self.df = self.df.map_partitions(
+            df = df.map_partitions(
                 lambda pdf: pdf.assign(
                     rural=np.select(
                         [
@@ -231,12 +248,13 @@ class MAXPS(max_file.MAXFile):
                             (pdf["rucc_code"] >= 8),
                         ],
                         [0, 1],
-                        default=-1,
-                    )
+                        default=np.nan,
+                    ).astype("Int64")
                 )
             )
-        if self.df.index.name != index_col:
-            self.df = self.df.set_index(index_col, sorted=True)
+        if df.index.name != index_col:
+            df = df.set_index(index_col, sorted=True)
+        self.dct_files["base"] = df
         return None
 
     def add_eligibility_status_columns(self) -> None:

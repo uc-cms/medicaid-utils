@@ -18,12 +18,9 @@ def apply_range_filter(
     filter_name,
     col_name,
     data_type,
-    f_type,
-    tmp_folder,
     logger_name=__file__,
 ):
     logger = logging.getLogger(logger_name)
-    index_name = df.index.name
     start = (
         pd.to_datetime(tpl_range[0], format="%Y%m%d", errors="coerce")
         if (data_type == "date")
@@ -49,6 +46,60 @@ def apply_range_filter(
     return df
 
 
+def filter_taf_files(
+    claim, subtype, dct_claim_filters, tmp_folder, logger_name=__file__
+):
+    logger = logging.getLogger(logger_name)
+    df_claim = claim.dct_files[subtype]
+    df_filter_counts = pd.DataFrame(
+        {"N": df_claim.shape[0].compute()}, index=0
+    )
+    logger.info(
+        f"{claim.st} ({claim.year}) has"
+        f" {df_filter_counts.N.values[0]} {claim.ftype} {subtype} claims"
+    )
+    dct_filter = claim.dct_default_filters.copy()
+    if claim.ftype in dct_claim_filters:
+        dct_filter.update(dct_claim_filters[claim.ftype])
+    for filter_name in dct_filter:
+        filtered = 1
+        if filter_name.startswith("range_") and (
+            "_".join(filter_name.split("_")[2:]) in df_claim.columns
+        ):
+            df_claim = apply_range_filter(
+                dct_filter[filter_name],
+                df_claim,
+                filter_name,
+                "_".join(filter_name.split("_")[2:]),
+                filter_name.split("_")[1],
+                logger_name=logger_name,
+            )
+
+        elif f"excl_{filter_name}" in claim.df.columns:
+            df_claim = df_claim.loc[
+                df_claim[f"excl_{filter_name}"] == int(dct_filter[filter_name])
+            ]
+        else:
+            filtered = 0
+            logger.info(
+                f"Filter {filter_name} is currently not supported for"
+                f" {claim.ftype} files"
+            )
+        if filtered:
+            if claim.tmp_folder is None:
+                claim.tmp_folder = tmp_folder
+            claim.dct_files[subtype] = df_claim
+            claim.cache_results()
+            df_claim = claim.dct_files[subtype]
+            df_filter_counts[filter_name] = df_claim.shape[0].compute()
+            logger.info(
+                f"Applying {filter_name} = {dct_filter[filter_name]} filter"
+                f" reduces {claim.ftype} {subtype} claim count to"
+                f" {df_filter_counts[filter_name].values[0]}"
+            )
+    return claim, df_filter_counts
+
+
 def filter_claim_files(
     claim, dct_claim_filters, tmp_folder, logger_name=__file__
 ):
@@ -71,8 +122,6 @@ def filter_claim_files(
                 filter_name,
                 "_".join(filter_name.split("_")[2:]),
                 filter_name.split("_")[1],
-                claim.ftype,
-                tmp_folder,
                 logger_name=logger_name,
             )
 
