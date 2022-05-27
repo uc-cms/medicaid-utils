@@ -1,11 +1,10 @@
 import sys
 import dask.dataframe as dd
 
-sys.path.append("../../../")
-from medicaid_utils.preprocessing import cc
+from medicaid_utils.preprocessing import max_cc
 
 
-def flag_chronic_conditions(cc_file: cc.MAXCC) -> dd.DataFrame:
+def flag_chronic_conditions(cc_file: max_cc.MAXCC) -> dd.DataFrame:
     """
     Adds boolean columns that denote presence of chronic conditions.
      New Columns:
