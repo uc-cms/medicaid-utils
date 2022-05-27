@@ -26,14 +26,16 @@ def toggle_datetime_string(
     for col in df.columns:
         if col in lst_datetime_col:
             if to_string:
-                df[col] = (
-                    df[col].dt.strftime("%Y%m%d").replace("NaT", "").fillna("")
+                df = df.map_partitions(
+                    lambda pdf: pdf.assign(
+                        **{col: pdf[col].dt.strftime("%Y%m%d").replace("NaT", "").fillna("")}
+                    )
                 )
             else:
-                df[col] = df[col].map_partitions(
-                    lambda x: pd.to_datetime(
-                        x, format="%Y%m%d", errors="coerce"
-                    )
+                df = df.map_partitions(
+                    lambda pdf: pdf.assign(
+                        **{col: pd.to_datetime(pdf[col], format="%Y%m%d", errors="coerce")}
+                                           )
                 )
 
 

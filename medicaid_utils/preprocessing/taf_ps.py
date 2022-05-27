@@ -5,6 +5,7 @@ import os
 import sys
 
 from medicaid_utils.preprocessing import taf_file
+from medicaid_utils.common_utils import dataframe_utils
 
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 other_data_folder = os.path.join(
@@ -61,6 +62,9 @@ class TAFPS(taf_file.TAFFile):
         """Adds rural and eligibility criteria indicator variables"""
         super(TAFPS, self).preprocess()
         self.flag_rural(rural_method)
+        self.flag_dual()
+        self.flag_restricted_benefits()
+        self.compute_enrollment_gaps()
         # self.add_eligibility_status_columns()
         self.cache_results()
 
@@ -124,7 +128,7 @@ class TAFPS(taf_file.TAFFile):
         df = self.dct_files["base"]
         index_col = df.index.name
         zip_folder = os.path.join(other_data_folder, "zip")
-        df = df.assign(**dict([(index_col, self.df.index)]))
+        df = df.assign(**{index_col: self.df.index})
 
         # RI Zip codes have problems. They are all invalid unless the last character is dropped and
         # a zero is added to the left
@@ -148,7 +152,7 @@ class TAFPS(taf_file.TAFFile):
             dtype=object,
         )
         df_zip_state_pcsa = df_zip_state_pcsa.assign(
-            zip=df_zip_state_pcsa["zip"].str.replace(" ", "").str.just(9, "0")
+            zip=df_zip_state_pcsa["zip"].str.replace(" ", "").str.ljust(9, "0")
         )
         df_zip_state_pcsa = df_zip_state_pcsa.rename(
             columns={
@@ -256,6 +260,91 @@ class TAFPS(taf_file.TAFFile):
             df = df.set_index(index_col, sorted=True)
         self.dct_files["base"] = df
         return None
+
+    def flag_dual(self) -> None:
+        """
+        Flags benes with  DUAL_ELGBL_CD equal to 1 (full dual), 2 (partial dual), or 3 (other dual) in any month are
+        flagged as duals
+        (Identifying beneficiaries with a substance use disorder
+        (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjr54OU2_73AhXITTABHad8A44QFnoECAMQAQ&url=https%3A%2F%2Fwww.medicaid.gov%2Fmedicaid%2Fdata-and-systems%2Fdownloads%2Fmacbis%2Fsud_techspecs.docx&usg=AOvVaw1gxCAo7cVF9FqJtrNhFov9))
+
+        Returns
+        -------
+
+        """
+        df = self.dct_files["base"]
+        df = df.map_partitions(
+            lambda pdf: pd.assign(
+                dual=np.column_stack(
+                    [
+                        pd.to_numeric(pdf[col], errors="coerce").isin(
+                            [1, 2, 3]
+                        )
+                        for col in [
+                            f"DUAL_ELGBL_CD_{str(mon).zfill(2)}"
+                            for mon in range(1, 13)
+                        ]
+                    ]
+                )
+                .any(axis=1)
+                .astype(int),
+                dual_months=np.column_stack(
+                    [
+                        pd.to_numeric(pdf[col], errors="coerce").isin(
+                            [1, 2, 3]
+                        )
+                        for col in [
+                            f"DUAL_ELGBL_CD_{str(mon).zfill(2)}"
+                            for mon in range(1, 13)
+                        ]
+                    ]
+                )
+                .sum(axis=1)
+                .astype(int),
+            )
+        )
+        self.dct_files["base"] = df
+
+    def flag_restricted_benefits(self):
+        """
+        Flags beneficiaries whose benefits are restricted. Benes with the below values in their RSTRCTD_BNFTS_CD_XX
+        columns are NOT assumed to have restricted benefits:
+
+            1. Individual is eligible for Medicaid or CHIP and entitled to the full scope of Medicaid or CHIP benefits.
+            4. Individual is eligible for Medicaid or CHIP but only entitled to restricted benefits for
+            pregnancy-related services.
+            5. Individual is eligible for Medicaid or Medicaid-Expansion CHIP but, for reasons other than alien,
+            dual-eligibility or pregnancy-related status, is only entitled to restricted benefits (e.g., restricted
+            benefits based upon substance abuse, medically needy or other criteria).
+            7. Individual is eligible for Medicaid and entitled to Medicaid benefits under an alternative package of
+            benchmark-equivalent coverage, as enacted by the Deficit Reduction Act of 2005.
+
+        (Identifying beneficiaries with a substance use disorder
+        (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjr54OU2_73AhXITTABHad8A44QFnoECAMQAQ&url=https%3A%2F%2Fwww.medicaid.gov%2Fmedicaid%2Fdata-and-systems%2Fdownloads%2Fmacbis%2Fsud_techspecs.docx&usg=AOvVaw1gxCAo7cVF9FqJtrNhFov9))
+
+        Returns
+        -------
+
+        """
+        df = self.dct_files["base"]
+        df = df.map_partitions(
+            lambda pdf: pd.assign(
+                restricted_benefits=np.column_stack(
+                    [
+                        pd.to_numeric(pdf[col], errors="coerce").isin(
+                            [1, 4, 5, 7]
+                        )
+                        for col in [
+                            f"RSTRCTD_BNFTS_CD_{str(mon).zfill(2)}"
+                            for mon in range(1, 13)
+                        ]
+                    ]
+                )
+                .all(axis=1)
+                .astype(int)
+            )
+        )
+        self.dct_files["base"] = df
 
     def add_eligibility_status_columns(self) -> None:
         """
@@ -505,3 +594,51 @@ class TAFPS(taf_file.TAFFile):
         ]
         self.df = self.df.drop(lst_cols_to_delete, axis=1)
         return None
+
+    def compute_enrollment_gaps(self):
+        """
+        Computes enrollment gaps using dates file
+
+        Returns
+        -------
+        None
+
+        """
+        df = self.dct_files["dates"]
+        df = dataframe_utils.fix_index(
+            df, index_name=self.index_col, drop_column=False
+        )
+
+        def fill_enrollment_gaps(pdf_dates):
+            pdf_dates = pdf_dates.reset_index(drop=True)
+            pdf_dates = pdf_dates.sort_values(
+                [self.index_col, "ENRLMT_START_DT"], ascending=True
+            )
+            pdf_dates = pdf_dates.assign(
+                next_enrollment_start_date=pdf_dates.groupby(self.index_col)[
+                    "ENRLMT_START_DT"
+                ].shift(-1)
+            )
+            pdf_dates = pdf_dates.assign(
+                enrollment_gap=(
+                    pdf_dates["ENRLMT_END_DT"]
+                    - pdf_dates["next_enrollment_start_date"]
+                ).dt.days
+            )
+            pdf_dates = pdf_dates.set_index(self.index_col)
+            return pdf_dates
+
+        df = df.map_partitions(lambda pdf: fill_enrollment_gaps(pdf))
+        self.dct_files["dates"] = df
+        df_gaps = df.loc[df["enrollment_gap"] > 0]
+        df_gaps = df_gaps.map_partitions(
+            lambda pdf: pdf.groupby([self.index_col]).agg(
+                **{
+                    "n_enrollment_gaps": ("enrollment_gap", "size"),
+                    "max_enrollment_gap": ("enrollment_gap", "max"),
+                }
+            )
+        ).compute()
+        self.dct_files["base"] = self.dct_files["base"].merge(
+            df_gaps, left_index=True, right_index=True, how="left"
+        )

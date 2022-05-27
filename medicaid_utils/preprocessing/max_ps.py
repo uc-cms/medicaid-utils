@@ -61,6 +61,8 @@ class MAXPS(max_file.MAXFile):
         super(MAXPS, self).preprocess()
         self.flag_rural(rural_method)
         self.add_eligibility_status_columns()
+        self.flag_duals()
+        self.flag_restricted_benefits()
         self.df = self.cache_results()
 
     def flag_common_exclusions(self) -> None:
@@ -85,6 +87,26 @@ class MAXPS(max_file.MAXFile):
             )
         )
         self.df = self.df.drop([f"_{self.index_col}"], axis=1)
+
+    def flag_duals(self) -> None:
+        """
+        Flags dual patients
+        New column(s):
+            dual - 0 or 1 column, 0 if 0 <= EL_MDCR_DUAL_ANN <= 9 for years 2007, 2009, 2011
+                                          0 <= EL_MDCR_DUAL_ANN <= 9 for other years
+        """
+        self.df = self.df.assign(
+            dual=(
+                ~dd.to_numeric(
+                    self.df[
+                        "EL_MDCR_DUAL_ANN"
+                        if (self.year in [2007, 2009, 2011])
+                        else "EL_MDCR_ANN_XOVR_99"
+                    ],
+                    errors="coerce",
+                ).between(0, 9, inclusive="both")
+            ).astype(int)
+        )
 
     def flag_rural(self, method="ruca") -> None:
         """
@@ -487,3 +509,80 @@ class MAXPS(max_file.MAXFile):
         ]
         self.df = self.df.drop(lst_cols_to_delete, axis=1)
         return None
+
+    def flag_restricted_benefits(self):
+        """
+        Checks individual's eligibility for various medicaid services, based on EL_RSTRCT_BNFT_FLG_{month} values,
+            1 = full scope; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE MONTH AND IS ENTITLED TO THE FULL SCOPE OF
+                MEDICAID BENEFITS.
+            2 = alien; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE MONTH BUT ONLY ENTITLED TO RESTRICTED BENEFITS
+                BASED ON ALIEN STATUS
+            3 = dual
+            4 = pregnancy
+            5 = other, eg. substance abuse, medically needy
+            6 = family planning
+            7 = alternative package of benchmark equivalent coverage, 2011 data had no values of 7 and 8
+            8 = "money follows the person" rebalancing demonstration, 2011 data had no values of 7 and 8
+            9 = unknown
+            A = Psychiatric residential treatments demonstration
+            B = Health Opportunity Account
+            C = CHIP dental coverage, supplemental to employer sponsored insurance
+            W = Medicaid health insurance premium payment assistance (MA, NJ, VT, OK)
+            X = rx drug
+            Y = drug and dual
+            Z = drug and dual, but Medicaid was not paying for the benefits
+        New column(s):
+            FLSCOPE_MON{month} - 0 or 1 column, 1 when individual is eligible for full scope benefits for the
+                                corresponding month
+            rstrct{1|2|3|4|5|6|7|8|9|W|X|Y|Z} - 0 or 1 column, 1 when individual belongs to the corresponding
+                                                eligibility category, in any of the months
+            TotMonFullBnft - Number of months individual qualified for full scope benefits
+            RstrctBnft - 0 or 1 column, 1 when individual was ineligible for full scope benefits in any of the months
+            RstrctPregnancy - 0 or 1 column, 1 when individual was eligible for pregnancy benefits in any of the months
+        :param dataframe df: Patient Summary
+        :rtype: None
+        """
+        lst_excluded_restricted_benefit_code = (
+            ["2", "3", "6"]
+            if self.st not in ["AR", "ID", "SD"]
+            else ["2", "4", "3", "6"]
+        )
+
+        self.df = self.df.map_partitions(
+            lambda pdf: pd.assign(
+                any_restricted_benefit_month=np.column_stack(
+                    [
+                        pdf[col]
+                        .fillna("0")
+                        .str.strip()
+                        .isin([lst_excluded_restricted_benefit_code])
+                        for col in [
+                            f"EL_RSTRCT_BNFT_FLG_{str(mon).zfill(2)}"
+                            for mon in range(1, 13)
+                        ]
+                    ]
+                )
+                .any(axis=1)
+                .astype(int),
+                restricted_benefit_months=np.column_stack(
+                    [
+                        pdf[col]
+                        .fillna("0")
+                        .str.strip()
+                        .isin([lst_excluded_restricted_benefit_code])
+                        for col in [
+                            f"EL_RSTRCT_BNFT_FLG_{str(mon).zfill(2)}"
+                            for mon in range(1, 13)
+                        ]
+                    ]
+                )
+                .sum(axis=1)
+                .astype(int),
+            )
+        )
+        self.df = self.df.assign(
+            restricted_benefits=(
+                self.df["restricted_benefit_months"]
+                > (12 - self.df["total_elg_mon"])
+            ).astype(int)
+        )

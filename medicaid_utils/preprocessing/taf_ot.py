@@ -25,3 +25,21 @@ class TAFOT(taf_file.TAFFile):
             self.clean()
         if preprocess:
             self.preprocess()
+
+    def clean(self):
+        super(TAFOT, self).clean()
+        self.clean_diag_codes()
+        self.clean_proc_codes()
+        self.flag_common_exclusions()
+        self.flag_duplicates()
+
+    def flag_common_exclusions(self) -> None:
+        self.flag_ffs_and_encounter_claims()
+        self.df = self.df.map_partitions(
+            lambda pdf: pdf.assign(
+                excl_missing_dob=pdf["birth_date"].isnull().astype(int),
+                excl_missing_srvc_bgn_date=pdf["srvc_bgn_date"]
+                .isnull()
+                .astype(int),
+            )
+        )

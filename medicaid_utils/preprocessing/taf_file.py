@@ -116,6 +116,7 @@ class TAFFile:
         # Date columns will be cleaned and all commonly used date based variables are constructed
         # in this step
         self.process_date_cols()
+        self.flag_duplicates()
 
     def preprocess(self):
         """Add basic constructed variables"""
@@ -202,6 +203,98 @@ class TAFFile:
                 self.dct_files[ftype] = df
         return None
 
+    def flag_duplicates(self):
+        """
+        Removes duplicated rows.
+
+        Also for claims,
+            - All TAF claims are monthly files. This function keeps the most recent file version date for each month
+            using the variables IP_VRSN, LT_VRSN, OT_VRSN, and RX_VRSN.
+            - Retains only the claims with maximum value of production data run ID (DA_RUN_ID) for each claim ID
+            (CLM_ID).
+
+        (Identifying beneficiaries with a substance use disorder
+        (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjr54OU2_73AhXITTABHad8A44QFnoECAMQAQ&url=https%3A%2F%2Fwww.medicaid.gov%2Fmedicaid%2Fdata-and-systems%2Fdownloads%2Fmacbis%2Fsud_techspecs.docx&usg=AOvVaw1gxCAo7cVF9FqJtrNhFov9))
+
+        Returns
+        -------
+
+        """
+        for ftype in self.dct_files:
+            df = self.dct_files[ftype]
+            df = dataframe_utils.fix_index(df, self.index_col, True)
+            df = df.assign(
+                **{
+                    col: dd.to_numeric(df[col], errors="coerce").astype(
+                        "Int64"
+                    )
+                    for col in ["DA_RUN_ID", f"{self.ftype.upper()}_VRSN"]
+                    if col in df.columns
+                }
+            )
+            df = dataframe_utils.fix_index(df, self.index_col, True)
+            df = df.map_partitions(
+                lambda pdf: pdf.assign(
+                    excl_duplicated=pdf.assign(_index_col=pdf.index)[
+                        [
+                            col
+                            for col in pdf.columns
+                            if col != "excl_duplicated"
+                        ]
+                    ]
+                    .duplicated(keep="first")
+                    .astype(int)
+                )
+            )
+            df = df.loc[df["excl_duplicated"] == 0]
+            if "DA_RUN_ID" in df.columns:
+                df = df.map_partitions(
+                    lambda pdf: pdf.assign(
+                        max_run_id=pdf.groupby("CLM_ID")[
+                            "DA_RUN_ID"
+                        ].transform("max")
+                    )
+                )
+                df = df.loc[df["DA_RUN_ID"] == df["max_run_id"]].drop(
+                    "max_run_id", axis=1
+                )
+            if "filing_period" in df.columns:
+                df = df.map_partitions(
+                    lambda pdf: pdf.assign(
+                        max_version=pdf.groupby("filing_period")[
+                            f"{self.ftype.upper()}_VRSN"
+                        ].transform("max")
+                    )
+                )
+                df = df.loc[
+                    df[f"{self.ftype.upper()}_VRSN"] == df["max_version"]
+                ].drop("max_version", axis=1)
+            self.dct_files[ftype] = df
+
+    def flag_ffs_and_encounter_claims(self):
+        """
+        Flags claims where CLM_TYPE_CD is equal to one of the following values:
+            1: A FFS Medicaid or Medicaid-expansion claim
+            3: Medicaid or Medicaid-expanding managed care encounter record
+            A: Separate CHIP (Title XXI) FFS claim
+            C: Separate CHIP (Title XXI) encounter record
+
+        (Identifying beneficiaries with a substance use disorder
+        (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjr54OU2_73AhXITTABHad8A44QFnoECAMQAQ&url=https%3A%2F%2Fwww.medicaid.gov%2Fmedicaid%2Fdata-and-systems%2Fdownloads%2Fmacbis%2Fsud_techspecs.docx&usg=AOvVaw1gxCAo7cVF9FqJtrNhFov9))
+
+        Returns
+        -------
+
+        """
+        df = self.dct_files["base"]
+        df = df.assign(
+            ffs_or_encounter_claim=df["CLM_TYPE_CD"]
+            .str.strip()
+            .isin([1, 3, "A", "C"])
+            .astype(int)
+        )
+        self.dct_files["base"] = df
+
     def process_date_cols(self) -> None:
         """Convert datetime columns to datetime type and add basic date based constructed variables
                 New columns:
@@ -219,7 +312,7 @@ class TAFFile:
                                 admsn_date - Admission date (ADMSN_DT)
                                 srvc_bgn_date - Service begin date (SRVC_BGN_DT)
                                 srvc_end_date - Service end date (SRVC_END_DT)
-                                prncpl_proc_date - Principal procedure date (PRNCPL_PRCDR_DT)
+                                prncpl_proc_date - Principal procedure date (PRCDR_CD_DT_1)
                                 missing_admsn_date - 0 or 1, 1 when admission date is missing
                                 missing_prncpl_proc_date - 0 or 1, 1 when principal procedure date is missing
                             flag_admsn_miss - 0 or 1, 1 when admsn_date was imputed
@@ -246,9 +339,9 @@ class TAFFile:
             df = self.dct_files[ftype]
             if self.ftype in ["ip", "lt", "ot", "ps", "rx"]:
                 dct_date_col = {
-                    "IP_FIL_DT": "filing_date",
                     "BIRTH_DT": "birth_date",
                     "ADMSM_DT": "admsn_date",
+                    "PRCDR_CD_DT_1": "prncpl_proc_date",
                     "SRVC_BGN_DT": "srvc_bgn_date",
                     "SRVC_END_DT": "srvc_end_date",
                     "DEATH_DT": "death_date",
@@ -282,8 +375,16 @@ class TAFFile:
                     df, lst_col_to_convert
                 )
 
-                if self.ftype == "ip":
-                    df = df.assign(year=df.filing_date.dt.year)
+                if self.ftype in ["ip", "ot"]:
+                    if f"{self.ftype.upper()}_FIL_DT" in df.columns:
+                        df = df.assign(
+                            filing_period=df[
+                                f"{self.ftype.upper()}_FIL_DT"
+                            ].str[1:7]
+                        )
+                        df = df.assign(
+                            year=df.filing_period.str[:4].astype("Int64")
+                        )
                 else:
                     df = df.assign(year=df.RFRNC_YR.astype(int))
 
@@ -357,7 +458,7 @@ class TAFFile:
                         .fillna(0)
                         .astype(int)
                     )
-                if self.ftype == "ip":
+                if (self.ftype == "ip") and ("admsn_date" in df.columns):
                     df = df.assign(
                         missing_admsn_date=df["admsn_date"]
                         .isnull()
@@ -394,7 +495,7 @@ class TAFFile:
                         ).astype("Int64"),
                     )
 
-                if self.ftype == "ot":
+                if (self.ftype == "ot") and ("srvc_bgn_date" in df.columns):
                     df = df.assign(
                         duration=(
                             df["srvc_end_date"] - df["srvc_bgn_date"]

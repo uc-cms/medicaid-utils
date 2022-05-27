@@ -5,8 +5,7 @@ import pandas as pd
 import gc
 import shutil
 
-sys.path.append("../../../")
-from medicaid_utils.preprocessing import cms_file, ip, ot, ps
+from medicaid_utils.preprocessing import max_file, max_ip, max_ot, max_ps
 from medicaid_utils.filters.claims import dx_and_proc
 
 data_folder = os.path.join(os.path.dirname(__file__), "data")
@@ -165,10 +164,10 @@ def extract_cohort(
     tmp_folder = os.path.join(dest_folder, "tmp_files")
     dct_claims = dict()
     try:
-        dct_claims["ip"] = ip.MAXIP(
+        dct_claims["ip"] = max_ip.MAXIP(
             year, st, data_root, clean=True, preprocess=True
         )
-        dct_claims["ot"] = ot.MAXOT(
+        dct_claims["ot"] = max_ot.MAXOT(
             year,
             st,
             data_root,
@@ -176,10 +175,10 @@ def extract_cohort(
             preprocess=True,
             tmp_folder=os.path.join(tmp_folder, "ot"),
         )
-        dct_claims["rx"] = cms_file.MAXFile(
+        dct_claims["rx"] = max_file.MAXFile(
             "rx", year, st, data_root, clean=False, preprocess=False
         )
-        dct_claims["ps"] = ps.MAXPS(
+        dct_claims["ps"] = max_ps.MAXPS(
             year,
             st,
             data_root,
@@ -355,11 +354,11 @@ def export_cohort_datasets(
     for f_type in sorted(lst_types_to_export):
         try:
             if f_type == "ip":
-                dct_claims[f_type] = ip.MAXIP(
+                dct_claims[f_type] = max_ip.MAXIP(
                     year, st, data_root, clean=False, preprocess=False
                 )
             elif f_type == "ot":
-                dct_claims[f_type] = ot.MAXOT(
+                dct_claims[f_type] = max_ot.MAXOT(
                     year,
                     st,
                     data_root,
@@ -368,7 +367,7 @@ def export_cohort_datasets(
                     tmp_folder=os.path.join(tmp_folder, f_type),
                 )
             elif f_type == "ps":
-                dct_claims[f_type] = ps.MAXPS(
+                dct_claims[f_type] = max_ps.MAXPS(
                     year,
                     st,
                     data_root,
@@ -377,7 +376,7 @@ def export_cohort_datasets(
                     tmp_folder=os.path.join(tmp_folder, f_type),
                 )
             else:
-                dct_claims[f_type] = cms_file.MAXFile(
+                dct_claims[f_type] = max_file.MAXFile(
                     f_type, year, st, data_root, clean=False, preprocess=False
                 )
         except Exception as ex:
