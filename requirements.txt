@@ -145,7 +145,7 @@ six
 smmap==5.0.0
 sniffio 
 sortedcontainers
-starlette==0.17.0
+starlette
 tabulate 
 tblib 
 terminado==0.12.1
