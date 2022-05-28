@@ -1,24 +1,55 @@
-import sys
-import os
-import logging
-import pandas as pd
+"""This module has functions that extract cohorts for studies based on multiple filters"""
 import gc
+import os
 import shutil
+import logging
+from typing import List, Union, Tuple
 
-from medicaid_utils.preprocessing import max_file, max_ip, max_ot, max_ps
+import pandas as pd
+
+from medicaid_utils.preprocessing import (
+    max_file,
+    max_ip,
+    max_ot,
+    max_ps,
+    taf_file,
+)
 from medicaid_utils.filters.claims import dx_and_proc
 
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 
 
-def apply_range_filter(
-    tpl_range,
-    df,
-    filter_name,
-    col_name,
-    data_type,
-    logger_name=__file__,
-):
+def apply_range_filter(  # pylint: disable=missing-param-doc
+    tpl_range: tuple,
+    df: pd.DataFrame,
+    filter_name: str,
+    col_name: str,
+    data_type: str,
+    logger_name: str = __file__,
+) -> pd.DataFrame:
+    """
+    Applies data/ numeric range based filter on a dataframe
+
+    Parameters
+    ----------
+    tpl_range : tuple
+        Upper and lower bound tuple
+    df : dd.DataFrame
+        Dataframe to be filtered
+    filter_name : str
+        Name of filter
+    col_name : str
+        Name of column
+    data_type : str
+        Datatype of column. Eg. date, int
+    logger_name : str, default=__file__
+        Logger name
+
+    Returns
+    -------
+    dd.DataFrame
+
+    """
     logger = logging.getLogger(logger_name)
     start = (
         pd.to_datetime(tpl_range[0], format="%Y%m%d", errors="coerce")
@@ -39,23 +70,69 @@ def apply_range_filter(
             df = df.loc[df[col_name] >= start]
     else:
         logger.info(
-            f"{' '.join(filter_name.split('_')[2:])} range {tpl_range} is"
-            " invalid."
+            "%s range (%s) is  invalid.",
+            " ".join(filter_name.split("_")[2:]),
+            ",".join([str(val) for val in tpl_range]),
         )
     return df
 
 
-def filter_taf_files(
-    claim, subtype, dct_claim_filters, tmp_folder, logger_name=__file__
-):
+def filter_claim_files(  # pylint: disable=missing-param-doc
+    claim: Union[max_file.MAXFile, taf_file.TAFFile],
+    dct_claim_filters: dict,
+    tmp_folder: str,
+    subtype: str = None,
+    logger_name: str = __file__,
+) -> Tuple[Union[max_file.MAXFile, taf_file.TAFFile], pd.DataFrame]:
+    """
+    Filters claim files
+
+    Parameters
+    ----------
+    claim : Union[max_file.MAXFile, taf_file.TAFFile]
+        Claim object
+    dct_claim_filters : dict
+        Filters to apply
+    tmp_folder : str
+        Temporary folder to cache results mid-processing. This is useful for large datasets, as the dask cluster can
+        crash if the task graph is too large for large datasets. This is handled by caching results at intermediate
+        stages.
+    subtype : str, default=None
+        Claim subtype (required for TAF datasets)
+    logger_name : str, default=None
+        Logger name
+
+    Returns
+    -------
+    Tuple[Union[max_file.MAXFile, taf_file.TAFFile], pd.DataFrame]
+
+    Raises
+    ------
+    ValueError
+        When subtype is parameter is missing for a function with TAFFile claim type input
+
+    """
     logger = logging.getLogger(logger_name)
-    df_claim = claim.dct_files[subtype]
+    if isinstance(claim, taf_file.TAFFile) and (subtype is None):
+        raise ValueError(
+            f"Parameter {subtype} is required to filter TAF {claim.ftype} file"
+        )
+
+    df_claim = (
+        claim.df.copy()
+        if isinstance(claim, max_file.MAXFile)
+        else claim.dct_files[subtype].copy()
+    )
     df_filter_counts = pd.DataFrame(
         {"N": df_claim.shape[0].compute()}, index=0
     )
     logger.info(
-        f"{claim.st} ({claim.year}) has"
-        f" {df_filter_counts.N.values[0]} {claim.ftype} {subtype} claims"
+        "%s (%d) has %d %s %sclaims",
+        claim.st,
+        claim.year,
+        df_filter_counts.N.values[0],
+        claim.ftype,
+        "(" + subtype + ") " if (subtype is not None) else "",
     )
     dct_filter = claim.dct_default_filters.copy()
     if claim.ftype in dct_claim_filters:
@@ -74,125 +151,136 @@ def filter_taf_files(
                 logger_name=logger_name,
             )
 
-        elif f"excl_{filter_name}" in claim.df.columns:
+        elif f"excl_{filter_name}" in df_claim.columns:
             df_claim = df_claim.loc[
                 df_claim[f"excl_{filter_name}"] == int(dct_filter[filter_name])
+            ]
+        elif filter_name in df_claim.columns:
+            df_claim = df_claim.loc[
+                df_claim[filter_name] == dct_filter[filter_name]
             ]
         else:
             filtered = 0
             logger.info(
-                f"Filter {filter_name} is currently not supported for"
-                f" {claim.ftype} files"
+                "Filter %s is currently not supported for %s %sfiles",
+                filter_name,
+                claim.ftype,
+                "(" + subtype + ") " if (subtype is not None) else "",
             )
         if filtered:
             if claim.tmp_folder is None:
                 claim.tmp_folder = tmp_folder
-            claim.dct_files[subtype] = df_claim
-            claim.cache_results()
-            df_claim = claim.dct_files[subtype]
+
+            if isinstance(claim, max_file.MAXFile):
+                claim.df = df_claim.copy()
+                claim.cache_results()
+                df_claim = claim.df.copy()
+            else:
+                claim.dct_files[subtype] = df_claim.copy()
+                claim.cache_results(subtype=subtype)
+                df_claim = claim.dct_files[subtype].copy()
+
             df_filter_counts[filter_name] = df_claim.shape[0].compute()
-            logger.info(
+            filter_status = (
                 f"Applying {filter_name} = {dct_filter[filter_name]} filter"
                 f" reduces {claim.ftype} {subtype} claim count to"
                 f" {df_filter_counts[filter_name].values[0]}"
             )
+            logger.info(filter_status)
     return claim, df_filter_counts
 
 
-def filter_claim_files(
-    claim, dct_claim_filters, tmp_folder, logger_name=__file__
-):
-    logger = logging.getLogger(logger_name)
-    logger.info(
-        f"{claim.st} ({claim.year}) has"
-        f" {claim.df.shape[0].compute()} {claim.ftype} claims"
-    )
-    dct_filter = claim.dct_default_filters.copy()
-    if claim.ftype in dct_claim_filters:
-        dct_filter.update(dct_claim_filters[claim.ftype])
-    for filter_name in dct_filter:
-        filtered = 1
-        if filter_name.startswith("range_") and (
-            "_".join(filter_name.split("_")[2:]) in claim.df.columns
-        ):
-            claim.df = apply_range_filter(
-                dct_filter[filter_name],
-                claim.df,
-                filter_name,
-                "_".join(filter_name.split("_")[2:]),
-                filter_name.split("_")[1],
-                logger_name=logger_name,
-            )
+def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
+    state: str,
+    year: int,
+    dct_diag_codes: dict,
+    dct_proc_codes: dict,
+    dct_cohort_filters: dict,
+    dct_export_filters: dict,
+    lst_types_to_export: List[str],
+    data_root: str,
+    dest_folder: str,
+    clean_exports: bool = True,
+    preprocess_exports: bool = True,
+    logger_name: str = __file__,
+) -> None:
+    """
+    Extracts and exports claim files corresponded cohort defined by the input filters
 
-        elif f"excl_{filter_name}" in claim.df.columns:
-            claim.df = claim.df.loc[
-                claim.df[f"excl_{filter_name}"] == int(dct_filter[filter_name])
-            ]
-        else:
-            filtered = 0
-            logger.info(
-                f"Filter {filter_name} is currently not supported for"
-                f" {claim.ftype} files"
-            )
-        if filtered:
-            if claim.tmp_folder is None:
-                claim.tmp_folder = tmp_folder
-            claim.df = claim.cache_results()
-            logger.info(
-                f"Applying {filter_name} = {dct_filter[filter_name]} filter"
-                f" reduces {claim.ftype} claim count to"
-                f" {claim.df.shape[0].compute()}"
-            )
-    return claim
+    Parameters
+    ----------
+    state : str
+        State
+    year : int
+        Year
+    dct_diag_codes : dict
+        Dictionary of diagnosis codes. Should be in the format
+            {condition_name: {['incl' / 'excl']: {[9/ 10]: list of codes} }
+            Eg: {'oud_nqf': {'incl': {9: ['3040','3055']}}}
+    dct_proc_codes : dict
+        Dictionary of procedure codes. Should be in the format
+            {procedure_name: {procedure_system_code: list of codes} }
+            Eg: {'methadone_7': {7: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,'
+                                   'HZ96ZZZ'.split(",")}}
+    dct_cohort_filters : dict
+        Cohort filters
+    dct_export_filters : dict
+        Export filters
+    lst_types_to_export : List[str]
+        List of types to export. Currently supported types are ip, ot, rx, ps.
+    data_root : str
+        Root folder of raw claim files
+    dest_folder : str
+        Folder to export the datasets to
+    clean_exports : bool, default=False
+        Should the exported datasets be cleaned?
+    preprocess_exports : bool, default=False
+        Should the exported datasets be preprocessed?
+    logger_name : bool, default=__file__
+        Logger name
 
+    Raises
+    ------
+    FileNotFoundError
+        Raised when any of file types requested to be imported does not exist for the state and year
 
-def extract_cohort(
-    st,
-    year,
-    dct_diag_codes,
-    dct_proc_codes,
-    dct_cohort_filters,
-    dct_export_filters,
-    lst_types_to_export,
-    data_root,
-    dest_folder,
-    clean_exports=True,
-    preprocess_exports=True,
-    logger_name=__file__,
-):
+    """
     logger = logging.getLogger(logger_name)
     tmp_folder = os.path.join(dest_folder, "tmp_files")
-    dct_claims = dict()
+    dct_claims = {}
     try:
         dct_claims["ip"] = max_ip.MAXIP(
-            year, st, data_root, clean=True, preprocess=True
+            year, state, data_root, clean=True, preprocess=True
         )
         dct_claims["ot"] = max_ot.MAXOT(
             year,
-            st,
+            state,
             data_root,
             clean=True,
             preprocess=True,
             tmp_folder=os.path.join(tmp_folder, "ot"),
         )
         dct_claims["rx"] = max_file.MAXFile(
-            "rx", year, st, data_root, clean=False, preprocess=False
+            "rx", year, state, data_root, clean=False, preprocess=False
         )
         dct_claims["ps"] = max_ps.MAXPS(
             year,
-            st,
+            state,
             data_root,
             clean=True,
-            preprocess=True if "ps" in dct_cohort_filters else False,
+            preprocess="ps" in dct_cohort_filters,
             tmp_folder=os.path.join(tmp_folder, "ps"),
         )
         logger.info(
-            f"{st} ({year}) has {dct_claims['ps'].df.shape[0].compute()} benes"
+            "%s (%d) has %d benes",
+            state,
+            year,
+            dct_claims["ps"].df.shape[0].compute(),
         )
-    except Exception as ex:
-        logger.warning(f"{year} data is missing for {st}")
+    except FileNotFoundError as ex:
+        logger.warning("%d data is missing for %s", year, state)
         logger.exception(ex)
-        return 1
+        raise FileNotFoundError from ex
     os.makedirs(dest_folder, exist_ok=True)
     os.makedirs(tmp_folder, exist_ok=True)
 
@@ -205,7 +293,7 @@ def extract_cohort(
         )
     pdf_patients = None
     if bool(dct_diag_codes) | bool(dct_proc_codes):
-        pdf_patients = dx_and_proc.get_patient_ids_with_conditions(
+        pdf_patients, _ = dx_and_proc.get_patient_ids_with_conditions(
             dct_diag_codes,
             dct_proc_codes,
             logger_name=logger_name,
@@ -240,36 +328,27 @@ def extract_cohort(
                 + ["service_date"]
             ],
         )
-        pdf_patients["include"] = 1
+        pdf_patients = pdf_patients.assign(include=1)
     else:
         pdf_patients = (
             pd.concat(
                 [
-                    dct_claims[f_type]
-                    .df.assign(
-                        **dict(
-                            [
-                                (
-                                    dct_claims[f_type].index_col,
-                                    dct_claims[f_type].df.index,
-                                ),
-                                ("include", 1),
-                            ]
-                        )
-                    )[[dct_claims[f_type].index_col, "include"]]
-                    .compute()
-                    for f_type in dct_claims
+                    claim.df.assign(
+                        **{claim.index_col: claim.df.index, "include": 1}
+                    )[[claim.index_col, "include"]].compute()
+                    for f_type, claim in dct_claims.items()
                 ]
             )
             .drop_duplicates()
             .set_index(dct_claims["ps"].index_col)
         )
-    pdf_patients["YEAR"] = year
-    pdf_patients["STATE_CD"] = st
+    pdf_patients = pdf_patients.assign(YEAR=year, STATE_CD=state)
 
     logger.info(
-        f"{st} ({year}) has {pdf_patients.shape[0]} benes with specified"
-        " conditions/ procedures"
+        "%s (%d) has %d benes with specified  conditions/ procedures",
+        state,
+        year,
+        pdf_patients.shape[0],
     )
 
     if "ps" not in dct_cohort_filters:
@@ -289,10 +368,10 @@ def extract_cohort(
             dct_claims["ps"], {}, os.path.join(tmp_folder, "ps"), logger_name
         )
         logger.info(
-            f"{st} ({year}) has"
-            f" {pdf_patients.loc[pdf_patients['include'] == 1].shape[0]} benes"
-            " with specified conditions who also meet the cohort inclusion"
-            " criteria"
+            "%s (%d) has  %d benes  with specified conditions who also meet the cohort inclusion  criteria",
+            state,
+            year,
+            pdf_patients.loc[pdf_patients["include"] == 1].shape[0],
         )
         pdf_patients["include"] = pdf_patients["include"].where(
             pdf_patients.index.isin(
@@ -301,9 +380,10 @@ def extract_cohort(
             0,
         )
         logger.info(
-            f"For {st} ({year}),"
-            f" {pdf_patients.loc[pdf_patients['include'] == 1].shape[0]} benes"
-            " remain after cleaning PS"
+            "For %s (%d), %d benes remain after cleaning PS",
+            state,
+            year,
+            pdf_patients.loc[pdf_patients["include"] == 1].shape[0],
         )
     pdf_dob = dct_claims["ps"].df[["birth_date"]].compute()
     del dct_claims
@@ -313,14 +393,14 @@ def extract_cohort(
         pdf_dob, left_index=True, right_index=True, how="inner"
     )
     pdf_patients.to_csv(
-        os.path.join(dest_folder, f"cohort_{st}_{year}.csv"), index=True
+        os.path.join(dest_folder, f"cohort_{state}_{year}.csv"), index=True
     )
 
     shutil.rmtree(tmp_folder)
-    export_cohort_datasets(
+    export_cohort_max_datasets(
         pdf_patients,
         year,
-        st,
+        state,
         data_root,
         lst_types_to_export,
         dest_folder,
@@ -329,38 +409,67 @@ def extract_cohort(
         preprocess_exports,
         logger_name,
     )
-    return 0
 
 
-def export_cohort_datasets(
-    pdf_cohort,
-    year,
-    st,
-    data_root,
-    lst_types_to_export,
-    dest_folder,
-    dct_export_filters,
-    clean_exports=False,
-    preprocess_exports=False,
-    logger_name=__file__,
-):
+def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
+    pdf_cohort: pd.DataFrame,
+    year: int,
+    state: str,
+    data_root: str,
+    lst_types_to_export: List[str],
+    dest_folder: str,
+    dct_export_filters: dict,
+    clean_exports: bool = False,
+    preprocess_exports: bool = False,
+    logger_name: str = __file__,
+) -> None:
+    """
+    Exports MAX files corresponding to the cohort as defined by the filters input to this function
 
-    # TODO: Concat exported files
+    Parameters
+    ----------
+    pdf_cohort : pd.DataFrame
+        Pandas dataframe with patient IDs (BENE_MSIS) and indicator flag denoting inclusion into the cohort (include=1)
+    year : int
+        Year of the claim files
+    state : str
+        State
+    data_root : str
+        Root folder of the raw claim files
+    lst_types_to_export : list of str
+        List of file types to export. Supported types are [ip, ot, ps, rx]
+    dest_folder : str
+        Folder to export the datasets to
+    dct_export_filters : dict
+        Dictionary of filters to apply to the export dataset
+    clean_exports : bool, default=False
+        Should the exported datasets be cleaned?
+    preprocess_exports : bool, default=False
+        Should the exported datasets be preprocessed?
+    logger_name : str, default=__file__
+        Logger name
+
+    Raises
+    ------
+    FileNotFoundError
+        Raised when any of file types requested to be imported does not exist for the state and year
+
+    """
     logger = logging.getLogger(logger_name)
     tmp_folder = os.path.join(dest_folder, "tmp_files")
     os.makedirs(dest_folder, exist_ok=True)
     os.makedirs(tmp_folder, exist_ok=True)
-    dct_claims = dict()
+    dct_claims = {}
     for f_type in sorted(lst_types_to_export):
         try:
             if f_type == "ip":
                 dct_claims[f_type] = max_ip.MAXIP(
-                    year, st, data_root, clean=False, preprocess=False
+                    year, state, data_root, clean=False, preprocess=False
                 )
             elif f_type == "ot":
                 dct_claims[f_type] = max_ot.MAXOT(
                     year,
-                    st,
+                    state,
                     data_root,
                     clean=False,
                     preprocess=False,
@@ -369,7 +478,7 @@ def export_cohort_datasets(
             elif f_type == "ps":
                 dct_claims[f_type] = max_ps.MAXPS(
                     year,
-                    st,
+                    state,
                     data_root,
                     clean=False,
                     preprocess=False,
@@ -377,14 +486,19 @@ def export_cohort_datasets(
                 )
             else:
                 dct_claims[f_type] = max_file.MAXFile(
-                    f_type, year, st, data_root, clean=False, preprocess=False
+                    f_type,
+                    year,
+                    state,
+                    data_root,
+                    clean=False,
+                    preprocess=False,
                 )
-        except Exception as ex:
-            logger.warning(f"{year} {f_type} data is missing for {st}")
+        except FileNotFoundError as ex:
+            logger.warning("%d %s data is missing for %s", year, f_type, state)
             logger.exception(ex)
-            return 1
+            raise FileNotFoundError from ex
     for f_type in sorted(lst_types_to_export):
-        logger.info(f"Exporting {f_type} for {st} ({year})")
+        logger.info("Exporting %s for %s (%d)", f_type, state, year)
         dct_claims[f_type].df = dct_claims[f_type].df.loc[
             dct_claims[f_type].df.index.isin(
                 pdf_cohort.loc[pdf_cohort["include"] == 1].index.tolist()

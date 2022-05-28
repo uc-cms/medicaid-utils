@@ -144,7 +144,7 @@ def get_patient_ids_with_conditions(
     return pdf_patient_ids, dct_filter_results
 
 
-def flag_diagnoses_and_procedures(
+def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
     dct_diag_codes: dict,
     dct_proc_codes: dict,
     df_claims: dd.DataFrame,
@@ -167,8 +167,8 @@ def flag_diagnoses_and_procedures(
                                    'HZ96ZZZ'.split(",")}}
     df_claims : dd.DataFrame
         Claims dataframe
-    cms_format : str
-        CMS file format. Allowed values: {'MAX', TAF'}
+    cms_format : {'MAX', TAF'}
+        CMS file format.
     lst_claim_diag_col : List[str], optional
         List of diagnosis column names
 

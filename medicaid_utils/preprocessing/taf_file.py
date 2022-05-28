@@ -80,10 +80,12 @@ class TAFFile:
         if preprocess:
             self.preprocess()
 
-    def cache_results(self, repartition=False):
+    def cache_results(self, subtype=None, repartition=False):
         """Save results in intermediate steps of some lengthy processing. Saving intermediate results speeds up
         processing"""
         for f_subtype in self.dct_files:
+            if (subtype is not None) and (f_subtype != subtype):
+                continue
             if self.tmp_folder is not None:
                 if repartition:
                     self.dct_files[f_subtype] = (
