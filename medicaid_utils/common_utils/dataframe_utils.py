@@ -217,37 +217,6 @@ def prepare_dtypes_for_csv(df_temp: dd.DataFrame, df_schema: pd.DataFrame):
     return df_temp
 
 
-def groupby_agg_list_string_cols(groupeddf, input_col_name, output_col_name):
-    dct_col = {
-        output_col_name: ",".join(
-            set(
-                [
-                    i
-                    for sub_x in groupeddf[input_col_name]
-                    for i in sub_x
-                    if ((i == i) & (i not in ["", "None", None, np.nan]))
-                ]
-            )
-        )
-    }
-    return pd.Series(dct_col)
-
-
-def groupby_agg_concat_string_col(groupeddf, input_col_name, output_col_name):
-    dct_col = {
-        output_col_name: ",".join(
-            set(
-                [
-                    str(i)
-                    for i in groupeddf[input_col_name]
-                    if ((i == i) & (i not in ["", "None", None, np.nan]))
-                ]
-            )
-        )
-    }
-    return pd.Series(dct_col)
-
-
 def export(
     df: dd.DataFrame,
     pq_engine: str,
