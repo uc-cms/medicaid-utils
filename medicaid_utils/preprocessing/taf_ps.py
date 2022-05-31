@@ -19,7 +19,7 @@ class TAFPS(taf_file.TAFFile):
     def __init__(
         self,
         year: int,
-        st: str,
+        state: str,
         data_root: str,
         index_col: str = "BENE_MSIS",
         clean: bool = True,
@@ -30,7 +30,7 @@ class TAFPS(taf_file.TAFFile):
         """
         Initializes PS file object by preloading and preprocessing(if opted in) the file
         :param year: Year
-        :param st: State
+        :param state: State
         :param data_root: Root folder with cms data
         :param index_col: Column to use as index. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
         sorted with index column
@@ -40,7 +40,7 @@ class TAFPS(taf_file.TAFFile):
         :param tmp_folder: Folder to use to store temporary files
         """
         super(TAFPS, self).__init__(
-            "ps", year, st, data_root, index_col, False, False, tmp_folder
+            "ps", year, state, data_root, index_col, False, False, tmp_folder
         )
 
         # Default filters to filter out benes that do not meet minimum standard of cleanliness criteria

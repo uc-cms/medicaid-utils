@@ -10,7 +10,7 @@ class TAFOT(taf_file.TAFFile):
     def __init__(
         self,
         year,
-        st,
+        state,
         data_root,
         index_col="BENE_MSIS",
         clean=True,
@@ -18,7 +18,7 @@ class TAFOT(taf_file.TAFFile):
         tmp_folder=None,
     ):
         super(TAFOT, self).__init__(
-            "ot", year, st, data_root, index_col, False, False, tmp_folder
+            "ot", year, state, data_root, index_col, False, False, tmp_folder
         )
         self.dct_default_filters = {"missing_dob": 0, "duplicated": 0}
         if clean:
