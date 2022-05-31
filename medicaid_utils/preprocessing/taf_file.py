@@ -264,7 +264,7 @@ class TAFFile:
             (CLM_ID).
 
         (Identifying beneficiaries with a substance use disorder
-        (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjr54OU2_73AhXITTABHad8A44QFnoECAMQAQ&url=https%3A%2F%2Fwww.medicaid.gov%2Fmedicaid%2Fdata-and-systems%2Fdownloads%2Fmacbis%2Fsud_techspecs.docx&usg=AOvVaw1gxCAo7cVF9FqJtrNhFov9))
+        (https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx)
 
         """
         for ftype in self.dct_files:
@@ -327,7 +327,7 @@ class TAFFile:
             C: Separate CHIP (Title XXI) encounter record
 
         (Identifying beneficiaries with a substance use disorder
-        (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjr54OU2_73AhXITTABHad8A44QFnoECAMQAQ&url=https%3A%2F%2Fwww.medicaid.gov%2Fmedicaid%2Fdata-and-systems%2Fdownloads%2Fmacbis%2Fsud_techspecs.docx&usg=AOvVaw1gxCAo7cVF9FqJtrNhFov9))
+        (https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx)
 
         """
         df = self.dct_files["base"]
