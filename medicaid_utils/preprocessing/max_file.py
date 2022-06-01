@@ -507,6 +507,11 @@ class MAXFile:
             - ed_use - any of ed_cpt, ed_ub92, ed_tos or ed_pos is 1
             - any_ed - 0 or 1, 1 when any other claim from the same visit has ed_use set to 1 (if ftype == 'ot')
 
+        Uses the below as reference:
+            - If the patient is a Medicare beneficiary, the general surgeon should bill the level of
+            ED code (99281–99285) (http://bulletin.facs.org/2013/02/coding-for-hospital-admission)
+            - Inpatient files:  Revenue Center Codes 0450-0459, 0981 (https://www.resdac.org/resconnect/articles/144)
+
         Returns
         -------
 
