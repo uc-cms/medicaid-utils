@@ -1,8 +1,9 @@
-import dask.dataframe as dd
-import pandas as pd
-import numpy as np
+"""This module has MAXPS class which wraps together cleaning/ preprocessing routines specific for MAX PS files"""
 import os
-import sys
+
+import numpy as np
+import pandas as pd
+import dask.dataframe as dd
 
 from medicaid_utils.preprocessing import max_file
 
@@ -25,21 +26,44 @@ class MAXPS(max_file.MAXFile):
         preprocess: bool = True,
         rural_method: str = "ruca",
         tmp_folder: str = None,
+        pq_engine: str = "pyarrow",
     ):
         """
         Initializes PS file object by preloading and preprocessing(if opted in) the file
-        :param year: Year
-        :param state: State
-        :param data_root: Root folder with cms data
-        :param index_col: Column to use as index. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
+
+        Parameters
+        ----------
+        year : int
+            Year of claim file
+        state : str
+            State of claim file
+        data_root : str
+            Root folder of raw claim files
+        index_col : str, default='BENE_MSIS'
+            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
         sorted with index column
-        :param clean: Run cleaning routines if True
-        :param preprocess: Add commonly used constructed variable columns, if True
-        :param rural_method: Method to use for rural variable construction. Available options: 'ruca', 'rucc'
-        :param tmp_folder: Folder to use to store temporary files
+        clean : bool, default=True
+            Should the associated files be cleaned?
+        preprocess : bool, default=True
+            Should the associated files be preprocessed?
+        rural_method : {'ruca', 'rucc'}
+            Method to use for rural variable construction
+        tmp_folder : str, default=None
+            Folder location to use for caching intermediate results. Can be turned off by not passing this argument.
+        pq_engine : str, default='pyarrow'
+            Parquet engine to use
+
         """
         super(MAXPS, self).__init__(
-            "ps", year, state, data_root, index_col, False, False, tmp_folder
+            "ps",
+            year,
+            state,
+            data_root,
+            index_col,
+            False,
+            False,
+            tmp_folder,
+            pq_engine=pq_engine,
         )
 
         # Default filters to filter out benes that do not meet minimum standard of cleanliness criteria
@@ -57,8 +81,15 @@ class MAXPS(max_file.MAXFile):
         self.df = self.cache_results()
 
     def preprocess(self, rural_method="ruca"):
-        """Adds rural and eligibility criteria indicator variables"""
-        super(MAXPS, self).preprocess()
+        """
+        Adds rural, eligibility criteria, dual, and restricted benefits indicator variables
+
+        Parameters
+        ----------
+        rural_method : {'ruca', 'rucc'}
+            Method to use for rural variable construction
+
+        """
         self.flag_rural(rural_method)
         self.add_eligibility_status_columns()
         self.flag_duals()
@@ -108,19 +139,32 @@ class MAXPS(max_file.MAXFile):
             ).astype(int)
         )
 
-    def flag_rural(self, method="ruca") -> None:
+    def flag_rural(
+        self, method: str = "ruca"
+    ):  # pylint: disable=missing-param-doc
         """
         Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of their resident ZIP/ FIPS codes
-                New Columns:
-                        resident_state_cd
-                        rural - 0/ 1/ -1, 1 when bene's residence is in a rural location, 0 when not and -1 when unknown.
-                        pcsa - resident PCSA code
-                        ruca_code - resident ruca_code
-                        when method='rucc':
-                                        rucc_code - resident ruca_code
-        :param df_ps:
-        :param method:
-        :return: None
+        New Columns:
+
+            - resident_state_cd
+            - rural - 0/ 1/ np.nan, 1 when bene's residence is in a rural location, 0 when not..
+            - pcsa - resident PCSA code
+            - {ruca_code/ rucc_code} - resident ruca_code
+
+        This function uses
+            - RUCA 3.1 dataset (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673). RUCA
+            codes >= 4 denote rural and the rest denote urban as per https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1
+            - RUCC codes were downloaded from https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372.
+            RUCC codes >= 8 denote rural and the rest denote urban.
+            - ZCTAs x zipcode crosswalk from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),
+            - zipcodes from multiple sources
+            - istance between centroids of zipcodes using NBER data (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)
+
+        Parameters
+        ----------
+        method : {'ruca', 'rucc'}
+            Method to use for rural variable construction
+
         """
         index_col = self.df.index.name
         zip_folder = os.path.join(other_data_folder, "zip")
@@ -154,12 +198,11 @@ class MAXPS(max_file.MAXFile):
             }
         )
         self.df = self.df[
-            [
-                col
-                for col in self.df.columns
-                if col not in ["resident_state_cd", "pcsa", "ruca_code"]
-            ]
+            self.df.columns.difference(
+                ["resident_state_cd", "pcsa", "ruca_code"]
+            ).tolist()
         ]
+
         self.df = self.df.assign(
             EL_RSDNC_ZIP_CD_LTST=self.df["EL_RSDNC_ZIP_CD_LTST"]
             .str.replace(" ", "")
@@ -178,7 +221,8 @@ class MAXPS(max_file.MAXFile):
             on="EL_RSDNC_ZIP_CD_LTST",
         )
 
-        # RUCC codes were downloaded from https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372
+        # RUCC codes were downloaded from
+        # https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372
         df_rucc = pd.read_excel(
             os.path.join(zip_folder, "ruralurbancodes2013.xls"),
             sheet_name="Rural-urban Continuum Code 2013",
@@ -259,7 +303,6 @@ class MAXPS(max_file.MAXFile):
             )
         if self.df.index.name != index_col:
             self.df = self.df.set_index(index_col, sorted=True)
-        return None
 
     def add_eligibility_status_columns(self) -> None:
         """

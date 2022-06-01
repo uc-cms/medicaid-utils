@@ -1,4 +1,4 @@
-"""This module has MAXCC class from which wraps together cleaning/ preprocessing routines specific for MAX CC files"""
+"""This module has MAXCC class which wraps together cleaning/ preprocessing routines specific for MAX CC files"""
 from typing import List
 
 import pandas as pd
@@ -34,7 +34,8 @@ class MAXCC(max_file.MAXFile):
         data_root : str
             Root folder of raw claim files
         index_col : str, default='BENE_MSIS'
-            Index column name
+            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
+        sorted with index column
         clean : bool, default=True
             Should the associated files be cleaned?
         preprocess : bool, default=True

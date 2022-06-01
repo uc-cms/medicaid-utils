@@ -1,8 +1,9 @@
-import dask.dataframe as dd
-import pandas as pd
-import numpy as np
+"""This module has TAFPS class which wraps together cleaning/ preprocessing routines specific for TAF PS files"""
 import os
-import sys
+
+import numpy as np
+import pandas as pd
+import dask.dataframe as dd
 
 from medicaid_utils.preprocessing import taf_file
 from medicaid_utils.common_utils import dataframe_utils
@@ -39,7 +40,7 @@ class TAFPS(taf_file.TAFFile):
         :param rural_method: Method to use for rural variable construction. Available options: 'ruca', 'rucc'
         :param tmp_folder: Folder to use to store temporary files
         """
-        super(TAFPS, self).__init__(
+        super().__init__(
             "ps", year, state, data_root, index_col, False, False, tmp_folder
         )
 
@@ -53,14 +54,13 @@ class TAFPS(taf_file.TAFFile):
 
     def clean(self):
         """Runs cleaning routines and created common exclusion flags based on default filters"""
-        super(TAFPS, self).clean()
+        super().clean()
         self.add_gender()
         self.flag_common_exclusions()
         self.cache_results()
 
     def preprocess(self, rural_method="ruca"):
         """Adds rural and eligibility criteria indicator variables"""
-        super(TAFPS, self).preprocess()
         self.flag_rural(rural_method)
         self.flag_dual()
         self.flag_restricted_benefits()
@@ -68,12 +68,11 @@ class TAFPS(taf_file.TAFFile):
         # self.add_eligibility_status_columns()
         self.cache_results()
 
-    def flag_common_exclusions(self) -> None:
+    def flag_common_exclusions(self):
         """
-        Adds exclusion flags
+        Adds commonly used exclusion flags
         New Column(s):
-                excl_duplicated_bene_id - 0 or 1, 1 when bene's index column is repeated
-        :return:
+            - excl_duplicated_bene_id - 0 or 1, 1 when bene's index column is repeated
         """
         df_base = self.dct_files["base"]
         df_base = df_base.assign(**{f"_{self.index_col}": df_base.index})
@@ -91,12 +90,9 @@ class TAFPS(taf_file.TAFFile):
         df_base = df_base.drop([f"_{self.index_col}"], axis=1)
         self.dct_files["base"] = df_base
 
-    def add_gender(self) -> None:
-        """
-        Adds integer 'female' column based on 'EL_SEX_CD' column
-        :param DataFrame df:
-        :rtype: None
-        """
+    def add_gender(self):
+        """Adds integer 'female' column based on 'SEX_CD' column. Undefined values ('U') in SEX_CD column will
+        result in female column taking the value np.nan"""
         df = self.dct_files["base"]
         df = df.map_partitions(
             female=np.select(
@@ -109,26 +105,38 @@ class TAFPS(taf_file.TAFFile):
             ).astype("Int64")
         )
         self.dct_files["base"] = df
-        return None
 
-    def flag_rural(self, method="ruca") -> None:
+    def flag_rural(
+        self, method: str = "ruca"
+    ):  # pylint: disable=missing-param-doc
         """
         Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of their resident ZIP/ FIPS codes
-                New Columns:
-                        resident_state_cd
-                        rural - 0/ 1/ -1, 1 when bene's residence is in a rural location, 0 when not and -1 when unknown.
-                        pcsa - resident PCSA code
-                        ruca_code - resident ruca_code
-                        when method='rucc':
-                                        rucc_code - resident ruca_code
-        :param df_ps:
-        :param method:
-        :return: None
+        New Columns:
+
+            - resident_state_cd
+            - rural - 0/ 1/ np.nan, 1 when bene's residence is in a rural location, 0 when not..
+            - pcsa - resident PCSA code
+            - {ruca_code/ rucc_code} - resident ruca_code
+
+        This function uses
+            - RUCA 3.1 dataset (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673). RUCA
+            codes >= 4 denote rural and the rest denote urban as per https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1
+            - RUCC codes were downloaded from https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372.
+            RUCC codes >= 8 denote rural and the rest denote urban.
+            - ZCTAs x zipcode crosswalk from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),
+            - zipcodes from multiple sources
+            - istance between centroids of zipcodes using NBER data (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)
+
+        Parameters
+        ----------
+        method : {'ruca', 'rucc'}
+            Method to use for rural variable construction
+
         """
         df = self.dct_files["base"]
         index_col = df.index.name
         zip_folder = os.path.join(other_data_folder, "zip")
-        df = df.assign(**{index_col: self.df.index})
+        df = df.assign(**{index_col: df.index})
 
         # RI Zip codes have problems. They are all invalid unless the last character is dropped and
         # a zero is added to the left
@@ -161,12 +169,11 @@ class TAFPS(taf_file.TAFFile):
             }
         )
         df = df[
-            [
-                col
-                for col in self.df.columns
-                if col not in ["resident_state_cd", "pcsa", "ruca_code"]
-            ]
+            df.columns.difference(
+                ["resident_state_cd", "pcsa", "ruca_code"]
+            ).tolist()
         ]
+
         df = df.assign(
             BENE_ZIP_CD=df["BENE_ZIP_CD"]
             .str.replace("[^a-zA-Z0-9]+", "", regex=True)
@@ -185,7 +192,8 @@ class TAFPS(taf_file.TAFFile):
             on="BENE_ZIP_CD",
         )
 
-        # RUCC codes were downloaded from https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372
+        # RUCC codes were downloaded from
+        # https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372
         df_rucc = pd.read_excel(
             os.path.join(zip_folder, "ruralurbancodes2013.xls"),
             sheet_name="Rural-urban Continuum Code 2013",
@@ -259,17 +267,12 @@ class TAFPS(taf_file.TAFFile):
         if df.index.name != index_col:
             df = df.set_index(index_col, sorted=True)
         self.dct_files["base"] = df
-        return None
 
-    def flag_dual(self) -> None:
+    def flag_dual(self):
         """
         Flags benes with  DUAL_ELGBL_CD equal to 1 (full dual), 2 (partial dual), or 3 (other dual) in any month are
-        flagged as duals
-        (Identifying beneficiaries with a substance use disorder
-        (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjr54OU2_73AhXITTABHad8A44QFnoECAMQAQ&url=https%3A%2F%2Fwww.medicaid.gov%2Fmedicaid%2Fdata-and-systems%2Fdownloads%2Fmacbis%2Fsud_techspecs.docx&usg=AOvVaw1gxCAo7cVF9FqJtrNhFov9))
-
-        Returns
-        -------
+        flagged as duals. Reference: [Identifying beneficiaries with a substance use disorder]
+        (https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx)
 
         """
         df = self.dct_files["base"]
@@ -319,8 +322,7 @@ class TAFPS(taf_file.TAFFile):
             7. Individual is eligible for Medicaid and entitled to Medicaid benefits under an alternative package of
             benchmark-equivalent coverage, as enacted by the Deficit Reduction Act of 2005.
 
-        (Identifying beneficiaries with a substance use disorder
-        (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjr54OU2_73AhXITTABHad8A44QFnoECAMQAQ&url=https%3A%2F%2Fwww.medicaid.gov%2Fmedicaid%2Fdata-and-systems%2Fdownloads%2Fmacbis%2Fsud_techspecs.docx&usg=AOvVaw1gxCAo7cVF9FqJtrNhFov9))
+        Reference: [Identifying beneficiaries with a substance use disorder](https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx))
 
         Returns
         -------
@@ -346,270 +348,27 @@ class TAFPS(taf_file.TAFFile):
         )
         self.dct_files["base"] = df
 
-    def add_eligibility_status_columns(self) -> None:
-        """
-        Add eligibility columns based on MAX_ELG_CD_MO_{month} values for each month.
-        MAX_ELG_CD_MO:00 = NOT ELIGIBLE, 99 = UNKNOWN ELIGIBILITY  => codes to denote ineligibility
-        New Column(s):
-                elg_mon_{month} - 0 or 1 value column, denoting eligibility for each month
-                total_elg_mon - No. of eligible months
-                elg_full_year - 0 or 1 value column, 1 if total_elg_mon = 12
-                elg_over_9mon - 0 or 1 value column, 1 if total_elg_mon >= 9
-                elg_over_6mon - 0 or 1 value column, 1 if total_elg_mon >= 6
-                elg_cont_6mon - 0 or 1 value column, 1 if patient has 6 continuous eligible months
-                mas_elg_change - 0 or 1 value column, 1 if patient had multiple mas group memberships during claim year
-                mas_assignments - comma separated list of MAS assignments
-                boe_assignments - comma separated list of BOE assignments
-                dominant_boe_group - BOE status held for the most number of months
-                boe_elg_change - 0 or 1 value column, 1 if patient had multiple boe group memberships during claim year
-                child_boe_elg_change - 0 or 1 value column, 1 if patient had multiple boe group memberships during claim year
-                elg_change - 0 or 1 value column, 1 if patient had multiple eligibility group memberships during claim year
-                eligibility_aged - Eligibility as aged anytime during the claim year
-                eligibility_child - Eligibility as child anytime during the claim year
-                max_gap - Maximum gap in enrollment in months
-                max_cont_enrollment - Maximum duration of continuous enrollment
-        :param dataframe df:
-        :rtype: None
-        """
-        # MAS & BOE groups are arrived at from MAX_ELG_CD variable
-        # (https://resdac.org/sites/datadocumentation.resdac.org/files/MAX%20UNIFORM%20ELIGIBILITY%20CODE%20TABLE.txt)
-        # FARA year 2 peds paper decided to collapse BOE assignments, combining disabled and child groups
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            f"MAS_ELG_MON_{mon}",
-                            pdf[f"MAX_ELG_CD_MO_{mon}"]
-                            .where(
-                                ~(
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .str.strip()
-                                    .isin(["00", "99", "", "."])
-                                    | pdf[f"MAX_ELG_CD_MO_{mon}"].isna()
-                                ),
-                                "99",
-                            )
-                            .astype(str)
-                            .str.strip()
-                            .str[:1],
-                        )
-                        for mon in range(1, 13)
-                    ]
-                )
-            )
-        )
-        # TODO: Try to eliminate the use of apply
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
-                mas_elg_change=(
-                    pdf[[f"MAS_ELG_MON_{mon}" for mon in range(1, 13)]]
-                    .replace("9", np.nan)
-                    .nunique(axis=1, dropna=True)
-                    > 1
-                ).astype(int),
-                mas_assignments=pdf[
-                    [f"MAS_ELG_MON_{mon}" for mon in range(1, 13)]
-                ]
-                .replace("9", "")
-                .apply(
-                    lambda x: ",".join(set(",".join(x).split(","))), axis=1
-                ),
-            )
-        )
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            f"BOE_ELG_MON_{mon}",
-                            np.select(
-                                [
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(["11", "21", "31", "41"]),  # aged
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(["12", "22", "32", "42"]),
-                                    # blind / disabled
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(
-                                        ["14", "16", "24", "34", "44", "48"]
-                                    ),  # child
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(
-                                        ["15", "17", "25", "35", "3A", "45"]
-                                    ),  # adult
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(["51", "52", "54", "55"]),
-                                ],
-                                # state demonstration EXPANSION
-                                [1, 2, 3, 4, 5],
-                                default=6,
-                            ),
-                        )
-                        for mon in range(1, 13)
-                    ]
-                    + [
-                        (
-                            f"CHILD_BOE_ELG_MON_{mon}",
-                            np.select(
-                                [
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(["11", "21", "31", "41"]),  # aged
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(
-                                        [
-                                            "12",
-                                            "22",
-                                            "32",
-                                            "42",
-                                            "14",
-                                            "16",
-                                            "24",
-                                            "34",
-                                            "44",
-                                            "48",
-                                        ]
-                                    ),
-                                    # blind / disabled OR CHILD
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(
-                                        ["15", "17", "25", "35", "3A", "45"]
-                                    ),  # adult
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(["51", "52", "54", "55"]),
-                                ],
-                                # state demonstration EXPANSION
-                                [1, 2, 3, 4],
-                                default=5,
-                            ),
-                        )
-                        for mon in range(1, 13)
-                    ]
-                )
-            )
-        )
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
-                boe_elg_change=(
-                    pdf[[f"BOE_ELG_MON_{mon}" for mon in range(1, 13)]]
-                    .replace(6, np.nan)
-                    .nunique(axis=1, dropna=True)
-                    > 1
-                ).astype(int),
-                child_boe_elg_change=(
-                    pdf[[f"CHILD_BOE_ELG_MON_{mon}" for mon in range(1, 13)]]
-                    .replace(5, np.nan)
-                    .nunique(axis=1, dropna=True)
-                    > 1
-                ).astype(int),
-                boe_assignments=pdf[
-                    [f"BOE_ELG_MON_{mon}" for mon in range(1, 13)]
-                ]
-                .astype(str)
-                .apply(
-                    lambda x: ",".join(set(",".join(x).split(","))), axis=1
-                ),
-                dominant_boe_grp=pdf[
-                    [f"BOE_ELG_MON_{mon}" for mon in range(1, 13)]
-                ]
-                .replace(6, np.nan)
-                .mode(axis=1, dropna=True)[0]
-                .fillna(6)
-                .astype(int),
-            )
-        )
-
-        self.df = self.df.assign(
-            elg_change=(
-                self.df[["boe_elg_change", "mas_elg_change"]].sum(axis=1) > 0
-            ).astype(int),
-            eligibility_aged=(
-                self.df[[f"BOE_ELG_MON_{mon}" for mon in range(1, 13)]] == 1
-            ).any(axis="columns"),
-            eligibility_child=(
-                self.df[[f"BOE_ELG_MON_{mon}" for mon in range(1, 13)]] == 3
-            ).any(axis="columns"),
-        )
-
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            f"elg_mon_{mon}",
-                            (
-                                ~(
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .str.strip()
-                                    .isin(["00", "99", "", "."])
-                                    | pdf[f"MAX_ELG_CD_MO_{mon}"].isna()
-                                )
-                            ).astype(int),
-                        )
-                        for mon in range(1, 13)
-                    ]
-                )
-            )
-        )
-        self.df = self.df.assign(
-            total_elg_mon=self.df[[f"elg_mon_{i}" for i in range(1, 13)]].sum(
-                axis=1
-            )
-        )
-        self.df = self.df.assign(
-            elg_full_year=(self.df["total_elg_mon"] == 12).astype(int),
-            elg_over_9mon=(self.df["total_elg_mon"] >= 9).astype(int),
-            elg_over_6mon=(self.df["total_elg_mon"] >= 6).astype(int),
-        )
-
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
-                max_gap=pdf[[f"elg_mon_{mon}" for mon in range(1, 13)]]
-                .astype(int)
-                .astype(str)
-                .apply(lambda x: max(map(len, "".join(x).split("1"))), axis=1),
-                max_cont_enrollment=pdf[
-                    ["elg_mon_" + str(mon) for mon in range(1, 13)]
-                ]
-                .astype(int)
-                .astype(str)
-                .apply(lambda x: max(map(len, "".join(x).split("0"))), axis=1),
-            )
-        )
-        self.df = self.df.assign(
-            elg_cont_6mon=(self.df["max_cont_enrollment"] >= 6).astype(int)
-        )
-
-        lst_cols_to_delete = [f"MAS_ELG_MON_{mon}" for mon in range(1, 13)] + [
-            f"BOE_ELG_MON_{mon}" for mon in range(1, 13)
-        ]
-        self.df = self.df.drop(lst_cols_to_delete, axis=1)
-        return None
-
     def compute_enrollment_gaps(self):
-        """
-        Computes enrollment gaps using dates file
-
-        Returns
-        -------
-        None
-
-        """
+        """Computes enrollment gaps using dates file"""
         df = self.dct_files["dates"]
         df = dataframe_utils.fix_index(
             df, index_name=self.index_col, drop_column=False
         )
 
-        def fill_enrollment_gaps(pdf_dates):
+        def fill_enrollment_gaps(pdf_dates: pd.DataFrame) -> pd.DataFrame:
+            """
+            Adds enrollment gap column
+
+            Parameters
+            ----------
+            pdf_dates : pd.DataFrame
+                Dates dataframe
+
+            Returns
+            -------
+            pd.DataFrame
+
+            """
             pdf_dates = pdf_dates.reset_index(drop=True)
             pdf_dates = pdf_dates.sort_values(
                 [self.index_col, "ENRLMT_START_DT"], ascending=True
@@ -628,7 +387,7 @@ class TAFPS(taf_file.TAFFile):
             pdf_dates = pdf_dates.set_index(self.index_col)
             return pdf_dates
 
-        df = df.map_partitions(lambda pdf: fill_enrollment_gaps(pdf))
+        df = df.map_partitions(fill_enrollment_gaps)
         self.dct_files["dates"] = df
         df_gaps = df.loc[df["enrollment_gap"] > 0]
         df_gaps = df_gaps.map_partitions(

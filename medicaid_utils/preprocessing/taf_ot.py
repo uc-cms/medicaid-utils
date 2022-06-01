@@ -1,24 +1,54 @@
-import numpy as np
-import pandas as pd
-import sys
+"""This module has TAFOT class which wraps together cleaning/ preprocessing routines specific for TAF OT files"""
 
 from medicaid_utils.preprocessing import taf_file
-from medicaid_utils.common_utils import dataframe_utils
 
 
 class TAFOT(taf_file.TAFFile):
     def __init__(
         self,
-        year,
-        state,
-        data_root,
-        index_col="BENE_MSIS",
-        clean=True,
-        preprocess=True,
-        tmp_folder=None,
+        year: int,
+        state: str,
+        data_root: str,
+        index_col: str = "BENE_MSIS",
+        clean: bool = True,
+        preprocess: bool = True,
+        tmp_folder: str = None,
+        pq_engine: str = "pyarrow",
     ):
-        super(TAFOT, self).__init__(
-            "ot", year, state, data_root, index_col, False, False, tmp_folder
+        """
+        Initializes TAF OT file object by preloading and preprocessing(if opted in) the associated files
+
+        Parameters
+        ----------
+        year : int
+            Year of claim file
+        state : str
+            State of claim file
+        data_root : str
+            Root folder of raw claim files
+        index_col : str, default='BENE_MSIS'
+            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
+        sorted with index column
+        clean : bool, default=True
+            Should the associated files be cleaned?
+        preprocess : bool, default=True
+            Should the associated files be preprocessed?
+        tmp_folder : str, default=None
+            Folder location to use for caching intermediate results. Can be turned off by not passing this argument.
+        pq_engine : str, default='pyarrow'
+            Parquet engine to use
+
+        """
+        super().__init__(
+            "ot",
+            year,
+            state,
+            data_root,
+            index_col,
+            False,
+            False,
+            tmp_folder,
+            pq_engine=pq_engine,
         )
         self.dct_default_filters = {"missing_dob": 0, "duplicated": 0}
         if clean:
@@ -27,15 +57,30 @@ class TAFOT(taf_file.TAFFile):
             self.preprocess()
 
     def clean(self):
-        super(TAFOT, self).clean()
+        """Cleaning routines to clean diagnosis & procedure code columns, processes date and gender columns,
+        and add duplicate check flags."""
+        super().clean()
         self.clean_diag_codes()
         self.clean_proc_codes()
         self.flag_common_exclusions()
         self.flag_duplicates()
 
-    def flag_common_exclusions(self) -> None:
+    def preprocess(self):
+        """Add basic constructed variables"""
+
+    def flag_common_exclusions(self):
+        """
+        Adds commonly used IP claim exclusion flag columns.
+        New Columns:
+
+            - ffs_or_encounter_claim, 0 or 1, 1 when base claim is an FFS or Encounter claim
+            - excl_missing_dob, 0 or 1, 1 when base claim does not have birth date
+            - excl_missing_srvc_bgn_date, 0 or 1, 1 when base claim does not have service begin date
+
+        """
         self.flag_ffs_and_encounter_claims()
-        self.df = self.df.map_partitions(
+        df = self.dct_files["base"]
+        df = df.map_partitions(
             lambda pdf: pdf.assign(
                 excl_missing_dob=pdf["birth_date"].isnull().astype(int),
                 excl_missing_srvc_bgn_date=pdf["srvc_bgn_date"]
@@ -43,3 +88,4 @@ class TAFOT(taf_file.TAFFile):
                 .astype(int),
             )
         )
+        self.dct_files["base"] = df

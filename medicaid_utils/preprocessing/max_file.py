@@ -39,7 +39,8 @@ class MAXFile:
         data_root : str
             Root folder of raw claim files
         index_col : str, default='BENE_MSIS'
-            Index column name
+            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
+        sorted with index column
         clean : bool, default=True
             Should the associated files be cleaned?
         preprocess : bool, default=True
@@ -141,20 +142,14 @@ class MAXFile:
         return self.df
 
     def clean(self):
-        """
-        Cleaning routines to processes date and gender columns
-
-        """
+        """Cleaning routines to processes date and gender columns"""
         # Date columns will be cleaned and all commonly used date based variables are constructed
         # in this step
         self.process_date_cols()
         self.add_gender()
 
     def preprocess(self):
-        """
-        Add basic constructed variables
-
-        """
+        """Add basic constructed variables"""
 
     def export(
         self, dest_folder, output_format="csv"
@@ -180,11 +175,8 @@ class MAXFile:
             )
 
     def add_gender(self) -> None:
-        """
-        Adds integer 'female' column based on 'EL_SEX_CD' column. Undefined values ('U') in EL_SEX_CD column will
-        result in female column taking the value np.nan
-
-        """
+        """Adds integer 'female' column based on 'EL_SEX_CD' column. Undefined values ('U') in EL_SEX_CD column will
+        result in female column taking the value np.nan"""
         if "EL_SEX_CD" in self.df.columns:
             self.df = self.df.map_partitions(
                 lambda pdf: pdf.assign(
@@ -200,10 +192,7 @@ class MAXFile:
             )
 
     def clean_diag_codes(self):
-        """
-        Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case
-
-        """
+        """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
         if (
             len([col for col in self.df.columns if col.startswith("DIAG_CD_")])
             > 0
@@ -221,10 +210,7 @@ class MAXFile:
             )
 
     def clean_proc_codes(self):
-        """
-        Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case
-
-        """
+        """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
         if (
             len(
                 [
@@ -471,14 +457,11 @@ class MAXFile:
                 )
             self.df = df
 
-    def calculate_payment(self) -> None:
+    def calculate_payment(self):
         """
         Calculates payment amount
         New Column(s):
                 pymt_amt - "MDCD_PYMT_AMT" + "TP_PYMT_AMT"
-
-        Returns
-        -------
 
         """
         # cost
