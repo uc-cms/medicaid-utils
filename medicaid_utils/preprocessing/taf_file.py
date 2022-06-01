@@ -141,11 +141,26 @@ class TAFFile:
 
         """
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
-        self.dct_files[f_subtype].to_parquet(
-            dest_path_and_fname + "_tmp",
-            engine=self.pq_engine,
-            write_index=True,
-        )
+        try:
+            self.dct_files[f_subtype].to_parquet(
+                dest_path_and_fname + "_tmp",
+                engine=self.pq_engine,
+                write_index=True,
+            )
+        except Exception:  # pylint: disable=broad-except
+            self.dct_files[f_subtype].to_parquet(
+                dest_path_and_fname + "_tmp",
+                engine={"fastparquet", "pyarrow"}
+                .difference([self.pq_engine])
+                .pop(),
+                write_index=True,
+                *(
+                    {"schema": "infer"}
+                    if (self.pq_engine == "pyarrow")
+                    else {}
+                ),
+            )
+
         del self.dct_files[f_subtype]
         shutil.rmtree(dest_path_and_fname, ignore_errors=True)
         os.rename(dest_path_and_fname + "_tmp", dest_path_and_fname)
@@ -407,7 +422,10 @@ class TAFFile:
                     if col in df.columns
                 }
                 df = df.assign(
-                    **{dct_date_col[col]: df[col] for col in dct_date_col}
+                    **{
+                        new_name: df[col]
+                        for col, new_name in dct_date_col.items()
+                    }
                 )
 
                 # converting lst_col columns to datetime type

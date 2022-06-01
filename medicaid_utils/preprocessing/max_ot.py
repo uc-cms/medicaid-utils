@@ -10,7 +10,7 @@ class MAXOT(max_file.MAXFile):
     def __init__(
         self,
         year,
-        st,
+        state,
         data_root,
         index_col="BENE_MSIS",
         clean=True,
@@ -19,7 +19,7 @@ class MAXOT(max_file.MAXFile):
         tmp_folder=None,
     ):
         super(MAXOT, self).__init__(
-            "ot", year, st, data_root, index_col, False, False, tmp_folder
+            "ot", year, state, data_root, index_col, False, False, tmp_folder
         )
         self.dct_default_filters = {
             "missing_dob": 0,
