@@ -14,8 +14,8 @@ def flag_preterm(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     dct_diag_codes = {
         "preterm": {
-            "incl": ["6440", "6442", "7651", "7650", "7652"],
-            "excl": ["76520", "76529"],
+            "incl": {9: ["6440", "6442", "7651", "7650", "7652"]},
+            "excl": {9: ["76520", "76529"]},
         }
     }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
@@ -35,7 +35,7 @@ def flag_multiple_births(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     dct_diag_codes = {
         "multiple_births": {
-            "incl": ["V272", "V273", "V274", "V275", "V276", "V277"]
+            "incl": {9: ["V272", "V273", "V274", "V275", "V276", "V277"]}
         }
     }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
@@ -106,7 +106,7 @@ def flag_abnormal_pregnancy(df_claims: dd.DataFrame) -> dd.DataFrame:
     :param df_claims:
     :rtype: dd.DataFrame
     """
-    dct_diag_codes = {"abnormal_pregnancy": {"incl": ["63"]}}
+    dct_diag_codes = {"abnormal_pregnancy": {"incl": {9: ["63"]}}}
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
         dct_diag_codes, {}, df_claims
     )
@@ -117,7 +117,7 @@ def flag_abnormal_pregnancy(df_claims: dd.DataFrame) -> dd.DataFrame:
 
 
 def flag_prenatal(df_claims: dd.DataFrame) -> dd.DataFrame:
-    dct_diag_codes = {"prenatal": {"incl": ["V22", "V23"]}}
+    dct_diag_codes = {"prenatal": {"incl": {9: ["V22", "V23"]}}}
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
         dct_diag_codes, {}, df_claims
     )
@@ -159,51 +159,57 @@ def flag_smm_events(
     :return:
     """
     dct_diag_codes = {
-        "smm_myo": {"incl": ["410"]},
-        "smm_aneurysm": {"incl": ["441"]},
+        "smm_myo": {"incl": {9: ["410"]}},
+        "smm_aneurysm": {"incl": {9: ["441"]}},
         "smm_renal": {
-            "incl": ["5845", "5846", "5847", "5848", "5849", "6693"]
+            "incl": {9: ["5845", "5846", "5847", "5848", "5849", "6693"]}
         },
         "smm_respiratory": {
-            "incl": ["5185", "51881", "51882", "51884", "7991"]
+            "incl": {9: ["5185", "51881", "51882", "51884", "7991"]}
         },
-        "smm_embolism": {"incl": ["6731"]},
-        "smm_cardiac": {"incl": ["42741", "42742", "4275"]},
-        "smm_coagulation": {"incl": ["2866", "2869", "6663"]},
-        "smm_eclampsia": {"incl": ["6426"]},
-        "smm_heart": {"incl": ["9971"]},
+        "smm_embolism": {"incl": {9: ["6731"]}},
+        "smm_cardiac": {"incl": {9: ["42741", "42742", "4275"]}},
+        "smm_coagulation": {"incl": {9: ["2866", "2869", "6663"]}},
+        "smm_eclampsia": {"incl": {9: ["6426"]}},
+        "smm_heart": {"incl": {9: ["9971"]}},
         "smm_cerebrovascular": {
-            "incl": [
-                "430",
-                "431",
-                "432",
-                "433",
-                "434",
-                "436",
-                "437",
-                "6715",
-                "6740",
-                "99702",
-            ]
+            "incl": {
+                9: [
+                    "430",
+                    "431",
+                    "432",
+                    "433",
+                    "434",
+                    "436",
+                    "437",
+                    "6715",
+                    "6740",
+                    "99702",
+                ]
+            }
         },
         "smm_edema": {
-            "incl": [
-                "5184",
-                "4281",
-                "4280",
-                "42821",
-                "42823",
-                "42831",
-                "42833",
-                "42841",
-                "42843",
-            ]
+            "incl": {
+                9: [
+                    "5184",
+                    "4281",
+                    "4280",
+                    "42821",
+                    "42823",
+                    "42831",
+                    "42833",
+                    "42841",
+                    "42843",
+                ]
+            }
         },
-        "smm_anesthesia": {"incl": ["6680", "6681", "6682"]},
-        "smm_sepsis": {"incl": ["038", "6702", "99591", "99592"]},
-        "smm_shock": {"incl": ["6691", "7855", "9980", "9950", "9954"]},
-        "smm_sickle": {"incl": ["28242", "28262", "28264", "28269"]},
-        "smm_thrombotic": {"incl": ["4151", "6730", "6732", "6733", "6738"]},
+        "smm_anesthesia": {"incl": {9: ["6680", "6681", "6682"]}},
+        "smm_sepsis": {"incl": {9: ["038", "6702", "99591", "99592"]}},
+        "smm_shock": {"incl": {9: ["6691", "7855", "9980", "9950", "9954"]}},
+        "smm_sickle": {"incl": {9: ["28242", "28262", "28264", "28269"]}},
+        "smm_thrombotic": {
+            "incl": {9: ["4151", "6730", "6732", "6733", "6738"]}
+        },
     }
     dct_proc_codes = {
         "smm_cardiac_rhythm": {2: ["996"]},
