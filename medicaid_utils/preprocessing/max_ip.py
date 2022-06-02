@@ -18,6 +18,30 @@ class MAXIP(max_file.MAXFile):
         tmp_folder: str = None,
         pq_engine: str = "pyarrow",
     ):
+        """
+        Initializes MAX OT file object by preloading and preprocessing(if opted in) the file
+
+        Parameters
+        ----------
+        year : int
+            Year of claim file
+        state : str
+            State of claim file
+        data_root : str
+            Root folder of raw claim files
+        index_col : str, default='BENE_MSIS'
+            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
+        sorted with index column
+        clean : bool, default=True
+            Should the associated files be cleaned?
+        preprocess : bool, default=True
+            Should the associated files be preprocessed?
+        tmp_folder : str, default=None
+            Folder location to use for caching intermediate results. Can be turned off by not passing this argument.
+        pq_engine : str, default='pyarrow'
+            Parquet engine to use
+
+        """
         super().__init__(
             "ip",
             year,
@@ -37,6 +61,7 @@ class MAXIP(max_file.MAXFile):
             self.preprocess()
 
     def clean(self):
+        """Runs cleaning routines and adds common exclusion flags based on default filters"""
         super().clean()
         self.clean_diag_codes()
         self.clean_proc_codes()
@@ -44,6 +69,7 @@ class MAXIP(max_file.MAXFile):
         self.flag_duplicates()
 
     def preprocess(self):
+        """Adds payment, ed use, and overlap flags"""
         self.calculate_payment()
         self.flag_ed_use()
         self.flag_ip_overlaps()

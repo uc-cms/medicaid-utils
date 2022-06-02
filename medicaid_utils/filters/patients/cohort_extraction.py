@@ -128,7 +128,7 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
     )
     logger.info(
         "%s (%d) has %d %s %sclaims",
-        claim.st,
+        claim.state,
         claim.year,
         df_filter_counts.N.values[0],
         claim.ftype,

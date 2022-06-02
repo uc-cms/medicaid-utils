@@ -60,7 +60,7 @@ class MAXFile:
         self.ftype = ftype
         self.index_col = index_col
         self.year = year
-        self.st = state
+        self.state = state
         self.tmp_folder = tmp_folder
         if not os.path.exists(self.fileloc):
             raise FileNotFoundError(
@@ -168,7 +168,7 @@ class MAXFile:
         if output_format == "csv":
             self.df.to_csv(
                 os.path.join(
-                    dest_folder, f"{self.ftype}_{self.year}_{self.st}.csv"
+                    dest_folder, f"{self.ftype}_{self.year}_{self.state}.csv"
                 ),
                 index=True,
                 single_file=True,

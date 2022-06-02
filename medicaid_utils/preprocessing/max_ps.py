@@ -54,7 +54,7 @@ class MAXPS(max_file.MAXFile):
             Parquet engine to use
 
         """
-        super(MAXPS, self).__init__(
+        super().__init__(
             "ps",
             year,
             state,
@@ -75,12 +75,14 @@ class MAXPS(max_file.MAXFile):
             self.preprocess(rural_method)
 
     def clean(self):
-        """Runs cleaning routines and created common exclusion flags based on default filters"""
-        super(MAXPS, self).clean()
+        """Runs cleaning routines and adds common exclusion flags based on default filters"""
+        super().clean()
         self.flag_common_exclusions()
         self.df = self.cache_results()
 
-    def preprocess(self, rural_method="ruca"):
+    def preprocess(
+        self, rural_method="ruca"
+    ):  # pylint: disable=missing-param-doc
         """
         Adds rural, eligibility criteria, dual, and restricted benefits indicator variables
 
@@ -96,12 +98,12 @@ class MAXPS(max_file.MAXFile):
         self.flag_restricted_benefits()
         self.df = self.cache_results()
 
-    def flag_common_exclusions(self) -> None:
+    def flag_common_exclusions(self):
         """
         Adds exclusion flags
         New Column(s):
-                excl_duplicated_bene_id - 0 or 1, 1 when bene's index column is repeated
-        :return:
+            - excl_duplicated_bene_id - 0 or 1, 1 when bene's index column is repeated
+
         """
         self.df = self.df.assign(
             **dict([(f"_{self.index_col}", self.df.index)])
@@ -119,12 +121,12 @@ class MAXPS(max_file.MAXFile):
         )
         self.df = self.df.drop([f"_{self.index_col}"], axis=1)
 
-    def flag_duals(self) -> None:
+    def flag_duals(self):
         """
         Flags dual patients
         New column(s):
             dual - 0 or 1 column, 0 if 0 <= EL_MDCR_DUAL_ANN <= 9 for years 2007, 2009, 2011
-                                          0 <= EL_MDCR_DUAL_ANN <= 9 for other years
+                                       0 <= EL_MDCR_DUAL_ANN <= 9 for other years
         """
         self.df = self.df.assign(
             dual=(
@@ -261,12 +263,10 @@ class MAXPS(max_file.MAXFile):
             on=["EL_RSDNC_CNTY_CD_LTST", "resident_state_cd"],
         )
         self.df = self.df.assign(
-            **dict(
-                [
-                    (col, dd.to_numeric(self.df[col], errors="coerce"))
-                    for col in ["rucc_code", "ruca_code"]
-                ]
-            )
+            **{
+                col: dd.to_numeric(self.df[col], errors="coerce")
+                for col in ["rucc_code", "ruca_code"]
+            }
         )
 
         # RUCA codes >= 4 denote rural and the rest denote urban
@@ -308,56 +308,49 @@ class MAXPS(max_file.MAXFile):
         """
         Add eligibility columns based on MAX_ELG_CD_MO_{month} values for each month.
         MAX_ELG_CD_MO:00 = NOT ELIGIBLE, 99 = UNKNOWN ELIGIBILITY  => codes to denote ineligibility
+
         New Column(s):
-                elg_mon_{month} - 0 or 1 value column, denoting eligibility for each month
-                total_elg_mon - No. of eligible months
-                elg_full_year - 0 or 1 value column, 1 if total_elg_mon = 12
-                elg_over_9mon - 0 or 1 value column, 1 if total_elg_mon >= 9
-                elg_over_6mon - 0 or 1 value column, 1 if total_elg_mon >= 6
-                elg_cont_6mon - 0 or 1 value column, 1 if patient has 6 continuous eligible months
-                mas_elg_change - 0 or 1 value column, 1 if patient had multiple mas group memberships during claim year
-                mas_assignments - comma separated list of MAS assignments
-                boe_assignments - comma separated list of BOE assignments
-                dominant_boe_group - BOE status held for the most number of months
-                boe_elg_change - 0 or 1 value column, 1 if patient had multiple boe group memberships during claim year
-                child_boe_elg_change - 0 or 1 value column, 1 if patient had multiple boe group memberships during claim year
-                elg_change - 0 or 1 value column, 1 if patient had multiple eligibility group memberships during claim year
-                eligibility_aged - Eligibility as aged anytime during the claim year
-                eligibility_child - Eligibility as child anytime during the claim year
-                max_gap - Maximum gap in enrollment in months
-                max_cont_enrollment - Maximum duration of continuous enrollment
-        :param dataframe df:
-        :rtype: None
+            - elg_mon_{month} - 0 or 1 value column, denoting eligibility for each month
+            - total_elg_mon - No. of eligible months
+            - elg_full_year - 0 or 1 value column, 1 if total_elg_mon = 12
+            - elg_over_9mon - 0 or 1 value column, 1 if total_elg_mon >= 9
+            - elg_over_6mon - 0 or 1 value column, 1 if total_elg_mon >= 6
+            - elg_cont_6mon - 0 or 1 value column, 1 if patient has 6 continuous eligible months
+            - mas_elg_change - 0 or 1 value column, 1 if patient had multiple mas group memberships during claim year
+            - mas_assignments - comma separated list of MAS assignments
+            - boe_assignments - comma separated list of BOE assignments
+            - dominant_boe_group - BOE status held for the most number of months
+            - boe_elg_change - 0 or 1 value column, 1 if patient had multiple boe group memberships during claim year
+            - child_boe_elg_change - 0 or 1 value column, 1 if patient had multiple boe group memberships during claim year
+            - elg_change - 0 or 1 value column, 1 if patient had multiple eligibility group memberships during claim year
+            - eligibility_aged - Eligibility as aged anytime during the claim year
+            - eligibility_child - Eligibility as child anytime during the claim year
+            - max_gap - Maximum gap in enrollment in months
+            - max_cont_enrollment - Maximum duration of continuous enrollment
         """
         # MAS & BOE groups are arrived at from MAX_ELG_CD variable
         # (https://resdac.org/sites/datadocumentation.resdac.org/files/MAX%20UNIFORM%20ELIGIBILITY%20CODE%20TABLE.txt)
         # FARA year 2 peds paper decided to collapse BOE assignments, combining disabled and child groups
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            f"MAS_ELG_MON_{mon}",
+                **{
+                    f"MAS_ELG_MON_{mon}": pdf[f"MAX_ELG_CD_MO_{mon}"]
+                    .where(
+                        ~(
                             pdf[f"MAX_ELG_CD_MO_{mon}"]
-                            .where(
-                                ~(
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .str.strip()
-                                    .isin(["00", "99", "", "."])
-                                    | pdf[f"MAX_ELG_CD_MO_{mon}"].isna()
-                                ),
-                                "99",
-                            )
-                            .astype(str)
                             .str.strip()
-                            .str[:1],
-                        )
-                        for mon in range(1, 13)
-                    ]
-                )
+                            .isin(["00", "99", "", "."])
+                            | pdf[f"MAX_ELG_CD_MO_{mon}"].isna()
+                        ),
+                        "99",
+                    )
+                    .astype(str)
+                    .str.strip()
+                    .str[:1]
+                    for mon in range(1, 13)
+                }
             )
         )
-        # TODO: Try to eliminate the use of apply
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
                 mas_elg_change=(
@@ -377,82 +370,76 @@ class MAXPS(max_file.MAXFile):
         )
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            f"BOE_ELG_MON_{mon}",
-                            np.select(
-                                [
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(["11", "21", "31", "41"]),  # aged
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(["12", "22", "32", "42"]),
-                                    # blind / disabled
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(
-                                        ["14", "16", "24", "34", "44", "48"]
-                                    ),  # child
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(
-                                        ["15", "17", "25", "35", "3A", "45"]
-                                    ),  # adult
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(["51", "52", "54", "55"]),
-                                ],
-                                # state demonstration EXPANSION
-                                [1, 2, 3, 4, 5],
-                                default=6,
-                            ),
+                **{
+                    **{
+                        f"BOE_ELG_MON_{mon}": np.select(
+                            [
+                                pdf[f"MAX_ELG_CD_MO_{mon}"]
+                                .astype(str)
+                                .isin(["11", "21", "31", "41"]),  # aged
+                                pdf[f"MAX_ELG_CD_MO_{mon}"]
+                                .astype(str)
+                                .isin(["12", "22", "32", "42"]),
+                                # blind / disabled
+                                pdf[f"MAX_ELG_CD_MO_{mon}"]
+                                .astype(str)
+                                .isin(
+                                    ["14", "16", "24", "34", "44", "48"]
+                                ),  # child
+                                pdf[f"MAX_ELG_CD_MO_{mon}"]
+                                .astype(str)
+                                .isin(
+                                    ["15", "17", "25", "35", "3A", "45"]
+                                ),  # adult
+                                pdf[f"MAX_ELG_CD_MO_{mon}"]
+                                .astype(str)
+                                .isin(["51", "52", "54", "55"]),
+                            ],
+                            # state demonstration EXPANSION
+                            [1, 2, 3, 4, 5],
+                            default=6,
                         )
                         for mon in range(1, 13)
-                    ]
-                    + [
-                        (
-                            f"CHILD_BOE_ELG_MON_{mon}",
-                            np.select(
-                                [
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(["11", "21", "31", "41"]),  # aged
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(
-                                        [
-                                            "12",
-                                            "22",
-                                            "32",
-                                            "42",
-                                            "14",
-                                            "16",
-                                            "24",
-                                            "34",
-                                            "44",
-                                            "48",
-                                        ]
-                                    ),
-                                    # blind / disabled OR CHILD
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(
-                                        ["15", "17", "25", "35", "3A", "45"]
-                                    ),  # adult
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .astype(str)
-                                    .isin(["51", "52", "54", "55"]),
-                                ],
-                                # state demonstration EXPANSION
-                                [1, 2, 3, 4],
-                                default=5,
-                            ),
+                    },
+                    **{
+                        f"CHILD_BOE_ELG_MON_{mon}": np.select(
+                            [
+                                pdf[f"MAX_ELG_CD_MO_{mon}"]
+                                .astype(str)
+                                .isin(["11", "21", "31", "41"]),  # aged
+                                pdf[f"MAX_ELG_CD_MO_{mon}"]
+                                .astype(str)
+                                .isin(
+                                    [
+                                        "12",
+                                        "22",
+                                        "32",
+                                        "42",
+                                        "14",
+                                        "16",
+                                        "24",
+                                        "34",
+                                        "44",
+                                        "48",
+                                    ]
+                                ),
+                                # blind / disabled OR CHILD
+                                pdf[f"MAX_ELG_CD_MO_{mon}"]
+                                .astype(str)
+                                .isin(
+                                    ["15", "17", "25", "35", "3A", "45"]
+                                ),  # adult
+                                pdf[f"MAX_ELG_CD_MO_{mon}"]
+                                .astype(str)
+                                .isin(["51", "52", "54", "55"]),
+                            ],
+                            # state demonstration EXPANSION
+                            [1, 2, 3, 4],
+                            default=5,
                         )
                         for mon in range(1, 13)
-                    ]
-                )
+                    },
+                }
             )
         )
         self.df = self.df.map_partitions(
@@ -500,22 +487,15 @@ class MAXPS(max_file.MAXFile):
 
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            f"elg_mon_{mon}",
-                            (
-                                ~(
-                                    pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                    .str.strip()
-                                    .isin(["00", "99", "", "."])
-                                    | pdf[f"MAX_ELG_CD_MO_{mon}"].isna()
-                                )
-                            ).astype(int),
-                        )
-                        for mon in range(1, 13)
-                    ]
-                )
+                **{
+                    f"elg_mon_{mon}": ~(
+                        pdf[f"MAX_ELG_CD_MO_{mon}"]
+                        .str.strip()
+                        .isin(["00", "99", "", "."])
+                        | pdf[f"MAX_ELG_CD_MO_{mon}"].isna()
+                    ).astype(int)
+                    for mon in range(1, 13)
+                }
             )
         )
         self.df = self.df.assign(
@@ -534,13 +514,24 @@ class MAXPS(max_file.MAXFile):
                 max_gap=pdf[[f"elg_mon_{mon}" for mon in range(1, 13)]]
                 .astype(int)
                 .astype(str)
-                .apply(lambda x: max(map(len, "".join(x).split("1"))), axis=1),
+                .apply(
+                    lambda x: max([len(gap) for gap in "".join(x).split("1")]),
+                    axis=1,
+                ),
                 max_cont_enrollment=pdf[
                     ["elg_mon_" + str(mon) for mon in range(1, 13)]
                 ]
                 .astype(int)
                 .astype(str)
-                .apply(lambda x: max(map(len, "".join(x).split("0"))), axis=1),
+                .apply(
+                    lambda x: max(
+                        [
+                            len(enrolled_months)
+                            for enrolled_months in "".join(x).split("0")
+                        ]
+                    ),
+                    axis=1,
+                ),
             )
         )
         self.df = self.df.assign(
@@ -551,43 +542,43 @@ class MAXPS(max_file.MAXFile):
             f"BOE_ELG_MON_{mon}" for mon in range(1, 13)
         ]
         self.df = self.df.drop(lst_cols_to_delete, axis=1)
-        return None
 
     def flag_restricted_benefits(self):
         """
         Checks individual's eligibility for various medicaid services, based on EL_RSTRCT_BNFT_FLG_{month} values,
-            1 = full scope; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE MONTH AND IS ENTITLED TO THE FULL SCOPE OF
+            - 1 = full scope; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE MONTH AND IS ENTITLED TO THE FULL SCOPE OF
                 MEDICAID BENEFITS.
-            2 = alien; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE MONTH BUT ONLY ENTITLED TO RESTRICTED BENEFITS
+            - 2 = alien; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE MONTH BUT ONLY ENTITLED TO RESTRICTED BENEFITS
                 BASED ON ALIEN STATUS
-            3 = dual
-            4 = pregnancy
-            5 = other, eg. substance abuse, medically needy
-            6 = family planning
-            7 = alternative package of benchmark equivalent coverage, 2011 data had no values of 7 and 8
-            8 = "money follows the person" rebalancing demonstration, 2011 data had no values of 7 and 8
-            9 = unknown
-            A = Psychiatric residential treatments demonstration
-            B = Health Opportunity Account
-            C = CHIP dental coverage, supplemental to employer sponsored insurance
-            W = Medicaid health insurance premium payment assistance (MA, NJ, VT, OK)
-            X = rx drug
-            Y = drug and dual
-            Z = drug and dual, but Medicaid was not paying for the benefits
+            - 3 = dual
+            - 4 = pregnancy
+            - 5 = other, eg. substance abuse, medically needy
+            - 6 = family planning
+            - 7 = alternative package of benchmark equivalent coverage, 2011 data had no values of 7 and 8
+            - 8 = "money follows the person" rebalancing demonstration, 2011 data had no values of 7 and 8
+            - 9 = unknown
+            - A = Psychiatric residential treatments demonstration
+            - B = Health Opportunity Account
+            - C = CHIP dental coverage, supplemental to employer sponsored insurance
+            - W = Medicaid health insurance premium payment assistance (MA, NJ, VT, OK)
+            - X = rx drug
+            - Y = drug and dual
+            - Z = drug and dual, but Medicaid was not paying for the benefits.
+
+        Benefits are non-comprehensive (restricted) when EL_RSTRCT_BNFT_FLG_{month} has any of the below values:
+            - "2", "3", "6" - for states other than "AR", "ID", "SD"
+            - "2", "4", "3", "6" - for states "AR", "ID", "SD"
+
         New column(s):
-            FLSCOPE_MON{month} - 0 or 1 column, 1 when individual is eligible for full scope benefits for the
-                                corresponding month
-            rstrct{1|2|3|4|5|6|7|8|9|W|X|Y|Z} - 0 or 1 column, 1 when individual belongs to the corresponding
-                                                eligibility category, in any of the months
-            TotMonFullBnft - Number of months individual qualified for full scope benefits
-            RstrctBnft - 0 or 1 column, 1 when individual was ineligible for full scope benefits in any of the months
-            RstrctPregnancy - 0 or 1 column, 1 when individual was eligible for pregnancy benefits in any of the months
-        :param dataframe df: Patient Summary
-        :rtype: None
+            - any_restricted_benefit_month - 0 or 1, 1 when bene's benefits are restricted for atleast 1 month
+            - restricted_benefit_months - Number of restricted benefit months
+            - restricted_benefits - 0 or 1, 1 when number of restricted benefit months are more than the number of
+            number of months the bene was enrolled in medicaid
+
         """
         lst_excluded_restricted_benefit_code = (
             ["2", "3", "6"]
-            if self.st not in ["AR", "ID", "SD"]
+            if self.state not in ["AR", "ID", "SD"]
             else ["2", "4", "3", "6"]
         )
 

@@ -61,7 +61,7 @@ class TAFFile:
         self.ftype = ftype
         self.index_col = index_col
         self.year = year
-        self.st = state
+        self.state = state
         self.tmp_folder = tmp_folder
         self.pq_engine = pq_engine
         self.allowed_missing_ftypes = [
@@ -196,7 +196,7 @@ class TAFFile:
                 self.dct_files[subtype].to_csv(
                     os.path.join(
                         dest_folder,
-                        f"{self.ftype}_{subtype}_{self.year}_{self.st}.csv",
+                        f"{self.ftype}_{subtype}_{self.year}_{self.state}.csv",
                     ),
                     index=True,
                     single_file=True,
