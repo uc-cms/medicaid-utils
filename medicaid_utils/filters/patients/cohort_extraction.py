@@ -37,7 +37,8 @@ def apply_range_filter(  # pylint: disable=missing-param-doc
     df : dd.DataFrame
         Dataframe to be filtered
     filter_name : str
-        Name of filter
+        Name of filter. Should be of the format range_[datatype]_[col_name]. date and numeric range type filters are
+        currently supported
     col_name : str
         Name of column
     data_type : str
@@ -92,7 +93,25 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
     claim : Union[max_file.MAXFile, taf_file.TAFFile]
         Claim object
     dct_claim_filters : dict
-        Filters to apply
+        Filters to apply. Filter dictionary should be of the format:
+        {claim_type_1: {range_[datatype]_[col_name]: (start, end),
+                        excl_[col_name]: [0/1],
+                        [col_name]: value,
+                        ..}
+        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with
+        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
+        names that are just column names will restrict the result to benes with the filter value for the corresponding
+        column.
+        Eg: {'ip': {'range_numeric_age_prncpl_proc': (0, 18),
+                                      'missing_dob': 0,
+                                      'excl_female': 1}}
+                              'ot': {'range_numeric_age_srvc_bgn': (0, 18),
+                                      'missing_dob': 0,
+                                      'excl_female': 1}}
+                              }
+        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
+        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
+        prinicipal procedure data/ service begin date.
     tmp_folder : str
         Temporary folder to cache results mid-processing. This is useful for large datasets, as the dask cluster can
         crash if the task graph is too large for large datasets. This is handled by caching results at intermediate
@@ -153,7 +172,10 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
 
         elif f"excl_{filter_name}" in df_claim.columns:
             df_claim = df_claim.loc[
-                ~(df_claim[f"excl_{filter_name}"] == int(dct_filter[filter_name] == 0))
+                ~(
+                    df_claim[f"excl_{filter_name}"]
+                    == int(dct_filter[filter_name] == 0)
+                )
             ]
         elif filter_name.startswith("excl_") and (
             filter_name in df_claim.columns
@@ -229,9 +251,46 @@ def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
             Eg: {'methadone_7': {7: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,'
                                    'HZ96ZZZ'.split(",")}}
     dct_cohort_filters : dict
-        Cohort filters
+        Filters to apply to the cohort. Filter dictionary should be of the format:
+        {claim_type_1: {range_[datatype]_[col_name]: (start, end),
+                        excl_[col_name]: [0/1],
+                        [col_name]: value,
+                        ..}
+        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with
+        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
+        names that are just column names will restrict the result to benes with the filter value for the corresponding
+        column.
+        Eg: {'ip': {'range_numeric_age_prncpl_proc': (0, 18),
+                                      'missing_dob': 0,
+                                      'excl_female': 1}}
+                              'ot': {'range_numeric_age_srvc_bgn': (0, 18),
+                                      'missing_dob': 0,
+                                      'excl_female': 1}}
+                              }
+        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
+        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
+        prinicipal procedure data/ service begin date.
     dct_export_filters : dict
-        Export filters
+        Additional filters that should be applied to the raw claims of the selected cohort. Filter dictionary should be
+        of the format:
+        {claim_type_1: {range_[datatype]_[col_name]: (start, end),
+                        excl_[col_name]: [0/1],
+                        [col_name]: value,
+                        ..}
+        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with
+        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
+        names that are just column names will restrict the result to benes with the filter value for the corresponding
+        column.
+        Eg: {'ip': {'range_numeric_age_prncpl_proc': (0, 18),
+                                      'missing_dob': 0,
+                                      'excl_female': 1}}
+                              'ot': {'range_numeric_age_srvc_bgn': (0, 18),
+                                      'missing_dob': 0,
+                                      'excl_female': 1}}
+                              }
+        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
+        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
+        prinicipal procedure data/ service begin date.
     lst_types_to_export : List[str]
         List of types to export. Currently supported types are ip, ot, rx, ps.
     data_root : str
@@ -455,7 +514,26 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
     dest_folder : str
         Folder to export the datasets to
     dct_export_filters : dict
-        Dictionary of filters to apply to the export dataset
+        Additional filters that should be applied to the raw claims of the selected cohort while exporting. Filter
+        dictionary should be of the format:
+        {claim_type_1: {range_[datatype]_[col_name]: (start, end),
+                        excl_[col_name]: [0/1],
+                        [col_name]: value,
+                        ..}
+        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with
+        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
+        names that are just column names will restrict the result to benes with the filter value for the corresponding
+        column.
+        Eg: {'ip': {'range_numeric_age_prncpl_proc': (0, 18),
+                                      'missing_dob': 0,
+                                      'excl_female': 1}}
+                              'ot': {'range_numeric_age_srvc_bgn': (0, 18),
+                                      'missing_dob': 0,
+                                      'excl_female': 1}}
+                              }
+        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
+        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
+        prinicipal procedure data/ service begin date.
     clean_exports : bool, default=False
         Should the exported datasets be cleaned?
     preprocess_exports : bool, default=False
