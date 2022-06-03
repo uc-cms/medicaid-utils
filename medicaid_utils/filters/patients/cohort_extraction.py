@@ -285,11 +285,19 @@ def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
     os.makedirs(tmp_folder, exist_ok=True)
 
     for f_type in dct_cohort_filters:
-        dct_claims[f_type] = filter_claim_files(
+        dct_claims[f_type], cohort_filter_stats_df = filter_claim_files(
             dct_claims[f_type],
             dct_cohort_filters,
             os.path.join(tmp_folder, f_type),
             logger_name,
+        )
+        cohort_filter_stats_df.to_parquet(
+            os.path.join(
+                dest_folder,
+                f"cohort_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}.parquet",
+            ),
+            engine=dct_claims[f_type].pq_engine,
+            index=False,
         )
     pdf_patients = None
     if bool(dct_diag_codes) | bool(dct_proc_codes):
@@ -525,7 +533,7 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
             df_filter_counts.to_parquet(
                 os.path.join(
                     dest_folder,
-                    f"exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}.parquet",
+                    f"export_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}.parquet",
                 ),
                 engine=dct_claims[f_type].pq_engine,
                 index=False,
