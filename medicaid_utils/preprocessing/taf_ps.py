@@ -279,7 +279,7 @@ class TAFPS(taf_file.TAFFile):
         """
         df = self.dct_files["base"]
         df = df.map_partitions(
-            lambda pdf: pd.assign(
+            lambda pdf: pdf.assign(
                 dual=np.column_stack(
                     [
                         pd.to_numeric(pdf[col], errors="coerce").isin(
@@ -332,7 +332,7 @@ class TAFPS(taf_file.TAFFile):
         """
         df = self.dct_files["base"]
         df = df.map_partitions(
-            lambda pdf: pd.assign(
+            lambda pdf: pdf.assign(
                 restricted_benefits=np.column_stack(
                     [
                         pd.to_numeric(pdf[col], errors="coerce").isin(

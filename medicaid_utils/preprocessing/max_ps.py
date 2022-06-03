@@ -584,7 +584,7 @@ class MAXPS(max_file.MAXFile):
         )
 
         self.df = self.df.map_partitions(
-            lambda pdf: pd.assign(
+            lambda pdf: pdf.assign(
                 any_restricted_benefit_month=np.column_stack(
                     [
                         pdf[col]
