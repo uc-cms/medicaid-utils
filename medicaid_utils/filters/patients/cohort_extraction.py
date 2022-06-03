@@ -349,20 +349,17 @@ def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
     os.makedirs(dest_folder, exist_ok=True)
     os.makedirs(tmp_folder, exist_ok=True)
 
+    dct_cohort_filter_stats = {}
+
     for f_type in dct_cohort_filters:
-        dct_claims[f_type], cohort_filter_stats_df = filter_claim_files(
+        (
+            dct_claims[f_type],
+            dct_cohort_filter_stats[f_type],
+        ) = filter_claim_files(
             dct_claims[f_type],
             dct_cohort_filters,
             os.path.join(tmp_folder, f_type),
             logger_name,
-        )
-        cohort_filter_stats_df.to_parquet(
-            os.path.join(
-                dest_folder,
-                f"cohort_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}.parquet",
-            ),
-            engine=dct_claims[f_type].pq_engine,
-            index=False,
         )
     pdf_patients = None
     if bool(dct_diag_codes) | bool(dct_proc_codes):
@@ -416,7 +413,6 @@ def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
             .set_index(dct_claims["ps"].index_col)
         )
     pdf_patients = pdf_patients.assign(YEAR=year, STATE_CD=state)
-
     logger.info(
         "%s (%d) has %d benes with specified  conditions/ procedures",
         state,
@@ -425,41 +421,68 @@ def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
     )
 
     if "ps" not in dct_cohort_filters:
-        dct_claims["ps"].df = (
-            dct_claims["ps"]
-            .df.loc[
-                dct_claims["ps"].df.index.isin(
-                    pdf_patients.loc[
-                        pdf_patients["include"] == 1
-                    ].index.tolist()
-                )
-            ]
-            .persist()
+        dct_cohort_filter_stats["ps"] = pd.DataFrame(
+            {"N": dct_claims["ps"].df.shape[0].compute()}, index=[0]
         )
-        dct_claims["ps"].df = dct_claims["ps"].cache_results(repartition=True)
-        dct_claims["ps"] = filter_claim_files(
+    dct_claims["ps"].df = (
+        dct_claims["ps"]
+        .df.loc[
+            dct_claims["ps"].df.index.isin(
+                pdf_patients.loc[pdf_patients["include"] == 1].index.tolist()
+            )
+        ]
+        .persist()
+    )
+    dct_claims["ps"].df = dct_claims["ps"].cache_results(repartition=True)
+    dct_cohort_filter_stats["ps"]["with specified conditions"] = (
+        dct_claims["ps"].df.shape[0].compute()
+    )
+
+    if "ps" not in dct_cohort_filters:
+        dct_claims["ps"], df_cohort_filter_stats = filter_claim_files(
             dct_claims["ps"], {}, os.path.join(tmp_folder, "ps"), logger_name
         )
-        logger.info(
-            "%s (%d) has  %d benes  with specified conditions who also meet the cohort inclusion  criteria",
-            state,
-            year,
-            pdf_patients.loc[pdf_patients["include"] == 1].shape[0],
+        dct_cohort_filter_stats["ps"] = pd.concat(
+            [
+                dct_cohort_filter_stats["ps"],
+                df_cohort_filter_stats[
+                    [
+                        col
+                        for col in df_cohort_filter_stats.columns
+                        if col != "N"
+                    ]
+                ],
+            ],
+            axis=1,
         )
-        pdf_patients["include"] = pdf_patients["include"].where(
-            pdf_patients.index.isin(
-                dct_claims["ps"].df.index.compute().tolist()
-            ),
-            0,
-        )
-        logger.info(
-            "For %s (%d), %d benes remain after cleaning PS",
-            state,
-            year,
-            pdf_patients.loc[pdf_patients["include"] == 1].shape[0],
-        )
+    logger.info(
+        "%s (%d) has  %d benes  with specified conditions who also meet the cohort inclusion  criteria",
+        state,
+        year,
+        dct_cohort_filter_stats["ps"].iloc[0, -1],
+    )
+    pdf_patients["include"] = pdf_patients["include"].where(
+        pdf_patients.index.isin(dct_claims["ps"].df.index.compute().tolist()),
+        0,
+    )
+    logger.info(
+        "For %s (%d), %d benes remain after cleaning PS",
+        state,
+        year,
+        pdf_patients.loc[pdf_patients["include"] == 1].shape[0],
+    )
     pdf_dob = dct_claims["ps"].df[["birth_date"]].compute()
+    for f_type, cohort_filter_stats in dct_cohort_filter_stats.items():
+        cohort_filter_stats.to_parquet(
+            os.path.join(
+                dest_folder,
+                f"cohort_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}.parquet",
+            ),
+            engine=dct_claims[f_type].pq_engine,
+            index=False,
+        )
     del dct_claims
+    del dct_cohort_filter_stats
     gc.collect()
 
     pdf_patients = pdf_patients.merge(
@@ -597,7 +620,6 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
             )
         ]
         dct_claims[f_type].df = dct_claims[f_type].cache_results()
-        df_filter_counts = pd.DataFrame()
         if clean_exports or preprocess_exports:
             if clean_exports:
                 dct_claims[f_type].clean()
@@ -611,9 +633,6 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
                 os.path.join(tmp_folder, f"{f_type}"),
                 logger_name,
             )
-
-        dct_claims[f_type].export(dest_folder)
-        if df_filter_counts.shape[0] > 0:
             df_filter_counts.to_parquet(
                 os.path.join(
                     dest_folder,
@@ -622,4 +641,7 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
                 engine=dct_claims[f_type].pq_engine,
                 index=False,
             )
+
+        dct_claims[f_type].export(dest_folder)
+
     shutil.rmtree(tmp_folder)
