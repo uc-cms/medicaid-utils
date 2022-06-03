@@ -28,14 +28,23 @@ def toggle_datetime_string(
             if to_string:
                 df = df.map_partitions(
                     lambda pdf: pdf.assign(
-                        **{col: pdf[col].dt.strftime("%Y%m%d").replace("NaT", "").fillna("")}
+                        **{
+                            col: pdf[col]
+                            .dt.strftime("%Y%m%d")
+                            .replace("NaT", "")
+                            .fillna("")
+                        }
                     )
                 )
             else:
                 df = df.map_partitions(
                     lambda pdf: pdf.assign(
-                        **{col: pd.to_datetime(pdf[col], format="%Y%m%d", errors="coerce")}
-                                           )
+                        **{
+                            col: pd.to_datetime(
+                                pdf[col], format="%Y%m%d", errors="coerce"
+                            )
+                        }
+                    )
                 )
 
 

@@ -505,7 +505,7 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
             )
         ]
         dct_claims[f_type].df = dct_claims[f_type].cache_results()
-
+        df_filter_counts = pd.DataFrame()
         if clean_exports or preprocess_exports:
             if clean_exports:
                 dct_claims[f_type].clean()
@@ -513,11 +513,21 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
                 dct_claims[f_type].preprocess()
             dct_claims[f_type].df = dct_claims[f_type].cache_results()
         if bool(dct_export_filters):
-            dct_claims[f_type] = filter_claim_files(
+            dct_claims[f_type], df_filter_counts = filter_claim_files(
                 dct_claims[f_type],
                 dct_export_filters,
                 os.path.join(tmp_folder, f"{f_type}"),
                 logger_name,
             )
+
         dct_claims[f_type].export(dest_folder)
+        if df_filter_counts.shape[0] > 0:
+            df_filter_counts.to_parquet(
+                os.path.join(
+                    dest_folder,
+                    f"exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}.parquet",
+                ),
+                engine=dct_claims[f_type].pq_engine,
+                index=False,
+            )
     shutil.rmtree(tmp_folder)

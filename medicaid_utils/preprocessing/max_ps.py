@@ -301,7 +301,7 @@ class MAXPS(max_file.MAXFile):
                     )
                 )
             )
-        self.df = self.df.assign(rural=self.df['rural'].astype("Int64"))
+        self.df = self.df.assign(rural=self.df["rural"].astype("Int64"))
         if self.df.index.name != index_col:
             self.df = self.df.set_index(index_col, sorted=True)
 
