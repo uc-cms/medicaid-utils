@@ -153,7 +153,8 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
 
         elif f"excl_{filter_name}" in df_claim.columns:
             df_claim = df_claim.loc[
-                df_claim[f"excl_{filter_name}"] == int(dct_filter[filter_name])
+                df_claim[f"excl_{filter_name}"]
+                == int(dct_filter[filter_name] == 0)
             ]
         elif filter_name in df_claim.columns:
             df_claim = df_claim.loc[
@@ -162,7 +163,7 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
         else:
             filtered = 0
             logger.info(
-                "Filter %s is currently not supported for %s %sfiles",
+                "Filter %s is currently not supported for %s %s files",
                 filter_name,
                 claim.ftype,
                 "(" + subtype + ") " if (subtype is not None) else "",

@@ -315,15 +315,15 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                 if (
                     ("excl" in dct_diag_codes[condn])
                     and (
-                        bool(dct_diag_codes[condn]["excl"][9])
-                        or bool(dct_diag_codes[condn]["excl"][10])
+                        bool(dct_diag_codes[condn]["excl"].get(9, []))
+                        or bool(dct_diag_codes[condn]["excl"].get(10, []))
                     )
                 )
                 and (
                     ("incl" in dct_diag_codes[condn])
                     and (
-                        bool(dct_diag_codes[condn]["incl"][9])
-                        or bool(dct_diag_codes[condn]["incl"][10])
+                        bool(dct_diag_codes[condn]["incl"].get(9, []))
+                        or bool(dct_diag_codes[condn]["incl"].get(10, []))
                     )
                 )
             ]
@@ -334,16 +334,16 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                     ("excl" not in dct_diag_codes[condn])
                     or (
                         not (
-                            bool(dct_diag_codes[condn]["excl"][9])
-                            or bool(dct_diag_codes[condn]["excl"][10])
+                            bool(dct_diag_codes[condn]["excl"].get(9, []))
+                            or bool(dct_diag_codes[condn]["excl"].get(10, []))
                         )
                     )
                 )
                 and (
                     ("incl" in dct_diag_codes[condn])
                     and (
-                        bool(dct_diag_codes[condn]["incl"][9])
-                        or bool(dct_diag_codes[condn]["incl"][10])
+                        bool(dct_diag_codes[condn]["incl"].get(9, []))
+                        or bool(dct_diag_codes[condn]["incl"].get(10, []))
                     )
                 )
             ]
@@ -353,16 +353,16 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                 if (
                     ("excl" in dct_diag_codes[condn])
                     and (
-                        bool(dct_diag_codes[condn]["excl"][9])
-                        or bool(dct_diag_codes[condn]["excl"][10])
+                        bool(dct_diag_codes[condn]["excl"].get(9, []))
+                        or bool(dct_diag_codes[condn]["excl"].get(10, []))
                     )
                 )
                 and (
                     ("incl" not in dct_diag_codes[condn])
                     or (
                         not (
-                            bool(dct_diag_codes[condn]["incl"][9])
-                            or bool(dct_diag_codes[condn]["incl"][10])
+                            bool(dct_diag_codes[condn]["incl"].get(9, []))
+                            or bool(dct_diag_codes[condn]["incl"].get(10, []))
                         )
                     )
                 )
@@ -381,21 +381,26 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                                                 str(dx_code)
                                                 for dx_code in dct_diag_codes[
                                                     condn
-                                                ]["incl"][9]
+                                                ]["incl"].get(9, [])
                                             ),
                                             na=False,
                                         )
                                         & (
-                                            ~pdf[col].str.startswith(
+                                            bool(
+                                                dct_diag_codes[condn][
+                                                    "excl"
+                                                ].get(9, [])
+                                            )
+                                            and ~pdf[col].str.startswith(
                                                 tuple(
                                                     str(dx_code)
                                                     for dx_code in dct_diag_codes[
                                                         condn
                                                     ][
                                                         "excl"
-                                                    ][
-                                                        9
-                                                    ]
+                                                    ].get(
+                                                        9, []
+                                                    )
                                                 ),
                                                 na=False,
                                             )
@@ -408,21 +413,26 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                                                 str(dx_code)
                                                 for dx_code in dct_diag_codes[
                                                     condn
-                                                ]["incl"][10]
+                                                ]["incl"].get(10, [])
                                             ),
                                             na=False,
                                         )
                                         & (
-                                            ~pdf[col].str.startswith(
+                                            bool(
+                                                dct_diag_codes[condn][
+                                                    "excl"
+                                                ].get(10, [])
+                                            )
+                                            and ~pdf[col].str.startswith(
                                                 tuple(
                                                     str(dx_code)
                                                     for dx_code in dct_diag_codes[
                                                         condn
                                                     ][
                                                         "excl"
-                                                    ][
-                                                        10
-                                                    ]
+                                                    ].get(
+                                                        10, []
+                                                    )
                                                 ),
                                                 na=False,
                                             )
@@ -445,7 +455,7 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                                                 str(dx_code)
                                                 for dx_code in dct_diag_codes[
                                                     condn
-                                                ]["incl"][9]
+                                                ]["incl"].get(9, [])
                                             ),
                                             na=False,
                                         )
@@ -457,7 +467,7 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                                                 str(dx_code)
                                                 for dx_code in dct_diag_codes[
                                                     condn
-                                                ]["incl"][10]
+                                                ]["incl"].get(10, [])
                                             ),
                                             na=False,
                                         )
@@ -475,16 +485,21 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                                 np.column_stack(
                                     [
                                         (
-                                            ~pdf[col].str.startswith(
+                                            bool(
+                                                dct_diag_codes[condn][
+                                                    "excl"
+                                                ].get(9, [])
+                                            )
+                                            and ~pdf[col].str.startswith(
                                                 tuple(
                                                     str(dx_code)
                                                     for dx_code in dct_diag_codes[
                                                         condn
                                                     ][
                                                         "excl"
-                                                    ][
-                                                        9
-                                                    ]
+                                                    ].get(
+                                                        9, []
+                                                    )
                                                 ),
                                                 na=False,
                                             )
@@ -493,16 +508,21 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                                     ]
                                     + [
                                         (
-                                            ~pdf[col].str.startswith(
+                                            bool(
+                                                dct_diag_codes[condn][
+                                                    "excl"
+                                                ].get(10, [])
+                                            )
+                                            and ~pdf[col].str.startswith(
                                                 tuple(
                                                     str(dx_code)
                                                     for dx_code in dct_diag_codes[
                                                         condn
                                                     ][
                                                         "excl"
-                                                    ][
-                                                        10
-                                                    ]
+                                                    ].get(
+                                                        10, []
+                                                    )
                                                 ),
                                                 na=False,
                                             )
