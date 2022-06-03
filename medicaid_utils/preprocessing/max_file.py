@@ -187,9 +187,10 @@ class MAXFile:
                         ],
                         [1, 0],
                         default=np.nan,
-                    ).astype("Int64")
+                    )
                 )
             )
+            self.df = self.df.assign(female=self.df['female'].astype("Int64"))
 
     def clean_diag_codes(self):
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""

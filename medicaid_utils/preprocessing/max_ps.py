@@ -283,7 +283,7 @@ class MAXPS(max_file.MAXFile):
                             (pdf["ruca_code"] >= 4),
                         ],
                         [0, 1],
-                        default=-1,
+                        default=np.nan,
                     )
                 )
             )
@@ -297,10 +297,11 @@ class MAXPS(max_file.MAXFile):
                             (pdf["rucc_code"] >= 8),
                         ],
                         [0, 1],
-                        default=-1,
+                        default=np.nan,
                     )
                 )
             )
+        self.df = self.df.assign(rural=self.df['rural'].astype("Int64"))
         if self.df.index.name != index_col:
             self.df = self.df.set_index(index_col, sorted=True)
 

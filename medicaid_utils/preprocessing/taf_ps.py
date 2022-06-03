@@ -102,8 +102,9 @@ class TAFPS(taf_file.TAFFile):
                 ],
                 [1, 0],
                 default=np.nan,
-            ).astype("Int64")
+            )
         )
+        df = df.assign(female=df['female'].astype("Int64"))
         self.dct_files["base"] = df
 
     def flag_rural(
@@ -247,7 +248,7 @@ class TAFPS(taf_file.TAFFile):
                         ],
                         [0, 1],
                         default=np.nan,
-                    ).astype("Int64")
+                    )
                 )
             )
         else:
@@ -261,9 +262,10 @@ class TAFPS(taf_file.TAFFile):
                         ],
                         [0, 1],
                         default=np.nan,
-                    ).astype("Int64")
+                    )
                 )
             )
+        df = df.assign(rural=df['rural'].astype("Int64"))
         if df.index.name != index_col:
             df = df.set_index(index_col, sorted=True)
         self.dct_files["base"] = df
