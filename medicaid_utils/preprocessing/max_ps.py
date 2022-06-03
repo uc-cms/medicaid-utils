@@ -606,7 +606,7 @@ class MAXPS(max_file.MAXFile):
                         .str.strip()
                         .isin([lst_excluded_restricted_benefit_code])
                         for col in [
-                            f"EL_RSTRCT_BNFT_FLG_{str(mon).zfill(2)}"
+                            f"EL_RSTRCT_BNFT_FLG_{str(mon)}"
                             for mon in range(1, 13)
                         ]
                     ]
