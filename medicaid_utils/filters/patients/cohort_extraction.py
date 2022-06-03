@@ -156,6 +156,12 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
                 df_claim[f"excl_{filter_name}"]
                 == int(dct_filter[filter_name] == 0)
             ]
+        elif filter_name.startswith("excl_") and (
+            filter_name in df_claim.columns
+        ):
+            df_claim = df_claim.loc[
+                df_claim[filter_name] == int(dct_filter[filter_name] == 0)
+            ]
         elif filter_name in df_claim.columns:
             df_claim = df_claim.loc[
                 df_claim[filter_name] == dct_filter[filter_name]
