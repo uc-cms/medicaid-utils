@@ -113,7 +113,7 @@ class MAXIP(max_file.MAXFile):
                 excl_delivery=(
                     pd.to_numeric(pdf["RCPNT_DLVRY_CD"], errors="coerce") == 1
                 ).astype(int),
-                excl_female=(pdf["female"] == 1).astype(int),
+                excl_female=(pdf["female"] == 1).astype('Int64'),
             )
         )
 
