@@ -155,7 +155,7 @@ class TAFFile:
                 .difference([self.pq_engine])
                 .pop(),
                 write_index=True,
-                *(
+                **(
                     {"schema": "infer"}
                     if (self.pq_engine == "pyarrow")
                     else {}
