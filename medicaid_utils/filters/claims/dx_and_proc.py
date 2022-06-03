@@ -58,7 +58,7 @@ def get_patient_ids_with_conditions(
             dct_diag_codes, dct_proc_codes, df_claim.copy()
         )
         dct_filter_results[claim_type] = pd.DataFrame(
-            {"N": df.shape[0].compute()}, index=0
+            {"N": df.shape[0].compute()}, index=[0]
         )
         logger.info(
             "%s has %d claims",
