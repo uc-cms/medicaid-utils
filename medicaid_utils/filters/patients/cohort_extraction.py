@@ -124,7 +124,7 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
         else claim.dct_files[subtype].copy()
     )
     df_filter_counts = pd.DataFrame(
-        {"N": df_claim.shape[0].compute()}, index=0
+        {"N": df_claim.shape[0].compute()}, index=[0]
     )
     logger.info(
         "%s (%d) has %d %s %sclaims",
