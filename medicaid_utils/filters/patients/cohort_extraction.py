@@ -190,7 +190,7 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
         else:
             filtered = 0
             logger.info(
-                "Filter %s is currently not supported for %s %s files",
+                "Filter %s is currently not supported for %s %sfiles",
                 filter_name,
                 claim.ftype,
                 "(" + subtype + ") " if (subtype is not None) else "",
@@ -211,7 +211,7 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
             df_filter_counts[filter_name] = df_claim.shape[0].compute()
             filter_status = (
                 f"Applying {filter_name} = {dct_filter[filter_name]} filter"
-                f" reduces {claim.ftype} {subtype} claim count to"
+                f" reduces {claim.ftype} {'(' + subtype + ') ' if (subtype is not None) else ''}claim count to"
                 f" {df_filter_counts[filter_name].values[0]}"
             )
             logger.info(filter_status)
