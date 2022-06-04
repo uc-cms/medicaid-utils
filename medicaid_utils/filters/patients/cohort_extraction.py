@@ -359,7 +359,7 @@ def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
             dct_claims[f_type],
             dct_cohort_filters,
             os.path.join(tmp_folder, f_type),
-            logger_name,
+            logger_name=logger_name,
         )
     pdf_patients = None
     if bool(dct_diag_codes) | bool(dct_proc_codes):
@@ -440,7 +440,10 @@ def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
 
     if "ps" not in dct_cohort_filters:
         dct_claims["ps"], df_cohort_filter_stats = filter_claim_files(
-            dct_claims["ps"], {}, os.path.join(tmp_folder, "ps"), logger_name
+            dct_claims["ps"],
+            {},
+            os.path.join(tmp_folder, "ps"),
+            logger_name=logger_name,
         )
         dct_cohort_filter_stats["ps"] = pd.concat(
             [
@@ -631,7 +634,7 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
                 dct_claims[f_type],
                 dct_export_filters,
                 os.path.join(tmp_folder, f"{f_type}"),
-                logger_name,
+                logger_name=logger_name,
             )
             df_filter_counts.to_parquet(
                 os.path.join(
