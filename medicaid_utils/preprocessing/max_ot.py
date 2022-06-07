@@ -44,13 +44,13 @@ class MAXOT(max_file.MAXFile):
         """
         super().__init__(
             "ot",
-            year,
-            state,
-            data_root,
-            index_col,
-            False,
-            False,
-            tmp_folder,
+            year=year,
+            state=state,
+            data_root=data_root,
+            index_col=index_col,
+            clean=False,
+            preprocess=False,
+            tmp_folder=tmp_folder,
             pq_engine=pq_engine,
         )
         self.dct_default_filters = {
@@ -66,12 +66,12 @@ class MAXOT(max_file.MAXFile):
     def clean(self):
         """Runs cleaning routines and adds common exclusion flags based on default filters"""
         super().clean()
-        self.df = self.cache_results()
+        self.cache_results()
         self.clean_diag_codes()
         self.clean_proc_codes()
         self.flag_common_exclusions()
         self.flag_duplicates()
-        self.df = self.cache_results()
+        self.cache_results()
 
     def preprocess(self):
         """Adds payment, ed use, transport, dental, and em flags"""
@@ -80,7 +80,7 @@ class MAXOT(max_file.MAXFile):
         self.flag_transport()
         self.flag_dental()
         self.flag_em()
-        self.df = self.cache_results()
+        self.cache_results()
 
     def flag_ip_overlaps_and_ed(self, df_ip: pd.DataFrame):
         """
@@ -93,7 +93,7 @@ class MAXOT(max_file.MAXFile):
         """
         self.find_ot_ip_overlaps(df_ip)
         self.add_ot_flags()
-        self.df = self.cache_results()
+        self.cache_results()
 
     def flag_common_exclusions(self):
         self.df = dataframe_utils.fix_index(

@@ -12,10 +12,11 @@ import dask.dataframe as dd
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 
 
-def get_patient_ids_with_conditions(
+def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
     dct_diag_codes: dict,
     dct_proc_codes: dict,
-    logger_name=__file__,
+    logger_name: str = __file__,
+    cms_format: str = "MAX",
     **dct_claims,
 ) -> (pd.DataFrame(), dict):
     """
@@ -34,6 +35,8 @@ def get_patient_ids_with_conditions(
                                    'HZ96ZZZ'.split(",")}}
     logger_name : str
         Logger name
+    cms_format : {'MAX', TAF'}
+        CMS file format.
     **dct_claims : dict
         Keyword arguments of claim dataframes. Should be in the format:
             {file_type: dask.dataframe}
@@ -55,7 +58,10 @@ def get_patient_ids_with_conditions(
     for claim_type, df_claim in dct_claims.items():
         lst_col = ["proc_condn", "diag_condn"]
         df = flag_diagnoses_and_procedures(
-            dct_diag_codes, dct_proc_codes, df_claim.copy()
+            dct_diag_codes,
+            dct_proc_codes,
+            df_claim.copy(),
+            cms_format,
         )
         dct_filter_results[claim_type] = pd.DataFrame(
             {"N": df.shape[0].compute()}, index=[0]

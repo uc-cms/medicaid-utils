@@ -27,6 +27,7 @@ class TAFPS(taf_file.TAFFile):
         preprocess: bool = True,
         rural_method: str = "ruca",
         tmp_folder: str = None,
+        pq_engine: str = "pyarrow",
     ):
         """
         Initializes PS file object by preloading and preprocessing(if opted in) the file
@@ -39,9 +40,18 @@ class TAFPS(taf_file.TAFFile):
         :param preprocess: Add commonly used constructed variable columns, if True
         :param rural_method: Method to use for rural variable construction. Available options: 'ruca', 'rucc'
         :param tmp_folder: Folder to use to store temporary files
+        :param pq_engine: Parquet Engine
         """
         super().__init__(
-            "ps", year, state, data_root, index_col, False, False, tmp_folder
+            "ps",
+            year=year,
+            state=state,
+            data_root=data_root,
+            index_col=index_col,
+            clean=False,
+            preprocess=False,
+            tmp_folder=tmp_folder,
+            pq_engine=pq_engine,
         )
 
         # Default filters to filter out benes that do not meet minimum standard of cleanliness criteria

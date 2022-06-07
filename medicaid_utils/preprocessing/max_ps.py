@@ -56,13 +56,13 @@ class MAXPS(max_file.MAXFile):
         """
         super().__init__(
             "ps",
-            year,
-            state,
-            data_root,
-            index_col,
-            False,
-            False,
-            tmp_folder,
+            year=year,
+            state=state,
+            data_root=data_root,
+            index_col=index_col,
+            clean=False,
+            preprocess=False,
+            tmp_folder=tmp_folder,
             pq_engine=pq_engine,
         )
 
@@ -78,7 +78,7 @@ class MAXPS(max_file.MAXFile):
         """Runs cleaning routines and adds common exclusion flags based on default filters"""
         super().clean()
         self.flag_common_exclusions()
-        self.df = self.cache_results()
+        self.cache_results()
 
     def preprocess(
         self, rural_method="ruca"
@@ -96,7 +96,7 @@ class MAXPS(max_file.MAXFile):
         self.add_eligibility_status_columns()
         self.flag_duals()
         self.flag_restricted_benefits()
-        self.df = self.cache_results()
+        self.cache_results()
 
     def flag_common_exclusions(self):
         """

@@ -82,6 +82,29 @@ class MAXFile:
         if preprocess:
             self.preprocess()
 
+    @classmethod
+    def get_claim_instance(
+        cls, claim_type, *args, **kwargs
+    ):  # pylint: disable=missing-param-doc
+        """
+        Returns an instance of the requested claim type
+
+        Parameters
+        ----------
+        claim_type : {'ip', 'ot', 'cc', 'rx'}
+            Claim type
+        *args : list
+            List of position arguments
+        **kwargs : dict
+            Dictionary of keyword arguments
+
+        """
+        return next(
+            claim
+            for claim in cls.__subclasses__()
+            if claim.__name__ == f"MAX{claim_type.upper()}"
+        )(*args, **kwargs)
+
     def cache_results(
         self, repartition=False
     ):  # pylint: disable=missing-param-doc
@@ -100,8 +123,7 @@ class MAXFile:
                     partition_size="20MB"
                 ).persist()  # Patch, currently to_parquet results
                 # in error when any of the partitions is empty
-            return self.pq_export(self.tmp_folder)
-        return self.df
+            self.pq_export(self.tmp_folder)
 
     def pq_export(self, dest_path_and_fname):
         """

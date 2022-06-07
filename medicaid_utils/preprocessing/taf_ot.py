@@ -41,13 +41,13 @@ class TAFOT(taf_file.TAFFile):
         """
         super().__init__(
             "ot",
-            year,
-            state,
-            data_root,
-            index_col,
-            False,
-            False,
-            tmp_folder,
+            year=year,
+            state=state,
+            data_root=data_root,
+            index_col=index_col,
+            clean=False,
+            preprocess=False,
+            tmp_folder=tmp_folder,
             pq_engine=pq_engine,
         )
         self.dct_default_filters = {"missing_dob": 0, "duplicated": 0}

@@ -1,32 +1,35 @@
 import os
 
 
-def get_max_parquet_loc(root, type, state, year):
+def get_max_parquet_loc(root, claim_type, state, year):
     return os.path.join(
         root,
         "medicaid-max",
         "data",
         str(year),
-        type.lower(),
+        claim_type.lower(),
         "parquet",
         state.upper(),
     )
 
 
-def get_taf_parquet_loc(root, type, state, year):
+def get_taf_parquet_loc(root, claim_type, state, year):
     dct_fileloc = {}
     data_folder = os.path.join(root, "medicaid", str(year), "taf")
-    if type in ["ip", "ot"]:
+    if claim_type in ["ip", "ot"]:
         dct_fileloc["base"] = os.path.join(
-            data_folder, f"TAF{type.upper()}H", "parquet", state.upper()
+            data_folder, f"TAF{claim_type.upper()}H", "parquet", state.upper()
         )
         dct_fileloc["line"] = os.path.join(
-            data_folder, f"TAF{type.upper()}L", "parquet", state.upper()
+            data_folder, f"TAF{claim_type.upper()}L", "parquet", state.upper()
         )
         dct_fileloc["occurrence_code"] = os.path.join(
-            data_folder, f"TAF{type.upper()}OCCR", "parquet", state.upper()
+            data_folder,
+            f"TAF{claim_type.upper()}OCCR",
+            "parquet",
+            state.upper(),
         )
-    if type == "ps":
+    if claim_type == "ps":
         dct_fileloc["dates"] = os.path.join(
             data_folder, "TAFDEDTS", "parquet", state.upper()
         )
