@@ -75,7 +75,7 @@ class TAFFile:
         for subtype, fileloc in self.dct_fileloc.items():
             if not os.path.exists(fileloc):
                 print(f"{subtype} does not exist for {state}")
-                if fileloc not in self.allowed_missing_ftypes:
+                if subtype not in self.allowed_missing_ftypes:
                     raise FileNotFoundError(
                         errno.ENOENT,
                         os.strerror(errno.ENOENT),
