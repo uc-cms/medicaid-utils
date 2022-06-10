@@ -484,7 +484,11 @@ class TAFFile:
                         )
 
                 else:
-                    df = df.assign(year=df.RFRNC_YR.astype(int))
+                    df = df.assign(
+                        year=dd.to_numeric(
+                            df.RFRNC_YR, errors="coerce"
+                        ).astype("Int64")
+                    )
 
                 if "birth_date" in df.columns:
                     df = df.assign(
@@ -556,9 +560,11 @@ class TAFFile:
                     )
                 if "DEATH_IND" in df.columns:
                     df = df.assign(
-                        death=(df["DEATH_IND"].astype("Int64") == 1)
-                        .astype("Int64")
-                        .fillna(0)
+                        death=(
+                            dd.to_numeric(df["DEATH_IND"], errors="coerce")
+                            == 1
+                        )
+                        .fillna(False)
                         .astype(int)
                     )
                 if (self.ftype == "ip") and ("admsn_date" in df.columns):
