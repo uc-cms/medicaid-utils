@@ -195,7 +195,7 @@ class TAFPS(taf_file.TAFFile):
         df = df.merge(
             df_zip_state_pcsa[
                 [
-                    "EL_RSDNC_ZIP_CD_LTST",
+                    "BENE_ZIP_CD",
                     "resident_state_cd",
                     "pcsa",
                     "ruca_code",
