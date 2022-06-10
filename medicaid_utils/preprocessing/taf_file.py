@@ -70,17 +70,18 @@ class TAFFile:
             "disability",
             "mfp",
             "waiver",
+            "home_health",
         ]
-        for fileloc in list(self.dct_fileloc.keys()):
-            if not os.path.exists(self.dct_fileloc[fileloc]):
-                print(f"{fileloc} does not exist for {state}")
+        for subtype, fileloc in self.dct_fileloc.items():
+            if not os.path.exists(fileloc):
+                print(f"{subtype} does not exist for {state}")
                 if fileloc not in self.allowed_missing_ftypes:
                     raise FileNotFoundError(
                         errno.ENOENT,
                         os.strerror(errno.ENOENT),
                         fileloc,
                     )
-                self.dct_fileloc.pop(fileloc)
+                self.dct_fileloc.pop(subtype)
         self.dct_files = {
             ftype: dd.read_parquet(
                 file_loc, index=False, engine=self.pq_engine
