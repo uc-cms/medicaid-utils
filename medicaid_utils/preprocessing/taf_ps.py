@@ -228,7 +228,7 @@ class TAFPS(taf_file.TAFFile):
         df = df.assign(
             BENE_CNTY_CD=df["BENE_CNTY_CD"].str.strip(),
             resident_state_cd=df["resident_state_cd"].where(
-                df["resident_state_cd"].notna(), df["STATE_CD"]
+                ~df["resident_state_cd"].isna(), df["STATE_CD"]
             ),
         )
 
