@@ -72,14 +72,14 @@ class TAFFile:
             "waiver",
             "home_health",
         ]
-        for subtype, fileloc in self.dct_fileloc.items():
-            if not os.path.exists(fileloc):
+        for subtype in list(self.dct_fileloc.keys()):
+            if not os.path.exists(self.dct_fileloc[subtype]):
                 print(f"{subtype} does not exist for {state}")
                 if subtype not in self.allowed_missing_ftypes:
                     raise FileNotFoundError(
                         errno.ENOENT,
                         os.strerror(errno.ENOENT),
-                        fileloc,
+                        self.dct_fileloc[subtype],
                     )
                 self.dct_fileloc.pop(subtype)
         self.dct_files = {
