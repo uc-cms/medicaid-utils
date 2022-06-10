@@ -470,42 +470,43 @@ class TAFFile:
                 else:
                     df = df.assign(year=df.RFRNC_YR.astype(int))
 
-                if ("AGE" in df.columns) or ("birth_date" in df.columns):
+                if "birth_date" in df.columns:
                     df = df.assign(
                         birth_year=df.birth_date.dt.year,
                         birth_month=df.birth_date.dt.month,
                         birth_day=df.birth_date.dt.day,
                     )
-                if "AGE" not in df.columns:
-                    df = df.assign(age=df.year - df.birth_year)
-                else:
                     df = df.assign(
-                        age=df["AGE"].astype("Int64"),
+                        age_day=(
+                            dd.to_datetime(
+                                df.year.astype(str) + "1231", format="%Y%m%d"
+                            )
+                            - df.birth_date
+                        ).dt.days,
+                        age_decimal=(
+                            dd.to_datetime(
+                                df.year.astype(str) + "1231", format="%Y%m%d"
+                            )
+                            - df.birth_date
+                        )
+                        / np.timedelta64(1, "Y"),
+                    )
+                    if "AGE" not in df.columns:
+                        df = df.assign(age=df.year - df.birth_year)
+                if "AGE" in df.columns:
+                    df = df.assign(age=df["AGE"].astype("Int64"))
+                if "AGE_GRP_CD" in df.columns:
+                    df = df.assign(
                         age_group=df["AGE_GRP_CD"].astype("Int64"),
                     )
-
-                df = df.assign(
-                    age_day=(
-                        dd.to_datetime(
-                            df.year.astype(str) + "1231", format="%Y%m%d"
-                        )
-                        - df.birth_date
-                    ).dt.days,
-                    age_decimal=(
-                        dd.to_datetime(
-                            df.year.astype(str) + "1231", format="%Y%m%d"
-                        )
-                        - df.birth_date
+                if "age" in df.columns:
+                    df = df.assign(
+                        adult=df["age"]
+                        .between(18, 64, inclusive="both")
+                        .astype("Int64"),
+                        elderly=(df["age"] >= 65).astype("Int64"),
+                        child=(df["age"] <= 17).astype("Int64"),
                     )
-                    / np.timedelta64(1, "Y"),
-                )
-                df = df.assign(
-                    adult=df["age"]
-                    .between(18, 64, inclusive="both")
-                    .astype("Int64"),
-                    elderly=(df["age"] >= 65).astype("Int64"),
-                    child=(df["age"] <= 17).astype("Int64"),
-                )
 
                 if self.ftype != "ps":
                     df = df.map_partitions(
@@ -525,17 +526,21 @@ class TAFFile:
                             ].transform(max),
                         )
                     )
-                if ("death_date" in df.columns) or ("DEATH_IND" in df.columns):
+                if "death_date" in df.columns:
                     df = df.assign(
                         death=(
-                            (
-                                df.death_date.dt.year.fillna(
-                                    df.year + 10
-                                ).astype(int)
-                                <= df.year
+                            df.death_date.dt.year.fillna(df.year + 10).astype(
+                                int
                             )
-                            | (df["DEATH_IND"].astype("Int64") == 1)
+                            <= df.year
                         )
+                        .astype("Int64")
+                        .fillna(0)
+                        .astype(int)
+                    )
+                if "DEATH_IND" in df.columns:
+                    df = df.assign(
+                        death=(df["DEATH_IND"].astype("Int64") == 1)
                         .astype("Int64")
                         .fillna(0)
                         .astype(int)
