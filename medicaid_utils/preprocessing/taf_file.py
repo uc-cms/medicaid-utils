@@ -6,6 +6,7 @@ import logging
 
 import numpy as np
 import dask.dataframe as dd
+import pandas as pd
 
 from medicaid_utils.common_utils import dataframe_utils, links
 
@@ -339,12 +340,12 @@ class TAFFile:
                 df = df.map_partitions(
                     lambda pdf: pdf.assign(
                         max_version=pdf.groupby("filing_period")[
-                            f"{self.ftype.upper()}_VRSN"
+                            f"{self.ftype.upper()}_version"
                         ].transform("max")
                     )
                 )
                 df = df.loc[
-                    df[f"{self.ftype.upper()}_VRSN"] == df["max_version"]
+                    df[f"{self.ftype.upper()}_version"] == df["max_version"]
                 ].drop("max_version", axis=1)
             self.dct_files[ftype] = df
 
@@ -466,11 +467,22 @@ class TAFFile:
                         df = df.assign(
                             filing_period=df[
                                 f"{self.ftype.upper()}_FIL_DT"
-                            ].str[1:7]
+                            ].str[1:7],
                         )
                         df = df.assign(
                             year=df.filing_period.str[:4].astype("Int64")
                         )
+                        df = df.map_partitions(
+                            lambda pdf: pdf.assign(
+                                **{
+                                    f"{self.ftype.lower()}_version": pd.to_numeric(
+                                        pdf[f"{self.ftype.upper()}_VRSN"],
+                                        errors="coerce",
+                                    )
+                                }
+                            )
+                        )
+
                 else:
                     df = df.assign(year=df.RFRNC_YR.astype(int))
 
