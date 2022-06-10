@@ -105,13 +105,15 @@ class TAFPS(taf_file.TAFFile):
         result in female column taking the value np.nan"""
         df = self.dct_files["base"]
         df = df.map_partitions(
-            female=np.select(
-                [
-                    df["SEX_CD"].str.strip().str.upper() == "F",
-                    df["SEX_CD"].str.strip().str.upper() == "M",
-                ],
-                [1, 0],
-                default=np.nan,
+            lambda pdf: pdf.assign(
+                female=np.select(
+                    [
+                        pdf["SEX_CD"].str.strip().str.upper() == "F",
+                        pdf["SEX_CD"].str.strip().str.upper() == "M",
+                    ],
+                    [1, 0],
+                    default=np.nan,
+                )
             )
         )
         df = df.assign(female=df["female"].astype("Int64"))
