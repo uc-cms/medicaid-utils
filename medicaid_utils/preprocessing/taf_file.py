@@ -78,7 +78,7 @@ class TAFFile:
                     raise FileNotFoundError(
                         errno.ENOENT,
                         os.strerror(errno.ENOENT),
-                        ", ".join(self.dct_fileloc.values()),
+                        fileloc,
                     )
                 self.dct_fileloc.pop(fileloc)
         self.dct_files = {
@@ -323,7 +323,7 @@ class TAFFile:
                 )
             )
             df = df.loc[df["excl_duplicated"] == 0]
-            if "DA_RUN_ID" in df.columns:
+            if ("DA_RUN_ID" in df.columns) and ("CLM_ID" in df.columns):
                 df = df.map_partitions(
                     lambda pdf: pdf.assign(
                         max_run_id=pdf.groupby("CLM_ID")[
