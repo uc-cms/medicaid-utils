@@ -514,10 +514,16 @@ class TAFFile:
                     if "AGE" not in df.columns:
                         df = df.assign(age=df.year - df.birth_year)
                 if "AGE" in df.columns:
-                    df = df.assign(age=df["AGE"].astype("Int64"))
+                    df = df.assign(
+                        age=dd.to_numeric(df["AGE"], errors="coerce").astype(
+                            "Int64"
+                        )
+                    )
                 if "AGE_GRP_CD" in df.columns:
                     df = df.assign(
-                        age_group=df["AGE_GRP_CD"].astype("Int64"),
+                        age_group=dd.to_numeric(
+                            df["AGE_GRP_CD"], errors="coerce"
+                        ).astype("Int64"),
                     )
                 if "age" in df.columns:
                     df = df.assign(
