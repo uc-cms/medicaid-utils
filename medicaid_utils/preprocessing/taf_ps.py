@@ -151,16 +151,16 @@ class TAFPS(taf_file.TAFFile):
         zip_folder = os.path.join(other_data_folder, "zip")
         df = df.assign(**{index_col: df.index})
 
+        # Pad zeroes to the left to make zip codes 9 characters long.
         # RI Zip codes have problems. They are all invalid unless the last character is dropped and
         # a zero is added to the left
         df = df.assign(
-            BENE_ZIP_CD=df["BENE_ZIP_CD"].where(
-                ~(
-                    (df["STATE_CD"] == "RI")
-                    & (df["BENE_ZIP_CD"].str[-1] == "0")
-                ),
-                "0" + df["EL_RSDNC_ZIP_CD_LTST"].str.ljust(9, "0").str[:-1],
+            BENE_ZIP_CD=df["BENE_ZIP_CD"]
+            .where(
+                ~((df["STATE_CD"] == "RI")),
+                "0" + df["BENE_ZIP_CD"].str.ljust(9, "0").str[:-1],
             )
+            .str.ljust(9, "0")
         )
 
         # zip_state_pcsa_ruca_zcta.csv was constructed with RUCA 3.1
