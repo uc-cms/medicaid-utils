@@ -140,7 +140,7 @@ class TAFFile:
             Repartition the dask dataframe
 
         """
-        for f_subtype in self.dct_files:
+        for f_subtype in list(self.dct_files.keys()):
             if (subtype is not None) and (f_subtype != subtype):
                 continue
             if self.tmp_folder is not None:
