@@ -2,6 +2,7 @@
 import os
 import errno
 import shutil
+import logging
 
 import numpy as np
 import dask.dataframe as dd
@@ -295,6 +296,7 @@ class TAFFile:
 
         """
         for ftype in self.dct_files:
+            logging.info("Flagging duplicates for %s", ftype)
             df = self.dct_files[ftype]
             df = dataframe_utils.fix_index(df, self.index_col, True)
             df = df.assign(
@@ -415,6 +417,7 @@ class TAFFile:
 
         """
         for ftype in self.dct_files:
+            logging.info("Processing date columns for %s", ftype)
             df = self.dct_files[ftype]
             if self.ftype in ["ip", "lt", "ot", "ps", "rx"]:
                 dct_date_col = {
