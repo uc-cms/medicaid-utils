@@ -72,6 +72,7 @@ class TAFFile:
             "mfp",
             "waiver",
             "home_health",
+            "managed_care"
         ]
         for subtype in list(self.dct_fileloc.keys()):
             if not os.path.exists(self.dct_fileloc[subtype]):
