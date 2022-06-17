@@ -215,7 +215,7 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
     return claim, df_filter_counts
 
 
-def extract_taf_cohort(  # pylint: disable=too-many-locals, missing-param-doc
+def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     state: str,
     year: int,
     dct_diag_proc_codes: dict,
