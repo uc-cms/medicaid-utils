@@ -149,11 +149,11 @@ class MAXFile:
                 .difference([self.pq_engine])
                 .pop(),
                 write_index=True,
-                **(
-                    {"schema": "infer"}
-                    if (self.pq_engine == "pyarrow")
-                    else {}
-                ),
+                # **(
+                #     {"schema": "infer"}
+                #     if (self.pq_engine == "pyarrow")
+                #     else {}
+                # ),
             )
         del self.df
         shutil.rmtree(dest_path_and_fname, ignore_errors=True)
