@@ -259,7 +259,7 @@ class TAFPS(taf_file.TAFFile):
                         ],
                         [0, 1],
                         default=np.nan,
-                    )
+                    ).astype(int)
                 )
             )
         else:

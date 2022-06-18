@@ -284,7 +284,7 @@ class MAXPS(max_file.MAXFile):
                         ],
                         [0, 1],
                         default=np.nan,
-                    )
+                    ).astype(int)
                 )
             )
         else:
