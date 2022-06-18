@@ -553,7 +553,7 @@ class TAFFile:
                         .astype(int),
                     )
 
-                if self.ftype != "ps":
+                if (self.ftype != "ps") and ("age" in df.columns):
                     df = df.map_partitions(
                         lambda pdf: pdf.assign(
                             adult=pdf.groupby(pdf.index)["adult"].transform(
@@ -630,18 +630,24 @@ class TAFFile:
                     df = df.assign(
                         duration=(
                             df["srvc_end_date"] - df["srvc_bgn_date"]
-                        ).dt.days,
-                        age_day_srvc_bgn=(
-                            df["srvc_bgn_date"] - df["birth_date"]
-                        ).dt.days,
+                        ).dt.days
                     )
                     df = df.assign(
                         duration=df["duration"].where(
                             (df["srvc_bgn_date"] <= df["srvc_end_date"]),
                             np.nan,
-                        ),
-                        age_srvc_bgn=(
-                            df["age_day_srvc_bgn"].fillna(0) / 365.25
-                        ).astype(int),
+                        )
                     )
+                    if "birth_date" in df.columns:
+                        df = df.assign(
+                            age_day_srvc_bgn=(
+                                df["srvc_bgn_date"] - df["birth_date"]
+                            ).dt.days,
+                        )
+                        df = df.assign(
+                            age_srvc_bgn=(
+                                df["age_day_srvc_bgn"].fillna(0) / 365.25
+                            ).astype(int),
+                        )
+
                 self.dct_files[ftype] = df
