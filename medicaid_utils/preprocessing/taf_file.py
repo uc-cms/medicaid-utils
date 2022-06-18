@@ -194,7 +194,17 @@ class TAFFile:
         os.rename(dest_path_and_fname + "_tmp", dest_path_and_fname)
         self.dct_files[f_subtype] = dd.read_parquet(
             dest_path_and_fname, index=False, engine=self.pq_engine
-        ).set_index(self.index_col, sorted=True)
+        )
+        if (self.dct_files[f_subtype].npartitions > 1) or len(
+            self.dct_files[f_subtype]
+        ) > 0:
+            self.dct_files[f_subtype] = self.dct_files[f_subtype].set_index(
+                self.index_col, sorted=True
+            )
+        else:
+            self.dct_files[f_subtype] = self.dct_files[f_subtype].set_index(
+                self.index_col
+            )
 
     def clean(self):
         """Cleaning routines to processes date and gender columns, and add duplicate check flags."""

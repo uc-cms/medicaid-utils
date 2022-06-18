@@ -360,7 +360,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             lst_subtypes = (
                 [None]
                 if (cms_format == "MAX")
-                else list(dct_claims[f_type].dct_files.keys())
+                else ["base"]  # list(dct_claims[f_type].dct_files.keys())
             )
             for subtype in lst_subtypes:
                 (dct_claims[f_type], filter_stats_df) = filter_claim_files(
