@@ -305,7 +305,7 @@ class TAFFile:
             df = df.assign(
                 **{
                     col: dd.to_numeric(df[col], errors="coerce")
-                    .fill(-1)
+                    .fillna(-1)
                     .astype(int)
                     for col in ["DA_RUN_ID", f"{self.ftype.upper()}_VRSN"]
                     if col in df.columns
