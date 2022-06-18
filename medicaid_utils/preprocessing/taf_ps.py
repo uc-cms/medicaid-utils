@@ -376,7 +376,8 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df
 
     def compute_enrollment_gaps(self):
-        """Computes enrollment gaps using dates file"""
+        """Computes enrollment gaps using dates file. Adds number of enrollment gaps and length of maximum enrollment
+        gap in days columns"""
         df = self.dct_files["dates"]
         df = dataframe_utils.fix_index(
             df, index_name=self.index_col, drop_column=False
@@ -401,9 +402,28 @@ class TAFPS(taf_file.TAFFile):
                 [self.index_col, "enrollment_start_date"], ascending=True
             )
             pdf_dates = pdf_dates.assign(
+                enrollment_end_date=pdf_dates["enrollment_end_date"].fillna(
+                    pd.to_datetime(
+                        pdf_dates["enrollment_start_date"]
+                        .dt.year.fillna(self.year)
+                        .astype(str)
+                        + "-12-31"
+                    )
+                )
+            )
+            pdf_dates = pdf_dates.assign(
                 next_enrollment_start_date=pdf_dates.groupby(self.index_col)[
                     "enrollment_start_date"
-                ].shift(-1)
+                ]
+                .shift(-1)
+                .fillna(
+                    pd.to_datetime(
+                        pdf_dates["enrollment_end_date"]
+                        .dt.year.fillna(self.year)
+                        .astype(str)
+                        + "-12-31"
+                    )
+                )
             )
             pdf_dates = pdf_dates.assign(
                 enrollment_gap=(
@@ -427,4 +447,10 @@ class TAFPS(taf_file.TAFFile):
         ).compute()
         self.dct_files["base"] = self.dct_files["base"].merge(
             df_gaps, left_index=True, right_index=True, how="left"
+        )
+        self.dct_files["base"] = self.dct_files["base"].assign(
+            **{
+                col: self.dct_files["base"][col].fillna(0).astype(int)
+                for col in ["n_enrollment_gaps", "max_enrollment_gap"]
+            }
         )
