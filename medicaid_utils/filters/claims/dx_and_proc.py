@@ -79,22 +79,36 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
                     "Passed claims files do not have the same index"
                 )
             index_col = df.index.name
-            if bool(dct_diag_codes):
-                df = df.assign(
-                    diag_condn=df[
+            if bool(dct_diag_codes) and bool():
+                df = df.assign(diag_condn=0)
+                lst_diag_col = [
+                    col
+                    for col in [f"diag_{condn}" for condn in dct_diag_codes]
+                    if col in df.columns
+                ]
+                if bool(lst_diag_col):
+                    df = df.assign(
+                        diag_condn=df[lst_diag_col].any(axis=1).astype(int)
+                    )
+                    lst_col.extend(
                         [f"diag_{condn}" for condn in dct_diag_codes]
-                    ]
-                    .any(axis=1)
-                    .astype(int)
-                )
-                lst_col.extend([f"diag_{condn}" for condn in dct_diag_codes])
+                    )
             if bool(dct_proc_codes):
-                df = df.assign(
-                    proc_condn=df[[f"proc_{proc}" for proc in dct_proc_codes]]
-                    .any(axis=1)
-                    .astype(int)
-                )
-                lst_col.extend([f"proc_{proc}" for proc in dct_proc_codes])
+                df = df.assign(proc_condn=0)
+                lst_proc_col = [
+                    col
+                    for col in [f"proc_{proc}" for proc in dct_proc_codes]
+                    if col in df.columns
+                ]
+                if bool(lst_proc_col):
+                    df = df.assign(
+                        proc_condn=df[
+                            [f"proc_{proc}" for proc in dct_proc_codes]
+                        ]
+                        .any(axis=1)
+                        .astype(int)
+                    )
+                    lst_col.extend([f"proc_{proc}" for proc in dct_proc_codes])
             df = df.loc[df[lst_col].any(axis=1)][lst_col + ["service_date"]]
             dct_filter_results[claim_type][
                 "with_conditions_procedures"
