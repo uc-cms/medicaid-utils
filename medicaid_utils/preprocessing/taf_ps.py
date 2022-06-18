@@ -427,8 +427,8 @@ class TAFPS(taf_file.TAFFile):
             )
             pdf_dates = pdf_dates.assign(
                 enrollment_gap=(
-                    pdf_dates["enrollment_end_date"]
-                    - pdf_dates["next_enrollment_start_date"]
+                    pdf_dates["next_enrollment_start_date"]
+                    - pdf_dates["enrollment_end_date"]
                 ).dt.days
             )
             pdf_dates = pdf_dates.set_index(self.index_col)
@@ -436,9 +436,11 @@ class TAFPS(taf_file.TAFFile):
 
         df = df.map_partitions(fill_enrollment_gaps)
         self.dct_files["dates"] = df
-        df_gaps = df.loc[df["enrollment_gap"] > 0]
+        df_gaps = df.loc[df["enrollment_gap"] != 0]
         df_gaps = df_gaps.map_partitions(
-            lambda pdf: pdf.groupby([self.index_col]).agg(
+            lambda pdf: pdf.assign(enrollment_gap=pdf["enrollment_gap"].abs())
+            .groupby([self.index_col])
+            .agg(
                 **{
                     "n_enrollment_gaps": ("enrollment_gap", "size"),
                     "max_enrollment_gap": ("enrollment_gap", "max"),
