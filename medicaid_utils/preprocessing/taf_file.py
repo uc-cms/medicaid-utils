@@ -426,6 +426,7 @@ class TAFFile:
                 dct_date_col = {
                     "BIRTH_DT": "birth_date",
                     "ADMSM_DT": "admsn_date",
+                    "ADMSN_DT": "admsn_date",
                     "PRCDR_CD_DT_1": "prncpl_proc_date",
                     "SRVC_BGN_DT": "srvc_bgn_date",
                     "SRVC_END_DT": "srvc_end_date",
