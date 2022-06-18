@@ -388,6 +388,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             dct_diag_proc_codes["diag_codes"],
             dct_diag_proc_codes["proc_codes"],
             logger_name=logger_name,
+            cms_format=cms_format,
             ip=dct_claims["ip"].df.rename(
                 columns={"prncpl_proc_date": "service_date"}
             )[
@@ -438,7 +439,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             .rename(columns={"srvc_bgn_date": "service_date"})[
                 [
                     col
-                    for col in dct_claims["ip"].dct_files["base"].columns
+                    for col in dct_claims["ot"].dct_files["base"].columns
                     if col.startswith(
                         ("DGNS_CD_", "PRCDR_CD", "LINE_PRCDR_CD")
                     )
@@ -446,6 +447,27 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                 ]
                 + ["service_date"]
             ],
+            **(
+                {
+                    "ot_line": dct_claims["ot"]
+                    .dct_files["line"]
+                    .rename(columns={"srvc_bgn_date": "service_date"})[
+                        [
+                            col
+                            for col in dct_claims["ot"]
+                            .dct_files["line"]
+                            .columns
+                            if col.startswith(
+                                ("DGNS_CD_", "PRCDR_CD", "LINE_PRCDR_CD")
+                            )
+                            or (col == "ADMTG_DGNS_CD")
+                        ]
+                        + ["service_date"]
+                    ]
+                }
+                if cms_format == "TAF"
+                else {}
+            ),
         )
         pdf_patients = pdf_patients.assign(include=1)
     else:

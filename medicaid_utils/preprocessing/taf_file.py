@@ -430,6 +430,8 @@ class TAFFile:
                     "PRCDR_CD_DT_1": "prncpl_proc_date",
                     "SRVC_BGN_DT": "srvc_bgn_date",
                     "SRVC_END_DT": "srvc_end_date",
+                    "LINE_SRVC_BGN_DT": "srvc_bgn_date",
+                    "LINE_SRVC_END_DT": "srvc_end_date",
                     "DEATH_DT": "death_date",
                     "IMGRTN_STUS_5YR_BAR_END_DT": "immigration_status_5yr_bar_end_date",
                     "ENRLMT_START_DT": "enrollment_start_date",
