@@ -530,10 +530,17 @@ class TAFFile:
                     df = df.assign(
                         adult=df["age"]
                         .between(18, 64, inclusive="both")
+                        .astype(pd.Int64Dtype())
                         .fillna(-1)
                         .astype(int),
-                        elderly=(df["age"] >= 65).fillna(-1).astype(int),
-                        child=(df["age"] <= 17).fillna(-1).astype(int),
+                        elderly=(df["age"] >= 65)
+                        .astype(pd.Int64Dtype())
+                        .fillna(-1)
+                        .astype(int),
+                        child=(df["age"] <= 17)
+                        .astype(pd.Int64Dtype())
+                        .fillna(-1)
+                        .astype(int),
                     )
 
                 if self.ftype != "ps":
