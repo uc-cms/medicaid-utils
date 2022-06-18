@@ -343,9 +343,9 @@ class TAFPS(taf_file.TAFFile):
         df = self.dct_files["base"]
         df = df.map_partitions(
             lambda pdf: pdf.assign(
-                restricted_benefits=np.column_stack(
+                any_restricted_benefit_month=np.column_stack(
                     [
-                        pd.to_numeric(pdf[col], errors="coerce").isin(
+                        ~pd.to_numeric(pdf[col], errors="coerce").isin(
                             [1, 4, 5, 7]
                         )
                         for col in [
@@ -354,8 +354,23 @@ class TAFPS(taf_file.TAFFile):
                         ]
                     ]
                 )
-                .all(axis=1)
-                .astype(int)
+                .any(axis=1)
+                .astype(int),
+                restricted_benefit_months=np.column_stack(
+                    [
+                        (
+                            ~pd.to_numeric(pdf[col], errors="coerce").isin(
+                                [1, 4, 5, 7]
+                            )
+                        ).astype(int)
+                        for col in [
+                            f"RSTRCTD_BNFTS_CD_{str(mon).zfill(2)}"
+                            for mon in range(1, 13)
+                        ]
+                    ]
+                )
+                .sum(axis=1)
+                .astype(int),
             )
         )
         self.dct_files["base"] = df
