@@ -431,6 +431,27 @@ class TAFPS(taf_file.TAFFile):
                     - pdf_dates["enrollment_end_date"]
                 ).dt.days
             )
+            pdf_enrollment_beginnings = pdf_dates.groupby(
+                self.index_col
+            ).first()
+            pdf_enrollment_beginnings = pdf_enrollment_beginnings.loc[
+                pdf_enrollment_beginnings["enrollment_start_date"]
+                > pd.to_datetime(f"{self.year}-01-01")
+            ]
+            pdf_enrollment_beginnings = pdf_enrollment_beginnings.assign(
+                enrollment_gap=(
+                    pdf_enrollment_beginnings["enrollment_start_date"]
+                    - pd.to_datetime(f"{self.year}-01-01")
+                ).dt.days
+            )
+            pdf_enrollment_beginnings = pdf_enrollment_beginnings.assign(
+                enrollment_end_date=pdf_enrollment_beginnings[
+                    "enrollment_start_date"
+                ]
+            )
+            pdf_dates = pd.concat(
+                [pdf_enrollment_beginnings, pdf_dates], ignore_index=True
+            )
             pdf_dates = pdf_dates.set_index(self.index_col)
             return pdf_dates
 
