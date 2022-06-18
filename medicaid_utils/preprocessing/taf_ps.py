@@ -398,16 +398,16 @@ class TAFPS(taf_file.TAFFile):
             """
             pdf_dates = pdf_dates.reset_index(drop=True)
             pdf_dates = pdf_dates.sort_values(
-                [self.index_col, "ENRLMT_START_DT"], ascending=True
+                [self.index_col, "enrollment_start_date"], ascending=True
             )
             pdf_dates = pdf_dates.assign(
                 next_enrollment_start_date=pdf_dates.groupby(self.index_col)[
-                    "ENRLMT_START_DT"
+                    "enrollment_start_date"
                 ].shift(-1)
             )
             pdf_dates = pdf_dates.assign(
                 enrollment_gap=(
-                    pdf_dates["ENRLMT_END_DT"]
+                    pdf_dates["enrollment_end_date"]
                     - pdf_dates["next_enrollment_start_date"]
                 ).dt.days
             )
