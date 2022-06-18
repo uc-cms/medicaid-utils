@@ -466,11 +466,18 @@ class TAFFile:
 
                 if self.ftype in ["ip", "ot"]:
                     if f"{self.ftype.upper()}_FIL_DT" in df.columns:
-                        df = df.assign(
-                            filing_period=df[
-                                f"{self.ftype.upper()}_FIL_DT"
-                            ].str[1:7],
-                        )
+                        if self.ftype == "ip":
+                            df = df.assign(
+                                filing_period=df[
+                                    f"{self.ftype.upper()}_FIL_DT"
+                                ].str[1:7],
+                            )
+                        else:
+                            df = df.assign(
+                                filing_period=df[
+                                    f"{self.ftype.upper()}_FIL_DT"
+                                ].str[0:6],
+                            )
                         df = df.assign(
                             year=df.filing_period.str[:4].astype(int)
                         )
