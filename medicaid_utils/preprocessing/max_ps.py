@@ -149,7 +149,7 @@ class MAXPS(max_file.MAXFile):
         New Columns:
 
             - resident_state_cd
-            - rural - 0/ 1/ np.nan, 1 when bene's residence is in a rural location, 0 when not..
+            - rural - 0/ 1/ -1, 1 when bene's residence is in a rural location, 0 when not. -1 when zip code is missing
             - pcsa - resident PCSA code
             - {ruca_code/ rucc_code} - resident ruca_code
 
@@ -297,11 +297,10 @@ class MAXPS(max_file.MAXFile):
                             (pdf["rucc_code"] >= 8),
                         ],
                         [0, 1],
-                        default=np.nan,
-                    )
+                        default=-1,
+                    ).astype(int)
                 )
             )
-        self.df = self.df.assign(rural=self.df["rural"].astype("Int64"))
         if self.df.index.name != index_col:
             self.df = self.df.set_index(index_col, sorted=True)
 

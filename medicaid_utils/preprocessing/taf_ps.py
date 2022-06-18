@@ -102,7 +102,7 @@ class TAFPS(taf_file.TAFFile):
 
     def add_gender(self):
         """Adds integer 'female' column based on 'SEX_CD' column. Undefined values ('U') in SEX_CD column will
-        result in female column taking the value np.nan"""
+        result in female column taking the value -1"""
         df = self.dct_files["base"]
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -112,11 +112,10 @@ class TAFPS(taf_file.TAFFile):
                         pdf["SEX_CD"].str.strip().str.upper() == "M",
                     ],
                     [1, 0],
-                    default=np.nan,
-                )
+                    default=-1,
+                ).astype(int)
             )
         )
-        df = df.assign(female=df["female"].astype("Int64"))
         self.dct_files["base"] = df
 
     def flag_rural(
@@ -127,7 +126,7 @@ class TAFPS(taf_file.TAFFile):
         New Columns:
 
             - resident_state_cd
-            - rural - 0/ 1/ np.nan, 1 when bene's residence is in a rural location, 0 when not..
+            - rural - 0/ 1/ np.nan, 1 when bene's residence is in a rural location, 0 when not, -1 when zip code is missing
             - pcsa - resident PCSA code
             - {ruca_code/ rucc_code} - resident ruca_code
 
@@ -273,11 +272,10 @@ class TAFPS(taf_file.TAFFile):
                             (pdf["rucc_code"] >= 8),
                         ],
                         [0, 1],
-                        default=np.nan,
-                    )
+                        default=-1,
+                    ).astype(int)
                 )
             )
-        df = df.assign(rural=df["rural"].astype("Int64"))
         if df.index.name != index_col:
             df = df.set_index(index_col, sorted=True)
         self.dct_files["base"] = df

@@ -198,7 +198,7 @@ class MAXFile:
 
     def add_gender(self) -> None:
         """Adds integer 'female' column based on 'EL_SEX_CD' column. Undefined values ('U') in EL_SEX_CD column will
-        result in female column taking the value np.nan"""
+        result in female column taking the value -1"""
         if "EL_SEX_CD" in self.df.columns:
             self.df = self.df.map_partitions(
                 lambda pdf: pdf.assign(
@@ -208,11 +208,10 @@ class MAXFile:
                             pdf["EL_SEX_CD"].str.strip() == "M",
                         ],
                         [1, 0],
-                        default=np.nan,
-                    )
+                        default=-1,
+                    ).astype(int)
                 )
             )
-            self.df = self.df.assign(female=self.df["female"].astype("Int64"))
 
     def clean_diag_codes(self):
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
@@ -382,8 +381,8 @@ class MAXFile:
                 .astype(pd.Int64Dtype()),
             )
             df = df.assign(
-                adult=df["adult"].where(~(df["age"].isna()), np.nan),
-                child=df["child"].where(~(df["age"].isna()), np.nan),
+                adult=df["adult"].where(~(df["age"].isna()), -1).astype(int),
+                child=df["child"].where(~(df["age"].isna()), -1).astype(int),
             )
             if self.ftype != "ps":
                 df = df.map_partitions(

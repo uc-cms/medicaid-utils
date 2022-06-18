@@ -133,7 +133,7 @@ class MAXOT(max_file.MAXFile):
                         )
                     )
                 ).astype(int),
-                excl_female=(pdf["female"] == 1).astype("Int64"),
+                excl_female=(pdf["female"] == 1).astype(int),
             )
         )
 

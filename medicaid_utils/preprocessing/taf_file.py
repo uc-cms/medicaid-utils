@@ -72,7 +72,7 @@ class TAFFile:
             "mfp",
             "waiver",
             "home_health",
-            "managed_care"
+            "managed_care",
         ]
         for subtype in list(self.dct_fileloc.keys()):
             if not os.path.exists(self.dct_fileloc[subtype]):
@@ -304,9 +304,9 @@ class TAFFile:
             df = dataframe_utils.fix_index(df, self.index_col, True)
             df = df.assign(
                 **{
-                    col: dd.to_numeric(df[col], errors="coerce").astype(
-                        "Int64"
-                    )
+                    col: dd.to_numeric(df[col], errors="coerce")
+                    .fill(-1)
+                    .astype(int)
                     for col in ["DA_RUN_ID", f"{self.ftype.upper()}_VRSN"]
                     if col in df.columns
                 }
@@ -471,7 +471,7 @@ class TAFFile:
                             ].str[1:7],
                         )
                         df = df.assign(
-                            year=df.filing_period.str[:4].astype("Int64")
+                            year=df.filing_period.str[:4].astype(int)
                         )
                         df = df.map_partitions(
                             lambda pdf: pdf.assign(
@@ -488,7 +488,7 @@ class TAFFile:
                     df = df.assign(
                         year=dd.to_numeric(
                             df.RFRNC_YR, errors="coerce"
-                        ).astype("Int64")
+                        ).astype(int)
                     )
 
                 if "birth_date" in df.columns:
@@ -516,23 +516,24 @@ class TAFFile:
                         df = df.assign(age=df.year - df.birth_year)
                 if "AGE" in df.columns:
                     df = df.assign(
-                        age=dd.to_numeric(df["AGE"], errors="coerce").astype(
-                            "Int64"
-                        )
+                        age=dd.to_numeric(df["AGE"], errors="coerce")
                     )
                 if "AGE_GRP_CD" in df.columns:
                     df = df.assign(
                         age_group=dd.to_numeric(
                             df["AGE_GRP_CD"], errors="coerce"
-                        ).astype("Int64"),
+                        )
+                        .fillna(-1)
+                        .astype(int),
                     )
                 if "age" in df.columns:
                     df = df.assign(
                         adult=df["age"]
                         .between(18, 64, inclusive="both")
-                        .astype("Int64"),
-                        elderly=(df["age"] >= 65).astype("Int64"),
-                        child=(df["age"] <= 17).astype("Int64"),
+                        .fillna(-1)
+                        .astype(int),
+                        elderly=(df["age"] >= 65).fillna(-1).astype(int),
+                        child=(df["age"] <= 17).fillna(-1).astype(int),
                     )
 
                 if self.ftype != "ps":
@@ -561,8 +562,7 @@ class TAFFile:
                             )
                             <= df.year
                         )
-                        .astype("Int64")
-                        .fillna(0)
+                        .fillna(False)
                         .astype(int)
                     )
                 if "DEATH_IND" in df.columns:
@@ -589,15 +589,13 @@ class TAFFile:
                         + 1,
                     )
                     df = df.assign(
-                        los=df["los"]
-                        .where(
+                        los=df["los"].where(
                             (
                                 (df["year"] >= df["admsn_date"].dt.year)
                                 & (df["admsn_date"] <= df["srvc_end_date"])
                             ),
                             np.nan,
                         )
-                        .astype("Int64")
                     )
 
                     df = df.assign(
@@ -608,7 +606,7 @@ class TAFFile:
                     df = df.assign(
                         age_admsn=(
                             df["age_day_admsn"].fillna(0) / 365.25
-                        ).astype("Int64"),
+                        ).astype(int),
                     )
 
                 if (self.ftype == "ot") and ("srvc_bgn_date" in df.columns):
@@ -627,6 +625,6 @@ class TAFFile:
                         ),
                         age_srvc_bgn=(
                             df["age_day_srvc_bgn"].fillna(0) / 365.25
-                        ).astype("Int64"),
+                        ).astype(int),
                     )
                 self.dct_files[ftype] = df
