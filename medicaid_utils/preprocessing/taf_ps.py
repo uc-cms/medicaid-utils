@@ -466,6 +466,7 @@ class TAFPS(taf_file.TAFFile):
                 **{
                     "n_enrollment_gaps": ("enrollment_gap", "size"),
                     "max_enrollment_gap": ("enrollment_gap", "max"),
+                    "total_gap_in_enrollment": ("enrollment_gap", "sum"),
                 }
             )
         ).compute()
@@ -475,6 +476,10 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = self.dct_files["base"].assign(
             **{
                 col: self.dct_files["base"][col].fillna(0).astype(int)
-                for col in ["n_enrollment_gaps", "max_enrollment_gap"]
+                for col in [
+                    "n_enrollment_gaps",
+                    "max_enrollment_gap",
+                    "total_gap_in_enrollment",
+                ]
             }
         )
