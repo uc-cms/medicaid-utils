@@ -258,7 +258,7 @@ class TAFPS(taf_file.TAFFile):
                             (pdf["ruca_code"] >= 4),
                         ],
                         [0, 1],
-                        default=np.nan,
+                        default=-1,
                     ).astype(int)
                 )
             )

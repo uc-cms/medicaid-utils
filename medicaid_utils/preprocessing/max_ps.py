@@ -283,7 +283,7 @@ class MAXPS(max_file.MAXFile):
                             (pdf["ruca_code"] >= 4),
                         ],
                         [0, 1],
-                        default=np.nan,
+                        default=-1,
                     ).astype(int)
                 )
             )
