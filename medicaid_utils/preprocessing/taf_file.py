@@ -341,12 +341,12 @@ class TAFFile:
                 df = df.map_partitions(
                     lambda pdf: pdf.assign(
                         max_version=pdf.groupby("filing_period")[
-                            f"{self.ftype.upper()}_version"
+                            f"{self.ftype.lower()}_version"
                         ].transform("max")
                     )
                 )
                 df = df.loc[
-                    df[f"{self.ftype.upper()}_version"] == df["max_version"]
+                    df[f"{self.ftype.lower()}_version"] == df["max_version"]
                 ].drop("max_version", axis=1)
             self.dct_files[ftype] = df
 
