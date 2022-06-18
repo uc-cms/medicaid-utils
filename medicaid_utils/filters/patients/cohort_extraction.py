@@ -372,11 +372,11 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                 )
                 dct_cohort_filter_stats[f_type] = (
                     filter_stats_df.copy()
-                    if (not bool(subtype))
-                    else {
-                        **dct_cohort_filter_stats[f_type],
-                        **{subtype: filter_stats_df.copy()},
-                    }
+                    # if (not bool(subtype))
+                    # else {
+                    #     **dct_cohort_filter_stats[f_type],
+                    #     **{subtype: filter_stats_df.copy()},
+                    # }
                 )
 
     pdf_patients = None
