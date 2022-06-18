@@ -450,7 +450,8 @@ class TAFPS(taf_file.TAFFile):
                 ]
             )
             pdf_dates = pd.concat(
-                [pdf_enrollment_beginnings, pdf_dates], ignore_index=True
+                [pdf_enrollment_beginnings.reset_index(drop=False), pdf_dates],
+                ignore_index=True,
             )
             pdf_dates = pdf_dates.set_index(self.index_col)
             return pdf_dates
