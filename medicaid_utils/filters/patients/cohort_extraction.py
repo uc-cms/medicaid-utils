@@ -412,9 +412,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                     col
                     for col in dct_claims["ip"].dct_files["base"].columns
                     if col.startswith(
-                        ("DGNS_CD_", "PRCDR_CD", "LINE_PRCDR_CD")
+                        ("DGNS", "ADMTG_DGNS", "PRCDR_CD", "LINE_PRCDR_CD")
                     )
-                    or (col == "ADMTG_DGNS_CD")
                 ]
                 + ["service_date"]
             ],
@@ -441,9 +440,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                     col
                     for col in dct_claims["ot"].dct_files["base"].columns
                     if col.startswith(
-                        ("DGNS_CD_", "PRCDR_CD", "LINE_PRCDR_CD")
+                        ("DGNS", "ADMTG_DGNS", "PRCDR_CD", "LINE_PRCDR_CD")
                     )
-                    or (col == "ADMTG_DGNS_CD")
                 ]
                 + ["service_date"]
             ],
@@ -458,9 +456,13 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             .dct_files["line"]
                             .columns
                             if col.startswith(
-                                ("DGNS_CD_", "PRCDR_CD", "LINE_PRCDR_CD")
+                                (
+                                    "DGNS",
+                                    "ADMTG_DGNS",
+                                    "PRCDR_CD",
+                                    "LINE_PRCDR_CD",
+                                )
                             )
-                            or (col == "ADMTG_DGNS_CD")
                         ]
                         + ["service_date"]
                     ]
