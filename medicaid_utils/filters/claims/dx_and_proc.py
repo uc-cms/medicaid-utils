@@ -79,7 +79,7 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
                     "Passed claims files do not have the same index"
                 )
             index_col = df.index.name
-            if bool(dct_diag_codes) and bool():
+            if bool(dct_diag_codes):
                 df = df.assign(diag_condn=0)
                 lst_diag_col = [
                     col
