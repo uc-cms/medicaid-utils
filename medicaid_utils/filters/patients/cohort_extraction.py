@@ -481,6 +481,12 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             **{claim.index_col: claim.df.index, "include": 1}
                         )[[claim.index_col, "include"]].compute()
                         for f_type, claim in dct_claims.items()
+                        if (
+                            not (
+                                bool(dct_filters) and ("cohort" in dct_filters)
+                            )
+                        )
+                        or (f_type in dct_filters["cohort"])
                     ]
                 )
                 .drop_duplicates()
@@ -499,6 +505,12 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                         )[[claim.index_col, "include"]]
                         .compute()
                         for f_type, claim in dct_claims.items()
+                        if (
+                            not (
+                                bool(dct_filters) and ("cohort" in dct_filters)
+                            )
+                        )
+                        or (f_type in dct_filters["cohort"])
                     ]
                 )
                 .drop_duplicates()
