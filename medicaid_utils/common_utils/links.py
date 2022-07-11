@@ -4,12 +4,12 @@ import os
 def get_max_parquet_loc(root, claim_type, state, year):
     return os.path.join(
         root,
-        "medicaid-max",
-        "data",
+        "medicaid",
         str(year),
+        state.upper(),
+        "max",
         claim_type.lower(),
         "parquet",
-        state.upper(),
     )
 
 
