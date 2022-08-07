@@ -8,8 +8,15 @@ from typing import List, Union, Tuple
 import pandas as pd
 
 from medicaid_utils.preprocessing import (
-    max_file, max_ip, max_ps, max_cc, max_ot,  # pylint: disable=unused-import
-    taf_file, taf_ip, taf_ot, taf_ps  # pylint: disable=unused-import
+    max_file,
+    max_ip,
+    max_ps,
+    max_cc,
+    max_ot,  # pylint: disable=unused-import
+    taf_file,
+    taf_ip,
+    taf_ot,
+    taf_ps,  # pylint: disable=unused-import
 )
 from medicaid_utils.filters.claims import dx_and_proc
 
