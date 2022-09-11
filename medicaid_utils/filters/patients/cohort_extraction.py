@@ -280,7 +280,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
         Dictionary with information on raw claim files root folder and export folder. Should be of the format,
         {'source_root': /path/to/medicaid/folder,
          'export_folder': /path/to/export/data}
-    cms_format : {'MAX', TAF'}
+    cms_format : {'MAX', 'TAF'}
         CMS file format.
     clean_exports : bool, default=False
         Should the exported datasets be cleaned?
