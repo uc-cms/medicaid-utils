@@ -665,7 +665,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             logger_name,
         )
 
-    shutil.rmtree(dct_data_paths["tmp_folder"])
+    shutil.rmtree(dct_data_paths["tmp_folder"], ignore_errors=True)
 
 
 def export_cohort_datasets(  # pylint: disable=missing-param-doc
