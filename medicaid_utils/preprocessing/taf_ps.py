@@ -13,6 +13,9 @@ other_data_folder = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "other_datasets", "data"
 )
 
+# MC - 1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 17
+# FFS - 2, 14, 15
+# unknown - 3, 4, 16, 18, 60, 70, 80
 
 class TAFPS(taf_file.TAFFile):
     """Scripts to preprocess PS file"""

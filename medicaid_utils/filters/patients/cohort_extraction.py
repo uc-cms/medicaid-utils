@@ -359,6 +359,9 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             logger.warning("%d data is missing for %s", year, state)
             logger.exception(ex)
             continue
+        except Exception as ex:
+            logging.critical(ex, exc_info=True)
+            continue
 
         os.makedirs(dct_data_paths["export_folder"], exist_ok=True)
         os.makedirs(dct_data_paths["tmp_folder"], exist_ok=True)
