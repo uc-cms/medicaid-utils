@@ -189,7 +189,6 @@ class TAFFile:
                 #     else {}
                 # ),
             )
-
         del self.dct_files[f_subtype]
         shutil.rmtree(dest_path_and_fname, ignore_errors=True)
         os.rename(dest_path_and_fname + "_tmp", dest_path_and_fname)

@@ -832,12 +832,14 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
                 )
             ]
         else:
-            for subtype in dct_claims[f_type].dct_files:
-                dct_claims[f_type].dct_files[subtype] = (
-                    dct_claims[f_type]
+            lst_taf_sub_file_types = list(dct_claims[f_type].dct_files.keys())
+            for subtype in lst_taf_sub_file_types:
+                claim_object = dct_claims[f_type]
+                claim_object.dct_files[subtype] = (
+                    claim_object
                     .dct_files[subtype]
                     .loc[
-                        dct_claims[f_type]
+                        claim_object
                         .dct_files[subtype]
                         .index.isin(
                             pdf_cohort.loc[
@@ -846,6 +848,7 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
                         )
                     ]
                 )
+                dct_claims[f_type] = claim_object
 
         dct_claims[f_type].cache_results()
         if clean_exports or preprocess_exports:
