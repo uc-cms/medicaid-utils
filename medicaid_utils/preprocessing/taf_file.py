@@ -169,6 +169,7 @@ class TAFFile:
             Destination path
 
         """
+        os.makedirs(dest_path_and_fname, exist_ok=True)
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
         try:
             self.dct_files[f_subtype].to_parquet(
@@ -242,9 +243,12 @@ class TAFFile:
             else:
                 self.pq_export(
                     subtype,
-                    self.dct_fileloc[subtype].split(
-                        self.data_root + os.path.sep
-                    )[1],
+                    os.path.join(
+                        dest_folder,
+                        self.dct_fileloc[subtype].split(
+                            self.data_root + os.path.sep
+                        )[1],
+                    ),
                 )
 
     def clean_diag_codes(self) -> None:
