@@ -3,7 +3,7 @@
 from medicaid_utils.preprocessing import taf_file
 
 
-class TAFOT(taf_file.TAFFile):
+class TAFLT(taf_file.TAFFile):
     def __init__(
         self,
         year: int,
