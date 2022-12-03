@@ -18,7 +18,7 @@ def get_taf_parquet_loc(root, claim_type, state, year):
     data_folder = os.path.join(
         root, "medicaid", str(year), state.upper(), "taf"
     )
-    if claim_type in ["ip", "ot", 'lt']:
+    if claim_type in ["ip", "ot", "lt"]:
         dct_fileloc["base"] = os.path.join(
             data_folder, claim_type, f"{claim_type.lower()}h", "parquet"
         )

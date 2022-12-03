@@ -769,55 +769,43 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
     dct_claims = {}
     try:
         for claim_type in sorted(lst_types_to_export):
-            if claim_type == "rx":
-                # Not yet implemented for TAF
-                if cms_format == "MAX":
-                    dct_claims[claim_type] = max_file.MAXFile(
-                        "rx",
-                        year,
-                        state,
-                        dct_data_paths["source_root"],
-                        clean=False,
-                        preprocess=False,
-                    )
-            else:
-                dct_claims[claim_type] = (
-                    max_file.MAXFile.get_claim_instance(
-                        claim_type,
-                        year,
-                        state,
-                        dct_data_paths["source_root"],
-                        clean=False,
-                        preprocess=False,
-                        **(
-                            {}
-                            if claim_type != "ip"
-                            else {
-                                "tmp_folder": os.path.join(
-                                    dct_data_paths["tmp_folder"], claim_type
-                                )
-                            }
-                        ),
-                    )
-                    if cms_format == "MAX"
-                    else taf_file.TAFFile.get_claim_instance(
-                        claim_type,
-                        year,
-                        state,
-                        dct_data_paths["source_root"],
-                        clean=False,
-                        preprocess=False,
-                        **(
-                            {}
-                            if claim_type != "ip"
-                            else {
-                                "tmp_folder": os.path.join(
-                                    dct_data_paths["tmp_folder"], claim_type
-                                )
-                            }
-                        ),
-                    )
+            dct_claims[claim_type] = (
+                max_file.MAXFile.get_claim_instance(
+                    claim_type,
+                    year,
+                    state,
+                    dct_data_paths["source_root"],
+                    clean=False,
+                    preprocess=False,
+                    **(
+                        {}
+                        if claim_type not in ["ip", "rx", "lt"]
+                        else {
+                            "tmp_folder": os.path.join(
+                                dct_data_paths["tmp_folder"], claim_type
+                            )
+                        }
+                    ),
                 )
+                if cms_format == "MAX"
+                else taf_file.TAFFile.get_claim_instance(
+                    claim_type,
+                    year,
+                    state,
+                    dct_data_paths["source_root"],
+                    clean=False,
+                    preprocess=False,
+                    **(
+                        {}
+                        if claim_type not in ["ip", "rx", "lt"]
+                        else {
+                            "tmp_folder": os.path.join(
+                                dct_data_paths["tmp_folder"], claim_type
+                            )
+                        }
+                    ),
+                )
+            )
     except FileNotFoundError as ex:
         logger.warning("%d data is missing for %s", year, state)
         logger.exception(ex)
@@ -835,19 +823,15 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
             lst_taf_sub_file_types = list(dct_claims[f_type].dct_files.keys())
             for subtype in lst_taf_sub_file_types:
                 claim_object = dct_claims[f_type]
-                claim_object.dct_files[subtype] = (
-                    claim_object
-                    .dct_files[subtype]
-                    .loc[
-                        claim_object
-                        .dct_files[subtype]
-                        .index.isin(
-                            pdf_cohort.loc[
-                                pdf_cohort["include"] == 1
-                            ].index.tolist()
-                        )
-                    ]
-                )
+                claim_object.dct_files[subtype] = claim_object.dct_files[
+                    subtype
+                ].loc[
+                    claim_object.dct_files[subtype].index.isin(
+                        pdf_cohort.loc[
+                            pdf_cohort["include"] == 1
+                        ].index.tolist()
+                    )
+                ]
                 dct_claims[f_type] = claim_object
 
         dct_claims[f_type].cache_results()

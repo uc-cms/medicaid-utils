@@ -61,4 +61,3 @@ class TAFRX(taf_file.TAFFile):
         and add duplicate check flags."""
         super().clean()
         self.flag_duplicates()
-
