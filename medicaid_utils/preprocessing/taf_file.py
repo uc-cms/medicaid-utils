@@ -229,7 +229,8 @@ class TAFFile:
             Export format. Csv is the currently supported format
 
         """
-        for subtype in self.dct_files:
+        lst_subtype = list(self.dct_files.keys())
+        for subtype in lst_subtype:
             if output_format == "csv":
                 self.dct_files[subtype].to_csv(
                     os.path.join(

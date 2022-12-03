@@ -235,8 +235,8 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
     )
     if bool(dct_invalid_proc_codes) or bool(dct_invalid_diag_codes):
         raise ValueError(
+            f"Non-alphanumeric values exist in "
             f"{','.join(list(dct_invalid_proc_codes.keys()) + list(dct_invalid_diag_codes.keys()))}"
-            f"have codes with non-alphanumeric values"
         )
     if df_claims is not None:
         lst_diag_col = (
