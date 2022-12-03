@@ -2102,7 +2102,7 @@ def fuzzy_match(
     df = df.reset_index(drop=True)
     chunk_size = 100
     list_df = [
-        df[i: i + chunk_size] for i in range(0, df.shape[0], chunk_size)
+        df[i : i + chunk_size] for i in range(0, df.shape[0], chunk_size)
     ]
 
     fname_fuzzy_source_nppes_merge = os.path.join(

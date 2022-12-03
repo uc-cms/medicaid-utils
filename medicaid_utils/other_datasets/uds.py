@@ -20,7 +20,7 @@ uds_lookup_folder = os.path.join(os.path.dirname(__file__), "data", "uds")
 fqhc_lookup_folder = os.path.join(os.path.dirname(__file__), "data", "fqhc")
 zip_folder = os.path.join(os.path.dirname(__file__), "data", "zip")
 uds_data_folder = "/gpfs/data/chin-lab/HRSA-FARA/Data/UDS"
-pq_engine = 'pyarrow'
+pq_engine = "pyarrow"
 
 
 def combine_and_clean_uds_files(lst_year=None, logger_name="uds"):
@@ -1489,7 +1489,9 @@ def process_address_columns(pdf, logger_name, source="hcris"):
             dd.from_pandas(
                 pdf_addresses, npartitions=ceil(pdf_addresses.shape[0] / 10000)
             )
-            .map_partitions(lambda pdf_partition: standardize_addresses(pdf_partition))
+            .map_partitions(
+                lambda pdf_partition: standardize_addresses(pdf_partition)
+            )
             .compute()
         )
 

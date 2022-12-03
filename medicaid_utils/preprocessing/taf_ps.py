@@ -17,6 +17,7 @@ other_data_folder = os.path.join(
 # FFS - 2, 14, 15
 # unknown - 3, 4, 16, 18, 60, 70, 80
 
+
 class TAFPS(taf_file.TAFFile):
     """Scripts to preprocess PS file"""
 

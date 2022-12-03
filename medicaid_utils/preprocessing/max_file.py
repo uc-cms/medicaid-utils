@@ -56,6 +56,7 @@ class MAXFile:
             Raised when raw claim files are missing
 
         """
+        self.data_root = data_root
         self.fileloc = links.get_max_parquet_loc(data_root, ftype, state, year)
         self.ftype = ftype
         self.index_col = index_col
@@ -136,6 +137,7 @@ class MAXFile:
 
         """
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
+        os.makedirs(os.path.dirname(dest_path_and_fname), exist_ok=True)
         try:
             self.df.to_parquet(
                 dest_path_and_fname + "_tmp",
@@ -195,6 +197,8 @@ class MAXFile:
                 index=True,
                 single_file=True,
             )
+        else:
+            self.pq_export(self.fileloc.split(self.data_root + os.path.sep)[1])
 
     def add_gender(self) -> None:
         """Adds integer 'female' column based on 'EL_SEX_CD' column. Undefined values ('U') in EL_SEX_CD column will

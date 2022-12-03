@@ -57,6 +57,7 @@ class TAFFile:
             Raised when any of the subtype files are missing
 
         """
+        self.data_root = data_root
         self.dct_fileloc = links.get_taf_parquet_loc(
             data_root, ftype, state, year
         )
@@ -237,6 +238,13 @@ class TAFFile:
                     ),
                     index=True,
                     single_file=True,
+                )
+            else:
+                self.pq_export(
+                    subtype,
+                    self.dct_fileloc[subtype].split(
+                        self.data_root + os.path.sep
+                    )[1],
                 )
 
     def clean_diag_codes(self) -> None:

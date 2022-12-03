@@ -232,6 +232,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     cms_format: str = "MAX",
     clean_exports: bool = True,
     preprocess_exports: bool = True,
+    export_format: str = "csv",
     logger_name: str = __file__,
 ):
     """
@@ -286,6 +287,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
         Should the exported datasets be cleaned?
     preprocess_exports : bool, default=False
         Should the exported datasets be preprocessed?
+    export_format : str, default=csv
+        Format of exported files
     logger_name : str, default=__file__
         Logger name
 
@@ -331,7 +334,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                                 if claim_type != "ip"
                                 else {
                                     "tmp_folder": os.path.join(
-                                        dct_data_paths["tmp_folder"], claim_type
+                                        dct_data_paths["tmp_folder"],
+                                        claim_type,
                                     )
                                 }
                             ),
@@ -349,7 +353,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                                 if claim_type != "ip"
                                 else {
                                     "tmp_folder": os.path.join(
-                                        dct_data_paths["tmp_folder"], claim_type
+                                        dct_data_paths["tmp_folder"],
+                                        claim_type,
                                     )
                                 }
                             ),
@@ -491,12 +496,16 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                     pd.concat(
                         [
                             claim.df.assign(
-                                **{claim.index_col: claim.df.index, "include": 1}
+                                **{
+                                    claim.index_col: claim.df.index,
+                                    "include": 1,
+                                }
                             )[[claim.index_col, "include"]].compute()
                             for f_type, claim in dct_claims.items()
                             if (
                                 not (
-                                    bool(dct_filters) and ("cohort" in dct_filters)
+                                    bool(dct_filters)
+                                    and ("cohort" in dct_filters)
                                 )
                             )
                             or (f_type in dct_filters["cohort"])
@@ -512,7 +521,9 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             claim.dct_files["base"]
                             .assign(
                                 **{
-                                    claim.index_col: claim.dct_files["base"].index,
+                                    claim.index_col: claim.dct_files[
+                                        "base"
+                                    ].index,
                                     "include": 1,
                                 }
                             )[[claim.index_col, "include"]]
@@ -520,7 +531,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             for f_type, claim in dct_claims.items()
                             if (
                                 not (
-                                    bool(dct_filters) and ("cohort" in dct_filters)
+                                    bool(dct_filters)
+                                    and ("cohort" in dct_filters)
                                 )
                             )
                             or (f_type in dct_filters["cohort"])
@@ -538,7 +550,9 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             pdf_patients.shape[0],
         )
 
-        if ("cohort" not in dct_filters) or ("ps" not in dct_filters["cohort"]):
+        if ("cohort" not in dct_filters) or (
+            "ps" not in dct_filters["cohort"]
+        ):
             dct_cohort_filter_stats["ps"] = pd.DataFrame(
                 {
                     "N": dct_claims["ps"].df.shape[0].compute()
@@ -571,7 +585,9 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
         )
         del df_ps
 
-        if ("cohort" not in dct_filters) or ("ps" not in dct_filters["cohort"]):
+        if ("cohort" not in dct_filters) or (
+            "ps" not in dct_filters["cohort"]
+        ):
             (dct_claims["ps"], df_filter_stats) = filter_claim_files(
                 dct_claims["ps"],
                 {},
@@ -598,7 +614,10 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             pdf_patients.index.isin(
                 dct_claims["ps"].df.index.compute().tolist()
                 if (cms_format == "MAX")
-                else dct_claims["ps"].dct_files["base"].index.compute().tolist()
+                else dct_claims["ps"]
+                .dct_files["base"]
+                .index.compute()
+                .tolist()
             ),
             0,
         )
@@ -651,9 +670,10 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             ),
             index=True,
         )
-        pdf_patients_all_years = pd.concat([pdf_patients_all_years,
-                                            pdf_patients.reset_index(drop=False)],
-                                           ignore_index=False)
+        pdf_patients_all_years = pd.concat(
+            [pdf_patients_all_years, pdf_patients.reset_index(drop=False)],
+            ignore_index=False,
+        )
 
         export_cohort_datasets(
             pdf_patients_all_years,
@@ -665,6 +685,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             cms_format,
             clean_exports,
             preprocess_exports,
+            export_format,
             logger_name,
         )
 
@@ -681,6 +702,7 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
     cms_format: str = "MAX",
     clean_exports: bool = False,
     preprocess_exports: bool = False,
+    export_format: str = "csv",
     logger_name: str = __file__,
 ) -> None:
     """
@@ -727,6 +749,8 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
         Should the exported datasets be cleaned?
     preprocess_exports : bool, default=False
         Should the exported datasets be preprocessed?
+    export_format : str, default='csv'
+        Format of exported files
     logger_name : str, default=__file__
         Logger name
 
@@ -853,6 +877,8 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
                     engine=dct_claims[f_type].pq_engine,
                     index=False,
                 )
-        dct_claims[f_type].export(dct_data_paths["export_folder"])
+        dct_claims[f_type].export(
+            dct_data_paths["export_folder"], output_format=export_format
+        )
 
     shutil.rmtree(dct_data_paths["tmp_folder"])
