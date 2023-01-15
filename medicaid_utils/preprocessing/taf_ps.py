@@ -1,4 +1,5 @@
-"""This module has TAFPS class which wraps together cleaning/ preprocessing routines specific for TAF PS files"""
+"""This module has TAFPS class which wraps together cleaning/ preprocessing
+routines specific for TAF PS files"""
 import os
 
 import numpy as np
@@ -34,17 +35,29 @@ class TAFPS(taf_file.TAFFile):
         pq_engine: str = "pyarrow",
     ):
         """
-        Initializes PS file object by preloading and preprocessing(if opted in) the file
-        :param year: Year
-        :param state: State
-        :param data_root: Root folder with cms data
-        :param index_col: Column to use as index. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
-        sorted with index column
-        :param clean: Run cleaning routines if True
-        :param preprocess: Add commonly used constructed variable columns, if True
-        :param rural_method: Method to use for rural variable construction. Available options: 'ruca', 'rucc'
-        :param tmp_folder: Folder to use to store temporary files
-        :param pq_engine: Parquet Engine
+
+        Parameters
+        ----------
+        year : int
+            Claim year
+        state : str
+            Claim state
+        data_root : str
+            Root folder with cms data
+        index_col : str, default='BENE_MSIS'
+            Column to use as index. Eg. BENE_MSIS or MSIS_ID. The raw file
+            is expected to be already sorted with index column
+        clean : bool, default=True
+            Run cleaning routines if True
+        preprocess : bool, default=True
+            Add commonly used constructed variable columns if True
+        rural_method : {'ruca', 'rucc'}
+            Method to use for rural variable construction. Available
+            options: 'ruca', 'rucc'
+        tmp_folder : str, default=None
+            Folder to use to store temporary files
+        pq_engine: str, default='pyarrow'
+            Parquet Engine
         """
         super().__init__(
             "ps",
@@ -58,8 +71,9 @@ class TAFPS(taf_file.TAFFile):
             pq_engine=pq_engine,
         )
 
-        # Default filters to filter out benes that do not meet minimum standard of cleanliness criteria
-        # duplicated_bene_id exclusion will remove benes with duplicated BENE_MSIS ids
+        # Default filters to filter out benes that do not meet minimum
+        # standard of cleanliness criteria duplicated_bene_id exclusion will
+        # remove benes with duplicated BENE_MSIS ids
         self.dct_default_filters = {"duplicated_bene_id": 0}
         if clean:
             self.clean()
@@ -67,7 +81,8 @@ class TAFPS(taf_file.TAFFile):
             self.preprocess(rural_method)
 
     def clean(self):
-        """Runs cleaning routines and created common exclusion flags based on default filters"""
+        """Runs cleaning routines and created common exclusion flags based
+        on default filters"""
         super().clean()
         self.add_gender()
         self.flag_common_exclusions()
@@ -85,13 +100,16 @@ class TAFPS(taf_file.TAFFile):
         """
         Adds commonly used exclusion flags
         New Column(s):
-            - excl_duplicated_bene_id - 0 or 1, 1 when bene's index column is repeated
+            - excl_duplicated_bene_id - 0 or 1, 1 when bene's index column
+            is repeated
         """
         df_base = self.dct_files["base"]
         df_base = df_base.assign(**{f"_{self.index_col}": df_base.index})
-        # Some BENE_MSIS's are repeated in PS files. Some patients share the same BENE_ID and yet have different
-        # MSIS_IDs. Some of them even have different 'dates of birth'. Since we cannot find any explanation for
-        # such patterns, we decided on removing these BENE_MSIS's as per issue #29 in FARA project
+        # Some BENE_MSIS's are repeated in PS files. Some patients share the
+        # same BENE_ID and yet have different MSIS_IDs. Some of them even
+        # have different 'dates of birth'. Since we cannot find any
+        # explanation for such patterns, we decided on removing these
+        # BENE_MSIS's as per issue #29 in FARA project
         # (https://rcg.bsd.uchicago.edu/gitlab/mmurugesan/hrsa_max_feature_extraction/issues/29)
         df_base = df_base.map_partitions(
             lambda pdf: pdf.assign(
@@ -105,26 +123,37 @@ class TAFPS(taf_file.TAFFile):
 
     def add_mas_boe(self):
         """
-        Adds columns denoting number of months in each Maintenance Assistance Status (MAS) and Basis of Eligibility
+        Adds columns denoting number of months in each Maintenance
+        Assistance Status (MAS) and Basis of Eligibility
         (BOE) category. Columns added are,
             - boe_chip_months : Number of months in Separate-CHIP BOE category
             - boe_aged_months : Number of months in Aged BOE category
-            - boe_blind_disabled_months : Number of months in Blind/ Disabled BOE category
+            - boe_blind_disabled_months : Number of months in Blind/
+            Disabled BOE category
             - boe_child_months : Number of months in Children BOE category
             - boe_adults_months : Number of months in Adult BOE category
-            - boe_breast_and_cervical_cancer_months : Number of months in Breast and Cervical Cancer Prevention and
-                Treatment Act of 2000 BOE category
-            - boe_child_of_unemployed_months : Number of months in Child of Unemployed Adult BOE category
-            - boe_unemployed_months : Number of months in Unemployed Adult BOE category
-            - boe_foster_care_children_months : Number of months in Foster Care Children BOE category
+            - boe_breast_and_cervical_cancer_months : Number of months in
+            Breast and Cervical Cancer Prevention and Treatment Act of 2000
+            BOE category
+            - boe_child_of_unemployed_months : Number of months in Child of
+            Unemployed Adult BOE category
+            - boe_unemployed_months : Number of months in Unemployed Adult
+            BOE category
+            - boe_foster_care_children_months : Number of months in Foster
+            Care Children BOE category
             - boe_unknown_months : Number of months in Uknown BOE category
             - mas_chip_months : Number of months in Separate-CHIP MAS category
-            - mas_cash_sec_1931_months : Number of months in Individuals receiving cash assistance or eligible under
-                section 1931 of the Act MAS category
-            - mas_medically_needy_months : Number of months in Medically Needy MAS category
-            - mas_poverty_months : Number of months in Poverty Related Eligibles MAS category
-            - mas_other_months : Number of months in Other Eligibles MAS category
-            - mas_demonstration_months : Number of months in Section 1115 Demonstration expansion eligible MAS category
+            - mas_cash_sec_1931_months : Number of months in Individuals
+            receiving cash assistance or eligible under section 1931 of the
+            Act MAS category
+            - mas_medically_needy_months : Number of months in Medically
+            Needy MAS category
+            - mas_poverty_months : Number of months in Poverty Related
+            Eligibles MAS category
+            - mas_other_months : Number of months in Other Eligibles MAS
+            category
+            - mas_demonstration_months : Number of months in Section 1115
+            Demonstration expansion eligible MAS category
             - mas_unknown_months : Number of months in Unknown MAS category
             - max_mas_type : Top MAS category for the bene
             - max_boe_type : Top BOE category for the bene
@@ -226,8 +255,9 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df
 
     def add_gender(self):
-        """Adds integer 'female' column based on 'SEX_CD' column. Undefined values ('U') in SEX_CD column will
-        result in female column taking the value -1"""
+        """Adds integer 'female' column based on 'SEX_CD' column. Undefined
+        values ('U') in SEX_CD column will result in female column taking
+        the value -1"""
         df = self.dct_files["base"]
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -247,22 +277,26 @@ class TAFPS(taf_file.TAFFile):
         self, method: str = "ruca"
     ):  # pylint: disable=missing-param-doc
         """
-        Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of their resident ZIP/ FIPS codes
-        New Columns:
+        Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of
+        their resident ZIP/ FIPS codes
 
+        New Columns:
             - resident_state_cd
-            - rural - 0/ 1/ np.nan, 1 when bene's residence is in a rural location, 0 when not, -1 when zip code is missing
+            - rural - 0/ 1/ np.nan, 1 when bene's residence is in a rural
+            location, 0 when not, -1 when zip code is missing
             - pcsa - resident PCSA code
             - {ruca_code/ rucc_code} - resident ruca_code
 
         This function uses
-            - RUCA 3.1 dataset (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673). RUCA
-            codes >= 4 denote rural and the rest denote urban as per https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1
-            - RUCC codes were downloaded from https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372.
+            - `RUCA 3.1 dataset
+            <https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673>`_. RUCA
+            codes >= 4 denote rural and the rest denote urban as per
+            `Cole, Megan B et al <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1>`_
+            - `RUCC codes <https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372>`_.
             RUCC codes >= 8 denote rural and the rest denote urban.
-            - ZCTAs x zipcode crosswalk from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),
+            - ZCTAs x zipcode crosswalk from `UDSMapper <https://udsmapper.org/zip-code-to-zcta-crosswalk/>`_.
             - zipcodes from multiple sources
-            - istance between centroids of zipcodes using NBER data (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)
+            - Distance between centroids of zipcodes using `NBER data <https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv>`_
 
         Parameters
         ----------
@@ -276,8 +310,8 @@ class TAFPS(taf_file.TAFFile):
         df = df.assign(**{index_col: df.index})
 
         # Pad zeroes to the left to make zip codes 9 characters long.
-        # RI Zip codes have problems. They are all invalid unless the last character is dropped and
-        # a zero is added to the left
+        # RI Zip codes have problems. They are all invalid unless the last
+        # character is dropped and a zero is added to the left
         df = df.assign(
             BENE_ZIP_CD=df["BENE_ZIP_CD"]
             .where(
@@ -290,7 +324,8 @@ class TAFPS(taf_file.TAFFile):
         # zip_state_pcsa_ruca_zcta.csv was constructed with RUCA 3.1
         # (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673),
         # ZCTAs x zipcode mappings from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),
-        # zipcodes from multiple sources, and distance between centroids of zipcodes using NBER data
+        # zipcodes from multiple sources, and distance between centroids of
+        # zipcodes using NBER data
         # (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)
         df_zip_state_pcsa = pd.read_csv(
             os.path.join(zip_folder, "zip_state_pcsa_ruca_zcta.csv"),
@@ -407,10 +442,10 @@ class TAFPS(taf_file.TAFFile):
 
     def flag_dual(self):
         """
-        Flags benes with  DUAL_ELGBL_CD equal to 1 (full dual), 2 (partial dual), or 3 (other dual) in any month are
-        flagged as duals. Reference: [Identifying beneficiaries with a substance use disorder]
-        (https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx)
-
+        Flags benes with  DUAL_ELGBL_CD equal to 1 (full dual), 2 (partial
+        dual), or 3 (other dual) in any month are flagged as duals.
+        Reference: `Identifying beneficiaries with a substance use
+        disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
         """
         df = self.dct_files["base"]
         df = df.map_partitions(
@@ -447,23 +482,25 @@ class TAFPS(taf_file.TAFFile):
 
     def flag_restricted_benefits(self):
         """
-        Flags beneficiaries whose benefits are restricted. Benes with the below values in their RSTRCTD_BNFTS_CD_XX
-        columns are NOT assumed to have restricted benefits:
+        Flags beneficiaries whose benefits are restricted. Benes with the
+        below values in their RSTRCTD_BNFTS_CD_XX columns are NOT assumed to
+        have restricted benefits:
 
-            1. Individual is eligible for Medicaid or CHIP and entitled to the full scope of Medicaid or CHIP benefits.
-            4. Individual is eligible for Medicaid or CHIP but only entitled to restricted benefits for
-            pregnancy-related services.
-            5. Individual is eligible for Medicaid or Medicaid-Expansion CHIP but, for reasons other than alien,
-            dual-eligibility or pregnancy-related status, is only entitled to restricted benefits (e.g., restricted
-            benefits based upon substance abuse, medically needy or other criteria).
-            7. Individual is eligible for Medicaid and entitled to Medicaid benefits under an alternative package of
-            benchmark-equivalent coverage, as enacted by the Deficit Reduction Act of 2005.
+            1. Individual is eligible for Medicaid or CHIP and entitled to
+            the full scope of Medicaid or CHIP benefits.
+            4. Individual is eligible for Medicaid or CHIP but only entitled to
+            restricted benefits for pregnancy-related services.
+            5. Individual is eligible for Medicaid or Medicaid-Expansion
+            CHIP but, for reasons other than alien, dual-eligibility or
+            pregnancy-related status, is only entitled to restricted
+            benefits (e.g., restricted benefits based upon substance abuse,
+            medically needy or other criteria).
+            7. Individual is eligible for Medicaid and entitled to Medicaid
+            benefits under an alternative package of
+            benchmark-equivalent coverage, as enacted by the Deficit
+            Reduction Act of 2005.
 
-        Reference: [Identifying beneficiaries with a substance use disorder](https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx))
-
-        Returns
-        -------
-
+        Reference: `Identifying beneficiaries with a substance use disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
         """
         df = self.dct_files["base"]
         df = df.map_partitions(
@@ -501,8 +538,8 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df
 
     def compute_enrollment_gaps(self):
-        """Computes enrollment gaps using dates file. Adds number of enrollment gaps and length of maximum enrollment
-        gap in days columns"""
+        """Computes enrollment gaps using dates file. Adds number of
+        enrollment gaps and length of maximum enrollment gap in days columns"""
         df = self.dct_files["dates"]
         df = dataframe_utils.fix_index(
             df, index_name=self.index_col, drop_column=False
