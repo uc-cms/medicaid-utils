@@ -79,7 +79,6 @@ class TAFPS(taf_file.TAFFile):
         self.flag_dual()
         self.flag_restricted_benefits()
         self.compute_enrollment_gaps()
-        # self.add_eligibility_status_columns()
         self.cache_results()
 
     def flag_common_exclusions(self):
@@ -103,6 +102,128 @@ class TAFPS(taf_file.TAFFile):
         )
         df_base = df_base.drop([f"_{self.index_col}"], axis=1)
         self.dct_files["base"] = df_base
+
+    def add_mas_boe(self):
+        """
+        Adds columns denoting number of months in each Maintenance Assistance Status (MAS) and Basis of Eligibility
+        (BOE) category. Columns added are,
+            - boe_chip_months : Number of months in Separate-CHIP BOE category
+            - boe_aged_months : Number of months in Aged BOE category
+            - boe_blind_disabled_months : Number of months in Blind/ Disabled BOE category
+            - boe_child_months : Number of months in Children BOE category
+            - boe_adults_months : Number of months in Adult BOE category
+            - boe_breast_and_cervical_cancer_months : Number of months in Breast and Cervical Cancer Prevention and
+                Treatment Act of 2000 BOE category
+            - boe_child_of_unemployed_months : Number of months in Child of Unemployed Adult BOE category
+            - boe_unemployed_months : Number of months in Unemployed Adult BOE category
+            - boe_foster_care_children_months : Number of months in Foster Care Children BOE category
+            - boe_unknown_months : Number of months in Uknown BOE category
+            - mas_chip_months : Number of months in Separate-CHIP MAS category
+            - mas_cash_sec_1931_months : Number of months in Individuals receiving cash assistance or eligible under
+                section 1931 of the Act MAS category
+            - mas_medically_needy_months : Number of months in Medically Needy MAS category
+            - mas_poverty_months : Number of months in Poverty Related Eligibles MAS category
+            - mas_other_months : Number of months in Other Eligibles MAS category
+            - mas_demonstration_months : Number of months in Section 1115 Demonstration expansion eligible MAS category
+            - mas_unknown_months : Number of months in Unknown MAS category
+            - max_mas_type : Top MAS category for the bene
+            - max_boe_type : Top BOE category for the bene
+        """
+        df = self.dct_files["base"]
+        dct_boe_codes = {
+            "chip": 0,
+            "aged": 1,
+            "blind_disabled": 2,
+            "child": 3,
+            "adults": 4,
+            "breast_and_cervical_cancer": 11,
+            "child_of_unemployed": 6,
+            "unemployed": 7,
+            "foster_care_children": 8,
+            "unknown": 99,
+        }
+        dct_mas_codes = {
+            "chip": 0,
+            "cash_sec_1931": 1,
+            "medically_needy": 2,
+            "poverty": 3,
+            "other": 4,
+            "demonstration": 5,
+            "unknown": 9,
+        }
+        df = df.map_partitions(
+            lambda pdf: pdf.assign(
+                **{
+                    **{
+                        f"boe_{boe_type}_months": np.column_stack(
+                            [
+                                (
+                                    pd.to_numeric(pdf[col], errors="coerce")
+                                    .fillna(999)
+                                    .astype(int)
+                                    .astype(str)
+                                    .str.zfill(3)
+                                    .str[1:3]
+                                    .astype(int)
+                                    == dct_boe_codes[boe_type]
+                                ).astype(int)
+                                for col in [
+                                    f"MASBOE_CD_{str(mon).zfill(2)}"
+                                    for mon in range(1, 13)
+                                ]
+                            ]
+                        )
+                        .sum(axis=1)
+                        .astype(int)
+                        for boe_type in dct_boe_codes
+                    },
+                    **{
+                        f"mas_{mas_type}_months": np.column_stack(
+                            [
+                                (
+                                    pd.to_numeric(pdf[col], errors="coerce")
+                                    .fillna(999)
+                                    .astype(int)
+                                    .astype(str)
+                                    .str.zfill(3)
+                                    .str[0]
+                                    .astype(int)
+                                    == dct_mas_codes[mas_type]
+                                ).astype(int)
+                                for col in [
+                                    f"MASBOE_CD_{str(mon).zfill(2)}"
+                                    for mon in range(1, 13)
+                                ]
+                            ]
+                        )
+                        .sum(axis=1)
+                        .astype(int)
+                        for mas_type in dct_mas_codes
+                    },
+                }
+            )
+        )
+        df = df.assign(
+            **{
+                f"max_mas_type": df[
+                    [f"mas_{mas_type}_months" for mas_type in dct_mas_codes]
+                ]
+                .idxmax(axis=1)
+                .str[4:]
+                .str[:-7]
+            }
+        )
+        df = df.assign(
+            **{
+                f"max_boe_type": df[
+                    [f"boe_{boe_type}_months" for boe_type in dct_boe_codes]
+                ]
+                .idxmax(axis=1)
+                .str[4:]
+                .str[:-7]
+            }
+        )
+        self.dct_files["base"] = df
 
     def add_gender(self):
         """Adds integer 'female' column based on 'SEX_CD' column. Undefined values ('U') in SEX_CD column will
