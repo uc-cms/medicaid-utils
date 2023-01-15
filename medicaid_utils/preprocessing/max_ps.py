@@ -1,4 +1,5 @@
-"""This module has MAXPS class which wraps together cleaning/ preprocessing routines specific for MAX PS files"""
+"""This module has MAXPS class which wraps together cleaning/ preprocessing
+routines specific for MAX PS files"""
 import os
 
 import numpy as np
@@ -29,7 +30,8 @@ class MAXPS(max_file.MAXFile):
         pq_engine: str = "pyarrow",
     ):
         """
-        Initializes PS file object by preloading and preprocessing(if opted in) the file
+        Initializes PS file object by preloading and preprocessing(if opted
+        in) the file
 
         Parameters
         ----------
@@ -40,7 +42,8 @@ class MAXPS(max_file.MAXFile):
         data_root : str
             Root folder of raw claim files
         index_col : str, default='BENE_MSIS'
-            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
+            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is
+            expected to be already
         sorted with index column
         clean : bool, default=True
             Should the associated files be cleaned?
@@ -49,7 +52,8 @@ class MAXPS(max_file.MAXFile):
         rural_method : {'ruca', 'rucc'}
             Method to use for rural variable construction
         tmp_folder : str, default=None
-            Folder location to use for caching intermediate results. Can be turned off by not passing this argument.
+            Folder location to use for caching intermediate results. Can be
+            turned off by not passing this argument.
         pq_engine : str, default='pyarrow'
             Parquet engine to use
 
@@ -66,8 +70,9 @@ class MAXPS(max_file.MAXFile):
             pq_engine=pq_engine,
         )
 
-        # Default filters to filter out benes that do not meet minimum standard of cleanliness criteria
-        # duplicated_bene_id exclusion will remove benes with duplicated BENE_MSIS ids
+        # Default filters to filter out benes that do not meet minimum
+        # standard of cleanliness criteria duplicated_bene_id exclusion will
+        # remove benes with duplicated BENE_MSIS ids
         self.dct_default_filters = {"duplicated_bene_id": 0}
         if clean:
             self.clean()
@@ -75,7 +80,8 @@ class MAXPS(max_file.MAXFile):
             self.preprocess(rural_method)
 
     def clean(self):
-        """Runs cleaning routines and adds common exclusion flags based on default filters"""
+        """Runs cleaning routines and adds common exclusion flags based on
+        default filters"""
         super().clean()
         self.flag_common_exclusions()
         self.cache_results()
@@ -84,7 +90,8 @@ class MAXPS(max_file.MAXFile):
         self, rural_method="ruca"
     ):  # pylint: disable=missing-param-doc
         """
-        Adds rural, eligibility criteria, dual, and restricted benefits indicator variables
+        Adds rural, eligibility criteria, dual, and restricted benefits
+        indicator variables
 
         Parameters
         ----------
@@ -96,21 +103,25 @@ class MAXPS(max_file.MAXFile):
         self.add_eligibility_status_columns()
         self.flag_duals()
         self.flag_restricted_benefits()
+        self.flag_tanf()
         self.cache_results()
 
     def flag_common_exclusions(self):
         """
         Adds exclusion flags
         New Column(s):
-            - excl_duplicated_bene_id - 0 or 1, 1 when bene's index column is repeated
+            - excl_duplicated_bene_id - 0 or 1, 1 when bene's index column
+            is repeated
 
         """
         self.df = self.df.assign(
             **dict([(f"_{self.index_col}", self.df.index)])
         )
-        # Some BENE_MSIS's are repeated in PS files. Some patients share the same BENE_ID and yet have different
-        # MSIS_IDs. Some of them even have different 'dates of birth'. Since we cannot find any explanation for
-        # such patterns, we decided on removing these BENE_MSIS's as per issue #29 in FARA project
+        # Some BENE_MSIS's are repeated in PS files. Some patients share the
+        # same BENE_ID and yet have different MSIS_IDs. Some of them even
+        # have different 'dates of birth'. Since we cannot find any
+        # explanation for such patterns, we decided on removing these
+        # BENE_MSIS's as per issue #29 in FARA project
         # (https://rcg.bsd.uchicago.edu/gitlab/mmurugesan/hrsa_max_feature_extraction/issues/29)
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
@@ -125,8 +136,8 @@ class MAXPS(max_file.MAXFile):
         """
         Flags dual patients
         New column(s):
-            dual - 0 or 1 column, 0 if 0 <= EL_MDCR_DUAL_ANN <= 9 for years 2007, 2009, 2011
-                                       0 <= EL_MDCR_DUAL_ANN <= 9 for other years
+            dual - 0 or 1 column, 0 if 0 <= EL_MDCR_DUAL_ANN <= 9 for years
+            2007, 2009, 2011 0 <= EL_MDCR_DUAL_ANN <= 9 for other years
         """
         self.df = self.df.assign(
             dual=(
@@ -145,11 +156,14 @@ class MAXPS(max_file.MAXFile):
         self, method: str = "ruca"
     ):  # pylint: disable=missing-param-doc
         """
-        Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of their resident ZIP/ FIPS codes
+        Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of
+        their resident ZIP/ FIPS codes
+
         New Columns:
 
             - resident_state_cd
-            - rural - 0/ 1/ -1, 1 when bene's residence is in a rural location, 0 when not. -1 when zip code is missing
+            - rural - 0/ 1/ -1, 1 when bene's residence is in a rural
+            location, 0 when not. -1 when zip code is missing
             - pcsa - resident PCSA code
             - {ruca_code/ rucc_code} - resident ruca_code
 
@@ -172,8 +186,10 @@ class MAXPS(max_file.MAXFile):
         zip_folder = os.path.join(other_data_folder, "zip")
         self.df = self.df.assign(**dict([(index_col, self.df.index)]))
 
-        # 2012 RI claims report zip codes have problems. They are all invalid unless the last character is dropped. So
-        # dropping it as per email exchange with Alex Knitter & Dr. Laiteerapong (May 2020)
+        # 2012 RI claims report zip codes have problems. They are all
+        # invalid unless the last character is dropped. So
+        # dropping it as per email exchange with Alex Knitter & Dr. 
+        # Laiteerapong (May 2020)
         self.df = self.df.assign(
             EL_RSDNC_ZIP_CD_LTST=self.df["EL_RSDNC_ZIP_CD_LTST"].where(
                 ~((self.df["STATE_CD"] == "RI") & (self.df["year"] == 2012)),
@@ -306,31 +322,43 @@ class MAXPS(max_file.MAXFile):
 
     def add_eligibility_status_columns(self) -> None:
         """
-        Add eligibility columns based on MAX_ELG_CD_MO_{month} values for each month.
-        MAX_ELG_CD_MO:00 = NOT ELIGIBLE, 99 = UNKNOWN ELIGIBILITY  => codes to denote ineligibility
+        Add eligibility columns based on MAX_ELG_CD_MO_{month} values for
+        each month.
+        MAX_ELG_CD_MO:00 = NOT ELIGIBLE, 99 = UNKNOWN ELIGIBILITY  => codes
+        to denote ineligibility
 
         New Column(s):
-            - elg_mon_{month} - 0 or 1 value column, denoting eligibility for each month
+            - elg_mon_{month} - 0 or 1 value column, denoting eligibility
+            for each month
             - total_elg_mon - No. of eligible months
             - elg_full_year - 0 or 1 value column, 1 if total_elg_mon = 12
             - elg_over_9mon - 0 or 1 value column, 1 if total_elg_mon >= 9
             - elg_over_6mon - 0 or 1 value column, 1 if total_elg_mon >= 6
-            - elg_cont_6mon - 0 or 1 value column, 1 if patient has 6 continuous eligible months
-            - mas_elg_change - 0 or 1 value column, 1 if patient had multiple mas group memberships during claim year
+            - elg_cont_6mon - 0 or 1 value column, 1 if patient has 6
+            continuous eligible months
+            - mas_elg_change - 0 or 1 value column, 1 if patient had
+            multiple mas group memberships during claim year
             - mas_assignments - comma separated list of MAS assignments
             - boe_assignments - comma separated list of BOE assignments
-            - dominant_boe_group - BOE status held for the most number of months
-            - boe_elg_change - 0 or 1 value column, 1 if patient had multiple boe group memberships during claim year
-            - child_boe_elg_change - 0 or 1 value column, 1 if patient had multiple boe group memberships during claim year
-            - elg_change - 0 or 1 value column, 1 if patient had multiple eligibility group memberships during claim year
-            - eligibility_aged - Eligibility as aged anytime during the claim year
-            - eligibility_child - Eligibility as child anytime during the claim year
+            - dominant_boe_group - BOE status held for the most number of
+            months
+            - boe_elg_change - 0 or 1 value column, 1 if patient had
+            multiple boe group memberships during claim year
+            - child_boe_elg_change - 0 or 1 value column, 1 if patient had
+            multiple boe group memberships during claim year
+            - elg_change - 0 or 1 value column, 1 if patient had multiple
+            eligibility group memberships during claim year
+            - eligibility_aged - Eligibility as aged anytime during the
+            claim year
+            - eligibility_child - Eligibility as child anytime during the
+            claim year
             - max_gap - Maximum gap in enrollment in months
             - max_cont_enrollment - Maximum duration of continuous enrollment
         """
         # MAS & BOE groups are arrived at from MAX_ELG_CD variable
         # (https://resdac.org/sites/datadocumentation.resdac.org/files/MAX%20UNIFORM%20ELIGIBILITY%20CODE%20TABLE.txt)
-        # FARA year 2 peds paper decided to collapse BOE assignments, combining disabled and child groups
+        # FARA year 2 peds paper decided to collapse BOE assignments,
+        # combining disabled and child groups
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
                 **{
@@ -545,35 +573,44 @@ class MAXPS(max_file.MAXFile):
 
     def flag_restricted_benefits(self):
         """
-        Checks individual's eligibility for various medicaid services, based on EL_RSTRCT_BNFT_FLG_{month} values,
-            - 1 = full scope; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE MONTH AND IS ENTITLED TO THE FULL SCOPE OF
-                MEDICAID BENEFITS.
-            - 2 = alien; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE MONTH BUT ONLY ENTITLED TO RESTRICTED BENEFITS
+        Checks individual's eligibility for various medicaid services,
+        based on EL_RSTRCT_BNFT_FLG_{month} values,
+            - 1 = full scope; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE
+            MONTH AND IS ENTITLED TO THE FULL SCOPE OF MEDICAID BENEFITS.
+            - 2 = alien; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE
+            MONTH BUT ONLY ENTITLED TO RESTRICTED BENEFITS
                 BASED ON ALIEN STATUS
             - 3 = dual
             - 4 = pregnancy
             - 5 = other, eg. substance abuse, medically needy
             - 6 = family planning
-            - 7 = alternative package of benchmark equivalent coverage, 2011 data had no values of 7 and 8
-            - 8 = "money follows the person" rebalancing demonstration, 2011 data had no values of 7 and 8
+            - 7 = alternative package of benchmark equivalent coverage,
+            2011 data had no values of 7 and 8
+            - 8 = "money follows the person" rebalancing demonstration,
+            2011 data had no values of 7 and 8
             - 9 = unknown
             - A = Psychiatric residential treatments demonstration
             - B = Health Opportunity Account
-            - C = CHIP dental coverage, supplemental to employer sponsored insurance
-            - W = Medicaid health insurance premium payment assistance (MA, NJ, VT, OK)
+            - C = CHIP dental coverage, supplemental to employer sponsored
+            insurance
+            - W = Medicaid health insurance premium payment assistance (MA,
+            NJ, VT, OK)
             - X = rx drug
             - Y = drug and dual
             - Z = drug and dual, but Medicaid was not paying for the benefits.
 
-        Benefits are non-comprehensive (restricted) when EL_RSTRCT_BNFT_FLG_{month} has any of the below values:
-            - "2", "3", "6" - for states other than "AR", "ID", "SD"
-            - "2", "4", "3", "6" - for states "AR", "ID", "SD"
+        Benefits are non-comprehensive (restricted) when
+        EL_RSTRCT_BNFT_FLG_{month} has any of the below values:
+            - "2", "3", "6":  for states other than "AR", "ID", "SD"
+            - "2", "4", "3", "6":  for states "AR", "ID", "SD"
 
         New column(s):
-            - any_restricted_benefit_month - 0 or 1, 1 when bene's benefits are restricted for atleast 1 month
-            - restricted_benefit_months - Number of restricted benefit months
-            - restricted_benefits - 0 or 1, 1 when number of restricted benefit months are more than the number of
-            number of months the bene was enrolled in medicaid
+            - any_restricted_benefit_month: 0 or 1, 1 when bene's benefits
+            are restricted for atleast 1 month
+            - restricted_benefit_months: Number of restricted benefit months
+            - restricted_benefits: 0 or 1, 1 when number of restricted
+            benefit months are more than the number of number of months the
+            bene was enrolled in medicaid
 
         """
         lst_excluded_restricted_benefit_code = (
@@ -619,4 +656,40 @@ class MAXPS(max_file.MAXFile):
                 self.df["restricted_benefit_months"]
                 > (12 - self.df["total_elg_mon"])
             ).astype(int)
+        )
+
+    def flag_tanf(self):
+        """
+        The Temporary Assistance for Needy Families (TANF) program provides
+        temporary financial assistance for pregnant women and families with
+        one or more dependent children. This provides financial assistance to
+        help pay for food, shelter, utilities, and expenses other than
+        medical. In MAX files this is identified via
+
+        EL_TANF_CASH_FLG:
+            - 1 = INDIVIDUAL DID NOT RECEIVE TANF BENEFITS DURING THE MONTH;
+            - 2 = INDIVIDUAL DID RECEIVE TANF BENEFITS DURING THE MONTH. CO
+            and ID either 0 or 9
+
+        New Column(s):
+            - tanf : 0 or 1, denoting usage of TANF benefits in any of the
+            months
+        """
+
+        self.df = self.df.map_partitions(
+            lambda pdf: pdf.assign(
+                tanf=np.column_stack(
+                    [
+                        pd.to_numeric(pdf[col], errors="coerce").isin(
+                            [2] if self.state not in ["CO", "ID"] else [0, 9]
+                        )
+                        for col in [
+                            f"EL_TANF_CASH_FLG_{str(mon)}"
+                            for mon in range(1, 13)
+                        ]
+                    ]
+                )
+                .any(axis=1)
+                .astype(int)
+            )
         )
