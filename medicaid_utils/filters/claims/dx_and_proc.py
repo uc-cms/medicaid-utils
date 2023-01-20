@@ -1,5 +1,4 @@
 """This module has functions to add diagnosis/ procedure code based indicator flags to claims"""
-import os
 import logging
 from typing import List
 import itertools
@@ -8,8 +7,6 @@ from itertools import product
 import numpy as np
 import pandas as pd
 import dask.dataframe as dd
-
-data_folder = os.path.join(os.path.dirname(__file__), "data")
 
 
 def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
@@ -114,7 +111,7 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
                 "with_conditions_procedures"
             ] = df.shape[0].compute()
             logger.info(
-                "Restricting %s to condition diagnoses/ procedures  reduces the claim count to %d",
+                "Restricting %s to condition diagnoses/ procedures reduces the claim count to %d",
                 claim_type,
                 dct_filter_results[claim_type][
                     "with_conditions_procedures"

@@ -1,4 +1,5 @@
-"""This module has TAFFile class from which is the base class for all TAF file type classes"""
+"""This module has TAFFile class from which is the base class for all TAF
+file type classes"""
 import os
 import errno
 import shutil
@@ -12,7 +13,8 @@ from medicaid_utils.common_utils import dataframe_utils, links
 
 
 class TAFFile:
-    """Parent class for all TAF file classes, each of which will have clean and preprocess functions"""
+    """Parent class for all TAF file classes, each of which will have clean
+    and preprocess functions"""
 
     def __init__(
         self,
@@ -27,7 +29,8 @@ class TAFFile:
         pq_engine: str = "pyarrow",
     ):
         """
-        Initializes TAF file object by preloading and preprocessing(if opted in) the associated files
+        Initializes TAF file object by preloading and preprocessing(if opted
+        in) the associated files
 
         Parameters
         ----------
@@ -40,14 +43,16 @@ class TAFFile:
         data_root : str
             Root folder of raw claim files
         index_col : str, default='BENE_MSIS'
-            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
+            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is
+            expected to be already
         sorted with index column
         clean : bool, default=True
             Should the associated files be cleaned?
         preprocess : bool, default=True
             Should the associated files be preprocessed?
         tmp_folder : str, default=None
-            Folder location to use for caching intermediate results. Can be turned off by not passing this argument.
+            Folder location to use for caching intermediate results. Can be
+            turned off by not passing this argument.
         pq_engine : str, default='pyarrow'
             Parquet engine to use
 
@@ -97,7 +102,8 @@ class TAFFile:
             for ftype, claim_df in self.dct_files.items()
         }
 
-        # This dictionary variable can be used to filter out data that will not met minimum quality expections
+        # This dictionary variable can be used to filter out data that will
+        # not met minimum quality expections
         self.dct_default_filters = {}
         if clean:
             self.clean()
@@ -131,8 +137,9 @@ class TAFFile:
         self, subtype=None, repartition=False
     ):  # pylint: disable=missing-param-doc
         """
-        Save results in intermediate steps of some lengthy processing. Saving intermediate results speeds up
-        processing, and avoid dask cluster crashes for large datasets
+        Save results in intermediate steps of some lengthy processing.
+        Saving intermediate results speeds up processing, and avoid dask
+        cluster crashes for large datasets
 
         Parameters
         ----------
@@ -208,7 +215,8 @@ class TAFFile:
             )
 
     def clean(self):
-        """Cleaning routines to processes date and gender columns, and add duplicate check flags."""
+        """Cleaning routines to processes date and gender columns, and add
+        duplicate check flags."""
         self.process_date_cols()
         self.flag_duplicates()
 
@@ -252,7 +260,8 @@ class TAFFile:
                 )
 
     def clean_diag_codes(self) -> None:
-        """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
+        """Clean diagnostic code columns by removing non-alphanumeric
+        characters and converting them to upper case"""
         for ftype in self.dct_files:
             df = self.dct_files[ftype]
             lst_diag_cd_col = [
@@ -273,8 +282,26 @@ class TAFFile:
                 )
                 self.dct_files[ftype] = df
 
+    def clean_ndc_codes(self) -> None:
+        """Clean NDC codes columns by removing white space characters and
+        padding 0s to the left so the codes are of length 12"""
+        for ftype in self.dct_files:
+            df = self.dct_files[ftype]
+            if "NDC" in df.columns:
+                df = df.map_partitions(
+                    lambda pdf: pdf.assign(
+                        NDC=pdf["NDC"]
+                        .astype(str)
+                        .str.replace(" ", "")
+                        .str.zfill(12)
+                    )
+                )
+
+                self.dct_files[ftype] = df
+
     def clean_proc_codes(self):
-        """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
+        """Clean diagnostic code columns by removing non-alphanumeric
+        characters and converting them to upper case"""
         for ftype in self.dct_files:
             df = self.dct_files[ftype]
             lst_prcdr_cd_col = [

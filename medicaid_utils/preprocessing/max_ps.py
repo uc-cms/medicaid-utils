@@ -188,7 +188,7 @@ class MAXPS(max_file.MAXFile):
 
         # 2012 RI claims report zip codes have problems. They are all
         # invalid unless the last character is dropped. So
-        # dropping it as per email exchange with Alex Knitter & Dr. 
+        # dropping it as per email exchange with Alex Knitter & Dr.
         # Laiteerapong (May 2020)
         self.df = self.df.assign(
             EL_RSDNC_ZIP_CD_LTST=self.df["EL_RSDNC_ZIP_CD_LTST"].where(
