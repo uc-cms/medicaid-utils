@@ -52,17 +52,139 @@
 <li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html">medicaid_utils.other_datasets package</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">medicaid_utils.preprocessing package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_cc">medicaid_utils.preprocessing.max_cc module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_file">medicaid_utils.preprocessing.max_file module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_ip">medicaid_utils.preprocessing.max_ip module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_ot">medicaid_utils.preprocessing.max_ot module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_ps">medicaid_utils.preprocessing.max_ps module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_file">medicaid_utils.preprocessing.taf_file module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_ip">medicaid_utils.preprocessing.taf_ip module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_lt">medicaid_utils.preprocessing.taf_lt module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_ot">medicaid_utils.preprocessing.taf_ot module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_ps">medicaid_utils.preprocessing.taf_ps module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_rx">medicaid_utils.preprocessing.taf_rx module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_cc">medicaid_utils.preprocessing.max_cc module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.max_cc.MAXCC"><code class="docutils literal notranslate"><span class="pre">MAXCC</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_cc.MAXCC.agg_conditions"><code class="docutils literal notranslate"><span class="pre">MAXCC.agg_conditions()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_cc.MAXCC.get_chronic_conditions"><code class="docutils literal notranslate"><span class="pre">MAXCC.get_chronic_conditions()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_file">medicaid_utils.preprocessing.max_file module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile"><code class="docutils literal notranslate"><span class="pre">MAXFile</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.add_gender"><code class="docutils literal notranslate"><span class="pre">MAXFile.add_gender()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.cache_results"><code class="docutils literal notranslate"><span class="pre">MAXFile.cache_results()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.calculate_payment"><code class="docutils literal notranslate"><span class="pre">MAXFile.calculate_payment()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.clean"><code class="docutils literal notranslate"><span class="pre">MAXFile.clean()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.clean_diag_codes"><code class="docutils literal notranslate"><span class="pre">MAXFile.clean_diag_codes()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.clean_proc_codes"><code class="docutils literal notranslate"><span class="pre">MAXFile.clean_proc_codes()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.export"><code class="docutils literal notranslate"><span class="pre">MAXFile.export()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.flag_ed_use"><code class="docutils literal notranslate"><span class="pre">MAXFile.flag_ed_use()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.get_claim_instance"><code class="docutils literal notranslate"><span class="pre">MAXFile.get_claim_instance()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.pq_export"><code class="docutils literal notranslate"><span class="pre">MAXFile.pq_export()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.preprocess"><code class="docutils literal notranslate"><span class="pre">MAXFile.preprocess()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile.process_date_cols"><code class="docutils literal notranslate"><span class="pre">MAXFile.process_date_cols()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_ip">medicaid_utils.preprocessing.max_ip module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ip.MAXIP"><code class="docutils literal notranslate"><span class="pre">MAXIP</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ip.MAXIP.clean"><code class="docutils literal notranslate"><span class="pre">MAXIP.clean()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ip.MAXIP.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">MAXIP.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ip.MAXIP.flag_duplicates"><code class="docutils literal notranslate"><span class="pre">MAXIP.flag_duplicates()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ip.MAXIP.flag_ip_overlaps"><code class="docutils literal notranslate"><span class="pre">MAXIP.flag_ip_overlaps()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ip.MAXIP.preprocess"><code class="docutils literal notranslate"><span class="pre">MAXIP.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_ot">medicaid_utils.preprocessing.max_ot module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT"><code class="docutils literal notranslate"><span class="pre">MAXOT</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT.add_ot_flags"><code class="docutils literal notranslate"><span class="pre">MAXOT.add_ot_flags()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT.clean"><code class="docutils literal notranslate"><span class="pre">MAXOT.clean()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT.find_ot_ip_overlaps"><code class="docutils literal notranslate"><span class="pre">MAXOT.find_ot_ip_overlaps()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_dental"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_dental()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_duplicates"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_duplicates()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_em"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_em()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_ip_overlaps_and_ed"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_ip_overlaps_and_ed()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_transport"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_transport()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ot.MAXOT.preprocess"><code class="docutils literal notranslate"><span class="pre">MAXOT.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_ps">medicaid_utils.preprocessing.max_ps module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ps.MAXPS"><code class="docutils literal notranslate"><span class="pre">MAXPS</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ps.MAXPS.add_eligibility_status_columns"><code class="docutils literal notranslate"><span class="pre">MAXPS.add_eligibility_status_columns()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ps.MAXPS.clean"><code class="docutils literal notranslate"><span class="pre">MAXPS.clean()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ps.MAXPS.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">MAXPS.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ps.MAXPS.flag_duals"><code class="docutils literal notranslate"><span class="pre">MAXPS.flag_duals()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ps.MAXPS.flag_restricted_benefits"><code class="docutils literal notranslate"><span class="pre">MAXPS.flag_restricted_benefits()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ps.MAXPS.flag_rural"><code class="docutils literal notranslate"><span class="pre">MAXPS.flag_rural()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ps.MAXPS.flag_tanf"><code class="docutils literal notranslate"><span class="pre">MAXPS.flag_tanf()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.max_ps.MAXPS.preprocess"><code class="docutils literal notranslate"><span class="pre">MAXPS.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_file">medicaid_utils.preprocessing.taf_file module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile"><code class="docutils literal notranslate"><span class="pre">TAFFile</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.cache_results"><code class="docutils literal notranslate"><span class="pre">TAFFile.cache_results()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.clean"><code class="docutils literal notranslate"><span class="pre">TAFFile.clean()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.clean_diag_codes"><code class="docutils literal notranslate"><span class="pre">TAFFile.clean_diag_codes()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.clean_ndc_codes"><code class="docutils literal notranslate"><span class="pre">TAFFile.clean_ndc_codes()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.clean_proc_codes"><code class="docutils literal notranslate"><span class="pre">TAFFile.clean_proc_codes()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.export"><code class="docutils literal notranslate"><span class="pre">TAFFile.export()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.flag_duplicates"><code class="docutils literal notranslate"><span class="pre">TAFFile.flag_duplicates()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.flag_ffs_and_encounter_claims"><code class="docutils literal notranslate"><span class="pre">TAFFile.flag_ffs_and_encounter_claims()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.get_claim_instance"><code class="docutils literal notranslate"><span class="pre">TAFFile.get_claim_instance()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.pq_export"><code class="docutils literal notranslate"><span class="pre">TAFFile.pq_export()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.preprocess"><code class="docutils literal notranslate"><span class="pre">TAFFile.preprocess()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile.process_date_cols"><code class="docutils literal notranslate"><span class="pre">TAFFile.process_date_cols()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_ip">medicaid_utils.preprocessing.taf_ip module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ip.TAFIP"><code class="docutils literal notranslate"><span class="pre">TAFIP</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ip.TAFIP.clean"><code class="docutils literal notranslate"><span class="pre">TAFIP.clean()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ip.TAFIP.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">TAFIP.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ip.TAFIP.preprocess"><code class="docutils literal notranslate"><span class="pre">TAFIP.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_lt">medicaid_utils.preprocessing.taf_lt module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_lt.TAFLT"><code class="docutils literal notranslate"><span class="pre">TAFLT</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_lt.TAFLT.clean"><code class="docutils literal notranslate"><span class="pre">TAFLT.clean()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_lt.TAFLT.preprocess"><code class="docutils literal notranslate"><span class="pre">TAFLT.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_ot">medicaid_utils.preprocessing.taf_ot module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ot.TAFOT"><code class="docutils literal notranslate"><span class="pre">TAFOT</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ot.TAFOT.clean"><code class="docutils literal notranslate"><span class="pre">TAFOT.clean()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ot.TAFOT.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">TAFOT.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ot.TAFOT.preprocess"><code class="docutils literal notranslate"><span class="pre">TAFOT.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_ps">medicaid_utils.preprocessing.taf_ps module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ps.TAFPS"><code class="docutils literal notranslate"><span class="pre">TAFPS</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.add_gender"><code class="docutils literal notranslate"><span class="pre">TAFPS.add_gender()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.add_mas_boe"><code class="docutils literal notranslate"><span class="pre">TAFPS.add_mas_boe()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.clean"><code class="docutils literal notranslate"><span class="pre">TAFPS.clean()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.compute_enrollment_gaps"><code class="docutils literal notranslate"><span class="pre">TAFPS.compute_enrollment_gaps()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">TAFPS.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_dual"><code class="docutils literal notranslate"><span class="pre">TAFPS.flag_dual()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_restricted_benefits"><code class="docutils literal notranslate"><span class="pre">TAFPS.flag_restricted_benefits()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_rural"><code class="docutils literal notranslate"><span class="pre">TAFPS.flag_rural()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.preprocess"><code class="docutils literal notranslate"><span class="pre">TAFPS.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_rx">medicaid_utils.preprocessing.taf_rx module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_rx.TAFRX"><code class="docutils literal notranslate"><span class="pre">TAFRX</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.preprocessing.taf_rx.TAFRX.clean"><code class="docutils literal notranslate"><span class="pre">TAFRX.clean()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="medicaid_utils.topics.html">medicaid_utils.topics package</a></li>

@@ -49,10 +49,51 @@
 <li class="toctree-l3"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">medicaid_utils.common_utils package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.dataframe_utils">medicaid_utils.common_utils.dataframe_utils module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.links">medicaid_utils.common_utils.links module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.recipes">medicaid_utils.common_utils.recipes module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.stats_utils">medicaid_utils.common_utils.stats_utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.dataframe_utils">medicaid_utils.common_utils.dataframe_utils module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.dataframe_utils.convert_ddcols_to_datetime"><code class="docutils literal notranslate"><span class="pre">convert_ddcols_to_datetime()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.dataframe_utils.copy_ddcols"><code class="docutils literal notranslate"><span class="pre">copy_ddcols()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.dataframe_utils.export"><code class="docutils literal notranslate"><span class="pre">export()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.dataframe_utils.fix_index"><code class="docutils literal notranslate"><span class="pre">fix_index()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.dataframe_utils.get_first_day_gap"><code class="docutils literal notranslate"><span class="pre">get_first_day_gap()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.dataframe_utils.get_reduced_column_names"><code class="docutils literal notranslate"><span class="pre">get_reduced_column_names()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.dataframe_utils.prepare_dtypes_for_csv"><code class="docutils literal notranslate"><span class="pre">prepare_dtypes_for_csv()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.dataframe_utils.safe_convert_int_to_str"><code class="docutils literal notranslate"><span class="pre">safe_convert_int_to_str()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.dataframe_utils.sas_to_pandas"><code class="docutils literal notranslate"><span class="pre">sas_to_pandas()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.dataframe_utils.toggle_datetime_string"><code class="docutils literal notranslate"><span class="pre">toggle_datetime_string()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.links">medicaid_utils.common_utils.links module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.links.get_max_parquet_loc"><code class="docutils literal notranslate"><span class="pre">get_max_parquet_loc()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.links.get_taf_parquet_loc"><code class="docutils literal notranslate"><span class="pre">get_taf_parquet_loc()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.recipes">medicaid_utils.common_utils.recipes module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.recipes.convert_to_int_str"><code class="docutils literal notranslate"><span class="pre">convert_to_int_str()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.recipes.is_number"><code class="docutils literal notranslate"><span class="pre">is_number()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.recipes.log_assert"><code class="docutils literal notranslate"><span class="pre">log_assert()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.recipes.remove_ignore_if_not_exists"><code class="docutils literal notranslate"><span class="pre">remove_ignore_if_not_exists()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.recipes.remove_tail_dot_zeros"><code class="docutils literal notranslate"><span class="pre">remove_tail_dot_zeros()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.recipes.setup_logger"><code class="docutils literal notranslate"><span class="pre">setup_logger()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.stats_utils">medicaid_utils.common_utils.stats_utils module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.color_positive_green"><code class="docutils literal notranslate"><span class="pre">color_positive_green()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.compute_contingency_table"><code class="docutils literal notranslate"><span class="pre">compute_contingency_table()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.compute_descriptives"><code class="docutils literal notranslate"><span class="pre">compute_descriptives()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.compute_missing_stats"><code class="docutils literal notranslate"><span class="pre">compute_missing_stats()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.compute_t_stats"><code class="docutils literal notranslate"><span class="pre">compute_t_stats()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.cramers_corrected_stat"><code class="docutils literal notranslate"><span class="pre">cramers_corrected_stat()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.get_cont_table_statewise"><code class="docutils literal notranslate"><span class="pre">get_cont_table_statewise()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.get_contingency_table"><code class="docutils literal notranslate"><span class="pre">get_contingency_table()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.get_covar_plots"><code class="docutils literal notranslate"><span class="pre">get_covar_plots()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.get_descriptives"><code class="docutils literal notranslate"><span class="pre">get_descriptives()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.get_missingness_stats"><code class="docutils literal notranslate"><span class="pre">get_missingness_stats()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.get_phi"><code class="docutils literal notranslate"><span class="pre">get_phi()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.get_ranksum_table"><code class="docutils literal notranslate"><span class="pre">get_ranksum_table()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.get_ranksum_table_statewise"><code class="docutils literal notranslate"><span class="pre">get_ranksum_table_statewise()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.get_utilisation_histograms"><code class="docutils literal notranslate"><span class="pre">get_utilisation_histograms()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="#medicaid-utils-common-utils-usps-address-module">medicaid_utils.common_utils.usps_address module</a></li>
 </ul>
 </li>

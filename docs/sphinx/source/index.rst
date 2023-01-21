@@ -7,7 +7,7 @@ Welcome to medicaid_utils's documentation!
 ==========================================
 
 .. toctree::
-   :maxdepth: 10
+   :maxdepth: 4
    :caption: Contents:
 
    medicaid_utils
