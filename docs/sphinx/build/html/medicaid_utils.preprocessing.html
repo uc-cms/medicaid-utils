@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.preprocessing package &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="medicaid_utils.topics package" href="medicaid_utils.topics.html" />
+    <link rel="prev" title="medicaid_utils.other_datasets package" href="medicaid_utils.other_datasets.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="medicaid_utils.html">medicaid_utils package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="medicaid_utils.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html">medicaid_utils.common_utils package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.html">medicaid_utils.filters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html">medicaid_utils.other_datasets package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">medicaid_utils.preprocessing package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_cc">medicaid_utils.preprocessing.max_cc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_file">medicaid_utils.preprocessing.max_file module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_ip">medicaid_utils.preprocessing.max_ip module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_ot">medicaid_utils.preprocessing.max_ot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.max_ps">medicaid_utils.preprocessing.max_ps module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_file">medicaid_utils.preprocessing.taf_file module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_ip">medicaid_utils.preprocessing.taf_ip module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_lt">medicaid_utils.preprocessing.taf_lt module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_ot">medicaid_utils.preprocessing.taf_ot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_ps">medicaid_utils.preprocessing.taf_ps module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.preprocessing.taf_rx">medicaid_utils.preprocessing.taf_rx module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.topics.html">medicaid_utils.topics package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.preprocessing package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/medicaid_utils.preprocessing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-medicaid_utils.preprocessing">
+<span id="medicaid-utils-preprocessing-package"></span><h1>medicaid_utils.preprocessing package<a class="headerlink" href="#module-medicaid_utils.preprocessing" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-medicaid_utils.preprocessing.max_cc">
+<span id="medicaid-utils-preprocessing-max-cc-module"></span><h2>medicaid_utils.preprocessing.max_cc module<a class="headerlink" href="#module-medicaid_utils.preprocessing.max_cc" title="Permalink to this heading"></a></h2>
+<p>This module has MAXCC class which wraps together cleaning/ preprocessing routines specific for MAX CC files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_cc.MAXCC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.max_cc.</span></span><span class="sig-name descname"><span class="pre">MAXCC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_cc.html#MAXCC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_cc.MAXCC" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile" title="medicaid_utils.preprocessing.max_file.MAXFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">MAXFile</span></code></a></p>
+<p>Scripts to preprocess CC file</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_cc.MAXCC.agg_conditions">
+<span class="sig-name descname"><span class="pre">agg_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst_conditions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_cc.html#MAXCC.agg_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_cc.MAXCC.agg_conditions" title="Permalink to this definition"></a></dt>
+<dd><p>Aggregate condition indicators across payer levels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lst_conditions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – List of condition columns to aggregate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_cc.MAXCC.get_chronic_conditions">
+<span class="sig-name descname"><span class="pre">get_chronic_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst_conditions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_cc.html#MAXCC.get_chronic_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_cc.MAXCC.get_chronic_conditions" title="Permalink to this definition"></a></dt>
+<dd><p>Get chronic condition indidcators</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lst_conditions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default=None</em>) – List of condition columns to check</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.preprocessing.max_file">
+<span id="medicaid-utils-preprocessing-max-file-module"></span><h2>medicaid_utils.preprocessing.max_file module<a class="headerlink" href="#module-medicaid_utils.preprocessing.max_file" title="Permalink to this heading"></a></h2>
+<p>This module has MAXFile class from which is the base class for all MAX file type classes</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.max_file.</span></span><span class="sig-name descname"><span class="pre">MAXFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ftype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Parent class for all MAX file classes, each of which will have clean and preprocess functions</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.add_gender">
+<span class="sig-name descname"><span class="pre">add_gender</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.add_gender"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.add_gender" title="Permalink to this definition"></a></dt>
+<dd><p>Adds integer ‘female’ column based on ‘EL_SEX_CD’ column. Undefined values (‘U’) in EL_SEX_CD column will
+result in female column taking the value -1</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.cache_results">
+<span class="sig-name descname"><span class="pre">cache_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repartition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.cache_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.cache_results" title="Permalink to this definition"></a></dt>
+<dd><p>Save results in intermediate steps of some lengthy processing. Saving intermediate results speeds up
+processing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>repartition</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=False</em>) – Repartition the dask dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.calculate_payment">
+<span class="sig-name descname"><span class="pre">calculate_payment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.calculate_payment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.calculate_payment" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates payment amount
+New Column(s):</p>
+<blockquote>
+<div><p>pymt_amt - “MDCD_PYMT_AMT” + “TP_PYMT_AMT”</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Cleaning routines to processes date and gender columns</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.clean_diag_codes">
+<span class="sig-name descname"><span class="pre">clean_diag_codes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.clean_diag_codes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.clean_diag_codes" title="Permalink to this definition"></a></dt>
+<dd><p>Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.clean_proc_codes">
+<span class="sig-name descname"><span class="pre">clean_proc_codes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.clean_proc_codes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.clean_proc_codes" title="Permalink to this definition"></a></dt>
+<dd><p>Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.export">
+<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.export" title="Permalink to this definition"></a></dt>
+<dd><p>Exports the files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Destination folder</p></li>
+<li><p><strong>output_format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='csv'</em>) – Export format. Csv is the currently supported format</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.flag_ed_use">
+<span class="sig-name descname"><span class="pre">flag_ed_use</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.flag_ed_use"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.flag_ed_use" title="Permalink to this definition"></a></dt>
+<dd><p>Detects ed use in claims
+New Column(s):</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>ed_cpt - 0 or 1, Claim has a procedure billed in ED code range (99281–99285)</dt><dd><p>(PRCDR_CD_SYS_{1-6} == 01 &amp; PRCDR_CD_{1-6} in (99281–99285))</p>
+</dd>
+</dl>
+</li>
+<li><p>ed_ub92 - 0 or 1, Claim has a revenue center codes (0450 - 0459, 0981) - UB_92_REV_CD_GP_{1-23}</p></li>
+<li><p>ed_tos - 0 or 1, Claim has an outpatient type of service (MAX_TOS = 11) (if ftype == ‘ip’)</p></li>
+<li><p>ed_pos - 0 or 1, Claim has PLC_OF_SRVC_CD set to 23 (if ftype == ‘ot’)</p></li>
+<li><p>ed_use - any of ed_cpt, ed_ub92, ed_tos or ed_pos is 1</p></li>
+<li><p>any_ed - 0 or 1, 1 when any other claim from the same visit has ed_use set to 1 (if ftype == ‘ot’)</p></li>
+</ul>
+</div></blockquote>
+<dl>
+<dt>Uses the below as reference:</dt><dd><ul class="simple">
+<li><p>If the patient is a Medicare beneficiary, the general surgeon should bill the level of</p></li>
+</ul>
+<p>ED code (99281–99285) (<a class="reference external" href="http://bulletin.facs.org/2013/02/coding-for-hospital-admission">http://bulletin.facs.org/2013/02/coding-for-hospital-admission</a>)
+- Inpatient files:  Revenue Center Codes 0450-0459, 0981 (<a class="reference external" href="https://www.resdac.org/resconnect/articles/144">https://www.resdac.org/resconnect/articles/144</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.get_claim_instance">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_claim_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">claim_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.get_claim_instance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.get_claim_instance" title="Permalink to this definition"></a></dt>
+<dd><p>Returns an instance of the requested claim type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>claim_type</strong> (<em>{'ip'</em><em>, </em><em>'ot'</em><em>, </em><em>'cc'</em><em>, </em><em>'rx'}</em>) – Claim type</p></li>
+<li><p><strong>*args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – List of position arguments</p></li>
+<li><p><strong>**kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Dictionary of keyword arguments</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.pq_export">
+<span class="sig-name descname"><span class="pre">pq_export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest_path_and_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.pq_export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.pq_export" title="Permalink to this definition"></a></dt>
+<dd><p>Export parquet files (overwrite safe)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dest_path_and_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Destination path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.preprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Add basic constructed variables</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_file.MAXFile.process_date_cols">
+<span class="sig-name descname"><span class="pre">process_date_cols</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_file.html#MAXFile.process_date_cols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_file.MAXFile.process_date_cols" title="Permalink to this definition"></a></dt>
+<dd><p>Convert datetime columns to datetime type and add basic date based constructed variables</p>
+<p>New columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>birth_year, birth_month, birth_day - date compoments of EL_DOB (date of birth)</p></li>
+<li><p>birth_date - birth date (EL_DOB)</p></li>
+<li><p>death - 0 or 1, if EL_DOD or MDCR_DOD is not empty and falls in the claim year or before</p></li>
+<li><p>age - age in years, integer format</p></li>
+<li><p>age_decimal - age in years, with decimals</p></li>
+<li><p>age_day - age in days</p></li>
+<li><p>adult - 0 or 1, 1 when patient’s age is in [18,115]</p></li>
+<li><p>child - 0 or 1, 1 when patient’s age is in [0,17]</p></li>
+</ul>
+</div></blockquote>
+<dl>
+<dt>if ftype == ‘ip’:</dt><dd><p>Clean/ impute admsn_date and add ip duration related columns
+New column(s):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>admsn_date - Admission date (ADMSN_DT)</p></li>
+<li><p>srvc_bgn_date - Service begin date (SRVC_BGN_DT)</p></li>
+<li><p>srvc_end_date - Service end date (SRVC_END_DT)</p></li>
+<li><p>prncpl_proc_date - Principal procedure date (PRNCPL_PRCDR_DT)</p></li>
+<li><p>missing_admsn_date - 0 or 1, 1 when admission date is missing</p></li>
+<li><p>missing_prncpl_proc_date - 0 or 1, 1 when principal procedure date is missing</p></li>
+<li><p>flag_admsn_miss - 0 or 1, 1 when admsn_date was imputed</p></li>
+<li><p>los - ip service duration in days</p></li>
+<li><p>ageday_admsn - age in days as on admsn_date</p></li>
+<li><p>age_admsn - age in years, with decimals, as on admsn_date</p></li>
+<li><p>age_prncpl_proc - age in years as on principal procedure date</p></li>
+<li><p>age_day_prncpl_proc - age in days as on principal procedure date</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>if ftype == ‘ot’:</dt><dd><p>Adds duration column, provided service end and begin dates are clean
+New Column(s):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>srvc_bgn_date - Service begin date (SRVC_BGN_DT)</p></li>
+<li><p>srvc_end_date - Service end date (SRVC_END_DT)</p></li>
+<li><p>diff &amp; duration - duration of service in days</p></li>
+<li><p>age_day_srvc_bgn - age in days as on service begin date</p></li>
+<li><p>age_srvc_bgn - age in years, with decimals, as on service begin date</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>if ftype == ‘ps:</dt><dd><p>New Column(s):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>date_of_death - Date of death (EL_DOD)</p></li>
+<li><p>medicare_date_of_death - Medicare date of death (MDCR_DOD)</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.preprocessing.max_ip">
+<span id="medicaid-utils-preprocessing-max-ip-module"></span><h2>medicaid_utils.preprocessing.max_ip module<a class="headerlink" href="#module-medicaid_utils.preprocessing.max_ip" title="Permalink to this heading"></a></h2>
+<p>This module has MAXIP class which wraps together cleaning/ preprocessing routines specific for MAX IP files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ip.MAXIP">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.max_ip.</span></span><span class="sig-name descname"><span class="pre">MAXIP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ip.html#MAXIP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ip.MAXIP" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile" title="medicaid_utils.preprocessing.max_file.MAXFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">MAXFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ip.MAXIP.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ip.html#MAXIP.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ip.MAXIP.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Runs cleaning routines and adds common exclusion flags based on default filters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ip.MAXIP.flag_common_exclusions">
+<span class="sig-name descname"><span class="pre">flag_common_exclusions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ip.html#MAXIP.flag_common_exclusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ip.MAXIP.flag_common_exclusions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ip.MAXIP.flag_duplicates">
+<span class="sig-name descname"><span class="pre">flag_duplicates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ip.html#MAXIP.flag_duplicates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ip.MAXIP.flag_duplicates" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ip.MAXIP.flag_ip_overlaps">
+<span class="sig-name descname"><span class="pre">flag_ip_overlaps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ip.html#MAXIP.flag_ip_overlaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ip.MAXIP.flag_ip_overlaps" title="Permalink to this definition"></a></dt>
+<dd><p>Identifies duplicate/ overlapping claims.
+When several/ overlapping claims exist with the same MSIS_ID, claim with the largest payment amount is retained.
+New Column(s):</p>
+<blockquote>
+<div><p>flag_ip_undup - 0 or 1, 1 when row is not a duplicate
+flag_ip_dup_drop - 0 or 1, 1 when row is duplicate and must be dropped
+flag_ip_overlap_drop - 0 or 1, 1 when row overlaps with another claim
+ip_incl - 0 or 1, 1 when row is clean (flag_ip_dup_drop = 0 &amp; flag_ip_overlap_drop = 0) and has los &gt; 0</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dd.DataFrame</strong> (<em>df</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ip.MAXIP.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ip.html#MAXIP.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ip.MAXIP.preprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Adds payment, ed use, and overlap flags</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.preprocessing.max_ot">
+<span id="medicaid-utils-preprocessing-max-ot-module"></span><h2>medicaid_utils.preprocessing.max_ot module<a class="headerlink" href="#module-medicaid_utils.preprocessing.max_ot" title="Permalink to this heading"></a></h2>
+<p>This module has MAXOT class which wraps together cleaning/ preprocessing routines specific for MAX OT files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.max_ot.</span></span><span class="sig-name descname"><span class="pre">MAXOT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile" title="medicaid_utils.preprocessing.max_file.MAXFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">MAXFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT.add_ot_flags">
+<span class="sig-name descname"><span class="pre">add_ot_flags</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT.add_ot_flags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT.add_ot_flags" title="Permalink to this definition"></a></dt>
+<dd><p>Assign flags for IP, OT and ED calculation
+Based on hierarchical principal: IP first,then ED, and then OT
+Marks claims that have overlapping IP claims, has ED services or have only OT services
+New Column(s):</p>
+<blockquote>
+<div><p>ip_incl - 0 or 1, 1 when has no dental and transport claims, and has an overlapping IP claim
+ed_incl - 0 or 1, 1 when has no dental and transport claims, has no overlapping IP claim, and has an ED</p>
+<blockquote>
+<div><p>service in any visits corresponding this claim</p>
+</div></blockquote>
+<dl class="simple">
+<dt>ot_incl - 0 or 1, 1 when has no dental and transport claims, has no overlapping IP claim, and has no ED</dt><dd><p>service in any visits corresponding this claim</p>
+</dd>
+</dl>
+<p>flag_drop - 0 or 1, 1 when ip_incl, ed_incl and ot_incl are all null</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Runs cleaning routines and adds common exclusion flags based on default filters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT.find_ot_ip_overlaps">
+<span class="sig-name descname"><span class="pre">find_ot_ip_overlaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT.find_ot_ip_overlaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT.find_ot_ip_overlaps" title="Permalink to this definition"></a></dt>
+<dd><p>Checks for OT claims that have an overlapping IP claim
+New Column(s):</p>
+<blockquote>
+<div><p>overlap - 0 or 1, 1 when OT claim has an overlapping IP claim</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df_ip</strong> (<em>DataFrame</em>) – IP DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT.flag_common_exclusions">
+<span class="sig-name descname"><span class="pre">flag_common_exclusions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT.flag_common_exclusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_common_exclusions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT.flag_dental">
+<span class="sig-name descname"><span class="pre">flag_dental</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT.flag_dental"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_dental" title="Permalink to this definition"></a></dt>
+<dd><p>Flag dental claims
+New Column(s):</p>
+<blockquote>
+<div><p>dental_TOS - 0 or 1, 1 when MAX_TOS = 9
+dental_PRCDR - 0 or 1, 1 when PRCDR_CD starts with ‘D’
+dental - 0 or 1, 1 when any of dental_TOS or dental_PRCDR</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT.flag_duplicates">
+<span class="sig-name descname"><span class="pre">flag_duplicates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT.flag_duplicates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_duplicates" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT.flag_em">
+<span class="sig-name descname"><span class="pre">flag_em</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT.flag_em"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_em" title="Permalink to this definition"></a></dt>
+<dd><p>Flag claim if procedure code belongs to E/M category
+New Column(s):</p>
+<blockquote>
+<div><p>EM - 0 or 1, 1 when PRCDR_CD in [99201, 99215] or [99301, 99350]</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT.flag_ip_overlaps_and_ed">
+<span class="sig-name descname"><span class="pre">flag_ip_overlaps_and_ed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT.flag_ip_overlaps_and_ed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_ip_overlaps_and_ed" title="Permalink to this definition"></a></dt>
+<dd><p>Adds flags to indicate overlaps with IP claims</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df_ip</strong> (<em>pd.DataFrame</em>) – IP claim dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT.flag_transport">
+<span class="sig-name descname"><span class="pre">flag_transport</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT.flag_transport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT.flag_transport" title="Permalink to this definition"></a></dt>
+<dd><p>Flag transport claims
+New Column(s):</p>
+<blockquote>
+<div><p>transport_TOS - 0 or 1, 1 when MAX_TOS = 26
+transport_POS - 0 or 1, 1 when PLC_OF_SRVC_CD is 41 or 42
+transport - 0 or 1, 1 when any of transport_TOS or transport_POS</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ot.MAXOT.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ot.html#MAXOT.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ot.MAXOT.preprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Adds payment, ed use, transport, dental, and em flags</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.preprocessing.max_ps">
+<span id="medicaid-utils-preprocessing-max-ps-module"></span><h2>medicaid_utils.preprocessing.max_ps module<a class="headerlink" href="#module-medicaid_utils.preprocessing.max_ps" title="Permalink to this heading"></a></h2>
+<p>This module has MAXPS class which wraps together cleaning/ preprocessing
+routines specific for MAX PS files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ps.MAXPS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.max_ps.</span></span><span class="sig-name descname"><span class="pre">MAXPS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rural_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ruca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ps.html#MAXPS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ps.MAXPS" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#medicaid_utils.preprocessing.max_file.MAXFile" title="medicaid_utils.preprocessing.max_file.MAXFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">MAXFile</span></code></a></p>
+<p>Scripts to preprocess PS file</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ps.MAXPS.add_eligibility_status_columns">
+<span class="sig-name descname"><span class="pre">add_eligibility_status_columns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ps.html#MAXPS.add_eligibility_status_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ps.MAXPS.add_eligibility_status_columns" title="Permalink to this definition"></a></dt>
+<dd><p>Add eligibility columns based on MAX_ELG_CD_MO_{month} values for
+each month.
+MAX_ELG_CD_MO:00 = NOT ELIGIBLE, 99 = UNKNOWN ELIGIBILITY  =&gt; codes
+to denote ineligibility</p>
+<dl>
+<dt>New Column(s):</dt><dd><ul class="simple">
+<li><p>elg_mon_{month} - 0 or 1 value column, denoting eligibility</p></li>
+</ul>
+<p>for each month
+- total_elg_mon - No. of eligible months
+- elg_full_year - 0 or 1 value column, 1 if total_elg_mon = 12
+- elg_over_9mon - 0 or 1 value column, 1 if total_elg_mon &gt;= 9
+- elg_over_6mon - 0 or 1 value column, 1 if total_elg_mon &gt;= 6
+- elg_cont_6mon - 0 or 1 value column, 1 if patient has 6
+continuous eligible months
+- mas_elg_change - 0 or 1 value column, 1 if patient had
+multiple mas group memberships during claim year
+- mas_assignments - comma separated list of MAS assignments
+- boe_assignments - comma separated list of BOE assignments
+- dominant_boe_group - BOE status held for the most number of
+months
+- boe_elg_change - 0 or 1 value column, 1 if patient had
+multiple boe group memberships during claim year
+- child_boe_elg_change - 0 or 1 value column, 1 if patient had
+multiple boe group memberships during claim year
+- elg_change - 0 or 1 value column, 1 if patient had multiple
+eligibility group memberships during claim year
+- eligibility_aged - Eligibility as aged anytime during the
+claim year
+- eligibility_child - Eligibility as child anytime during the
+claim year
+- max_gap - Maximum gap in enrollment in months
+- max_cont_enrollment - Maximum duration of continuous enrollment</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ps.MAXPS.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ps.html#MAXPS.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ps.MAXPS.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Runs cleaning routines and adds common exclusion flags based on
+default filters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ps.MAXPS.flag_common_exclusions">
+<span class="sig-name descname"><span class="pre">flag_common_exclusions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ps.html#MAXPS.flag_common_exclusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ps.MAXPS.flag_common_exclusions" title="Permalink to this definition"></a></dt>
+<dd><p>Adds exclusion flags
+New Column(s):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>excl_duplicated_bene_id - 0 or 1, 1 when bene’s index column</p></li>
+</ul>
+<p>is repeated</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ps.MAXPS.flag_duals">
+<span class="sig-name descname"><span class="pre">flag_duals</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ps.html#MAXPS.flag_duals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ps.MAXPS.flag_duals" title="Permalink to this definition"></a></dt>
+<dd><p>Flags dual patients
+New column(s):</p>
+<blockquote>
+<div><p>dual - 0 or 1 column, 0 if 0 &lt;= EL_MDCR_DUAL_ANN &lt;= 9 for years
+2007, 2009, 2011 0 &lt;= EL_MDCR_DUAL_ANN &lt;= 9 for other years</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ps.MAXPS.flag_restricted_benefits">
+<span class="sig-name descname"><span class="pre">flag_restricted_benefits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ps.html#MAXPS.flag_restricted_benefits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ps.MAXPS.flag_restricted_benefits" title="Permalink to this definition"></a></dt>
+<dd><p>Checks individual’s eligibility for various medicaid services,
+based on EL_RSTRCT_BNFT_FLG_{month} values,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>1 = full scope; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE</p></li>
+</ul>
+<p>MONTH AND IS ENTITLED TO THE FULL SCOPE OF MEDICAID BENEFITS.
+- 2 = alien; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE
+MONTH BUT ONLY ENTITLED TO RESTRICTED BENEFITS</p>
+<blockquote>
+<div><p>BASED ON ALIEN STATUS</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>3 = dual</p></li>
+<li><p>4 = pregnancy</p></li>
+<li><p>5 = other, eg. substance abuse, medically needy</p></li>
+<li><p>6 = family planning</p></li>
+<li><p>7 = alternative package of benchmark equivalent coverage,</p></li>
+</ul>
+<p>2011 data had no values of 7 and 8
+- 8 = “money follows the person” rebalancing demonstration,
+2011 data had no values of 7 and 8
+- 9 = unknown
+- A = Psychiatric residential treatments demonstration
+- B = Health Opportunity Account
+- C = CHIP dental coverage, supplemental to employer sponsored
+insurance
+- W = Medicaid health insurance premium payment assistance (MA,
+NJ, VT, OK)
+- X = rx drug
+- Y = drug and dual
+- Z = drug and dual, but Medicaid was not paying for the benefits.</p>
+</div></blockquote>
+<p>Benefits are non-comprehensive (restricted) when
+EL_RSTRCT_BNFT_FLG_{month} has any of the below values:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“2”, “3”, “6”:  for states other than “AR”, “ID”, “SD”</p></li>
+<li><p>“2”, “4”, “3”, “6”:  for states “AR”, “ID”, “SD”</p></li>
+</ul>
+</div></blockquote>
+<dl>
+<dt>New column(s):</dt><dd><ul class="simple">
+<li><p>any_restricted_benefit_month: 0 or 1, 1 when bene’s benefits</p></li>
+</ul>
+<p>are restricted for atleast 1 month
+- restricted_benefit_months: Number of restricted benefit months
+- restricted_benefits: 0 or 1, 1 when number of restricted
+benefit months are more than the number of number of months the
+bene was enrolled in medicaid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ps.MAXPS.flag_rural">
+<span class="sig-name descname"><span class="pre">flag_rural</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ruca'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ps.html#MAXPS.flag_rural"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ps.MAXPS.flag_rural" title="Permalink to this definition"></a></dt>
+<dd><p>Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of
+their resident ZIP/ FIPS codes</p>
+<p>New Columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>resident_state_cd</p></li>
+<li><p>rural - 0/ 1/ -1, 1 when bene’s residence is in a rural</p></li>
+</ul>
+<p>location, 0 when not. -1 when zip code is missing
+- pcsa - resident PCSA code
+- {ruca_code/ rucc_code} - resident ruca_code</p>
+</div></blockquote>
+<dl>
+<dt>This function uses</dt><dd><ul class="simple">
+<li><p>RUCA 3.1 dataset (from <a class="reference external" href="https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673">https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673</a>). RUCA</p></li>
+</ul>
+<p>codes &gt;= 4 denote rural and the rest denote urban as per <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1</a>
+- RUCC codes were downloaded from <a class="reference external" href="https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372">https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372</a>.
+RUCC codes &gt;= 8 denote rural and the rest denote urban.
+- ZCTAs x zipcode crosswalk from UDSMapper (<a class="reference external" href="https://udsmapper.org/zip-code-to-zcta-crosswalk/">https://udsmapper.org/zip-code-to-zcta-crosswalk/</a>),
+- zipcodes from multiple sources
+- istance between centroids of zipcodes using NBER data (<a class="reference external" href="https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv">https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv</a>)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>method</strong> (<em>{'ruca'</em><em>, </em><em>'rucc'}</em>) – Method to use for rural variable construction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ps.MAXPS.flag_tanf">
+<span class="sig-name descname"><span class="pre">flag_tanf</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ps.html#MAXPS.flag_tanf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ps.MAXPS.flag_tanf" title="Permalink to this definition"></a></dt>
+<dd><p>The Temporary Assistance for Needy Families (TANF) program provides
+temporary financial assistance for pregnant women and families with
+one or more dependent children. This provides financial assistance to
+help pay for food, shelter, utilities, and expenses other than
+medical. In MAX files this is identified via</p>
+<dl>
+<dt>EL_TANF_CASH_FLG:</dt><dd><ul class="simple">
+<li><p>1 = INDIVIDUAL DID NOT RECEIVE TANF BENEFITS DURING THE MONTH;</p></li>
+<li><p>2 = INDIVIDUAL DID RECEIVE TANF BENEFITS DURING THE MONTH. CO</p></li>
+</ul>
+<p>and ID either 0 or 9</p>
+</dd>
+<dt>New Column(s):</dt><dd><ul class="simple">
+<li><p>tanf : 0 or 1, denoting usage of TANF benefits in any of the</p></li>
+</ul>
+<p>months</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.max_ps.MAXPS.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rural_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ruca'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/max_ps.html#MAXPS.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.max_ps.MAXPS.preprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Adds rural, eligibility criteria, dual, and restricted benefits
+indicator variables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rural_method</strong> (<em>{'ruca'</em><em>, </em><em>'rucc'}</em>) – Method to use for rural variable construction</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.preprocessing.taf_file">
+<span id="medicaid-utils-preprocessing-taf-file-module"></span><h2>medicaid_utils.preprocessing.taf_file module<a class="headerlink" href="#module-medicaid_utils.preprocessing.taf_file" title="Permalink to this heading"></a></h2>
+<p>This module has TAFFile class from which is the base class for all TAF
+file type classes</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.taf_file.</span></span><span class="sig-name descname"><span class="pre">TAFFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ftype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Parent class for all TAF file classes, each of which will have clean
+and preprocess functions</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.cache_results">
+<span class="sig-name descname"><span class="pre">cache_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repartition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.cache_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.cache_results" title="Permalink to this definition"></a></dt>
+<dd><p>Save results in intermediate steps of some lengthy processing.
+Saving intermediate results speeds up processing, and avoid dask
+cluster crashes for large datasets</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default=None</em>) – File type. Eg. ‘header’. If empty, all subtypes will be cached</p></li>
+<li><p><strong>repartition</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=False</em>) – Repartition the dask dataframe</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Cleaning routines to processes date and gender columns, and add
+duplicate check flags.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.clean_diag_codes">
+<span class="sig-name descname"><span class="pre">clean_diag_codes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.clean_diag_codes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.clean_diag_codes" title="Permalink to this definition"></a></dt>
+<dd><p>Clean diagnostic code columns by removing non-alphanumeric
+characters and converting them to upper case</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.clean_ndc_codes">
+<span class="sig-name descname"><span class="pre">clean_ndc_codes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.clean_ndc_codes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.clean_ndc_codes" title="Permalink to this definition"></a></dt>
+<dd><p>Clean NDC codes columns by removing white space characters and
+padding 0s to the left so the codes are of length 12</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.clean_proc_codes">
+<span class="sig-name descname"><span class="pre">clean_proc_codes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.clean_proc_codes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.clean_proc_codes" title="Permalink to this definition"></a></dt>
+<dd><p>Clean diagnostic code columns by removing non-alphanumeric
+characters and converting them to upper case</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.export">
+<span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dest_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.export" title="Permalink to this definition"></a></dt>
+<dd><p>Exports the files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Destination folder</p></li>
+<li><p><strong>output_format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='csv'</em>) – Export format. Csv is the currently supported format</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.flag_duplicates">
+<span class="sig-name descname"><span class="pre">flag_duplicates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.flag_duplicates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.flag_duplicates" title="Permalink to this definition"></a></dt>
+<dd><p>Removes duplicated rows.</p>
+<dl>
+<dt>Things to note:</dt><dd><ul class="simple">
+<li><p>All TAF claims are monthly files. This function keeps the most recent file version date for each month</p></li>
+</ul>
+<p>using the variables IP_VRSN, LT_VRSN, OT_VRSN, and RX_VRSN.
+- Retains only the claims with maximum value of production data run ID (DA_RUN_ID) for each claim ID
+(CLM_ID).</p>
+</dd>
+</dl>
+<p>(Identifying beneficiaries with a substance use disorder
+(<a class="reference external" href="https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx">https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx</a>)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.flag_ffs_and_encounter_claims">
+<span class="sig-name descname"><span class="pre">flag_ffs_and_encounter_claims</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.flag_ffs_and_encounter_claims"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.flag_ffs_and_encounter_claims" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Flags claims where CLM_TYPE_CD is equal to one of the following values:</dt><dd><p>1: A FFS Medicaid or Medicaid-expansion claim
+3: Medicaid or Medicaid-expanding managed care encounter record
+A: Separate CHIP (Title XXI) FFS claim
+C: Separate CHIP (Title XXI) encounter record</p>
+</dd>
+</dl>
+<p>(Identifying beneficiaries with a substance use disorder
+(<a class="reference external" href="https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx">https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx</a>)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.get_claim_instance">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_claim_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">claim_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.get_claim_instance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.get_claim_instance" title="Permalink to this definition"></a></dt>
+<dd><p>Returns an instance of the requested claim type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>claim_type</strong> (<em>{'ip'</em><em>, </em><em>'ot'</em><em>, </em><em>'cc'</em><em>, </em><em>'rx'}</em>) – Claim type</p></li>
+<li><p><strong>*args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – List of position arguments</p></li>
+<li><p><strong>**kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Dictionary of keyword arguments</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.pq_export">
+<span class="sig-name descname"><span class="pre">pq_export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f_subtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_path_and_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.pq_export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.pq_export" title="Permalink to this definition"></a></dt>
+<dd><p>Export parquet files (overwrite safe)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f_subtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – File type. Eg. ‘header’</p></li>
+<li><p><strong>dest_path_and_fname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Destination path</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.preprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Add basic constructed variables</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_file.TAFFile.process_date_cols">
+<span class="sig-name descname"><span class="pre">process_date_cols</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_file.html#TAFFile.process_date_cols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_file.TAFFile.process_date_cols" title="Permalink to this definition"></a></dt>
+<dd><p>Convert datetime columns to datetime type and add basic date based constructed variables</p>
+<p>New columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>birth_year, birth_month, birth_day - date components of EL_DOB (date of birth)</p></li>
+<li><p>birth_date - birth date (EL_DOB)</p></li>
+<li><p>death - 0 or 1, if DEATH_DT is not empty and falls in the claim year or before</p></li>
+<li><p>age - age in years, integer format</p></li>
+<li><p>age_decimal - age in years, with decimals</p></li>
+<li><p>age_day - age in days</p></li>
+<li><p>adult - 0 or 1, 1 when patient’s age is in [18,115]</p></li>
+<li><p>child - 0 or 1, 1 when patient’s age is in [0,17]</p></li>
+</ul>
+</div></blockquote>
+<dl>
+<dt>If ftype == ‘ip’:</dt><dd><p>Clean/ impute admsn_date and add ip duration related columns
+New column(s):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>admsn_date - Admission date (ADMSN_DT)</p></li>
+<li><p>srvc_bgn_date - Service begin date (SRVC_BGN_DT)</p></li>
+<li><p>srvc_end_date - Service end date (SRVC_END_DT)</p></li>
+<li><p>prncpl_proc_date - Principal procedure date (PRCDR_CD_DT_1)</p></li>
+<li><p>missing_admsn_date - 0 or 1, 1 when admission date is missing</p></li>
+<li><p>missing_prncpl_proc_date - 0 or 1, 1 when principal procedure date is missing</p></li>
+<li><p>flag_admsn_miss - 0 or 1, 1 when admsn_date was imputed</p></li>
+<li><p>los - ip service duration in days</p></li>
+<li><p>ageday_admsn - age in days as on admsn_date</p></li>
+<li><p>age_admsn - age in years, with decimals, as on admsn_date</p></li>
+<li><p>age_prncpl_proc - age in years as on principal procedure date</p></li>
+<li><p>age_day_prncpl_proc - age in days as on principal procedure date</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>if ftype == ‘ot’:</dt><dd><p>Adds duration column, provided service end and begin dates are clean
+New Column(s):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>srvc_bgn_date - Service begin date (SRVC_BGN_DT)</p></li>
+<li><p>srvc_end_date - Service end date (SRVC_END_DT)</p></li>
+<li><p>diff &amp; duration - duration of service in days</p></li>
+<li><p>age_day_srvc_bgn - age in days as on service begin date</p></li>
+<li><p>age_srvc_bgn - age in years, with decimals, as on service begin date</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt>if ftype == ‘ps:</dt><dd><p>New Column(s):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>date_of_death - Date of death (DEATH_DT)</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.preprocessing.taf_ip">
+<span id="medicaid-utils-preprocessing-taf-ip-module"></span><h2>medicaid_utils.preprocessing.taf_ip module<a class="headerlink" href="#module-medicaid_utils.preprocessing.taf_ip" title="Permalink to this heading"></a></h2>
+<p>This module has TAFIP class which wraps together cleaning/ preprocessing routines specific for TAF IP files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ip.TAFIP">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.taf_ip.</span></span><span class="sig-name descname"><span class="pre">TAFIP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ip.html#TAFIP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ip.TAFIP" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">TAFFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ip.TAFIP.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ip.html#TAFIP.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ip.TAFIP.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Cleaning routines to clean diagnosis &amp; procedure code columns, processes date and gender columns,
+and add duplicate check flags.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ip.TAFIP.flag_common_exclusions">
+<span class="sig-name descname"><span class="pre">flag_common_exclusions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ip.html#TAFIP.flag_common_exclusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ip.TAFIP.flag_common_exclusions" title="Permalink to this definition"></a></dt>
+<dd><p>Adds commonly used IP claim exclusion flag columns.
+New Columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ffs_or_encounter_claim, 0 or 1, 1 when base claim is an FFS or Encounter claim</p></li>
+<li><p>excl_missing_dob, 0 or 1, 1 when base claim does not have birth date</p></li>
+<li><p>excl_missing_admsn_date, 0 or 1, 1 when base claim does not have admission date</p></li>
+<li><p>excl_missing_prncpl_proc_date, 0 or 1, 1 when base claim does not have principal procedure date</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ip.TAFIP.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ip.html#TAFIP.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ip.TAFIP.preprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Add basic constructed variables</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.preprocessing.taf_lt">
+<span id="medicaid-utils-preprocessing-taf-lt-module"></span><h2>medicaid_utils.preprocessing.taf_lt module<a class="headerlink" href="#module-medicaid_utils.preprocessing.taf_lt" title="Permalink to this heading"></a></h2>
+<p>This module has TAFLT class which wraps together cleaning/ preprocessing routines specific for TAF LT files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_lt.TAFLT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.taf_lt.</span></span><span class="sig-name descname"><span class="pre">TAFLT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_lt.html#TAFLT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_lt.TAFLT" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">TAFFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_lt.TAFLT.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_lt.html#TAFLT.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_lt.TAFLT.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Cleaning routines to clean diagnosis &amp; procedure code columns, processes date and gender columns,
+and add duplicate check flags.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_lt.TAFLT.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_lt.html#TAFLT.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_lt.TAFLT.preprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Add basic constructed variables</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.preprocessing.taf_ot">
+<span id="medicaid-utils-preprocessing-taf-ot-module"></span><h2>medicaid_utils.preprocessing.taf_ot module<a class="headerlink" href="#module-medicaid_utils.preprocessing.taf_ot" title="Permalink to this heading"></a></h2>
+<p>This module has TAFOT class which wraps together cleaning/ preprocessing routines specific for TAF OT files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ot.TAFOT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.taf_ot.</span></span><span class="sig-name descname"><span class="pre">TAFOT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ot.html#TAFOT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ot.TAFOT" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">TAFFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ot.TAFOT.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ot.html#TAFOT.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ot.TAFOT.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Cleaning routines to clean diagnosis &amp; procedure code columns, processes date and gender columns,
+and add duplicate check flags.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ot.TAFOT.flag_common_exclusions">
+<span class="sig-name descname"><span class="pre">flag_common_exclusions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ot.html#TAFOT.flag_common_exclusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ot.TAFOT.flag_common_exclusions" title="Permalink to this definition"></a></dt>
+<dd><p>Adds commonly used IP claim exclusion flag columns.
+New Columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ffs_or_encounter_claim, 0 or 1, 1 when base claim is an FFS or Encounter claim</p></li>
+<li><p>excl_missing_dob, 0 or 1, 1 when base claim does not have birth date</p></li>
+<li><p>excl_missing_srvc_bgn_date, 0 or 1, 1 when base claim does not have service begin date</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ot.TAFOT.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ot.html#TAFOT.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ot.TAFOT.preprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Add basic constructed variables</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.preprocessing.taf_ps">
+<span id="medicaid-utils-preprocessing-taf-ps-module"></span><h2>medicaid_utils.preprocessing.taf_ps module<a class="headerlink" href="#module-medicaid_utils.preprocessing.taf_ps" title="Permalink to this heading"></a></h2>
+<p>This module has TAFPS class which wraps together cleaning/ preprocessing
+routines specific for TAF PS files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ps.TAFPS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.taf_ps.</span></span><span class="sig-name descname"><span class="pre">TAFPS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rural_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ruca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ps.html#TAFPS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ps.TAFPS" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">TAFFile</span></code></a></p>
+<p>Scripts to preprocess PS file</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ps.TAFPS.add_gender">
+<span class="sig-name descname"><span class="pre">add_gender</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ps.html#TAFPS.add_gender"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.add_gender" title="Permalink to this definition"></a></dt>
+<dd><p>Adds integer ‘female’ column based on ‘SEX_CD’ column. Undefined
+values (‘U’) in SEX_CD column will result in female column taking
+the value -1</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ps.TAFPS.add_mas_boe">
+<span class="sig-name descname"><span class="pre">add_mas_boe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ps.html#TAFPS.add_mas_boe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.add_mas_boe" title="Permalink to this definition"></a></dt>
+<dd><p>Adds columns denoting number of months in each Maintenance
+Assistance Status (MAS) and Basis of Eligibility
+(BOE) category. Columns added are,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>boe_chip_months : Number of months in Separate-CHIP BOE category</p></li>
+<li><p>boe_aged_months : Number of months in Aged BOE category</p></li>
+<li><p>boe_blind_disabled_months : Number of months in Blind/</p></li>
+</ul>
+<p>Disabled BOE category
+- boe_child_months : Number of months in Children BOE category
+- boe_adults_months : Number of months in Adult BOE category
+- boe_breast_and_cervical_cancer_months : Number of months in
+Breast and Cervical Cancer Prevention and Treatment Act of 2000
+BOE category
+- boe_child_of_unemployed_months : Number of months in Child of
+Unemployed Adult BOE category
+- boe_unemployed_months : Number of months in Unemployed Adult
+BOE category
+- boe_foster_care_children_months : Number of months in Foster
+Care Children BOE category
+- boe_unknown_months : Number of months in Uknown BOE category
+- mas_chip_months : Number of months in Separate-CHIP MAS category
+- mas_cash_sec_1931_months : Number of months in Individuals
+receiving cash assistance or eligible under section 1931 of the
+Act MAS category
+- mas_medically_needy_months : Number of months in Medically
+Needy MAS category
+- mas_poverty_months : Number of months in Poverty Related
+Eligibles MAS category
+- mas_other_months : Number of months in Other Eligibles MAS
+category
+- mas_demonstration_months : Number of months in Section 1115
+Demonstration expansion eligible MAS category
+- mas_unknown_months : Number of months in Unknown MAS category
+- max_mas_type : Top MAS category for the bene
+- max_boe_type : Top BOE category for the bene</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ps.TAFPS.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ps.html#TAFPS.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Runs cleaning routines and created common exclusion flags based
+on default filters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ps.TAFPS.compute_enrollment_gaps">
+<span class="sig-name descname"><span class="pre">compute_enrollment_gaps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ps.html#TAFPS.compute_enrollment_gaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.compute_enrollment_gaps" title="Permalink to this definition"></a></dt>
+<dd><p>Computes enrollment gaps using dates file. Adds number of
+enrollment gaps and length of maximum enrollment gap in days columns</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ps.TAFPS.flag_common_exclusions">
+<span class="sig-name descname"><span class="pre">flag_common_exclusions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ps.html#TAFPS.flag_common_exclusions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_common_exclusions" title="Permalink to this definition"></a></dt>
+<dd><p>Adds commonly used exclusion flags
+New Column(s):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>excl_duplicated_bene_id - 0 or 1, 1 when bene’s index column</p></li>
+</ul>
+<p>is repeated</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ps.TAFPS.flag_dual">
+<span class="sig-name descname"><span class="pre">flag_dual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ps.html#TAFPS.flag_dual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_dual" title="Permalink to this definition"></a></dt>
+<dd><p>Flags benes with  DUAL_ELGBL_CD equal to 1 (full dual), 2 (partial
+dual), or 3 (other dual) in any month are flagged as duals.
+Reference: <a class="reference external" href="https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx">Identifying beneficiaries with a substance use
+disorder</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ps.TAFPS.flag_restricted_benefits">
+<span class="sig-name descname"><span class="pre">flag_restricted_benefits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ps.html#TAFPS.flag_restricted_benefits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_restricted_benefits" title="Permalink to this definition"></a></dt>
+<dd><p>Flags beneficiaries whose benefits are restricted. Benes with the
+below values in their RSTRCTD_BNFTS_CD_XX columns are NOT assumed to
+have restricted benefits:</p>
+<blockquote>
+<div><p>1. Individual is eligible for Medicaid or CHIP and entitled to
+the full scope of Medicaid or CHIP benefits.
+4. Individual is eligible for Medicaid or CHIP but only entitled to
+restricted benefits for pregnancy-related services.
+5. Individual is eligible for Medicaid or Medicaid-Expansion
+CHIP but, for reasons other than alien, dual-eligibility or
+pregnancy-related status, is only entitled to restricted
+benefits (e.g., restricted benefits based upon substance abuse,
+medically needy or other criteria).
+7. Individual is eligible for Medicaid and entitled to Medicaid
+benefits under an alternative package of
+benchmark-equivalent coverage, as enacted by the Deficit
+Reduction Act of 2005.</p>
+</div></blockquote>
+<p>Reference: <a class="reference external" href="https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx">Identifying beneficiaries with a substance use disorder</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ps.TAFPS.flag_rural">
+<span class="sig-name descname"><span class="pre">flag_rural</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ruca'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ps.html#TAFPS.flag_rural"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_rural" title="Permalink to this definition"></a></dt>
+<dd><p>Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of
+their resident ZIP/ FIPS codes</p>
+<dl>
+<dt>New Columns:</dt><dd><ul class="simple">
+<li><p>resident_state_cd</p></li>
+<li><p>rural - 0/ 1/ np.nan, 1 when bene’s residence is in a rural</p></li>
+</ul>
+<p>location, 0 when not, -1 when zip code is missing
+- pcsa - resident PCSA code
+- {ruca_code/ rucc_code} - resident ruca_code</p>
+</dd>
+<dt>This function uses</dt><dd><ul class="simple">
+<li><p><a href="#id2"><span class="problematic" id="id3">`</span></a>RUCA 3.1 dataset</p></li>
+</ul>
+<p>&lt;<a class="reference external" href="https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673">https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673</a>&gt;`_. RUCA
+codes &gt;= 4 denote rural and the rest denote urban as per
+<a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1">Cole, Megan B et al</a>
+- <a class="reference external" href="https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372">RUCC codes</a>.
+RUCC codes &gt;= 8 denote rural and the rest denote urban.
+- ZCTAs x zipcode crosswalk from <a class="reference external" href="https://udsmapper.org/zip-code-to-zcta-crosswalk/">UDSMapper</a>.
+- zipcodes from multiple sources
+- Distance between centroids of zipcodes using <a class="reference external" href="https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv">NBER data</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>method</strong> (<em>{'ruca'</em><em>, </em><em>'rucc'}</em>) – Method to use for rural variable construction</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_ps.TAFPS.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rural_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ruca'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_ps.html#TAFPS.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_ps.TAFPS.preprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Adds rural and eligibility criteria indicator variables</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.preprocessing.taf_rx">
+<span id="medicaid-utils-preprocessing-taf-rx-module"></span><h2>medicaid_utils.preprocessing.taf_rx module<a class="headerlink" href="#module-medicaid_utils.preprocessing.taf_rx" title="Permalink to this heading"></a></h2>
+<p>This module has TAFRX class which wraps together cleaning/ preprocessing
+routines specific for TAF Pharmacy files</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_rx.TAFRX">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.preprocessing.taf_rx.</span></span><span class="sig-name descname"><span class="pre">TAFRX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_rx.html#TAFRX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_rx.TAFRX" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">TAFFile</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.preprocessing.taf_rx.TAFRX.clean">
+<span class="sig-name descname"><span class="pre">clean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/preprocessing/taf_rx.html#TAFRX.clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.preprocessing.taf_rx.TAFRX.clean" title="Permalink to this definition"></a></dt>
+<dd><p>Cleaning routines to clean diagnosis &amp; procedure code columns,
+processes date and gender columns, and add duplicate check flags.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="medicaid_utils.other_datasets.html" class="btn btn-neutral float-left" title="medicaid_utils.other_datasets package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="medicaid_utils.topics.html" class="btn btn-neutral float-right" title="medicaid_utils.topics package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

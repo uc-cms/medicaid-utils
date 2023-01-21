@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.common_utils.dataframe_utils &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.common_utils.dataframe_utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.common_utils.dataframe_utils</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
+
+<span class="c1"># sys.path.append(&quot;../../medicaid_utils&quot;)</span>
+<span class="kn">from</span> <span class="nn">medicaid_utils.common_utils</span> <span class="kn">import</span> <span class="n">recipes</span>
+
+
+<div class="viewcode-block" id="toggle_datetime_string"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.toggle_datetime_string">[docs]</a><span class="k">def</span> <span class="nf">toggle_datetime_string</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_datetime_col</span><span class="p">,</span> <span class="n">to_string</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Toggles data columnes in the passed dataframe to string/ datatime types. Inplace updates.</span>
+<span class="sd">    :param df: dask dataframe</span>
+<span class="sd">    :param to_string bool: True to convert to string, False otherwise</span>
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_datetime_col</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">to_string</span><span class="p">:</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="o">**</span><span class="p">{</span>
+                            <span class="n">col</span><span class="p">:</span> <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+                            <span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;NaT&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="o">**</span><span class="p">{</span>
+                            <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                            <span class="p">)</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convert_ddcols_to_datetime"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.convert_ddcols_to_datetime">[docs]</a><span class="k">def</span> <span class="nf">convert_ddcols_to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_col</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert list of columns specified in a dataframe to datetime type</span>
+<span class="sd">    :param pandas_df df: dataframe</span>
+<span class="sd">    :param list(str) lst_col: list of column names</span>
+<span class="sd">    :rtype: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_col</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="copy_ddcols"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.copy_ddcols">[docs]</a><span class="k">def</span> <span class="nf">copy_ddcols</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_col</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">lst_new_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">lst_new_names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">pdf</span><span class="p">[</span><span class="n">lst_col</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst_col</span><span class="p">))</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="get_reduced_column_names"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.get_reduced_column_names">[docs]</a><span class="k">def</span> <span class="nf">get_reduced_column_names</span><span class="p">(</span><span class="n">multiidx_df_columns</span><span class="p">,</span> <span class="n">combine_levels</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">combine_levels</span> <span class="k">else</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">multiidx_df_columns</span>
+    <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="sas_to_pandas"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.sas_to_pandas">[docs]</a><span class="k">def</span> <span class="nf">sas_to_pandas</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sas</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">lst_float_cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lst_float_cols</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<span class="k">def</span> <span class="nf">_value_counts_chunk</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_value_counts_agg</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">_selected_obj</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span><span class="p">)))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_value_counts_finalize</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<span class="n">dask_groupby_value_counts</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">Aggregation</span><span class="p">(</span>
+    <span class="s2">&quot;value_counts&quot;</span><span class="p">,</span>
+    <span class="n">_value_counts_chunk</span><span class="p">,</span>
+    <span class="n">_value_counts_agg</span><span class="p">,</span>
+    <span class="n">_value_counts_finalize</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="safe_convert_int_to_str"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.safe_convert_int_to_str">[docs]</a><span class="k">def</span> <span class="nf">safe_convert_int_to_str</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_col</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span>
+                        <span class="n">col</span><span class="p">,</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="s2">&quot;nan&quot;</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">],</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+                            <span class="k">if</span> <span class="p">(</span>
+                                <span class="n">recipes</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">((</span><span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="s2">&quot;e&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="s2">&quot;E&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">))</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                            <span class="p">)</span>
+                            <span class="k">else</span> <span class="n">x</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_col</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="fix_index"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.fix_index">[docs]</a><span class="k">def</span> <span class="nf">fix_index</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">index_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">drop_column</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">index_name</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">divisions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">index_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">index_name</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> not in dataframe&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index_name</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">index_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_name</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="n">drop_column</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">drop_column</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">index_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="n">index_name</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="prepare_dtypes_for_csv"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.prepare_dtypes_for_csv">[docs]</a><span class="k">def</span> <span class="nf">prepare_dtypes_for_csv</span><span class="p">(</span><span class="n">df_temp</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_schema</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+    <span class="n">df_temp</span> <span class="o">=</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_schema</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                        <span class="n">df_schema</span><span class="p">[</span><span class="s2">&quot;python_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;str&quot;</span><span class="p">])</span>
+                    <span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df_temp</span> <span class="o">=</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">([</span><span class="s2">&quot;nan&quot;</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">],</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_schema</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                        <span class="n">df_schema</span><span class="p">[</span><span class="s2">&quot;python_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;str&quot;</span><span class="p">])</span>
+                    <span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">df_temp</span> <span class="o">=</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span>
+                        <span class="n">col</span><span class="p">,</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">recipes</span><span class="o">.</span><span class="n">is_number</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                            <span class="k">else</span> <span class="n">x</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_schema</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                        <span class="n">df_schema</span><span class="p">[</span><span class="s2">&quot;python_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;str&quot;</span><span class="p">])</span>
+                    <span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">df_temp</span> <span class="o">=</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_schema</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                        <span class="n">df_schema</span><span class="p">[</span><span class="s2">&quot;python_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;float&quot;</span><span class="p">])</span>
+                    <span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_temp</span></div>
+
+
+<div class="viewcode-block" id="export"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.export">[docs]</a><span class="k">def</span> <span class="nf">export</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">pq_engine</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">pq_location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">csv_location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">lst_datetime_col</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">is_dask</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">do_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">df_schema</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Dataframe utils&quot;</span><span class="p">,</span>
+    <span class="n">rewrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">do_parquet</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param df:</span>
+<span class="sd">    :param output_filename:</span>
+<span class="sd">    :param pq_location:</span>
+<span class="sd">    :param is_dask:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># df = df.persist()</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_rows</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">n_rows</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span><span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">repartition</span><span class="p">(</span>
+            <span class="n">npartitions</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span>
+                <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n_rows</span> <span class="o">/</span> <span class="mi">100000</span><span class="p">),</span> <span class="mi">1</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">npartitions</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">repartition</span><span class="p">(</span>
+            <span class="n">partition_size</span><span class="o">=</span><span class="s2">&quot;100MB&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>  <span class="c1"># df.repartition(npartitions=max(int(n_rows / 100000), df.npartitions)).persist()</span>
+    <span class="n">toggle_datetime_string</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">lst_datetime_col</span><span class="p">,</span> <span class="n">to_string</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_dask</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">do_parquet</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">umask</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="s2">&quot;007&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">8</span><span class="p">))</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">pq_location</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="s2">&quot;2770&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">8</span><span class="p">))</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">pq_location</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="s2">&quot;2770&quot;</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="mi">8</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">rewrite</span><span class="p">:</span>
+                <span class="n">recipes</span><span class="o">.</span><span class="n">remove_ignore_if_not_exists</span><span class="p">(</span><span class="n">pq_location</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pq_engine</span> <span class="o">==</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">:</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;NROWS: </span><span class="si">{0}</span><span class="s2">(</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n_rows</span><span class="p">),</span> <span class="n">pq_location</span><span class="p">))</span>
+                <span class="n">df_sample</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
+                    <span class="n">frac</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">250000</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="mi">250000</span><span class="p">)),</span>
+                    <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">random_state</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+                <span class="n">lst_null_cols</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">df_sample</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">df_sample</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">n_rows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="p">[]</span>
+                <span class="p">)</span>
+                <span class="n">df_sample</span> <span class="o">=</span> <span class="n">df_sample</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">df_sample</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">))</span>
+                            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_null_cols</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lst_datetime_col</span><span class="p">)</span>
+                        <span class="p">]</span>
+                        <span class="o">+</span> <span class="p">[</span>
+                            <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">df_sample</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+                            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_null_cols</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="n">lst_datetime_col</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="c1"># df_sample.to_csv(os.path.join(csv_location, &#39;sample.csv&#39;), index=False)</span>
+                <span class="n">schema_sample</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Schema</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span>
+                    <span class="n">df_sample</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+                    <span class="n">pq_location</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;_temp&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">rewrite</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                    <span class="c1"># compression=&#39;xz&#39;,</span>
+                    <span class="n">engine</span><span class="o">=</span><span class="n">pq_engine</span><span class="p">,</span>
+                    <span class="n">write_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">schema</span><span class="o">=</span><span class="n">schema_sample</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">rewrite</span><span class="p">:</span>
+                    <span class="n">recipes</span><span class="o">.</span><span class="n">remove_ignore_if_not_exists</span><span class="p">(</span><span class="n">pq_location</span><span class="p">)</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">pq_location</span> <span class="o">+</span> <span class="s2">&quot;_temp&quot;</span><span class="p">,</span> <span class="n">pq_location</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+                    <span class="n">pq_location</span><span class="p">,</span>
+                    <span class="c1"># compression=&#39;xz&#39;,</span>
+                    <span class="n">engine</span><span class="o">=</span><span class="n">pq_engine</span><span class="p">,</span>
+                    <span class="n">write_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">do_csv</span><span class="p">:</span>
+            <span class="n">df_formatted</span> <span class="o">=</span> <span class="n">prepare_dtypes_for_csv</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df_schema</span><span class="p">)[</span>
+                <span class="n">df_schema</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;sr_no&quot;</span><span class="p">)[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">]</span>
+            <span class="n">recipes</span><span class="o">.</span><span class="n">remove_ignore_if_not_exists</span><span class="p">(</span><span class="n">output_filename</span><span class="p">)</span>
+            <span class="c1"># df_formatted.to_csv(output_filename, single_file=True, quoting=csv.QUOTE_NONNUMERIC, quotechar=&#39;&quot;&#39;,</span>
+            <span class="c1">#                     float_format=&#39;%f&#39;, index=False)</span>
+            <span class="n">df_formatted</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="n">output_filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.sas.csv&quot;</span><span class="p">),</span>
+                <span class="n">single_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># header=False,</span>
+                <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_NONNUMERIC</span><span class="p">,</span>
+                <span class="n">quotechar</span><span class="o">=</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span>
+                <span class="n">float_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">pq_location</span><span class="p">,</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">output_filename</span><span class="p">))</span>
+                <span class="o">+</span> <span class="s2">&quot;.parquet.gzip&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">do_csv</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">toggle_datetime_string</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">lst_datetime_col</span><span class="p">,</span> <span class="n">to_string</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_first_day_gap"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.get_first_day_gap">[docs]</a><span class="k">def</span> <span class="nf">get_first_day_gap</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">index_col</span><span class="p">,</span> <span class="n">time_col</span><span class="p">,</span> <span class="n">start_date_col</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">index_col</span><span class="p">,</span> <span class="n">time_col</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">gap_dur</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">index_col</span><span class="p">)[</span><span class="n">time_col</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">prev_care_date</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">index_col</span><span class="p">)[</span><span class="n">time_col</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">gap_gt_threshold</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;gap_dur&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;prev_care_date&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">df</span><span class="p">[</span><span class="n">start_date_col</span><span class="p">]]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;gap_gt_threshold&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">gap_start_date</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">index_col</span><span class="p">)[</span><span class="s2">&quot;prev_care_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[[</span><span class="n">index_col</span><span class="p">,</span> <span class="s2">&quot;gap_start_date&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,16 +1,26 @@
 import dask.dataframe as dd
 import pandas as pd
 import numpy as np
-from medicaid_utils.filters.claims import dx_and_proc
+from ...filters.claims import dx_and_proc
 
 
 def flag_preterm(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     Detects preterm birth related hospitalization in claims
+
     New Column(s):
-        hosp_preterm - integer column, 1 when claim denotes preterm birth and 0 otherwise
-    :param df_claims:
-    :rtype: dd.DataFrame
+        - hosp_preterm: integer column, 1 when claim has codes denoting
+          preterm birth and 0 otherwise
+
+    Parameters
+    ----------
+    df_claims: dd.DataFrame
+        Claims dataframe
+
+    Returns
+    -------
+    dd.DataFrame
+
     """
     dct_diag_codes = {
         "preterm": {
@@ -28,10 +38,20 @@ def flag_preterm(df_claims: dd.DataFrame) -> dd.DataFrame:
 def flag_multiple_births(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     Identifies multiple births
+
     New Column(s):
-        hosp_multiple_births -
-    :param df_claims:
-    :rtype: dd.DataFrame
+        - hosp_multiple_births: 0 or 1, 1 when claim has codes indicating a
+          multiple birt hdelivery
+
+    Parameters
+    ----------
+    df_claims: dd.DataFrame
+        Claims dataframe
+
+    Returns
+    -------
+    dd.DataFrame
+
     """
     dct_diag_codes = {
         "multiple_births": {
@@ -50,11 +70,20 @@ def flag_multiple_births(df_claims: dd.DataFrame) -> dd.DataFrame:
 def flag_delivery_mode(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     Identifies mode of birth
+
     New Column(s):
-        hosp_vag_dlvry - vaginal delivery, int, 0 or 1
-        hosp_csrn_dlvry - caesarian delivery, int, 0 or 1
-    :param df_claims:
-    :rtype: dd.DataFrame
+        - hosp_vag_dlvry: 0 or 1, 1 denotes vaginal delivery
+        - hosp_csrn_dlvry: 0 or 1, 1 denotes caesarian delivery
+
+    Parameters
+    ----------
+    df_claims: dd.DataFrame
+        Claims dataframe
+
+    Returns
+    -------
+    dd.DataFrame
+
     """
     dct_proc_codes = {
         "vag_dlvry": {
@@ -84,10 +113,20 @@ def flag_delivery_mode(df_claims: dd.DataFrame) -> dd.DataFrame:
 def flag_delivery(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
     """
     Detects normal and stillbirths related hospitalization in claims
+
     New Column(s):
-        hosp_birth - integer column, 1 when claim denotes live or still birth and 0 otherwise
-    :param df_ip_claims:
-    :rtype: dd.DataFrame
+        - hosp_birth: integer column, 1 when claim denotes live or still
+          birth and 0 otherwise
+
+    Parameters
+    ----------
+    df_ip_claims: dd.DataFrame
+        IP claims dataframe
+
+    Returns
+    -------
+    dd.DataFrame
+
     """
     df_ip_claims = df_ip_claims.assign(
         hosp_birth=(
@@ -99,12 +138,22 @@ def flag_delivery(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
 
 def flag_abnormal_pregnancy(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
-    Detects ectopic, molar, or abnormal pregnancy, spontaneous or induced abortion related hospitalization
+    Detects ectopic, molar, or abnormal pregnancy, spontaneous or induced
+    abortion related hospitalization
+
     New Column(s):
-        hosp_abnormal_pregnancy - integer column, 1 when claim denotes ectopic, molar, or abnormal pregnancy,
-        spontaneous or induced abortion and 0 otherwise
-    :param df_claims:
-    :rtype: dd.DataFrame
+        - hosp_abnormal_pregnancy:  integer column, 1 when claim denotes
+          ectopic, molar, or abnormal pregnancy, spontaneous or induced
+          abortion and 0 otherwise
+
+    Parameters
+    ----------
+    df_claims: dd.DataFrame
+        Claims dataframe
+
+    Returns
+    -------
+    dd.DataFrame
     """
     dct_diag_codes = {"abnormal_pregnancy": {"incl": {9: ["63"]}}}
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
@@ -117,6 +166,22 @@ def flag_abnormal_pregnancy(df_claims: dd.DataFrame) -> dd.DataFrame:
 
 
 def flag_prenatal(df_claims: dd.DataFrame) -> dd.DataFrame:
+    """
+    Adds flag columns denoting presence of codes indicating pre-natal care
+
+    New Columns:
+        - prenatal: 0 or 1, 1 when claim has codes indicating pre-natal care
+
+    Parameters
+    ----------
+    df_claims: dd.DataFrame
+        Claims dataframe
+
+    Returns
+    -------
+    dd.DataFrame
+
+    """
     dct_diag_codes = {"prenatal": {"incl": {9: ["V22", "V23"]}}}
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
         dct_diag_codes, {}, df_claims
@@ -128,35 +193,46 @@ def flag_prenatal(df_claims: dd.DataFrame) -> dd.DataFrame:
 def flag_smm_events(
     df_ip_claims: dd.DataFrame, index_admsn_date_col="index_admsn_date"
 ) -> dd.DataFrame:
-
     """
     Adds flags for SMM related hospitaliztions
+
     New Columns:
-        hosp_smm_myo - ,
-        hosp_smm_aneurysm - ,
-        hosp_smm_renal - ,
-        hosp_smm_respiratory - ,
-        hosp_smm_embolism= - ,
-        hosp_smm_cardiac - ,
-        hosp_smm_coagulation - ,
-        hosp_smm_eclampsia - ,
-        hosp_smm_heart - ,
-        hosp_smm_cerebrovascular - ,
-        hosp_smm_edema - ,
-        hosp_smm_anesthesia - ,
-        hosp_smm_sepsis - ,
-        hosp_smm_shock - ,
-        hosp_smm_sickle - ,
-        hosp_smm_thrombotic - ,
-        hosp_smm_cardiac_rhythm - ,
-        hosp_smm_transfusion - ,
-        hosp_smm_hysterectomy - ,
-        hosp_smm_tracheostomy - ,
-        hosp_smm_ventilation -
-        hosp_smm - Any SMM related hospitalization
-        hosp_smm_no_blood - Any SMM related hospitalization, with transfusion not as the sole cause
-    :param df_ip_claims:
-    :return:
+        - hosp_smm_myo
+        - hosp_smm_aneurysm
+        - hosp_smm_renal
+        - hosp_smm_respiratory
+        - hosp_smm_embolism
+        - hosp_smm_cardiac
+        - hosp_smm_coagulation
+        - hosp_smm_eclampsia
+        - hosp_smm_heart
+        - hosp_smm_cerebrovascular
+        - hosp_smm_edema
+        - hosp_smm_anesthesia
+        - hosp_smm_sepsis
+        - hosp_smm_shock
+        - hosp_smm_sickle
+        - hosp_smm_thrombotic
+        - hosp_smm_cardiac_rhythm
+        - hosp_smm_transfusion
+        - hosp_smm_hysterectomy
+        - hosp_smm_tracheostomy
+        - hosp_smm_ventilation
+        - hosp_smm: Any SMM related hospitalization
+        - hosp_smm_no_blood: Any SMM related hospitalization,
+          with transfusion not as the sole cause
+
+    Parameters
+    ----------
+    df_ip_claims: dd.DataFrame
+        IP claims dataframe
+    index_admsn_date_col: str, default='index_admsn_date'
+        Name of column containing delivery date
+
+    Returns
+    -------
+    dd.DataFrame
+
     """
     dct_diag_codes = {
         "smm_myo": {"incl": {9: ["410"]}},
@@ -340,6 +416,30 @@ def flag_smm_events(
 def calculate_conception(
     df_claims: dd.DataFrame,
 ) -> (dd.DataFrame, dd.DataFrame):
+    """
+    Estimates conception date based on type of delivery and delivery date.
+
+    Conception date is calculated as,
+        - 75 days before date of abortive claims
+        - 255 days before full term deliveries
+        - 230 days before pre-term deliveries
+        - 45 days before pre-natal claims
+
+    New columns:
+        - conception_date: Date of conception.
+
+    Parameters
+    ----------
+    df_claims: dd.DataFrame
+        Claims dataframe that has indicator columns for type of deliveries,
+        viz., hosp_abnormal_pregnancy, hosp_birth, hosp_preterm,
+        and hosp_prenatal
+
+    Returns
+    -------
+    dd.DataFrame
+
+    """
     lst_hosp_pregnancy_col = [
         "hosp_abnormal_pregnancy",
         "hosp_birth",
@@ -382,13 +482,10 @@ def calculate_conception(
     df_conception = df_claims.loc[
         df_claims[lst_conception_col].sum(axis=1) == 1
     ]
-    df_check = df_claims.loc[
-        df_claims[lst_conception_col].sum(axis=1) > 1
-    ].compute()
 
     df_conception = df_conception.map_partitions(
         lambda pdf: pdf.assign(
-            conception=pdf["service_date"]
+            conception_date=pdf["service_date"]
             - np.select(
                 [
                     (pdf["abortive"] == 1),
@@ -408,4 +505,4 @@ def calculate_conception(
     )
     df_conception = df_conception.drop(lst_conception_col, axis=1)
 
-    return df_conception, df_check
+    return df_conception

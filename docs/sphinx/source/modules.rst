@@ -2,6 +2,6 @@ medicaid_utils
 ==============
 
 .. toctree::
-   :maxdepth: 10
+   :maxdepth: 4
 
    medicaid_utils

@@ -14,8 +14,8 @@ def flag_proc_buprenorphine(df_claims: dd.DataFrame) -> dd.DataFrame:
     procedure codes in claims.
 
     New Column(s):
-    - proc_buprenorphine - integer column, 1 when claim has
-    buprenorphine treatment procedure codes and 0 otherwise
+        - proc_buprenorphine: 0 or 1, 1 when claim has Buprenorphine
+          treatment procedure codes and 0 otherwise
 
     Parameters
     ----------
@@ -40,8 +40,8 @@ def flag_rx_buprenorphine(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
     claims.
 
     New Column(s):
-    - rx_buprenorphine - integer column, 1 when claim has buprenorphine
-    NDC codes and 0 otherwise
+        - rx_buprenorphine: 0 or 1, 1 when claim has buprenorphine NDC codes
+          and 0 otherwise
 
     Parameters
     ----------
@@ -72,12 +72,11 @@ def flag_rx_buprenorphine(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
 def flag_proc_buprenorphine_naloxone(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     Adds indicator column denoting presence of Buprenorphine/ Naloxone
-    treatment
-    procedure codes in claims.
+    treatment procedure codes in claims.
 
     New Column(s):
-    - proc_buprenorphine_naloxone - integer column, 1 when claim has
-    Buprenorphine/ Naloxone treatment procedure codes and 0 otherwise
+        - proc_buprenorphine_naloxone: 0 or 1, 1 when claim has
+          Buprenorphine/ Naloxone treatment procedure codes and 0 otherwise
 
     Parameters
     ----------
@@ -101,12 +100,11 @@ def flag_proc_buprenorphine_naloxone(df_claims: dd.DataFrame) -> dd.DataFrame:
 def flag_rx_buprenorphine_naloxone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
     """
     Adds indicator column denoting presence of Buprenorphine/ Naloxone NDC
-    codes in
-    claims.
+    codes in claims.
 
     New Column(s):
-    - rx_buprenorphine_naloxone - integer column, 1 when claim has
-    buprenorphine NDC codes and 0 otherwise
+        - rx_buprenorphine_naloxone: 0 or 1, 1 when claim has buprenorphine
+          NDC codes and 0 otherwise
 
     Parameters
     ----------
@@ -147,8 +145,8 @@ def flag_proc_injectable_naltrexone(df_claims: dd.DataFrame) -> dd.DataFrame:
     procedure codes in claims.
 
     New Column(s):
-    - proc_injectable_naltrexone - integer column, 1 when claim has
-    Injectable Naltrexone treatment procedure codes and 0 otherwise
+        - proc_injectable_naltrexone: 0 or 1, 1 when claim has Injectable
+          Naltrexone treatment procedure codes and 0 otherwise
 
     Parameters
     ----------
@@ -173,8 +171,8 @@ def flag_rx_oral_naltrexone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
     codes in claims.
 
     New Column(s):
-    - rx_oral_naltrexone - integer column, 1 when claim has
-    Oral Naltrexone NDC codes and 0 otherwise
+        - rx_oral_naltrexone: 0 or 1, 1 when claim has Oral Naltrexone NDC
+          codes and 0 otherwise
 
     Parameters
     ----------
@@ -205,12 +203,12 @@ def flag_rx_oral_naltrexone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
 
 def flag_proc_methadone(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
-    Adds indicator column denoting presence of Methadone
-    procedure codes in claims.
+    Adds indicator column denoting presence of Methadone procedure codes in
+    claims.
 
     New Column(s):
-    - proc_methadone - integer column, 1 when claim has
-    Methadone treatment procedure codes and 0 otherwise
+        - proc_methadone: 0 or 1, 1 when claim has Methadone treatment
+          procedure codes and 0 otherwise
 
     Parameters
     ----------
@@ -234,12 +232,10 @@ def flag_rx_methadone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
     Adds indicator column denoting presence of Methadone NDC codes in claims.
 
     New Column(s):
-    - rx_methadone_le_30mg - integer column, 1 when claim has
-    Methadone NDC codes with dosage less than or equal to 30 mg and 0
-    otherwise
-    - rx_methadone_gt_30mg - integer column, 1 when claim has
-    Methadone NDC codes with dosage greater than or equal to 30 mg and 0
-    otherwise
+        - rx_methadone_le_30mg: 0 or 1, 1 when claim has Methadone NDC codes
+          with dosage less than or equal to 30 mg and 0 otherwise
+        - rx_methadone_gt_30mg: 0 or 1, 1 when claim has Methadone NDC codes
+          with dosage greater than or equal to 30 mg and 0 otherwise
 
     Parameters
     ----------
@@ -296,8 +292,8 @@ def flag_proc_behavioral_health_trtmt(df_claims: dd.DataFrame) -> dd.DataFrame:
     procedure codes in claims.
 
     New Column(s):
-    - proc_behavioral_health_trtmt - integer column, 1 when claim has
-    Behavioral Health treatment procedure codes and 0 otherwise
+        - proc_behavioral_health_trtmt: 0 or 1, 1 when claim has Behavioral
+          Health treatment procedure codes and 0 otherwise
 
     Parameters
     ----------
@@ -362,10 +358,10 @@ def flag_rx_benzos_opioids(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
     codes in claims.
 
     New Column(s):
-    - rx_benzodiazepines - integer column, 1 when claim has
-    Benzodiazepines NDC codes and 0 otherwise
-    - rx_opioids - integer column, 1 when claim has Opioids NDC codes and 0
-    otherwise
+        - rx_benzodiazepines: 0 or 1, 1 when claim has Benzodiazepines NDC
+          codes and 0 otherwise
+        - rx_opioids: 0 or 1, 1 when claim has Opioids NDC codes and 0
+          otherwise
 
     Parameters
     ----------

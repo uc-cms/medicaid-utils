@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.preprocessing.taf_rx &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.preprocessing.taf_rx</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.preprocessing.taf_rx</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module has TAFRX class which wraps together cleaning/ preprocessing</span>
+<span class="sd">routines specific for TAF Pharmacy files&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">medicaid_utils.preprocessing</span> <span class="kn">import</span> <span class="n">taf_file</span>
+
+
+<div class="viewcode-block" id="TAFRX"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_rx.TAFRX">[docs]</a><span class="k">class</span> <span class="nc">TAFRX</span><span class="p">(</span><span class="n">taf_file</span><span class="o">.</span><span class="n">TAFFile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">data_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BENE_MSIS&quot;</span><span class="p">,</span>
+        <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">preprocess</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">tmp_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pq_engine</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes TAF RX file object by preloading and preprocessing(if</span>
+<span class="sd">        opted in) the associated files</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Year of claim file</span>
+<span class="sd">        state : str</span>
+<span class="sd">            State of claim file</span>
+<span class="sd">        data_root : str</span>
+<span class="sd">            Root folder of raw claim files</span>
+<span class="sd">        index_col : str, default=&#39;BENE_MSIS&#39;</span>
+<span class="sd">            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is</span>
+<span class="sd">            expected to be already</span>
+<span class="sd">        sorted with index column</span>
+<span class="sd">        clean : bool, default=True</span>
+<span class="sd">            Should the associated files be cleaned?</span>
+<span class="sd">        preprocess : bool, default=True</span>
+<span class="sd">            Should the associated files be preprocessed?</span>
+<span class="sd">        tmp_folder : str, default=None</span>
+<span class="sd">            Folder location to use for caching intermediate results. Can be</span>
+<span class="sd">            turned off by not passing this argument.</span>
+<span class="sd">        pq_engine : str, default=&#39;pyarrow&#39;</span>
+<span class="sd">            Parquet engine to use</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;rx&quot;</span><span class="p">,</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">data_root</span><span class="o">=</span><span class="n">data_root</span><span class="p">,</span>
+            <span class="n">index_col</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span>
+            <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">tmp_folder</span><span class="o">=</span><span class="n">tmp_folder</span><span class="p">,</span>
+            <span class="n">pq_engine</span><span class="o">=</span><span class="n">pq_engine</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_default_filters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;missing_dob&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;duplicated&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">preprocess</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TAFRX.clean"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_rx.TAFRX.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cleaning routines to clean diagnosis &amp; procedure code columns,</span>
+<span class="sd">        processes date and gender columns, and add duplicate check flags.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_ndc_codes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_duplicates</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>medicaid_utils.adapted_algorithms.py_pmca package &mdash; medicaid-utils 0.0.0 documentation</title>
+  <title>medicaid_utils.adapted_algorithms.py_pmca package &mdash; medicaid_utils 0.0.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -14,10 +14,13 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="medicaid_utils.common_utils package" href="medicaid_utils.common_utils.html" />
     <link rel="prev" title="medicaid_utils.adapted_algorithms.py_nyu_billings package" href="medicaid_utils.adapted_algorithms.py_nyu_billings.html" /> 
 </head>
 
@@ -26,8 +29,11 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> medicaid-utils
+            <a href="index.html" class="icon icon-home"> medicaid_utils
           </a>
+              <div class="version">
+                0.0.0
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -38,13 +44,17 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">medicaid_utils</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="medicaid_utils.html">medicaid_utils package</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="medicaid_utils.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="medicaid_utils.html">medicaid_utils package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="medicaid_utils.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html#subpackages">Subpackages</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html">medicaid_utils.common_utils package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.html">medicaid_utils.filters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html">medicaid_utils.other_datasets package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html">medicaid_utils.preprocessing package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.topics.html">medicaid_utils.topics package</a></li>
 </ul>
 </li>
 </ul>
@@ -57,18 +67,17 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">medicaid-utils</a>
+          <a href="index.html">medicaid_utils</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">medicaid_utils</a> &raquo;</li>
-          <li><a href="medicaid_utils.html">medicaid_utils package</a> &raquo;</li>
-          <li><a href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a> &raquo;</li>
-      <li>medicaid_utils.adapted_algorithms.py_pmca package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
+          <li class="breadcrumb-item"><a href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_pmca package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.adapted_algorithms.py_pmca.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -78,21 +87,55 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="medicaid-utils-adapted-algorithms-py-pmca-package">
-<h1>medicaid_utils.adapted_algorithms.py_pmca package<a class="headerlink" href="#medicaid-utils-adapted-algorithms-py-pmca-package" title="Permalink to this headline"></a></h1>
+  <section id="module-medicaid_utils.adapted_algorithms.py_pmca">
+<span id="medicaid-utils-adapted-algorithms-py-pmca-package"></span><h1>medicaid_utils.adapted_algorithms.py_pmca package<a class="headerlink" href="#module-medicaid_utils.adapted_algorithms.py_pmca" title="Permalink to this heading"></a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
 <section id="module-medicaid_utils.adapted_algorithms.py_pmca.pmca">
-<span id="medicaid-utils-adapted-algorithms-py-pmca-pmca-module"></span><h2>medicaid_utils.adapted_algorithms.py_pmca.pmca module<a class="headerlink" href="#module-medicaid_utils.adapted_algorithms.py_pmca.pmca" title="Permalink to this headline"></a></h2>
+<span id="medicaid-utils-adapted-algorithms-py-pmca-pmca-module"></span><h2>medicaid_utils.adapted_algorithms.py_pmca.pmca module<a class="headerlink" href="#module-medicaid_utils.adapted_algorithms.py_pmca.pmca" title="Permalink to this heading"></a></h2>
 <p>This program implements the Pediatric Medical Complexity Algorithm (Tamara D. Simon, Dorothy Lyons, Peter Woodcox et
 al 2014) to identify children with complex and non-complex chronic conditions using Medicaid claims data and to
 distinguish them from children with neither chronic nor chronic complex conditions (healthy children). ‘Complex’ and
 ‘Non-Complex’ designations are assigned based on whether a child’s condition(s) identified by ICD-9 code(s) can be
 considered chronic, malignant, or progressive, and whether multiple body systems are involved.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.adapted_algorithms.py_pmca.pmca.</span></span><span class="sig-name descname"><span class="pre">PediatricMedicalComplexity</span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_pmca/pmca.html#PediatricMedicalComplexity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This class packages functions to create indicator variables for conditions of interest based on their chronic
+nature identified by Seattle Children’s Research Institute subset from conditions defined by diagnostic codes
+outlined in the Chronic Illness and Disability Payment System (CDPS) version 5.3</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.create_pmca_condition_counts">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_pmca_condition_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_cd_lst_col</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_pmca/pmca.html#PediatricMedicalComplexity.create_pmca_condition_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.create_pmca_condition_counts" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.data_folder">
+<span class="sig-name descname"><span class="pre">data_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_pmca/data'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.data_folder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.filename">
+<span class="sig-name descname"><span class="pre">filename</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pmca.py'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.filename" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.get_pmca_chronic_condition_categories">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_pmca_chronic_condition_categories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_pmca/pmca.html#PediatricMedicalComplexity.get_pmca_chronic_condition_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.get_pmca_chronic_condition_categories" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.package_folder">
+<span class="sig-name descname"><span class="pre">package_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_pmca'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.package_folder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_pmca.pmca.pmca_chronic_conditions">
-<span class="sig-prename descclassname"><span class="pre">medicaid_utils.adapted_algorithms.py_pmca.pmca.</span></span><span class="sig-name descname"><span class="pre">pmca_chronic_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_cd_lst_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LST_DIAG_CD_RAW'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_pmca.pmca.pmca_chronic_conditions" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.adapted_algorithms.py_pmca.pmca.</span></span><span class="sig-name descname"><span class="pre">pmca_chronic_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag_cd_lst_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LST_DIAG_CD_RAW'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_pmca/pmca.html#pmca_chronic_conditions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_pmca.pmca.pmca_chronic_conditions" title="Permalink to this definition"></a></dt>
 <dd><p>This function implements the Pediatric Medical Complexity Algorithm to identify children with complex and
 non-complex chronic conditions using Medicaid claims data and to distinguish them from children with neither
 chronic nor chronic complex conditions (healthy children).</p>
@@ -240,7 +283,7 @@ code(s) can be considered chronic, malignant, or progressive, and whether multip
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>dask.DataFrame</em>) – Patient level dask dataframe</p></li>
-<li><p><strong>diag_cd_lst_col</strong> (<em>str</em><em>, </em><em>default=LST_DIAG_CD_RAW</em>) – Column name that has comma separated list of diagnosis codes in the observation period</p></li>
+<li><p><strong>diag_cd_lst_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default=LST_DIAG_CD_RAW</em>) – Column name that has comma separated list of diagnosis codes in the observation period</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -257,12 +300,13 @@ code(s) can be considered chronic, malignant, or progressive, and whether multip
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="medicaid_utils.adapted_algorithms.py_nyu_billings.html" class="btn btn-neutral float-left" title="medicaid_utils.adapted_algorithms.py_nyu_billings package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="medicaid_utils.common_utils.html" class="btn btn-neutral float-right" title="medicaid_utils.common_utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

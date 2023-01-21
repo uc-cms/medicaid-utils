@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>medicaid_utils package &mdash; medicaid-utils 0.0.0 documentation</title>
+  <title>medicaid_utils package &mdash; medicaid_utils 0.0.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -14,12 +14,14 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="medicaid_utils.adapted_algorithms package" href="medicaid_utils.adapted_algorithms.html" />
-    <link rel="prev" title="medicaid_utils" href="modules.html" /> 
+    <link rel="prev" title="Welcome to medicaid_utils’s documentation!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -27,8 +29,11 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> medicaid-utils
+            <a href="index.html" class="icon icon-home"> medicaid_utils
           </a>
+              <div class="version">
+                0.0.0
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -39,13 +44,14 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">medicaid_utils</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">medicaid_utils package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">medicaid_utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html">medicaid_utils.common_utils package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.html">medicaid_utils.filters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html">medicaid_utils.other_datasets package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html">medicaid_utils.preprocessing package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.topics.html">medicaid_utils.topics package</a></li>
 </ul>
 </li>
 </ul>
@@ -58,16 +64,15 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">medicaid-utils</a>
+          <a href="index.html">medicaid_utils</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">medicaid_utils</a> &raquo;</li>
-      <li>medicaid_utils package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">medicaid_utils package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -77,10 +82,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="medicaid-utils-package">
-<h1>medicaid_utils package<a class="headerlink" href="#medicaid-utils-package" title="Permalink to this headline"></a></h1>
+  <section id="module-medicaid_utils">
+<span id="medicaid-utils-package"></span><h1>medicaid_utils package<a class="headerlink" href="#module-medicaid_utils" title="Permalink to this heading"></a></h1>
+<p>This package puts together commonly used preprocessing, variable construction &amp; risk adjustment algorithms for medicaid
+data.</p>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a><ul>
@@ -107,6 +114,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="medicaid_utils.adapted_algorithms.py_ip_pqi.html">medicaid_utils.adapted_algorithms.py_ip_pqi package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="medicaid_utils.adapted_algorithms.py_ip_pqi.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.adapted_algorithms.py_ip_pqi.html#module-medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation">medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="medicaid_utils.adapted_algorithms.py_ip_pqi.html#module-medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators">medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators module</a></li>
 </ul>
 </li>
@@ -129,6 +137,248 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="medicaid_utils.common_utils.html">medicaid_utils.common_utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.common_utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.common_utils.html#module-medicaid_utils.common_utils.dataframe_utils">medicaid_utils.common_utils.dataframe_utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.convert_ddcols_to_datetime"><code class="docutils literal notranslate"><span class="pre">convert_ddcols_to_datetime()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.copy_ddcols"><code class="docutils literal notranslate"><span class="pre">copy_ddcols()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.export"><code class="docutils literal notranslate"><span class="pre">export()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.fix_index"><code class="docutils literal notranslate"><span class="pre">fix_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.get_first_day_gap"><code class="docutils literal notranslate"><span class="pre">get_first_day_gap()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.get_reduced_column_names"><code class="docutils literal notranslate"><span class="pre">get_reduced_column_names()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.prepare_dtypes_for_csv"><code class="docutils literal notranslate"><span class="pre">prepare_dtypes_for_csv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.safe_convert_int_to_str"><code class="docutils literal notranslate"><span class="pre">safe_convert_int_to_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.sas_to_pandas"><code class="docutils literal notranslate"><span class="pre">sas_to_pandas()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.dataframe_utils.toggle_datetime_string"><code class="docutils literal notranslate"><span class="pre">toggle_datetime_string()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.common_utils.html#module-medicaid_utils.common_utils.links">medicaid_utils.common_utils.links module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.links.get_max_parquet_loc"><code class="docutils literal notranslate"><span class="pre">get_max_parquet_loc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.links.get_taf_parquet_loc"><code class="docutils literal notranslate"><span class="pre">get_taf_parquet_loc()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.common_utils.html#module-medicaid_utils.common_utils.recipes">medicaid_utils.common_utils.recipes module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.recipes.convert_to_int_str"><code class="docutils literal notranslate"><span class="pre">convert_to_int_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.recipes.is_number"><code class="docutils literal notranslate"><span class="pre">is_number()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.recipes.log_assert"><code class="docutils literal notranslate"><span class="pre">log_assert()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.recipes.remove_ignore_if_not_exists"><code class="docutils literal notranslate"><span class="pre">remove_ignore_if_not_exists()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.recipes.remove_tail_dot_zeros"><code class="docutils literal notranslate"><span class="pre">remove_tail_dot_zeros()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.recipes.setup_logger"><code class="docutils literal notranslate"><span class="pre">setup_logger()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.common_utils.html#module-medicaid_utils.common_utils.stats_utils">medicaid_utils.common_utils.stats_utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.color_positive_green"><code class="docutils literal notranslate"><span class="pre">color_positive_green()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_contingency_table"><code class="docutils literal notranslate"><span class="pre">compute_contingency_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_descriptives"><code class="docutils literal notranslate"><span class="pre">compute_descriptives()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_missing_stats"><code class="docutils literal notranslate"><span class="pre">compute_missing_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_t_stats"><code class="docutils literal notranslate"><span class="pre">compute_t_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.cramers_corrected_stat"><code class="docutils literal notranslate"><span class="pre">cramers_corrected_stat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_cont_table_statewise"><code class="docutils literal notranslate"><span class="pre">get_cont_table_statewise()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_contingency_table"><code class="docutils literal notranslate"><span class="pre">get_contingency_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_covar_plots"><code class="docutils literal notranslate"><span class="pre">get_covar_plots()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_descriptives"><code class="docutils literal notranslate"><span class="pre">get_descriptives()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_missingness_stats"><code class="docutils literal notranslate"><span class="pre">get_missingness_stats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_phi"><code class="docutils literal notranslate"><span class="pre">get_phi()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_ranksum_table"><code class="docutils literal notranslate"><span class="pre">get_ranksum_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_ranksum_table_statewise"><code class="docutils literal notranslate"><span class="pre">get_ranksum_table_statewise()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_utilisation_histograms"><code class="docutils literal notranslate"><span class="pre">get_utilisation_histograms()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.common_utils.html#medicaid-utils-common-utils-usps-address-module">medicaid_utils.common_utils.usps_address module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="medicaid_utils.filters.html">medicaid_utils.filters package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.filters.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.claims.html">medicaid_utils.filters.claims package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.filters.claims.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.filters.claims.html#module-medicaid_utils.filters.claims.dx_and_proc">medicaid_utils.filters.claims.dx_and_proc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.filters.claims.html#module-medicaid_utils.filters.claims.rx">medicaid_utils.filters.claims.rx module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.patients.html">medicaid_utils.filters.patients package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.filters.patients.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.filters.patients.html#module-medicaid_utils.filters.patients.cohort_extraction">medicaid_utils.filters.patients.cohort_extraction module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="medicaid_utils.other_datasets.html">medicaid_utils.other_datasets package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.other_datasets.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.other_datasets.html#medicaid-utils-other-datasets-fqhc-module">medicaid_utils.other_datasets.fqhc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.other_datasets.html#medicaid-utils-other-datasets-hcris-module">medicaid_utils.other_datasets.hcris module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.other_datasets.html#module-medicaid_utils.other_datasets.npi">medicaid_utils.other_datasets.npi module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.npi.cleanup_raw_npi_files"><code class="docutils literal notranslate"><span class="pre">cleanup_raw_npi_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.npi.generate_npi_taxonomy_mappings"><code class="docutils literal notranslate"><span class="pre">generate_npi_taxonomy_mappings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.npi.generate_oscar_fqhc_npis"><code class="docutils literal notranslate"><span class="pre">generate_oscar_fqhc_npis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.npi.wide_to_long_nppes_taxonomy_file"><code class="docutils literal notranslate"><span class="pre">wide_to_long_nppes_taxonomy_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.other_datasets.html#medicaid-utils-other-datasets-uds-module">medicaid_utils.other_datasets.uds module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.other_datasets.html#module-medicaid_utils.other_datasets.zip">medicaid_utils.other_datasets.zip module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.zip.generate_zip_pcsa_ruca_crosswalk"><code class="docutils literal notranslate"><span class="pre">generate_zip_pcsa_ruca_crosswalk()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.zip.pool_zipcode_pcsa_datasets"><code class="docutils literal notranslate"><span class="pre">pool_zipcode_pcsa_datasets()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="medicaid_utils.preprocessing.html">medicaid_utils.preprocessing package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.max_cc">medicaid_utils.preprocessing.max_cc module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_cc.MAXCC"><code class="docutils literal notranslate"><span class="pre">MAXCC</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_cc.MAXCC.agg_conditions"><code class="docutils literal notranslate"><span class="pre">MAXCC.agg_conditions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_cc.MAXCC.get_chronic_conditions"><code class="docutils literal notranslate"><span class="pre">MAXCC.get_chronic_conditions()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.max_file">medicaid_utils.preprocessing.max_file module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile"><code class="docutils literal notranslate"><span class="pre">MAXFile</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.add_gender"><code class="docutils literal notranslate"><span class="pre">MAXFile.add_gender()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.cache_results"><code class="docutils literal notranslate"><span class="pre">MAXFile.cache_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.calculate_payment"><code class="docutils literal notranslate"><span class="pre">MAXFile.calculate_payment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.clean"><code class="docutils literal notranslate"><span class="pre">MAXFile.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.clean_diag_codes"><code class="docutils literal notranslate"><span class="pre">MAXFile.clean_diag_codes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.clean_proc_codes"><code class="docutils literal notranslate"><span class="pre">MAXFile.clean_proc_codes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.export"><code class="docutils literal notranslate"><span class="pre">MAXFile.export()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.flag_ed_use"><code class="docutils literal notranslate"><span class="pre">MAXFile.flag_ed_use()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.get_claim_instance"><code class="docutils literal notranslate"><span class="pre">MAXFile.get_claim_instance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.pq_export"><code class="docutils literal notranslate"><span class="pre">MAXFile.pq_export()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.preprocess"><code class="docutils literal notranslate"><span class="pre">MAXFile.preprocess()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile.process_date_cols"><code class="docutils literal notranslate"><span class="pre">MAXFile.process_date_cols()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.max_ip">medicaid_utils.preprocessing.max_ip module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ip.MAXIP"><code class="docutils literal notranslate"><span class="pre">MAXIP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ip.MAXIP.clean"><code class="docutils literal notranslate"><span class="pre">MAXIP.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ip.MAXIP.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">MAXIP.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ip.MAXIP.flag_duplicates"><code class="docutils literal notranslate"><span class="pre">MAXIP.flag_duplicates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ip.MAXIP.flag_ip_overlaps"><code class="docutils literal notranslate"><span class="pre">MAXIP.flag_ip_overlaps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ip.MAXIP.preprocess"><code class="docutils literal notranslate"><span class="pre">MAXIP.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.max_ot">medicaid_utils.preprocessing.max_ot module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT"><code class="docutils literal notranslate"><span class="pre">MAXOT</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.add_ot_flags"><code class="docutils literal notranslate"><span class="pre">MAXOT.add_ot_flags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.clean"><code class="docutils literal notranslate"><span class="pre">MAXOT.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.find_ot_ip_overlaps"><code class="docutils literal notranslate"><span class="pre">MAXOT.find_ot_ip_overlaps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_dental"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_dental()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_duplicates"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_duplicates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_em"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_em()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_ip_overlaps_and_ed"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_ip_overlaps_and_ed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_transport"><code class="docutils literal notranslate"><span class="pre">MAXOT.flag_transport()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.preprocess"><code class="docutils literal notranslate"><span class="pre">MAXOT.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.max_ps">medicaid_utils.preprocessing.max_ps module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS"><code class="docutils literal notranslate"><span class="pre">MAXPS</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.add_eligibility_status_columns"><code class="docutils literal notranslate"><span class="pre">MAXPS.add_eligibility_status_columns()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.clean"><code class="docutils literal notranslate"><span class="pre">MAXPS.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">MAXPS.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.flag_duals"><code class="docutils literal notranslate"><span class="pre">MAXPS.flag_duals()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.flag_restricted_benefits"><code class="docutils literal notranslate"><span class="pre">MAXPS.flag_restricted_benefits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.flag_rural"><code class="docutils literal notranslate"><span class="pre">MAXPS.flag_rural()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.flag_tanf"><code class="docutils literal notranslate"><span class="pre">MAXPS.flag_tanf()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.preprocess"><code class="docutils literal notranslate"><span class="pre">MAXPS.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.taf_file">medicaid_utils.preprocessing.taf_file module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile"><code class="docutils literal notranslate"><span class="pre">TAFFile</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.cache_results"><code class="docutils literal notranslate"><span class="pre">TAFFile.cache_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean"><code class="docutils literal notranslate"><span class="pre">TAFFile.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_diag_codes"><code class="docutils literal notranslate"><span class="pre">TAFFile.clean_diag_codes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_ndc_codes"><code class="docutils literal notranslate"><span class="pre">TAFFile.clean_ndc_codes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_proc_codes"><code class="docutils literal notranslate"><span class="pre">TAFFile.clean_proc_codes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.export"><code class="docutils literal notranslate"><span class="pre">TAFFile.export()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.flag_duplicates"><code class="docutils literal notranslate"><span class="pre">TAFFile.flag_duplicates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.flag_ffs_and_encounter_claims"><code class="docutils literal notranslate"><span class="pre">TAFFile.flag_ffs_and_encounter_claims()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.get_claim_instance"><code class="docutils literal notranslate"><span class="pre">TAFFile.get_claim_instance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.pq_export"><code class="docutils literal notranslate"><span class="pre">TAFFile.pq_export()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.preprocess"><code class="docutils literal notranslate"><span class="pre">TAFFile.preprocess()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.process_date_cols"><code class="docutils literal notranslate"><span class="pre">TAFFile.process_date_cols()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.taf_ip">medicaid_utils.preprocessing.taf_ip module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ip.TAFIP"><code class="docutils literal notranslate"><span class="pre">TAFIP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ip.TAFIP.clean"><code class="docutils literal notranslate"><span class="pre">TAFIP.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ip.TAFIP.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">TAFIP.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ip.TAFIP.preprocess"><code class="docutils literal notranslate"><span class="pre">TAFIP.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.taf_lt">medicaid_utils.preprocessing.taf_lt module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_lt.TAFLT"><code class="docutils literal notranslate"><span class="pre">TAFLT</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_lt.TAFLT.clean"><code class="docutils literal notranslate"><span class="pre">TAFLT.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_lt.TAFLT.preprocess"><code class="docutils literal notranslate"><span class="pre">TAFLT.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.taf_ot">medicaid_utils.preprocessing.taf_ot module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ot.TAFOT"><code class="docutils literal notranslate"><span class="pre">TAFOT</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ot.TAFOT.clean"><code class="docutils literal notranslate"><span class="pre">TAFOT.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ot.TAFOT.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">TAFOT.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ot.TAFOT.preprocess"><code class="docutils literal notranslate"><span class="pre">TAFOT.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.taf_ps">medicaid_utils.preprocessing.taf_ps module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS"><code class="docutils literal notranslate"><span class="pre">TAFPS</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.add_gender"><code class="docutils literal notranslate"><span class="pre">TAFPS.add_gender()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.add_mas_boe"><code class="docutils literal notranslate"><span class="pre">TAFPS.add_mas_boe()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.clean"><code class="docutils literal notranslate"><span class="pre">TAFPS.clean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.compute_enrollment_gaps"><code class="docutils literal notranslate"><span class="pre">TAFPS.compute_enrollment_gaps()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_common_exclusions"><code class="docutils literal notranslate"><span class="pre">TAFPS.flag_common_exclusions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_dual"><code class="docutils literal notranslate"><span class="pre">TAFPS.flag_dual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_restricted_benefits"><code class="docutils literal notranslate"><span class="pre">TAFPS.flag_restricted_benefits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_rural"><code class="docutils literal notranslate"><span class="pre">TAFPS.flag_rural()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.preprocess"><code class="docutils literal notranslate"><span class="pre">TAFPS.preprocess()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.preprocessing.html#module-medicaid_utils.preprocessing.taf_rx">medicaid_utils.preprocessing.taf_rx module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_rx.TAFRX"><code class="docutils literal notranslate"><span class="pre">TAFRX</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_rx.TAFRX.clean"><code class="docutils literal notranslate"><span class="pre">TAFRX.clean()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="medicaid_utils.topics.html">medicaid_utils.topics package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="medicaid_utils.topics.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.topics.obgyn.html">medicaid_utils.topics.obgyn package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.topics.obgyn.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.topics.obgyn.html#module-medicaid_utils.topics.obgyn.cohort_indicators">medicaid_utils.topics.obgyn.cohort_indicators module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.topics.obgyn.html#module-medicaid_utils.topics.obgyn.comorbities">medicaid_utils.topics.obgyn.comorbities module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.topics.obgyn.html#module-medicaid_utils.topics.obgyn.hospitalization">medicaid_utils.topics.obgyn.hospitalization module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.topics.oud.html">medicaid_utils.topics.oud package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.topics.oud.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.topics.oud.html#module-medicaid_utils.topics.oud.cooccurring_conditions">medicaid_utils.topics.oud.cooccurring_conditions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="medicaid_utils.topics.oud.html#module-medicaid_utils.topics.oud.medication_and_behavioral_health">medicaid_utils.topics.oud.medication_and_behavioral_health module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
@@ -138,14 +388,14 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="modules.html" class="btn btn-neutral float-left" title="medicaid_utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to medicaid_utils’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="medicaid_utils.adapted_algorithms.html" class="btn btn-neutral float-right" title="medicaid_utils.adapted_algorithms package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

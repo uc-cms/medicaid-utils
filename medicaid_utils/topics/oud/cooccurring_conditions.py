@@ -8,12 +8,12 @@ def flag_cooccurring_mental_health_claims(
     df_claims: dd.DataFrame,
 ) -> dd.DataFrame:
     """
-    Adds indicator column denoting presence of mental health diagnosis codes in claims.
+    Adds indicator column denoting presence of mental health diagnosis codes in
+    claims.
 
     New Column(s):
-    - diag_cooccurring_mental_health - integer column, 1 when claim has
-    mental
-    health diagnosis codes and 0 otherwise
+        - diag_cooccurring_mental_health - integer column, 1 when claim has
+          mental health diagnosis codes and 0 otherwise
 
     Parameters
     ----------
@@ -47,8 +47,8 @@ def flag_cooccurring_sud_claims(df_claims: dd.DataFrame) -> dd.DataFrame:
     Adds indicator column denoting presence of SUD diagnosis codes in claims.
 
     New Column(s):
-    - diag_cooccurring_sud - integer column, 1 when claim has SUD
-    diagnosis codes and 0 otherwise
+        - diag_cooccurring_sud: integer column, 1 when claim has SUD
+          diagnosis codes and 0 otherwise
 
     Parameters
     ----------

@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;This module generates low value care measures as in</span>
+<span class="sd">Charlesworth CJ, Meath THA, Schwartz AL, McConnell KJ. Low-value care in Medicaid and</span>
+<span class="sd">commercially insured populations: a comprehensive single-state analysis. JAMA Intern Med.</span>
+<span class="sd">Published online May 31, 2016. doi:10.1001/jamainternmed.2016.2086.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Manoradhan Murugesan&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;manorathan@uchicago.edu&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="kn">from</span> <span class="nn">medicaid_utils.filters.claims</span> <span class="kn">import</span> <span class="n">dx_and_proc</span>
+<span class="kn">from</span> <span class="nn">medicaid_utils.preprocessing</span> <span class="kn">import</span> <span class="n">max_ot</span><span class="p">,</span> <span class="n">max_ip</span><span class="p">,</span> <span class="n">max_ps</span>
+
+
+<div class="viewcode-block" id="LowValueCare"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_low_value_care.html#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare">[docs]</a><span class="k">class</span> <span class="nc">LowValueCare</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class packages functions to create indicator variables for low value care services&quot;&quot;&quot;</span>
+
+    <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LowValueCare.normalize_condition_names"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_low_value_care.html#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.normalize_condition_names">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">normalize_condition_names</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pdf_spec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Normalizers condition names so they can be used as column names</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pdf_spec : pd.DataFrame</span>
+<span class="sd">            Diagnostic/ procedure code specifications dataframe</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            Dataframe with conditions names normalized</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pdf_spec</span> <span class="o">=</span> <span class="n">pdf_spec</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">col</span><span class="p">:</span> <span class="n">pdf_spec</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\W&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;measure&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pdf_spec</span></div>
+
+<div class="viewcode-block" id="LowValueCare.get_diag_proc_specs"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_low_value_care.html#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.get_diag_proc_specs">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_diag_proc_specs</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">pdf_spec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="c1"># pylint: disable=missing-param-doc</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns DX &amp; procedure code specs as dictionary</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pdf_spec : pd.DataFrame</span>
+<span class="sd">            Diagnostic/ procedure code specifications dataframe</span>
+<span class="sd">        prefix : {&#39;denom&#39;, &#39;msr&#39;}</span>
+<span class="sd">            Prefix to denote condition type</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dct_diag_codes : dict</span>
+<span class="sd">            Diagnosis codes dictionary</span>
+<span class="sd">        dct_excl_diag_codes : dict</span>
+<span class="sd">            Excluded Diagnosis codes dictionary</span>
+<span class="sd">        dct_proc_codes : dict</span>
+<span class="sd">            Procedure codes dictionary</span>
+<span class="sd">        dct_excl_proc_codes : dict</span>
+<span class="sd">            Excluded procedure codes dictionary</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dct_diag_codes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="mi">9</span><span class="p">:</span> <span class="n">pdf_spec</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                        <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">condn</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;except&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;icd_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+                    <span class="p">][</span><span class="s2">&quot;icd_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="mi">10</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;excl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="mi">9</span><span class="p">:</span> <span class="n">pdf_spec</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                        <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">condn</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;except&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;icd_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+                    <span class="p">][</span><span class="s2">&quot;icd_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="mi">10</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">pdf_spec</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;icd_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="n">dct_excl_diag_codes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="mi">9</span><span class="p">:</span> <span class="n">pdf_spec</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                        <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">condn</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;except&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;icd_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+                    <span class="p">][</span><span class="s2">&quot;icd_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="mi">10</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;excl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="mi">9</span><span class="p">:</span> <span class="n">pdf_spec</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                        <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">condn</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;except&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;icd_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+                    <span class="p">][</span><span class="s2">&quot;icd_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="mi">10</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">pdf_spec</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;icd_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_spec</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="n">pdf_proc</span> <span class="o">=</span> <span class="n">pdf_spec</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_spec</span><span class="o">.</span><span class="n">proc_sys</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
+        <span class="n">pdf_proc</span> <span class="o">=</span> <span class="n">pdf_proc</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">proc_sys</span><span class="o">=</span><span class="n">pdf_proc</span><span class="p">[</span><span class="s2">&quot;proc_sys&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+
+        <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">proc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">pdf_proc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_proc</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">proc</span><span class="p">][</span>
+                <span class="p">[</span><span class="s2">&quot;proc_sys&quot;</span><span class="p">,</span> <span class="s2">&quot;proc_code&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;proc_sys&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;proc_code&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">pdf_proc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">pdf_proc</span><span class="p">[</span><span class="s2">&quot;proc_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_proc</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="n">dct_excl_proc_codes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">proc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">pdf_proc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_proc</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">proc</span><span class="p">][</span>
+                <span class="p">[</span><span class="s2">&quot;proc_sys&quot;</span><span class="p">,</span> <span class="s2">&quot;proc_code&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;proc_sys&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;proc_code&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">pdf_proc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">pdf_proc</span><span class="p">[</span><span class="s2">&quot;proc_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf_proc</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">description</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">dct_diag_codes</span><span class="p">,</span>
+            <span class="n">dct_excl_diag_codes</span><span class="p">,</span>
+            <span class="n">dct_proc_codes</span><span class="p">,</span>
+            <span class="n">dct_excl_proc_codes</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="LowValueCare.construct_low_value_care_measures"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_low_value_care.html#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.construct_low_value_care_measures">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">construct_low_value_care_measures</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">pdf_dates</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">dct_msr_spec</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">dct_denom_spec</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs low value care measures</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pdf_dates : pd.DataFrame</span>
+<span class="sd">            Dataframe with condition/ measure date lists and eligibility info</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Year</span>
+<span class="sd">        dct_msr_spec</span>
+<span class="sd">            Measure spec dictionary</span>
+<span class="sd">        dct_denom_spec</span>
+<span class="sd">            Denomination spec dictionary</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="p">(</span>  <span class="c1"># pylint: disable=too-many-nested-blocks</span>
+            <span class="n">idx</span><span class="p">,</span>
+            <span class="n">row</span><span class="p">,</span>
+        <span class="p">)</span> <span class="ow">in</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">service</span><span class="p">,</span> <span class="n">measure</span> <span class="ow">in</span> <span class="n">dct_msr_spec</span><span class="p">:</span>
+                <span class="n">dct_service</span> <span class="o">=</span> <span class="n">dct_msr_spec</span><span class="p">[(</span><span class="n">service</span><span class="p">,</span> <span class="n">measure</span><span class="p">)]</span>
+                <span class="n">dct_denom_pop</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">dct_denom_pop_msr</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">lst_msr_dates</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;msr_</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2">_all_dates&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="p">(</span><span class="n">dct_service</span><span class="p">[</span><span class="s2">&quot;exclude_ip&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">dct_service</span><span class="p">[</span><span class="s2">&quot;exclude_ed&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">else</span> <span class="p">(</span>
+                        <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;msr_</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2">_ip_dates&quot;</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;msr_</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2">_ot_dates&quot;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">dct_service</span><span class="p">[</span><span class="s2">&quot;exclude_ip&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;msr_</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2">_ot_dates&quot;</span><span class="p">])</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="c1"># srvc_prior_gap = dct_service[&quot;prior_months&quot;] * 30</span>
+                <span class="c1"># srvc_followup_gap = dct_service[&quot;followup_months&quot;] * 30</span>
+                <span class="c1"># min_enrolled_months = dct_service[&quot;min_enrolled_months&quot;]</span>
+                <span class="k">for</span> <span class="n">denom_condn</span> <span class="ow">in</span> <span class="n">dct_service</span><span class="p">[</span><span class="s2">&quot;denom_description&quot;</span><span class="p">]:</span>
+                    <span class="n">index_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                    <span class="n">lst_denom_dates</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;denom_</span><span class="si">{</span><span class="n">denom_condn</span><span class="si">}</span><span class="s2">_all_dates&quot;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="p">(</span>
+                                    <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                        <span class="s2">&quot;exclude_ip&quot;</span>
+                                    <span class="p">]</span>
+                                    <span class="o">!=</span> <span class="mi">1</span>
+                                <span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span>
+                                    <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                        <span class="s2">&quot;exclude_ed&quot;</span>
+                                    <span class="p">]</span>
+                                    <span class="o">!=</span> <span class="mi">1</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="k">else</span> <span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;denom_</span><span class="si">{</span><span class="n">denom_condn</span><span class="si">}</span><span class="s2">_ip_dates&quot;</span><span class="p">]</span>
+                                <span class="o">+</span> <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;denom_</span><span class="si">{</span><span class="n">denom_condn</span><span class="si">}</span><span class="s2">_ot_dates&quot;</span><span class="p">]</span>
+                            <span class="p">)</span>
+                            <span class="k">if</span> <span class="p">(</span>
+                                <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                    <span class="s2">&quot;exclude_ip&quot;</span>
+                                <span class="p">]</span>
+                                <span class="o">!=</span> <span class="mi">1</span>
+                            <span class="p">)</span>
+                            <span class="k">else</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;denom_</span><span class="si">{</span><span class="n">denom_condn</span><span class="si">}</span><span class="s2">_ot_dates&quot;</span><span class="p">])</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lst_denom_dates</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;excl_chronic_</span><span class="si">{</span><span class="n">denom_condn</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="ow">in</span> <span class="n">dct_service</span><span class="p">[</span><span class="s2">&quot;denom_description&quot;</span><span class="p">]</span>
+                        <span class="p">):</span>
+                            <span class="n">lst_denom_dates</span> <span class="o">=</span> <span class="p">[</span>
+                                <span class="nb">min</span><span class="p">(</span>
+                                    <span class="p">(</span>
+                                        <span class="n">x</span>
+                                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst_denom_dates</span>
+                                        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="n">year</span>
+                                    <span class="p">),</span>
+                                    <span class="n">default</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                                        <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                                    <span class="p">),</span>
+                                <span class="p">)</span>
+                            <span class="p">]</span>
+                        <span class="k">elif</span> <span class="n">denom_condn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;excl_chronic&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">denom_condn</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;excl_chronic_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="ow">in</span> <span class="n">dct_service</span><span class="p">[</span><span class="s2">&quot;denom_description&quot;</span><span class="p">]</span>
+                        <span class="p">):</span>
+                            <span class="n">index_date</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                                <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst_denom_dates</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="n">year</span><span class="p">),</span>
+                                <span class="n">default</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">),</span>
+                            <span class="p">)</span>
+                            <span class="n">lst_denom_dates</span> <span class="o">=</span> <span class="p">[</span>
+                                <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst_denom_dates</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">index_date</span>
+                            <span class="p">]</span>
+                        <span class="n">lst_denom_dates</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst_denom_dates</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                        <span class="p">]</span>
+                        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lst_denom_dates</span><span class="p">):</span>
+                            <span class="n">denom_prior_gap</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                    <span class="s2">&quot;prior_days&quot;</span>
+                                <span class="p">]</span>
+                                <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span>
+                                    <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                        <span class="s2">&quot;prior_days&quot;</span>
+                                    <span class="p">]</span>
+                                <span class="p">)</span>
+                                <span class="k">else</span> <span class="p">(</span>
+                                    <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                        <span class="s2">&quot;prior_months&quot;</span>
+                                    <span class="p">]</span>
+                                    <span class="o">*</span> <span class="mi">30</span>
+                                    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span>
+                                        <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                            <span class="s2">&quot;prior_months&quot;</span>
+                                        <span class="p">]</span>
+                                    <span class="p">)</span>
+                                    <span class="k">else</span> <span class="n">dct_service</span><span class="p">[</span><span class="s2">&quot;followup_months&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">30</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                            <span class="n">denom_followup_gap</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                    <span class="s2">&quot;followup_days&quot;</span>
+                                <span class="p">]</span>
+                                <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span>
+                                    <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                        <span class="s2">&quot;followup_days&quot;</span>
+                                    <span class="p">]</span>
+                                <span class="p">)</span>
+                                <span class="k">else</span> <span class="p">(</span>
+                                    <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                        <span class="s2">&quot;followup_months&quot;</span>
+                                    <span class="p">]</span>
+                                    <span class="o">*</span> <span class="mi">30</span>
+                                    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span>
+                                        <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                            <span class="s2">&quot;followup_months&quot;</span>
+                                        <span class="p">]</span>
+                                    <span class="p">)</span>
+                                    <span class="k">else</span> <span class="n">dct_service</span><span class="p">[</span><span class="s2">&quot;prior_months&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">30</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">denom_prior_gap</span><span class="p">):</span>
+                                <span class="n">lst_denom_dates</span> <span class="o">=</span> <span class="p">[</span>
+                                    <span class="n">denom_date</span>
+                                    <span class="k">for</span> <span class="n">denom_date</span> <span class="ow">in</span> <span class="n">lst_denom_dates</span>
+                                    <span class="k">if</span> <span class="p">(</span>
+                                        <span class="nb">len</span><span class="p">(</span>
+                                            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;eligibility_pattern&quot;</span><span class="p">][</span>
+                                                <span class="p">:</span> <span class="p">(</span>
+                                                    <span class="n">denom_date</span><span class="o">.</span><span class="n">month</span>
+                                                    <span class="o">+</span> <span class="mi">12</span>
+                                                    <span class="o">*</span> <span class="p">(</span>
+                                                        <span class="n">denom_date</span><span class="o">.</span><span class="n">year</span>
+                                                        <span class="o">-</span> <span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                                                    <span class="p">)</span>
+                                                    <span class="o">-</span> <span class="mi">1</span>
+                                                <span class="p">)</span>
+                                            <span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                                        <span class="p">)</span>
+                                        <span class="o">&gt;=</span> <span class="p">(</span>
+                                            <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">denom_prior_gap</span> <span class="o">/</span> <span class="mi">30</span><span class="p">)</span>
+                                            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span>
+                                                <span class="n">dct_service</span><span class="p">[</span>
+                                                    <span class="s2">&quot;min_enrolled_months&quot;</span>
+                                                <span class="p">]</span>
+                                            <span class="p">)</span>
+                                            <span class="k">else</span> <span class="n">dct_service</span><span class="p">[</span>
+                                                <span class="s2">&quot;min_enrolled_months&quot;</span>
+                                            <span class="p">]</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span>
+                                <span class="p">]</span>
+
+                            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">denom_followup_gap</span><span class="p">):</span>
+                                <span class="n">lst_denom_dates</span> <span class="o">=</span> <span class="p">[</span>
+                                    <span class="n">denom_date</span>
+                                    <span class="k">for</span> <span class="n">denom_date</span> <span class="ow">in</span> <span class="n">lst_denom_dates</span>
+                                    <span class="k">if</span> <span class="p">(</span>
+                                        <span class="nb">len</span><span class="p">(</span>
+                                            <span class="n">row</span><span class="p">[</span><span class="s2">&quot;eligibility_pattern&quot;</span><span class="p">][</span>
+                                                <span class="p">(</span>
+                                                    <span class="n">denom_date</span><span class="o">.</span><span class="n">month</span>
+                                                    <span class="o">+</span> <span class="mi">12</span>
+                                                    <span class="o">*</span> <span class="p">(</span>
+                                                        <span class="n">denom_date</span><span class="o">.</span><span class="n">year</span>
+                                                        <span class="o">-</span> <span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                                                    <span class="p">)</span>
+                                                    <span class="o">-</span> <span class="mi">1</span>
+                                                <span class="p">)</span> <span class="p">:</span>
+                                            <span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                                        <span class="p">)</span>
+                                        <span class="o">&gt;=</span> <span class="p">(</span>
+                                            <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">denom_followup_gap</span> <span class="o">/</span> <span class="mi">30</span><span class="p">)</span>
+                                            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span>
+                                                <span class="n">dct_service</span><span class="p">[</span>
+                                                    <span class="s2">&quot;min_enrolled_months&quot;</span>
+                                                <span class="p">]</span>
+                                            <span class="p">)</span>
+                                            <span class="k">else</span> <span class="n">dct_service</span><span class="p">[</span>
+                                                <span class="s2">&quot;min_enrolled_months&quot;</span>
+                                            <span class="p">]</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span>
+                                <span class="p">]</span>
+
+                            <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                    <span class="s2">&quot;offset_days&quot;</span>
+                                <span class="p">]</span>
+                                <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span>
+                                    <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                        <span class="s2">&quot;offset_days&quot;</span>
+                                    <span class="p">]</span>
+                                <span class="p">)</span>
+                                <span class="k">else</span> <span class="n">dct_denom_spec</span><span class="p">[(</span><span class="n">measure</span><span class="p">,</span> <span class="n">denom_condn</span><span class="p">)][</span>
+                                    <span class="s2">&quot;offset_months&quot;</span>
+                                <span class="p">]</span>
+                                <span class="o">*</span> <span class="mi">30</span>
+                            <span class="p">)</span>
+                            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">offset</span><span class="p">):</span>
+                                <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+                            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">index_date</span><span class="p">):</span>
+                                <span class="n">lst_denom_dates</span> <span class="o">=</span> <span class="p">[</span>
+                                    <span class="n">denom_date</span>
+                                    <span class="k">for</span> <span class="n">denom_date</span> <span class="ow">in</span> <span class="n">lst_denom_dates</span>
+                                    <span class="k">if</span> <span class="p">(</span><span class="n">index_date</span> <span class="o">-</span> <span class="n">denom_date</span><span class="p">)</span><span class="o">.</span><span class="n">days</span>
+                                    <span class="o">&lt;=</span> <span class="n">denom_followup_gap</span> <span class="o">-</span> <span class="n">offset</span>
+                                <span class="p">]</span>
+
+                            <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lst_denom_dates</span><span class="p">):</span>
+                                <span class="n">dct_denom_pop</span><span class="p">[</span><span class="n">denom_condn</span><span class="p">]</span> <span class="o">=</span> <span class="n">lst_denom_dates</span><span class="p">[</span>
+                                    <span class="o">-</span><span class="mi">1</span>
+                                <span class="p">]</span>
+
+                            <span class="n">gap</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="n">denom_followup_gap</span>
+                                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">denom_followup_gap</span><span class="p">))</span>
+                                <span class="k">else</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">denom_prior_gap</span><span class="p">)</span>
+                            <span class="p">)</span>
+
+                            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">gap</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">gap</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                                <span class="n">offset</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">offset</span>
+
+                            <span class="n">lst_denom_gaps</span> <span class="o">=</span> <span class="p">[</span>
+                                <span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">days</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+                                <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span>
+                                    <span class="n">lst_denom_dates</span><span class="p">,</span> <span class="n">lst_msr_dates</span>
+                                <span class="p">)</span>
+                            <span class="p">]</span>
+
+                            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">gap</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">gap</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                                    <span class="n">lst_matches</span> <span class="o">=</span> <span class="p">[</span>
+                                        <span class="n">x</span>
+                                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst_denom_gaps</span>
+                                        <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">&gt;=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">gap</span><span class="p">)</span>
+                                    <span class="p">]</span>
+                                    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lst_matches</span><span class="p">):</span>
+                                        <span class="n">dct_denom_pop_msr</span><span class="p">[</span>
+                                            <span class="n">denom_condn</span>
+                                        <span class="p">]</span> <span class="o">=</span> <span class="n">lst_matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="n">gap</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                                    <span class="n">lst_matches</span> <span class="o">=</span> <span class="p">[</span>
+                                        <span class="n">x</span>
+                                        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lst_denom_gaps</span>
+                                        <span class="k">if</span> <span class="p">(</span><span class="n">offset</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">gap</span><span class="p">)</span>
+                                    <span class="p">]</span>
+                                    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lst_matches</span><span class="p">):</span>
+                                        <span class="n">dct_denom_pop_msr</span><span class="p">[</span>
+                                            <span class="n">denom_condn</span>
+                                        <span class="p">]</span> <span class="o">=</span> <span class="n">lst_matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="k">elif</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lst_denom_dates</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lst_msr_dates</span><span class="p">):</span>
+                                <span class="n">dct_denom_pop_msr</span><span class="p">[</span>
+                                    <span class="n">denom_condn</span>
+                                <span class="p">]</span> <span class="o">=</span> <span class="n">lst_denom_gaps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">pdf_dates</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;pop_</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2">_denom_</span><span class="si">{</span><span class="n">measure</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="mi">1</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">bool</span><span class="p">(</span><span class="n">dct_denom_pop</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span>
+                            <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                                <span class="n">condn</span>
+                                <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_denom_pop</span>
+                                <span class="k">if</span> <span class="n">condn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;excl_&quot;</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">else</span> <span class="mi">0</span>
+                <span class="p">)</span>
+
+                <span class="n">pdf_dates</span><span class="o">.</span><span class="n">at</span><span class="p">[</span>
+                    <span class="n">idx</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;service_</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2">_with_denom_</span><span class="si">{</span><span class="n">measure</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="mi">1</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">bool</span><span class="p">(</span><span class="n">dct_denom_pop_msr</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span>
+                            <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                                <span class="n">condn</span>
+                                <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_denom_pop</span>
+                                <span class="k">if</span> <span class="n">condn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;excl_&quot;</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">else</span> <span class="mi">0</span>
+                <span class="p">)</span>
+                <span class="n">pdf_dates</span><span class="o">.</span><span class="n">at</span><span class="p">[</span>
+                    <span class="n">idx</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;dates_service_</span><span class="si">{</span><span class="n">service</span><span class="si">}</span><span class="s2">_with_denom_</span><span class="si">{</span><span class="n">measure</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dct_denom_pop_msr</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">bool</span><span class="p">(</span><span class="n">dct_denom_pop_msr</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span>
+                            <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                                <span class="n">condn</span>
+                                <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_denom_pop</span>
+                                <span class="k">if</span> <span class="n">condn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;excl_&quot;</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pdf_dates</span></div>
+
+<div class="viewcode-block" id="LowValueCare.get_diag_proc_codes"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_low_value_care.html#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.get_diag_proc_codes">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_diag_proc_codes</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">pdf_denom_spec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pdf_measure_spec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns dictionaries of diagnosis &amp; procedure codes</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pdf_denom_spec : pd.DataFrame</span>
+<span class="sd">            Denom spec dataframe</span>
+<span class="sd">        pdf_measure_spec : pd.DataFrame</span>
+<span class="sd">            Measure spec dataframe</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dct_diag_codes : dict</span>
+<span class="sd">            Dictionary of diagnostic codes</span>
+<span class="sd">        dct_proc_codes : dict</span>
+<span class="sd">            Dictionary of procedure codes</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span>
+            <span class="n">dct_denom_diag_codes</span><span class="p">,</span>
+            <span class="n">dct_denom_excl_diag_codes</span><span class="p">,</span>
+            <span class="n">dct_denom_proc_codes</span><span class="p">,</span>
+            <span class="n">dct_denom_excl_proc_codes</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">LowValueCare</span><span class="o">.</span><span class="n">get_diag_proc_specs</span><span class="p">(</span><span class="n">pdf_denom_spec</span><span class="p">,</span> <span class="s2">&quot;denom&quot;</span><span class="p">)</span>
+
+        <span class="p">(</span>
+            <span class="n">dct_msr_diag_codes</span><span class="p">,</span>
+            <span class="n">dct_msr_excl_diag_codes</span><span class="p">,</span>
+            <span class="n">dct_msr_proc_codes</span><span class="p">,</span>
+            <span class="n">dct_msr_excl_proc_codes</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">LowValueCare</span><span class="o">.</span><span class="n">get_diag_proc_specs</span><span class="p">(</span><span class="n">pdf_measure_spec</span><span class="p">,</span> <span class="s2">&quot;msr&quot;</span><span class="p">)</span>
+
+        <span class="n">dct_diag_codes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="n">dct_denom_diag_codes</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">dct_denom_excl_diag_codes</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">dct_msr_diag_codes</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">dct_msr_excl_diag_codes</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="n">dct_denom_proc_codes</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">dct_denom_excl_proc_codes</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">dct_msr_proc_codes</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">dct_msr_excl_proc_codes</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">dct_diag_codes</span><span class="p">,</span> <span class="n">dct_proc_codes</span></div>
+
+<div class="viewcode-block" id="LowValueCare.generate_condn_and_eligibility_indicators"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_low_value_care.html#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.generate_condn_and_eligibility_indicators">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">generate_condn_and_eligibility_indicators</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">pdf_denom_spec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">pdf_measure_spec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">max_data_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">lst_bene_id_filter</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">out_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;BENE_MSIS&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates condition &amp; eligibility pattern indicators, and saves them as parquet files</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        state : str</span>
+<span class="sd">            State</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Year</span>
+<span class="sd">        pdf_denom_spec : pd.DataFrame</span>
+<span class="sd">            Denomination spec dataframe</span>
+<span class="sd">        pdf_measure_spec : pd.DataFrame</span>
+<span class="sd">            Measure spec dataframe</span>
+<span class="sd">        max_data_root : str</span>
+<span class="sd">            Max files folder</span>
+<span class="sd">        lst_bene_id_filter : List[str]</span>
+<span class="sd">            List of bene ids to filter to</span>
+<span class="sd">        out_folder : str</span>
+<span class="sd">            Folder where temporary files can be saved</span>
+<span class="sd">        index_col : str</span>
+<span class="sd">            Index column name</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cache_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">cache_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">dct_diag_codes</span><span class="p">,</span> <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_diag_proc_codes</span><span class="p">(</span>
+            <span class="n">pdf_denom_spec</span><span class="p">,</span> <span class="n">pdf_measure_spec</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">curr_year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">ip_claim</span> <span class="o">=</span> <span class="n">max_ip</span><span class="o">.</span><span class="n">MAXIP</span><span class="p">(</span>
+                <span class="n">curr_year</span><span class="p">,</span>
+                <span class="n">state</span><span class="p">,</span>
+                <span class="n">max_data_root</span><span class="p">,</span>
+                <span class="n">index_col</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span>
+                <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lst_bene_id_filter</span><span class="p">):</span>
+                <span class="n">ip_claim</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">ip_claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">lst_bene_id_filter</span><span class="p">)]</span>
+                <span class="p">)</span>
+            <span class="n">ip_claim</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+            <span class="n">ip_claim</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+            <span class="n">df_ip</span> <span class="o">=</span> <span class="n">ip_claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+            <span class="n">ip_claim</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+                <span class="n">dct_diag_codes</span><span class="p">,</span> <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="n">ip_claim</span><span class="o">.</span><span class="n">df</span>
+            <span class="p">)</span>
+
+            <span class="n">ip_claim</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">ip_claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">ip_claim</span><span class="o">.</span><span class="n">df</span><span class="p">[</span>
+                    <span class="p">[</span><span class="s2">&quot;diag_&quot;</span> <span class="o">+</span> <span class="n">diag</span> <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">dct_diag_codes</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;proc_&quot;</span> <span class="o">+</span> <span class="n">diag</span> <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">dct_proc_codes</span><span class="p">]</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span>
+
+            <span class="n">ip_claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">curr_year</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">),</span>
+                <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
+                <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;snappy&quot;</span><span class="p">,</span>
+                <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">del</span> <span class="n">ip_claim</span>
+            <span class="n">ot_claim</span> <span class="o">=</span> <span class="n">max_ot</span><span class="o">.</span><span class="n">MAXOT</span><span class="p">(</span>
+                <span class="n">curr_year</span><span class="p">,</span>
+                <span class="n">state</span><span class="p">,</span>
+                <span class="n">max_data_root</span><span class="p">,</span>
+                <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">index_col</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span>
+                <span class="n">tmp_folder</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cache_folder</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">ot_claim</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">ot_claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">lst_bene_id_filter</span><span class="p">)]</span>
+            <span class="p">)</span>
+            <span class="n">ot_claim</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+            <span class="n">ot_claim</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+            <span class="n">ot_claim</span><span class="o">.</span><span class="n">flag_ip_overlaps_and_ed</span><span class="p">(</span><span class="n">df_ip</span><span class="p">)</span>
+            <span class="n">ot_claim</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+                <span class="n">dct_diag_codes</span><span class="p">,</span> <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="n">ot_claim</span><span class="o">.</span><span class="n">df</span>
+            <span class="p">)</span>
+            <span class="n">ot_claim</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">ot_claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">ot_claim</span><span class="o">.</span><span class="n">df</span><span class="p">[</span>
+                    <span class="p">[</span><span class="s2">&quot;diag_&quot;</span> <span class="o">+</span> <span class="n">diag</span> <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">dct_diag_codes</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;proc_&quot;</span> <span class="o">+</span> <span class="n">diag</span> <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">dct_proc_codes</span><span class="p">]</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">df_ot</span> <span class="o">=</span> <span class="n">ot_claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+            <span class="n">df_ot</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">curr_year</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">),</span>
+                <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
+                <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;snappy&quot;</span><span class="p">,</span>
+                <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">del</span> <span class="n">df_ot</span>
+
+            <span class="n">ps_file</span> <span class="o">=</span> <span class="n">max_ps</span><span class="o">.</span><span class="n">MAXPS</span><span class="p">(</span>
+                <span class="n">curr_year</span><span class="p">,</span>
+                <span class="n">state</span><span class="p">,</span>
+                <span class="n">max_data_root</span><span class="p">,</span>
+                <span class="n">index_col</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span>
+                <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ps_file</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">ps_file</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">lst_bene_id_filter</span><span class="p">)]</span>
+            <span class="p">)</span>
+            <span class="n">ps_file</span><span class="o">.</span><span class="n">add_eligibility_status_columns</span><span class="p">()</span>
+            <span class="n">ps_file</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">ps_file</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="n">eligibility_pattern</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span>
+                        <span class="p">[</span><span class="s2">&quot;elg_mon_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+                    <span class="p">]</span>
+                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">ps_file</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">ps_file</span><span class="o">.</span><span class="n">df</span><span class="p">[</span>
+                <span class="p">[</span><span class="s2">&quot;eligibility_pattern&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span>
+                    <span class="n">col</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;BENE_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;BENE_MSIS&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="n">index_col</span>
+                <span class="p">]</span>
+            <span class="p">]</span>
+
+            <span class="n">df_ps</span> <span class="o">=</span> <span class="n">ps_file</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+            <span class="n">df_ps</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;ps&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">curr_year</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">),</span>
+                <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
+                <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;snappy&quot;</span><span class="p">,</span>
+                <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="LowValueCare.get_dates"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_low_value_care.html#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.get_dates">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_dates</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">lst_condn</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">claims_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Aggregates dates at bene level for each denom/ measure condition. Three versions of date lists are returned</span>
+<span class="sd">        based on the claim type the condition was present: ip, ed, ot, and all</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        state : str</span>
+<span class="sd">            State</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Year</span>
+<span class="sd">        lst_condn : list of str</span>
+<span class="sd">            List of conditions</span>
+<span class="sd">        index_col : str</span>
+<span class="sd">            Index column name</span>
+<span class="sd">        claims_folder : str</span>
+<span class="sd">            Folder where claim files with condition flags are present</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pdf_dates : pd.DataFrame</span>
+<span class="sd">            Dataframe with denom/ measure condition date lists at bene level</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pdf_dates</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">]:</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">claims_folder</span><span class="p">,</span> <span class="n">ftype</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">),</span>
+                <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
+                <span class="c1"># index=False,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">)</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                    <span class="n">col</span><span class="p">:</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;diag_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;proc_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
+                    <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;diag_&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;proc_&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="n">col</span><span class="p">:</span> <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_excl_chronic_&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)]</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                        <span class="s2">&quot;denom_excl_chronic_sinusitis&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;denom_excl_chronic_acquired_hypothyroidism&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;denom_excl_chronic_low_back_pain&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;denom_excl_chronic_plantar_fasciitis&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;msr_total_or_free_t4&quot;</span> <span class="ow">in</span> <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="n">msr_total_or_free_t3</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span>
+                        <span class="p">[</span><span class="s2">&quot;msr_total_or_free_t4&quot;</span><span class="p">,</span> <span class="s2">&quot;msr_total_or_free_t3&quot;</span><span class="p">]</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">ftype</span><span class="si">}</span><span class="s2">_dates&quot;</span><span class="p">:</span> <span class="n">pdf</span><span class="p">[</span>
+                        <span class="s2">&quot;prncpl_proc_date&quot;</span>
+                        <span class="k">if</span> <span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;ip&quot;</span>
+                        <span class="k">else</span> <span class="s2">&quot;srvc_bgn_date&quot;</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_condn</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;ot&quot;</span><span class="p">:</span>
+                <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ed_dates&quot;</span><span class="p">:</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                            <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;any_ed&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_condn</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">ftype</span><span class="si">}</span><span class="s2">_dates&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                        <span class="p">]</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_condn</span>
+                    <span class="p">},</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ed_dates&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                        <span class="p">]</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_condn</span>
+                        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ed_dates&quot;</span> <span class="ow">in</span> <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pdf</span>
+                <span class="k">if</span> <span class="n">pdf_dates</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="n">pdf</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                    <span class="n">pdf_dates</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">col</span>
+                <span class="o">+</span> <span class="s2">&quot;_all_dates&quot;</span><span class="p">:</span> <span class="n">pdf_dates</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ip_dates&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">else</span> <span class="p">[]</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="n">pdf_dates</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ot_dates&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">else</span> <span class="p">[]</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_condn</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pdf_dates</span></div>
+
+<div class="viewcode-block" id="LowValueCare.get_dates_with_eligibility"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_low_value_care.html#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.get_dates_with_eligibility">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_dates_with_eligibility</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">lst_condn</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">claims_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns eligibility info and dates for all conditions at bene level</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        state : str</span>
+<span class="sd">            State</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Year</span>
+<span class="sd">        lst_condn : List[str]</span>
+<span class="sd">            List of conditions</span>
+<span class="sd">        index_col : str</span>
+<span class="sd">            Index column name</span>
+<span class="sd">        claims_folder : str</span>
+<span class="sd">            Location of claims folder that contains flags for conditions</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pdf_dates</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_dates</span><span class="p">(</span>
+            <span class="n">state</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">lst_condn</span><span class="p">,</span> <span class="n">index_col</span><span class="p">,</span> <span class="n">claims_folder</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">claims_folder</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">&amp;</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">claims_folder</span><span class="p">,</span> <span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">pdf_prior_dates</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_dates</span><span class="p">(</span>
+                <span class="n">state</span><span class="p">,</span>
+                <span class="n">year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">condn</span> <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">lst_condn</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">condn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;msr_&quot;</span><span class="p">)],</span>
+                <span class="n">index_col</span><span class="p">,</span>
+                <span class="n">claims_folder</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pdf_dates</span><span class="p">,</span> <span class="n">pdf_prior_dates</span><span class="p">])</span>
+        <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf_dates</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">col</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">sum</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">y</span> <span class="ow">is</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))],</span> <span class="p">[])</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">columns</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">pdf_ps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">claims_folder</span><span class="p">,</span> <span class="s2">&quot;ps&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">),</span>
+            <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
+            <span class="c1"># index=False,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">)[[</span><span class="s2">&quot;eligibility_pattern&quot;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">claims_folder</span><span class="p">,</span> <span class="s2">&quot;ps&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">pdf_ps</span> <span class="o">=</span> <span class="n">pdf_ps</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">claims_folder</span><span class="p">,</span> <span class="s2">&quot;ps&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+                    <span class="p">),</span>
+                    <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
+                    <span class="c1"># index=False,</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">)[[</span><span class="s2">&quot;eligibility_pattern&quot;</span><span class="p">]]</span>
+                <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;eligibility_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;lookback_eligibility_pattern&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">),</span>
+                <span class="n">on</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pdf_ps</span> <span class="o">=</span> <span class="n">pdf_ps</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">lookback_eligibility_pattern</span><span class="o">=</span><span class="s2">&quot;0&quot;</span> <span class="o">*</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="n">pdf_ps</span> <span class="o">=</span> <span class="n">pdf_ps</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">eligibility_pattern</span><span class="o">=</span><span class="n">pdf_ps</span><span class="p">[</span><span class="s2">&quot;lookback_eligibility_pattern&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+                <span class="s2">&quot;0&quot;</span> <span class="o">*</span> <span class="mi">12</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="n">pdf_ps</span><span class="p">[</span><span class="s2">&quot;eligibility_pattern&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">pdf_ps</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pdf_dates</span></div>
+
+<div class="viewcode-block" id="LowValueCare.get_denom_measure_spec"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_low_value_care.html#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.get_denom_measure_spec">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_denom_measure_spec</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns denom measure specs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dct_measures : dict</span>
+<span class="sd">            Measures dictionary</span>
+<span class="sd">        dct_denom : dict</span>
+<span class="sd">            Denominator dictionary</span>
+<span class="sd">        lst_condn : list of str</span>
+<span class="sd">            List of conditions</span>
+<span class="sd">        pdf_denom_spec_codes : pd.DataFrame</span>
+<span class="sd">            Denominator spec codes dataframe</span>
+<span class="sd">        pdf_measure_spec_codes : pd.DataFrame</span>
+<span class="sd">            Measure spec codes dataframe</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pdf_denom_spec</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;low_value_care.xlsx&quot;</span><span class="p">),</span>
+            <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;denominator&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">pdf_measure_spec</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;low_value_care.xlsx&quot;</span><span class="p">),</span>
+            <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;measures&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">pdf_denom_spec</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">normalize_condition_names</span><span class="p">(</span><span class="n">pdf_denom_spec</span><span class="p">)</span>
+        <span class="n">pdf_measure_spec</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">normalize_condition_names</span><span class="p">(</span><span class="n">pdf_measure_spec</span><span class="p">)</span>
+
+        <span class="n">pdf_denom_spec</span> <span class="o">=</span> <span class="n">pdf_denom_spec</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">pdf_denom_spec</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">pdf_denom_spec</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s2">&quot;excl_&quot;</span> <span class="o">+</span> <span class="n">pdf_denom_spec</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">pdf_measure_spec</span> <span class="o">=</span> <span class="n">pdf_measure_spec</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf_measure_spec</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s2">&quot;exclude_ip&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;exclude_ed&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;prior_months&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;followup_months&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;min_enrolled_months&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">pdf_denom_spec</span> <span class="o">=</span> <span class="n">pdf_denom_spec</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf_denom_spec</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s2">&quot;exclude_ip&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;exclude_ed&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;prior_months&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;offset_months&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;followup_months&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;followup_days&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;prior_days&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;offset_days&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">pdf_denom_spec_codes</span> <span class="o">=</span> <span class="n">pdf_denom_spec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">pdf_measure_spec_codes</span> <span class="o">=</span> <span class="n">pdf_measure_spec</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">pdf_denom_spec</span> <span class="o">=</span> <span class="n">pdf_denom_spec</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;icd_code&quot;</span><span class="p">,</span> <span class="s2">&quot;proc_code&quot;</span><span class="p">,</span> <span class="s2">&quot;proc_sys&quot;</span><span class="p">,</span> <span class="s2">&quot;include&quot;</span><span class="p">,</span> <span class="s2">&quot;except&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+        <span class="n">pdf_measure_spec</span> <span class="o">=</span> <span class="n">pdf_measure_spec</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;icd_code&quot;</span><span class="p">,</span> <span class="s2">&quot;proc_code&quot;</span><span class="p">,</span> <span class="s2">&quot;proc_sys&quot;</span><span class="p">,</span> <span class="s2">&quot;include&quot;</span><span class="p">,</span> <span class="s2">&quot;except&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+
+        <span class="n">pdf_combined_spec</span> <span class="o">=</span> <span class="n">pdf_measure_spec</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">pdf_denom_spec</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                    <span class="n">col</span><span class="p">:</span> <span class="s2">&quot;denom_&quot;</span> <span class="o">+</span> <span class="n">col</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf_denom_spec</span><span class="o">.</span><span class="n">columns</span>
+                    <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="s2">&quot;measure&quot;</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
+            <span class="n">on</span><span class="o">=</span><span class="s2">&quot;measure&quot;</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">lst_condn</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="p">{</span>  <span class="c1"># pylint: disable=unnecessary-comprehension</span>
+                <span class="n">condn</span>
+                <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s2">&quot;msr_&quot;</span> <span class="o">+</span> <span class="n">condn</span>
+                    <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">pdf_combined_spec</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span>
+                    <span class="s2">&quot;denom_&quot;</span> <span class="o">+</span> <span class="n">condn</span>
+                    <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">pdf_combined_spec</span><span class="p">[</span><span class="s2">&quot;denom_description&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">dct_measures</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_combined_spec</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;measure&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;measure&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;exclude_ip&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;exclude_ed&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;followup_months&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;prior_months&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;min_enrolled_months&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;denom_description&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">dct_denom</span> <span class="o">=</span> <span class="n">pdf_denom_spec</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;measure&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">dct_measures</span><span class="p">,</span>
+            <span class="n">dct_denom</span><span class="p">,</span>
+            <span class="n">lst_condn</span><span class="p">,</span>
+            <span class="n">pdf_denom_spec_codes</span><span class="p">,</span>
+            <span class="n">pdf_measure_spec_codes</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="construct_low_value_care_measures"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_low_value_care.html#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.construct_low_value_care_measures">[docs]</a><span class="k">def</span> <span class="nf">construct_low_value_care_measures</span><span class="p">(</span>
+    <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">lst_bene_msis_filter</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">max_data_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">out_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Constructs low value care measures for the given year and state</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    state : str</span>
+<span class="sd">        State</span>
+<span class="sd">    year : str</span>
+<span class="sd">        Year</span>
+<span class="sd">    lst_bene_msis_filter : List[str]</span>
+<span class="sd">        Bene id filder</span>
+<span class="sd">    index_col : str</span>
+<span class="sd">        Index column name</span>
+<span class="sd">    max_data_root : str</span>
+<span class="sd">        Location of claims files</span>
+<span class="sd">    out_folder : str</span>
+<span class="sd">        Location where temporary files will be saved</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pdf_dates : pd.DataFrame</span>
+<span class="sd">        Dataframe with low value care measures</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span>
+        <span class="n">dct_measures</span><span class="p">,</span>
+        <span class="n">dct_denom</span><span class="p">,</span>
+        <span class="n">lst_condn</span><span class="p">,</span>
+        <span class="n">pdf_denom_spec_codes</span><span class="p">,</span>
+        <span class="n">pdf_measure_spec_codes</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="n">LowValueCare</span><span class="o">.</span><span class="n">get_denom_measure_spec</span><span class="p">()</span>
+    <span class="n">LowValueCare</span><span class="o">.</span><span class="n">generate_condn_and_eligibility_indicators</span><span class="p">(</span>
+        <span class="n">state</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">,</span>
+        <span class="n">pdf_denom_spec_codes</span><span class="p">,</span>
+        <span class="n">pdf_measure_spec_codes</span><span class="p">,</span>
+        <span class="n">max_data_root</span><span class="p">,</span>
+        <span class="n">lst_bene_msis_filter</span><span class="p">,</span>
+        <span class="n">out_folder</span><span class="p">,</span>
+        <span class="n">index_col</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">LowValueCare</span><span class="o">.</span><span class="n">get_dates_with_eligibility</span><span class="p">(</span>
+        <span class="n">state</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">lst_condn</span><span class="p">,</span> <span class="n">index_col</span><span class="p">,</span> <span class="n">out_folder</span>
+    <span class="p">)</span>
+
+    <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">LowValueCare</span><span class="o">.</span><span class="n">construct_low_value_care_measures</span><span class="p">(</span>
+        <span class="n">pdf_dates</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">dct_measures</span><span class="p">,</span> <span class="n">dct_denom</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pdf_dates</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

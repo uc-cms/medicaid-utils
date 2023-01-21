@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot; Python implementation of The New York University (NYU) Emergency Department (ED) visit algorithm.</span>
+<span class="sd">    This algorithm is the most widely used tool for retrospectively assessing the probability</span>
+<span class="sd">    that ED visits are urgent, preventable, or optimally treated in an ED,</span>
+<span class="sd">    using administrative data (Billings, Parikh, and Mijanovich 2000b; Feldman 2010).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Manoradhan Murugesan&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;manorathan@uchicago.edu&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+
+
+<div class="viewcode-block" id="BillingsED"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED">[docs]</a><span class="k">class</span> <span class="nc">BillingsED</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class packages functions to perform NYU/ Billings algorithm based classification of ED visits&quot;&quot;&quot;</span>
+
+    <span class="n">logger_name</span> <span class="o">=</span> <span class="vm">__name__</span>
+    <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Recoding diagnosis code lookups</span>
+    <span class="n">pdf_recode</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;recode.csv&quot;</span><span class="p">),</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;origin&quot;</span><span class="p">:</span> <span class="s2">&quot;str&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;str&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;str&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="s2">&quot;str&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;deleted&quot;</span><span class="p">:</span> <span class="s2">&quot;int&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;starts_with&quot;</span><span class="p">:</span> <span class="s2">&quot;int&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">pdf_recode</span> <span class="o">=</span> <span class="n">pdf_recode</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">pdf_recode</span><span class="p">[</span><span class="s2">&quot;deleted&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">pdf_recode</span> <span class="o">=</span> <span class="n">pdf_recode</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">origin</span><span class="o">=</span><span class="n">pdf_recode</span><span class="o">.</span><span class="n">origin</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">literal_eval</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">pdf_startswith_recode</span> <span class="o">=</span> <span class="n">pdf_recode</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_recode</span><span class="p">[</span><span class="s2">&quot;starts_with&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">pdf_startswith_recode</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pdf_startswith_recode</span><span class="p">[[</span><span class="s2">&quot;origin&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="s2">&quot;origin&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">([</span><span class="s2">&quot;origin&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">pdf_nonstartswith_recode</span> <span class="o">=</span> <span class="n">pdf_recode</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_recode</span><span class="p">[</span><span class="s2">&quot;starts_with&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span>
+        <span class="p">[</span><span class="s2">&quot;origin&quot;</span><span class="p">,</span> <span class="s2">&quot;target&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="s2">&quot;origin&quot;</span><span class="p">)</span>
+    <span class="n">pdf_nonstartswith_recode</span> <span class="o">=</span> <span class="n">pdf_nonstartswith_recode</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;origin&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span>
+    <span class="p">)</span>
+    <span class="n">dct_recode_non_startswith</span> <span class="o">=</span> <span class="n">pdf_nonstartswith_recode</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+        <span class="s2">&quot;origin&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;target&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Special categories lookups</span>
+    <span class="n">lst_special_ed_categories</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;acs&quot;</span><span class="p">,</span> <span class="s2">&quot;psych&quot;</span><span class="p">,</span> <span class="s2">&quot;drug&quot;</span><span class="p">,</span> <span class="s2">&quot;alcohol&quot;</span><span class="p">,</span> <span class="s2">&quot;injury&quot;</span><span class="p">]</span>
+    <span class="c1"># Load recode csv file that has information for</span>
+    <span class="c1"># recoding principal diagnosis</span>
+    <span class="c1"># Load category data files to a dictionary</span>
+    <span class="n">dct_category_dx_codes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">lst_special_ed_categories</span><span class="p">:</span>
+        <span class="n">dct_category_dx_codes</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">cat</span> <span class="o">+</span> <span class="s2">&quot;_check.csv&quot;</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;start_index&quot;</span><span class="p">:</span> <span class="s2">&quot;int&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;end_index&quot;</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;str&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;str&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+                    <span class="sa">r</span><span class="s2">&quot;[^a-zA-Z0-9]+&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">code</span><span class="p">[</span>
+                        <span class="p">:</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">end_index</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">end_index</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">code</span><span class="p">)</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+                <span class="p">),</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Probabilities lookup</span>
+    <span class="n">df_eddxs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sas</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;eddxs.sas7bdat&quot;</span><span class="p">))</span>
+    <span class="n">df_eddxs</span> <span class="o">=</span> <span class="n">df_eddxs</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">prindx</span><span class="o">=</span><span class="n">df_eddxs</span><span class="o">.</span><span class="n">prindx</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[^a-zA-Z0-9]+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df_eddxs</span> <span class="o">=</span> <span class="n">df_eddxs</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">([</span><span class="s2">&quot;prindx&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BillingsED.recode_diag_code"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.recode_diag_code">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">recode_diag_code</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recodes diagnosis code</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dx_code : str</span>
+<span class="sd">            Diagnosis code</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dct_recode_non_startswith</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">dx_code</span><span class="p">,</span>
+            <span class="nb">next</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">target</span>
+                    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">pdf_startswith_recode</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">dx_code</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">origin</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">dx_code</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="BillingsED.get_special_categories"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.get_special_categories">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_special_categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Categorizes the diagnosis code into below categories</span>
+
+<span class="sd">        ===============   ==============================================</span>
+<span class="sd">        category_code     description</span>
+<span class="sd">        ===============   ==============================================</span>
+<span class="sd">          injury          Injury</span>
+<span class="sd">          psych           Mental Health Related</span>
+<span class="sd">          alcohol         Alcohol Related</span>
+<span class="sd">          drug            Drug Related (excluding alcohol)</span>
+<span class="sd">          acs</span>
+<span class="sd">        ===============   ==============================================</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dx_code : str</span>
+<span class="sd">            Diagnosis code</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">cat</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">dx_code</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">dct_category_dx_codes</span><span class="p">[</span><span class="n">cat</span><span class="p">])))</span>
+            <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">lst_special_ed_categories</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="BillingsED.get_nyu_ed_proba_for_dx_code"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.get_nyu_ed_proba_for_dx_code">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_nyu_ed_proba_for_dx_code</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Merge with EDDXs gets the probbolities attached with the code</span>
+
+<span class="sd">        ============   =====================================================</span>
+<span class="sd">        ed_category    description</span>
+<span class="sd">        ============   =====================================================</span>
+<span class="sd">        nonemerg       Non-Emergent</span>
+<span class="sd">        emergpc        Emergent, Primary Care Treatable</span>
+<span class="sd">        emedpa         Emergent, ED Care Needed, Preventable/Avoidable</span>
+<span class="sd">        emednpa        Emergent, ED Care Needed, Not Preventable/Avoidable</span>
+<span class="sd">        ============   =====================================================</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dx_code : str</span>
+<span class="sd">            Diagnosis code</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">df_eddxs</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;prindx&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dx_code</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="BillingsED.get_nyu_ed_categories"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.get_nyu_ed_categories">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_nyu_ed_categories</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns probabilities for each of the NYU ED categories, based on the input diagnosis code</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dx_code : str</span>
+<span class="sd">            Diagnosis code</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        unclassified : int</span>
+<span class="sd">            The code did not meet any NYU/Billings category</span>
+<span class="sd">        injury : int</span>
+<span class="sd">            Injury</span>
+<span class="sd">        drug : int</span>
+<span class="sd">            Drug Related (excluding alcohol)</span>
+<span class="sd">        psych : int</span>
+<span class="sd">            Mental Health Related</span>
+<span class="sd">        alcohol : int</span>
+<span class="sd">            Alcohol Related</span>
+<span class="sd">        peds_acs_ed : int</span>
+<span class="sd">            Pediatric ambuilatory care sensitive ED visit</span>
+<span class="sd">        ne : float</span>
+<span class="sd">            Non-Emergent probability</span>
+<span class="sd">        epct : float</span>
+<span class="sd">            Emergent, Primary Care Treatable probability</span>
+<span class="sd">        edcnpa : float</span>
+<span class="sd">            Emergent, ED Care Needed, Preventable/Avoidable</span>
+<span class="sd">        edcnnpa : float</span>
+<span class="sd">            Emergent, ED Care Needed, Not Preventable/Avoidable</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">peds_acsed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">is_peds_acsed</span><span class="p">(</span><span class="n">dx_code</span><span class="p">)</span>
+        <span class="n">dx_code</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">recode_diag_code</span><span class="p">(</span><span class="n">dx_code</span><span class="p">)</span>
+        <span class="n">dct_special_cat</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_special_categories</span><span class="p">(</span><span class="n">dx_code</span><span class="p">)</span>
+        <span class="n">dct_nyu_ed_proba</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_nyu_ed_proba_for_dx_code</span><span class="p">(</span><span class="n">dx_code</span><span class="p">)</span>
+        <span class="n">unclassified</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="ow">not</span> <span class="p">(</span>
+                <span class="nb">any</span><span class="p">(</span>
+                    <span class="n">dct_special_cat</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;injury&quot;</span><span class="p">,</span> <span class="s2">&quot;drug&quot;</span><span class="p">,</span> <span class="s2">&quot;psych&quot;</span><span class="p">,</span> <span class="s2">&quot;alcohol&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="n">dct_nyu_ed_proba</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># ne = dct_nyu_ed_proba.get(&quot;nonemerg&quot;, 0)</span>
+        <span class="c1"># epct = dct_nyu_ed_proba.get(&quot;emergpc&quot;, 0)</span>
+        <span class="n">ne</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="n">dct_special_cat</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;injury&quot;</span><span class="p">,</span> <span class="s2">&quot;drug&quot;</span><span class="p">,</span> <span class="s2">&quot;psych&quot;</span><span class="p">,</span> <span class="s2">&quot;alcohol&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="n">dct_nyu_ed_proba</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nonemerg&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">epct</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="n">dct_special_cat</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;injury&quot;</span><span class="p">,</span> <span class="s2">&quot;drug&quot;</span><span class="p">,</span> <span class="s2">&quot;psych&quot;</span><span class="p">,</span> <span class="s2">&quot;alcohol&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="n">dct_nyu_ed_proba</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;emergpc&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">edcnpa</span> <span class="o">=</span> <span class="n">dct_special_cat</span><span class="p">[</span><span class="s2">&quot;acs&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">dct_nyu_ed_proba</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;emedpa&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">dct_nyu_ed_proba</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;emednpa&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">edcnnpa</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dct_special_cat</span><span class="p">[</span><span class="s2">&quot;acs&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">dct_nyu_ed_proba</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;emedpa&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">dct_nyu_ed_proba</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;emednpa&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">edcnpa</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span>
+                <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                    <span class="n">dct_special_cat</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;injury&quot;</span><span class="p">,</span> <span class="s2">&quot;drug&quot;</span><span class="p">,</span> <span class="s2">&quot;psych&quot;</span><span class="p">,</span> <span class="s2">&quot;alcohol&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">*</span> <span class="n">edcnpa</span>
+        <span class="p">)</span>
+        <span class="n">edcnnpa</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span>
+                <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span>
+                    <span class="n">dct_special_cat</span><span class="p">[</span><span class="n">cat</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;injury&quot;</span><span class="p">,</span> <span class="s2">&quot;drug&quot;</span><span class="p">,</span> <span class="s2">&quot;psych&quot;</span><span class="p">,</span> <span class="s2">&quot;alcohol&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">*</span> <span class="n">edcnnpa</span>
+        <span class="p">)</span>
+
+        <span class="n">peds_acsed</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">peds_acsed</span><span class="p">,</span> <span class="nb">sum</span><span class="p">([</span><span class="n">ne</span><span class="p">,</span> <span class="n">epct</span><span class="p">,</span> <span class="n">edcnpa</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">unclassified</span><span class="p">,</span>
+            <span class="n">dct_special_cat</span><span class="p">[</span><span class="s2">&quot;injury&quot;</span><span class="p">],</span>
+            <span class="n">dct_special_cat</span><span class="p">[</span><span class="s2">&quot;drug&quot;</span><span class="p">],</span>
+            <span class="n">dct_special_cat</span><span class="p">[</span><span class="s2">&quot;psych&quot;</span><span class="p">],</span>
+            <span class="n">dct_special_cat</span><span class="p">[</span><span class="s2">&quot;alcohol&quot;</span><span class="p">],</span>
+            <span class="n">peds_acsed</span><span class="p">,</span>
+            <span class="n">ne</span><span class="p">,</span>
+            <span class="n">epct</span><span class="p">,</span>
+            <span class="n">edcnpa</span><span class="p">,</span>
+            <span class="n">edcnnpa</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="BillingsED.is_peds_acsed"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.is_peds_acsed">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">is_peds_acsed</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the diagnosis code meets pediatric ACS ED visit criteria</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dx_code : str</span>
+<span class="sd">            Diagnosis code</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="n">dx_code</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;493&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;079&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;480&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;487&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;780&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;381&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;382&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;384&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;385&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;471&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;472&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;477&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;690&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;691&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;692&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;693&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;695&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;V03&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;V04&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;V05&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;V06&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;V07&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;V20&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;V67&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;V68&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;V69&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;V70&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;840&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;841&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;842&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;843&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;844&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;845&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;846&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;847&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;848&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;910&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;911&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;913&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;914&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;915&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;916&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;917&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;918&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;919&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;923&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;924&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;955&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;956&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="get_nyu_ed_proba"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.get_nyu_ed_proba">[docs]</a><span class="k">def</span> <span class="nf">get_nyu_ed_proba</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MAX&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="c1"># pylint: disable=missing-param-doc</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This functions returns probabilities for dxgroup codes in the input dataframe being urgent, preventable, or</span>
+<span class="sd">    optimally treated ED visits. This function recodes the passed dx codes to a set of dx codes used in (Billings,</span>
+<span class="sd">    Parikh, and Mijanovich 2000b; Feldman 2010) study, adds columns (‘injury’, ‘psych’, ‘alcohol’ and ‘drug’),</span>
+<span class="sd">    indicating the type of ED service.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : dask.DataFrame</span>
+<span class="sd">        dataframe with dx codes</span>
+<span class="sd">    date_col : str</span>
+<span class="sd">        Date column name</span>
+<span class="sd">    index_col : str</span>
+<span class="sd">        Index column name</span>
+<span class="sd">    cms_format : {&#39;MAX&#39;, &#39;TAF&#39;}</span>
+<span class="sd">        CMS file format</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">principal_diag_col_name</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;DIAG_CD_1&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;DGNS_CD_1&quot;</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">pdf</span><span class="p">,</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                    <span class="n">pdf</span><span class="p">[</span><span class="n">principal_diag_col_name</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">BillingsED</span><span class="o">.</span><span class="n">get_nyu_ed_categories</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                        <span class="s2">&quot;unclassified&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;injury&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;drug&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;psych&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;alcohol&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;peds_acs_ed&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ne&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;epct&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;edcnpa&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;edcnnpa&quot;</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">index_col</span><span class="p">,</span> <span class="n">date_col</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+            <span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;injury&quot;</span><span class="p">,</span> <span class="s2">&quot;drug&quot;</span><span class="p">,</span> <span class="s2">&quot;psych&quot;</span><span class="p">,</span> <span class="s2">&quot;alcohol&quot;</span><span class="p">,</span> <span class="s2">&quot;adult&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span>
+                    <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ne&quot;</span><span class="p">,</span> <span class="s2">&quot;epct&quot;</span><span class="p">,</span> <span class="s2">&quot;edcnpa&quot;</span><span class="p">,</span> <span class="s2">&quot;edcnnpa&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="p">[(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;peds_acs_ed&quot;</span><span class="p">]]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">peds_acs_ed_visit</span><span class="o">=</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;adult&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;peds_acs_ed&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.75</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+        <span class="n">non_emergent_visit</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;ne&quot;</span><span class="p">,</span> <span class="s2">&quot;epct&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+        <span class="n">emergent_visit</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;edcnpa&quot;</span><span class="p">,</span> <span class="s2">&quot;edcnnpa&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="nb">int</span>
+        <span class="p">),</span>
+        <span class="n">non_emergent_or_pct_visit</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;ne&quot;</span><span class="p">,</span> <span class="s2">&quot;epct&quot;</span><span class="p">,</span> <span class="s2">&quot;edcnpa&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+        <span class="n">indeterminate_ed_visit</span><span class="o">=</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;ne&quot;</span><span class="p">,</span> <span class="s2">&quot;epct&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.5</span><span class="p">)</span>
+            <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;edcnpa&quot;</span><span class="p">,</span> <span class="s2">&quot;edcnnpa&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">index_col</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">col</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s2">&quot;injury&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;drug&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;psych&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;alcohol&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;peds_acs_ed_visit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;non_emergent_visit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;emergent_visit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;non_emergent_or_pct_visit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;indeterminate_ed_visit&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

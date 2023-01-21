@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.topics.oud.medication_and_behavioral_health &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.topics.oud.medication_and_behavioral_health</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.topics.oud.medication_and_behavioral_health</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module has functions that can be used to identify OUD related</span>
+<span class="sd">medications and behavioral health service claims&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">from</span> <span class="nn">...filters.claims</span> <span class="kn">import</span> <span class="n">dx_and_proc</span><span class="p">,</span> <span class="n">rx</span>
+
+<span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="flag_proc_buprenorphine"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_buprenorphine">[docs]</a><span class="k">def</span> <span class="nf">flag_proc_buprenorphine</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds indicator column denoting presence of buprenorphine treatment</span>
+<span class="sd">    procedure codes in claims.</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - proc_buprenorphine: 0 or 1, 1 when claim has Buprenorphine</span>
+<span class="sd">          treatment procedure codes and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">            IP or OT claim file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;buprenorphine&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">7</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J0571&quot;</span><span class="p">]}}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_rx_buprenorphine"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_buprenorphine">[docs]</a><span class="k">def</span> <span class="nf">flag_rx_buprenorphine</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds indicator column denoting presence of buprenorphine NDC codes in</span>
+<span class="sd">    claims.</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - rx_buprenorphine: 0 or 1, 1 when claim has buprenorphine NDC codes</span>
+<span class="sd">          and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">            IP or OT claim file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pdf_buprenorphine</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;rxmix_ndc_codes_cleaned_final.xlsx&quot;</span><span class="p">),</span>
+        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Buprenorphine&quot;</span><span class="p">,</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">dct_ndc_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;buprenorphine&quot;</span><span class="p">:</span> <span class="n">pdf_buprenorphine</span><span class="p">[</span><span class="s2">&quot;ndc&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_proc_buprenorphine_naloxone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_buprenorphine_naloxone">[docs]</a><span class="k">def</span> <span class="nf">flag_proc_buprenorphine_naloxone</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds indicator column denoting presence of Buprenorphine/ Naloxone</span>
+<span class="sd">    treatment procedure codes in claims.</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - proc_buprenorphine_naloxone: 0 or 1, 1 when claim has</span>
+<span class="sd">          Buprenorphine/ Naloxone treatment procedure codes and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">            IP or OT claim file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;buprenorphine_naloxone&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">7</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J0572&quot;</span><span class="p">,</span> <span class="s2">&quot;J0573&quot;</span><span class="p">,</span> <span class="s2">&quot;J0574&quot;</span><span class="p">,</span> <span class="s2">&quot;J0575&quot;</span><span class="p">]}</span>
+    <span class="p">}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_rx_buprenorphine_naloxone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_buprenorphine_naloxone">[docs]</a><span class="k">def</span> <span class="nf">flag_rx_buprenorphine_naloxone</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds indicator column denoting presence of Buprenorphine/ Naloxone NDC</span>
+<span class="sd">    codes in claims.</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - rx_buprenorphine_naloxone: 0 or 1, 1 when claim has buprenorphine</span>
+<span class="sd">          NDC codes and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">            IP or OT claim file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pdf_buprenorphine</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;rxmix_ndc_codes_cleaned_final.xlsx&quot;</span><span class="p">),</span>
+        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Buprenorphine&quot;</span><span class="p">,</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pdf_naloxone</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;rxmix_ndc_codes_cleaned_final.xlsx&quot;</span><span class="p">),</span>
+        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Naloxone&quot;</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">dct_ndc_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;buprenorphine_naloxone&quot;</span><span class="p">:</span> <span class="n">pdf_buprenorphine</span><span class="p">[</span><span class="s2">&quot;ndc&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="o">+</span> <span class="n">pdf_naloxone</span><span class="p">[</span><span class="s2">&quot;ndc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+    <span class="p">}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_proc_injectable_naltrexone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_injectable_naltrexone">[docs]</a><span class="k">def</span> <span class="nf">flag_proc_injectable_naltrexone</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds indicator column denoting presence of Injectable Naltrexone</span>
+<span class="sd">    procedure codes in claims.</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - proc_injectable_naltrexone: 0 or 1, 1 when claim has Injectable</span>
+<span class="sd">          Naltrexone treatment procedure codes and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">            IP or OT claim file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;injectable_naltrexone&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">7</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J2315&quot;</span><span class="p">]}}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_rx_oral_naltrexone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_oral_naltrexone">[docs]</a><span class="k">def</span> <span class="nf">flag_rx_oral_naltrexone</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds indicator column denoting presence of Oral Naltrexone NDC</span>
+<span class="sd">    codes in claims.</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - rx_oral_naltrexone: 0 or 1, 1 when claim has Oral Naltrexone NDC</span>
+<span class="sd">          codes and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">            IP or OT claim file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pdf_naltrexone</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;rxmix_ndc_codes_cleaned_final.xlsx&quot;</span><span class="p">),</span>
+        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Naltrexone&quot;</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">dct_ndc_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;oral_naltrexone&quot;</span><span class="p">:</span> <span class="n">pdf_naltrexone</span><span class="p">[</span><span class="s2">&quot;ndc&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+    <span class="p">}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_proc_methadone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_methadone">[docs]</a><span class="k">def</span> <span class="nf">flag_proc_methadone</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds indicator column denoting presence of Methadone procedure codes in</span>
+<span class="sd">    claims.</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - proc_methadone: 0 or 1, 1 when claim has Methadone treatment</span>
+<span class="sd">          procedure codes and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">            IP or OT claim file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;methadone&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">7</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H0020&quot;</span><span class="p">]}}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_rx_methadone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_methadone">[docs]</a><span class="k">def</span> <span class="nf">flag_rx_methadone</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds indicator column denoting presence of Methadone NDC codes in claims.</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - rx_methadone_le_30mg: 0 or 1, 1 when claim has Methadone NDC codes</span>
+<span class="sd">          with dosage less than or equal to 30 mg and 0 otherwise</span>
+<span class="sd">        - rx_methadone_gt_30mg: 0 or 1, 1 when claim has Methadone NDC codes</span>
+<span class="sd">          with dosage greater than or equal to 30 mg and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">            IP or OT claim file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pdf_methadone</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;rxmix_ndc_codes_cleaned_final.xlsx&quot;</span><span class="p">),</span>
+        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Methadone&quot;</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">dct_ndc_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;methadone_le_30mg&quot;</span><span class="p">:</span> <span class="n">pdf_methadone</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">pdf_methadone</span><span class="p">[</span><span class="s2">&quot;rx_name&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;MG&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="o">&lt;=</span> <span class="mi">30</span>
+        <span class="p">][</span><span class="s2">&quot;ndc&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="s2">&quot;methadone_gt_30mg&quot;</span><span class="p">:</span> <span class="n">pdf_methadone</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">pdf_methadone</span><span class="p">[</span><span class="s2">&quot;rx_name&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;MG&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="o">&gt;</span> <span class="mi">30</span>
+        <span class="p">][</span><span class="s2">&quot;ndc&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+    <span class="p">}</span>
+
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_proc_behavioral_health_trtmt"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_behavioral_health_trtmt">[docs]</a><span class="k">def</span> <span class="nf">flag_proc_behavioral_health_trtmt</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds indicator column denoting presence of Behavioral Health treatment</span>
+<span class="sd">    procedure codes in claims.</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - proc_behavioral_health_trtmt: 0 or 1, 1 when claim has Behavioral</span>
+<span class="sd">          Health treatment procedure codes and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">            IP or OT claim file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;behavioral_health_trtmt&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="mi">7</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;90785&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90832&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90834&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90837&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90846&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90847&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90849&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90853&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0001&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0004&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0005&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0006&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0007&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0008&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0010&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0012&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0013&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0014&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0015&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0022&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0028&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0038&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0047&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0049&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0050&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2011&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2019&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2027&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2034&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2035&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2036&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;T1006&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;T1007&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;T1012&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90875&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_rx_benzos_opioids"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_benzos_opioids">[docs]</a><span class="k">def</span> <span class="nf">flag_rx_benzos_opioids</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds indicator column denoting presence of Benzodiazepines/ Opioids NDC</span>
+<span class="sd">    codes in claims.</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - rx_benzodiazepines: 0 or 1, 1 when claim has Benzodiazepines NDC</span>
+<span class="sd">          codes and 0 otherwise</span>
+<span class="sd">        - rx_opioids: 0 or 1, 1 when claim has Opioids NDC codes and 0</span>
+<span class="sd">          otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">            IP or OT claim file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pdf_opioids</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;benzos_opioids_ndc.xlsx&quot;</span><span class="p">),</span>
+        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Opioids&quot;</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pdf_benzos</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;benzos_opioids_ndc.xlsx&quot;</span><span class="p">),</span>
+        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Benzos&quot;</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span>
+        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">dct_ndc_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;opioids&quot;</span><span class="p">:</span> <span class="n">pdf_opioids</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="o">~</span><span class="n">pdf_opioids</span><span class="o">.</span><span class="n">Drug</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;buprenorphine&quot;</span><span class="p">])</span>
+        <span class="p">][</span><span class="s2">&quot;NDC&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="s2">&quot;benzodiazepines&quot;</span><span class="p">:</span> <span class="n">pdf_benzos</span><span class="p">[</span><span class="s2">&quot;NDC&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+    <span class="p">}</span>
+
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
