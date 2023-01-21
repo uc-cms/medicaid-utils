@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.preprocessing.taf_ps &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.preprocessing.taf_ps</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.preprocessing.taf_ps</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module has TAFPS class which wraps together cleaning/ preprocessing</span>
+<span class="sd">routines specific for TAF PS files&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+
+<span class="kn">from</span> <span class="nn">medicaid_utils.preprocessing</span> <span class="kn">import</span> <span class="n">taf_file</span>
+<span class="kn">from</span> <span class="nn">medicaid_utils.common_utils</span> <span class="kn">import</span> <span class="n">dataframe_utils</span>
+
+<span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="n">other_data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;other_datasets&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># MC - 1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 17</span>
+<span class="c1"># FFS - 2, 14, 15</span>
+<span class="c1"># unknown - 3, 4, 16, 18, 60, 70, 80</span>
+
+
+<div class="viewcode-block" id="TAFPS"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS">[docs]</a><span class="k">class</span> <span class="nc">TAFPS</span><span class="p">(</span><span class="n">taf_file</span><span class="o">.</span><span class="n">TAFFile</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scripts to preprocess PS file&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">data_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BENE_MSIS&quot;</span><span class="p">,</span>
+        <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">preprocess</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">rural_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ruca&quot;</span><span class="p">,</span>
+        <span class="n">tmp_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pq_engine</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Claim year</span>
+<span class="sd">        state : str</span>
+<span class="sd">            Claim state</span>
+<span class="sd">        data_root : str</span>
+<span class="sd">            Root folder with cms data</span>
+<span class="sd">        index_col : str, default=&#39;BENE_MSIS&#39;</span>
+<span class="sd">            Column to use as index. Eg. BENE_MSIS or MSIS_ID. The raw file</span>
+<span class="sd">            is expected to be already sorted with index column</span>
+<span class="sd">        clean : bool, default=True</span>
+<span class="sd">            Run cleaning routines if True</span>
+<span class="sd">        preprocess : bool, default=True</span>
+<span class="sd">            Add commonly used constructed variable columns if True</span>
+<span class="sd">        rural_method : {&#39;ruca&#39;, &#39;rucc&#39;}</span>
+<span class="sd">            Method to use for rural variable construction. Available</span>
+<span class="sd">            options: &#39;ruca&#39;, &#39;rucc&#39;</span>
+<span class="sd">        tmp_folder : str, default=None</span>
+<span class="sd">            Folder to use to store temporary files</span>
+<span class="sd">        pq_engine: str, default=&#39;pyarrow&#39;</span>
+<span class="sd">            Parquet Engine</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;ps&quot;</span><span class="p">,</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">data_root</span><span class="o">=</span><span class="n">data_root</span><span class="p">,</span>
+            <span class="n">index_col</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span>
+            <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">tmp_folder</span><span class="o">=</span><span class="n">tmp_folder</span><span class="p">,</span>
+            <span class="n">pq_engine</span><span class="o">=</span><span class="n">pq_engine</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Default filters to filter out benes that do not meet minimum</span>
+        <span class="c1"># standard of cleanliness criteria duplicated_bene_id exclusion will</span>
+        <span class="c1"># remove benes with duplicated BENE_MSIS ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_default_filters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;duplicated_bene_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">preprocess</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">rural_method</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TAFPS.clean"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs cleaning routines and created common exclusion flags based</span>
+<span class="sd">        on default filters&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_gender</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_common_exclusions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TAFPS.preprocess"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rural_method</span><span class="o">=</span><span class="s2">&quot;ruca&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds rural and eligibility criteria indicator variables&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_rural</span><span class="p">(</span><span class="n">rural_method</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_dual</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_restricted_benefits</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_enrollment_gaps</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TAFPS.flag_common_exclusions"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_common_exclusions">[docs]</a>    <span class="k">def</span> <span class="nf">flag_common_exclusions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds commonly used exclusion flags</span>
+<span class="sd">        New Column(s):</span>
+<span class="sd">            - excl_duplicated_bene_id - 0 or 1, 1 when bene&#39;s index column</span>
+<span class="sd">            is repeated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">df_base</span><span class="o">.</span><span class="n">index</span><span class="p">})</span>
+        <span class="c1"># Some BENE_MSIS&#39;s are repeated in PS files. Some patients share the</span>
+        <span class="c1"># same BENE_ID and yet have different MSIS_IDs. Some of them even</span>
+        <span class="c1"># have different &#39;dates of birth&#39;. Since we cannot find any</span>
+        <span class="c1"># explanation for such patterns, we decided on removing these</span>
+        <span class="c1"># BENE_MSIS&#39;s as per issue #29 in FARA project</span>
+        <span class="c1"># (https://rcg.bsd.uchicago.edu/gitlab/mmurugesan/hrsa_max_feature_extraction/issues/29)</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">excl_duplicated_bene_id</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_base</span></div>
+
+<div class="viewcode-block" id="TAFPS.add_mas_boe"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.add_mas_boe">[docs]</a>    <span class="k">def</span> <span class="nf">add_mas_boe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds columns denoting number of months in each Maintenance</span>
+<span class="sd">        Assistance Status (MAS) and Basis of Eligibility</span>
+<span class="sd">        (BOE) category. Columns added are,</span>
+<span class="sd">            - boe_chip_months : Number of months in Separate-CHIP BOE category</span>
+<span class="sd">            - boe_aged_months : Number of months in Aged BOE category</span>
+<span class="sd">            - boe_blind_disabled_months : Number of months in Blind/</span>
+<span class="sd">            Disabled BOE category</span>
+<span class="sd">            - boe_child_months : Number of months in Children BOE category</span>
+<span class="sd">            - boe_adults_months : Number of months in Adult BOE category</span>
+<span class="sd">            - boe_breast_and_cervical_cancer_months : Number of months in</span>
+<span class="sd">            Breast and Cervical Cancer Prevention and Treatment Act of 2000</span>
+<span class="sd">            BOE category</span>
+<span class="sd">            - boe_child_of_unemployed_months : Number of months in Child of</span>
+<span class="sd">            Unemployed Adult BOE category</span>
+<span class="sd">            - boe_unemployed_months : Number of months in Unemployed Adult</span>
+<span class="sd">            BOE category</span>
+<span class="sd">            - boe_foster_care_children_months : Number of months in Foster</span>
+<span class="sd">            Care Children BOE category</span>
+<span class="sd">            - boe_unknown_months : Number of months in Uknown BOE category</span>
+<span class="sd">            - mas_chip_months : Number of months in Separate-CHIP MAS category</span>
+<span class="sd">            - mas_cash_sec_1931_months : Number of months in Individuals</span>
+<span class="sd">            receiving cash assistance or eligible under section 1931 of the</span>
+<span class="sd">            Act MAS category</span>
+<span class="sd">            - mas_medically_needy_months : Number of months in Medically</span>
+<span class="sd">            Needy MAS category</span>
+<span class="sd">            - mas_poverty_months : Number of months in Poverty Related</span>
+<span class="sd">            Eligibles MAS category</span>
+<span class="sd">            - mas_other_months : Number of months in Other Eligibles MAS</span>
+<span class="sd">            category</span>
+<span class="sd">            - mas_demonstration_months : Number of months in Section 1115</span>
+<span class="sd">            Demonstration expansion eligible MAS category</span>
+<span class="sd">            - mas_unknown_months : Number of months in Unknown MAS category</span>
+<span class="sd">            - max_mas_type : Top MAS category for the bene</span>
+<span class="sd">            - max_boe_type : Top BOE category for the bene</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">dct_boe_codes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;chip&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;aged&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;blind_disabled&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;child&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;adults&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;breast_and_cervical_cancer&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+            <span class="s2">&quot;child_of_unemployed&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">&quot;unemployed&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="s2">&quot;foster_care_children&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+            <span class="s2">&quot;unknown&quot;</span><span class="p">:</span> <span class="mi">99</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">dct_mas_codes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;chip&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;cash_sec_1931&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;medically_needy&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;poverty&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s2">&quot;other&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;demonstration&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;unknown&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="sa">f</span><span class="s2">&quot;boe_</span><span class="si">{</span><span class="n">boe_type</span><span class="si">}</span><span class="s2">_months&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="p">(</span>
+                                    <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">999</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+                                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                                    <span class="o">==</span> <span class="n">dct_boe_codes</span><span class="p">[</span><span class="n">boe_type</span><span class="p">]</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                                    <span class="sa">f</span><span class="s2">&quot;MASBOE_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                                    <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                                <span class="p">]</span>
+                            <span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">boe_type</span> <span class="ow">in</span> <span class="n">dct_boe_codes</span>
+                    <span class="p">},</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="sa">f</span><span class="s2">&quot;mas_</span><span class="si">{</span><span class="n">mas_type</span><span class="si">}</span><span class="s2">_months&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="p">(</span>
+                                    <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">999</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                                    <span class="o">==</span> <span class="n">dct_mas_codes</span><span class="p">[</span><span class="n">mas_type</span><span class="p">]</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                                    <span class="sa">f</span><span class="s2">&quot;MASBOE_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                                    <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                                <span class="p">]</span>
+                            <span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">mas_type</span> <span class="ow">in</span> <span class="n">dct_mas_codes</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;max_mas_type&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mas_</span><span class="si">{</span><span class="n">mas_type</span><span class="si">}</span><span class="s2">_months&quot;</span> <span class="k">for</span> <span class="n">mas_type</span> <span class="ow">in</span> <span class="n">dct_mas_codes</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;max_boe_type&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;boe_</span><span class="si">{</span><span class="n">boe_type</span><span class="si">}</span><span class="s2">_months&quot;</span> <span class="k">for</span> <span class="n">boe_type</span> <span class="ow">in</span> <span class="n">dct_boe_codes</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="TAFPS.add_gender"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.add_gender">[docs]</a>    <span class="k">def</span> <span class="nf">add_gender</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds integer &#39;female&#39; column based on &#39;SEX_CD&#39; column. Undefined</span>
+<span class="sd">        values (&#39;U&#39;) in SEX_CD column will result in female column taking</span>
+<span class="sd">        the value -1&quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">female</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;SEX_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;F&quot;</span><span class="p">,</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;SEX_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;M&quot;</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="TAFPS.flag_rural"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_rural">[docs]</a>    <span class="k">def</span> <span class="nf">flag_rural</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ruca&quot;</span>
+    <span class="p">):</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of</span>
+<span class="sd">        their resident ZIP/ FIPS codes</span>
+
+<span class="sd">        New Columns:</span>
+<span class="sd">            - resident_state_cd</span>
+<span class="sd">            - rural - 0/ 1/ np.nan, 1 when bene&#39;s residence is in a rural</span>
+<span class="sd">            location, 0 when not, -1 when zip code is missing</span>
+<span class="sd">            - pcsa - resident PCSA code</span>
+<span class="sd">            - {ruca_code/ rucc_code} - resident ruca_code</span>
+
+<span class="sd">        This function uses</span>
+<span class="sd">            - `RUCA 3.1 dataset</span>
+<span class="sd">            &lt;https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673&gt;`_. RUCA</span>
+<span class="sd">            codes &gt;= 4 denote rural and the rest denote urban as per</span>
+<span class="sd">            `Cole, Megan B et al &lt;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1&gt;`_</span>
+<span class="sd">            - `RUCC codes &lt;https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372&gt;`_.</span>
+<span class="sd">            RUCC codes &gt;= 8 denote rural and the rest denote urban.</span>
+<span class="sd">            - ZCTAs x zipcode crosswalk from `UDSMapper &lt;https://udsmapper.org/zip-code-to-zcta-crosswalk/&gt;`_.</span>
+<span class="sd">            - zipcodes from multiple sources</span>
+<span class="sd">            - Distance between centroids of zipcodes using `NBER data &lt;https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv&gt;`_</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        method : {&#39;ruca&#39;, &#39;rucc&#39;}</span>
+<span class="sd">            Method to use for rural variable construction</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">index_col</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">zip_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">other_data_folder</span><span class="p">,</span> <span class="s2">&quot;zip&quot;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">index_col</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">})</span>
+
+        <span class="c1"># Pad zeroes to the left to make zip codes 9 characters long.</span>
+        <span class="c1"># RI Zip codes have problems. They are all invalid unless the last</span>
+        <span class="c1"># character is dropped and a zero is added to the left</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">BENE_ZIP_CD</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;BENE_ZIP_CD&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RI&quot;</span><span class="p">)),</span>
+                <span class="s2">&quot;0&quot;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;BENE_ZIP_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># zip_state_pcsa_ruca_zcta.csv was constructed with RUCA 3.1</span>
+        <span class="c1"># (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673),</span>
+        <span class="c1"># ZCTAs x zipcode mappings from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),</span>
+        <span class="c1"># zipcodes from multiple sources, and distance between centroids of</span>
+        <span class="c1"># zipcodes using NBER data</span>
+        <span class="c1"># (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)</span>
+        <span class="n">df_zip_state_pcsa</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;zip_state_pcsa_ruca_zcta.csv&quot;</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df_zip_state_pcsa</span> <span class="o">=</span> <span class="n">df_zip_state_pcsa</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="o">=</span><span class="n">df_zip_state_pcsa</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_zip_state_pcsa</span> <span class="o">=</span> <span class="n">df_zip_state_pcsa</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;zip&quot;</span><span class="p">:</span> <span class="s2">&quot;BENE_ZIP_CD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state_cd&quot;</span><span class="p">:</span> <span class="s2">&quot;resident_state_cd&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;resident_state_cd&quot;</span><span class="p">,</span> <span class="s2">&quot;pcsa&quot;</span><span class="p">,</span> <span class="s2">&quot;ruca_code&quot;</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">BENE_ZIP_CD</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;BENE_ZIP_CD&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[^a-zA-Z0-9]+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">df_zip_state_pcsa</span><span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;BENE_ZIP_CD&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;resident_state_cd&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;pcsa&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ruca_code&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="s2">&quot;BENE_ZIP_CD&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># RUCC codes were downloaded from</span>
+        <span class="c1"># https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372</span>
+        <span class="n">df_rucc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;ruralurbancodes2013.xls&quot;</span><span class="p">),</span>
+            <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Rural-urban Continuum Code 2013&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df_rucc</span> <span class="o">=</span> <span class="n">df_rucc</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;State&quot;</span><span class="p">:</span> <span class="s2">&quot;resident_state_cd&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;RUCC_2013&quot;</span><span class="p">:</span> <span class="s2">&quot;rucc_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FIPS&quot;</span><span class="p">:</span> <span class="s2">&quot;BENE_CNTY_CD&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">df_rucc</span> <span class="o">=</span> <span class="n">df_rucc</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">BENE_CNTY_CD</span><span class="o">=</span><span class="n">df_rucc</span><span class="p">[</span><span class="s2">&quot;BENE_CNTY_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span>
+            <span class="n">resident_state_cd</span><span class="o">=</span><span class="n">df_rucc</span><span class="p">[</span><span class="s2">&quot;resident_state_cd&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">BENE_CNTY_CD</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;BENE_CNTY_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+            <span class="n">resident_state_cd</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;resident_state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;resident_state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rucc_code&quot;</span><span class="p">]]]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">df_rucc</span><span class="p">[[</span><span class="s2">&quot;BENE_CNTY_CD&quot;</span><span class="p">,</span> <span class="s2">&quot;resident_state_cd&quot;</span><span class="p">,</span> <span class="s2">&quot;rucc_code&quot;</span><span class="p">]],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;BENE_CNTY_CD&quot;</span><span class="p">,</span> <span class="s2">&quot;resident_state_cd&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">col</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rucc_code&quot;</span><span class="p">,</span> <span class="s2">&quot;ruca_code&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="c1"># RUCA codes &gt;= 4 denote rural and the rest denote urban</span>
+        <span class="c1"># as per https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1</span>
+        <span class="c1"># and as in FARA year 1 papers</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;ruca&quot;</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="n">rural</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;ruca_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
+                                <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;neither&quot;</span>
+                            <span class="p">),</span>
+                            <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;ruca_code&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">),</span>
+                        <span class="p">],</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># RUCC codes &gt;= 8 denote rural and the rest denote urban</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="n">rural</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;rucc_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">),</span>
+                            <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;rucc_code&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">8</span><span class="p">),</span>
+                        <span class="p">],</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">index_col</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">,</span> <span class="nb">sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="TAFPS.flag_dual"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_dual">[docs]</a>    <span class="k">def</span> <span class="nf">flag_dual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Flags benes with  DUAL_ELGBL_CD equal to 1 (full dual), 2 (partial</span>
+<span class="sd">        dual), or 3 (other dual) in any month are flagged as duals.</span>
+<span class="sd">        Reference: `Identifying beneficiaries with a substance use</span>
+<span class="sd">        disorder &lt;https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">dual</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;DUAL_ELGBL_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">dual_months</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;DUAL_ELGBL_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="TAFPS.flag_restricted_benefits"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_restricted_benefits">[docs]</a>    <span class="k">def</span> <span class="nf">flag_restricted_benefits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Flags beneficiaries whose benefits are restricted. Benes with the</span>
+<span class="sd">        below values in their RSTRCTD_BNFTS_CD_XX columns are NOT assumed to</span>
+<span class="sd">        have restricted benefits:</span>
+
+<span class="sd">            1. Individual is eligible for Medicaid or CHIP and entitled to</span>
+<span class="sd">            the full scope of Medicaid or CHIP benefits.</span>
+<span class="sd">            4. Individual is eligible for Medicaid or CHIP but only entitled to</span>
+<span class="sd">            restricted benefits for pregnancy-related services.</span>
+<span class="sd">            5. Individual is eligible for Medicaid or Medicaid-Expansion</span>
+<span class="sd">            CHIP but, for reasons other than alien, dual-eligibility or</span>
+<span class="sd">            pregnancy-related status, is only entitled to restricted</span>
+<span class="sd">            benefits (e.g., restricted benefits based upon substance abuse,</span>
+<span class="sd">            medically needy or other criteria).</span>
+<span class="sd">            7. Individual is eligible for Medicaid and entitled to Medicaid</span>
+<span class="sd">            benefits under an alternative package of</span>
+<span class="sd">            benchmark-equivalent coverage, as enacted by the Deficit</span>
+<span class="sd">            Reduction Act of 2005.</span>
+
+<span class="sd">        Reference: `Identifying beneficiaries with a substance use disorder &lt;https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">any_restricted_benefit_month</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;RSTRCTD_BNFTS_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">restricted_benefit_months</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                                <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;RSTRCTD_BNFTS_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="TAFPS.compute_enrollment_gaps"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.compute_enrollment_gaps">[docs]</a>    <span class="k">def</span> <span class="nf">compute_enrollment_gaps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes enrollment gaps using dates file. Adds number of</span>
+<span class="sd">        enrollment gaps and length of maximum enrollment gap in days columns&quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;dates&quot;</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="n">index_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="n">drop_column</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">fill_enrollment_gaps</span><span class="p">(</span><span class="n">pdf_dates</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Adds enrollment gap column</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            pdf_dates : pd.DataFrame</span>
+<span class="sd">                Dates dataframe</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            pd.DataFrame</span>
+
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="s2">&quot;enrollment_start_date&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">enrollment_end_date</span><span class="o">=</span><span class="n">pdf_dates</span><span class="p">[</span><span class="s2">&quot;enrollment_end_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                        <span class="n">pdf_dates</span><span class="p">[</span><span class="s2">&quot;enrollment_start_date&quot;</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="s2">&quot;-12-31&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">next_enrollment_start_date</span><span class="o">=</span><span class="n">pdf_dates</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">)[</span>
+                    <span class="s2">&quot;enrollment_start_date&quot;</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                        <span class="n">pdf_dates</span><span class="p">[</span><span class="s2">&quot;enrollment_end_date&quot;</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="s2">&quot;-12-31&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">enrollment_gap</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">pdf_dates</span><span class="p">[</span><span class="s2">&quot;next_enrollment_start_date&quot;</span><span class="p">]</span>
+                    <span class="o">-</span> <span class="n">pdf_dates</span><span class="p">[</span><span class="s2">&quot;enrollment_end_date&quot;</span><span class="p">]</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
+            <span class="p">)</span>
+            <span class="n">pdf_enrollment_beginnings</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="n">pdf_enrollment_beginnings</span> <span class="o">=</span> <span class="n">pdf_enrollment_beginnings</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">pdf_enrollment_beginnings</span><span class="p">[</span><span class="s2">&quot;enrollment_start_date&quot;</span><span class="p">]</span>
+                <span class="o">&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">-01-01&quot;</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">pdf_enrollment_beginnings</span> <span class="o">=</span> <span class="n">pdf_enrollment_beginnings</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">enrollment_gap</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">pdf_enrollment_beginnings</span><span class="p">[</span><span class="s2">&quot;enrollment_start_date&quot;</span><span class="p">]</span>
+                    <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">-01-01&quot;</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
+            <span class="p">)</span>
+            <span class="n">pdf_enrollment_beginnings</span> <span class="o">=</span> <span class="n">pdf_enrollment_beginnings</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">enrollment_end_date</span><span class="o">=</span><span class="n">pdf_enrollment_beginnings</span><span class="p">[</span>
+                    <span class="s2">&quot;enrollment_start_date&quot;</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">pdf_enrollment_beginnings</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">pdf_dates</span><span class="p">],</span>
+                <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pdf_dates</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span><span class="n">fill_enrollment_gaps</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;dates&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="n">df_gaps</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;enrollment_gap&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">df_gaps</span> <span class="o">=</span> <span class="n">df_gaps</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">enrollment_gap</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;enrollment_gap&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="s2">&quot;n_enrollment_gaps&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;enrollment_gap&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;max_enrollment_gap&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;enrollment_gap&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;total_gap_in_enrollment&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;enrollment_gap&quot;</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">df_gaps</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">col</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="s2">&quot;n_enrollment_gaps&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;max_enrollment_gap&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;total_gap_in_enrollment&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

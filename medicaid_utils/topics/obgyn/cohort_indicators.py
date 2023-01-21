@@ -1,3 +1,5 @@
+"""This module has functions used to flag cohort designations used in OB/GYN
+studies"""
 import dask.dataframe as dd
 import pandas as pd
 import numpy as np
@@ -7,6 +9,29 @@ data_folder = os.path.join(os.path.dirname(__file__), "data")
 
 
 def flag_religious_npis(df_claims: dd.DataFrame) -> dd.DataFrame:
+    """
+    Adds columns denoting categorization of NPIs in claims.
+
+    New columns:
+        - catholic_npi: 0 or 1, 1 when claim contains an NPI that is a catholic
+          hospital.
+        - religious_npi: 0 or 1, 1 when claim contains an NPI that is a
+          hospital with any religious affiliation.
+        - secular_npi: : 0 or 1, 1 when claim contains an NPI that is a
+          hospital with no reglious affiliation.
+        - rural_npi: 0 or 1, when claim contains an NPI that is located in a
+          rural location
+
+    Parameters
+    ----------
+    df_claims: dd.DataFrame
+        Claims dataframe
+
+    Returns
+    -------
+    dd.DataFrame
+
+    """
     pdf_religious_aff = pd.read_excel(
         os.path.join(data_folder, "religious_provider_npis.xlsx"),
         dtype="object",
@@ -33,16 +58,16 @@ def flag_religious_npis(df_claims: dd.DataFrame) -> dd.DataFrame:
 
     df_claims = df_claims.map_partitions(
         lambda pdf: pdf.assign(
-            catholic=pdf["NPI"].str.strip().isin(lst_cath_npi).astype(int),
-            religious=pdf["NPI"]
+            catholic_npi=pdf["NPI"].str.strip().isin(lst_cath_npi).astype(int),
+            religious_npi=pdf["NPI"]
             .str.strip()
             .isin(lst_religious_npi)
             .astype(int),
-            secular=pdf["NPI"]
+            secular_npi=pdf["NPI"]
             .str.strip()
             .isin(lst_nonreligious_npi)
             .astype(int),
-            hosp_rural=np.select(
+            rural_npi=np.select(
                 [
                     pdf["NPI"]
                     .str.strip()
@@ -75,6 +100,20 @@ def flag_religious_npis(df_claims: dd.DataFrame) -> dd.DataFrame:
 
 
 def flag_transfers(df_claims: dd.DataFrame) -> dd.DataFrame:
+    """
+    Adds indicator columns denoting whether the claim has a discharge status
+    indicating a transfer. Currently only supports MAX files.
+
+    Parameters
+    ----------
+    df_claims: dd.DataFrame
+        IP or LT claim file
+
+    Returns
+    -------
+    dd.DataFrame
+
+    """
     return df_claims.map_partitions(
         lambda pdf: pdf.assign(
             transfer=pd.to_numeric(pdf["PATIENT_STATUS_CD"], errors="coerce")

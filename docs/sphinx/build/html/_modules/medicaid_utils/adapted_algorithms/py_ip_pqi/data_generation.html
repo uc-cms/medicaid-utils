@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+<span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="generate_dxgrp_file"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation.generate_dxgrp_file">[docs]</a><span class="k">def</span> <span class="nf">generate_dxgrp_file</span><span class="p">():</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;primary_outcome&quot;</span><span class="p">,</span> <span class="s2">&quot;lst_dx&quot;</span><span class="p">,</span> <span class="s2">&quot;var_name&quot;</span><span class="p">,</span> <span class="s2">&quot;comments&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Diabetes with Short Term Complications&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;25010&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25011&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25012&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25013&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25020&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25021&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25022&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25023&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25030&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25031&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25032&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25033&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACDIASD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;Diabetes short term complication rate (ACDIAS) - ACSC #1&quot;</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Gastroenteritis&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;00861&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;00862&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;00863&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;00864&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;00865&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;00866&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;00867&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;00869&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0088 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0090 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0091 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0092 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0093 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5589 &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACPGASD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Perforated Appendix&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;5400 &quot;</span><span class="p">,</span> <span class="s2">&quot;5401 &quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSAPPD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Perforated Appendix rate (ACSAPP) - ACSC #2&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Appendicitis (Population at Risk)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;5400 &quot;</span><span class="p">,</span> <span class="s2">&quot;5401 &quot;</span><span class="p">,</span> <span class="s2">&quot;5409 &quot;</span><span class="p">,</span> <span class="s2">&quot;541  &quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSAP2D&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Diabetes with Long Term Complication&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;25040&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25041&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25042&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25043&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25050&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25051&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25052&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25053&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25060&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25061&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25062&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25063&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25070&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25071&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25072&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25073&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25080&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25081&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25082&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25083&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25090&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25091&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25092&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25093&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACDIALD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;Diabetes long term complication rate (ACDIAL) - ACSC #3&quot;</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Asthma&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;49300&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49301&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49302&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49310&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49311&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49312&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49320&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49321&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49322&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49381&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49382&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49390&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49391&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49392&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSASTD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Asthma rate (ACSAST) - ACSC #15 - Adult &quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;EXCLUDE: CYSTIC FIBROSIS AND ANOMALIES OF RESPIRATORY&quot;</span>
+                    <span class="s2">&quot; SYSTEM&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;27700&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27701&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27702&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27703&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27709&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;51661&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;51662&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;51663&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;51664&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;51669&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;74721&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7483 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7484 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7485 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;74860&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;74861&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;74869&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7488 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7489 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7503 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7593 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7707 &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;RESPAN&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;COPD (#1)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;4910 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4911 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49120&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;49121&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4918 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4919 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4920 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4928 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;494  &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4940 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4941 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;496  &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACCOPDD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;COPD rate (ACCOPD) - ACSC #5&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;COPD (#2)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;4660 &quot;</span><span class="p">,</span> <span class="s2">&quot;490  &quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACCPD2D&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Hypertension&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;4010 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4019 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40200&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40210&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40290&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40300&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40310&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40390&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40400&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40410&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40490&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSHYPD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Hypertension rate (ACSHYP) - ACSC #7&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;Exclude: Stage I-IV Kidney primary_outcome&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;40300&quot;</span><span class="p">,</span> <span class="s2">&quot;40310&quot;</span><span class="p">,</span> <span class="s2">&quot;40390&quot;</span><span class="p">,</span> <span class="s2">&quot;40400&quot;</span><span class="p">,</span> <span class="s2">&quot;40410&quot;</span><span class="p">,</span> <span class="s2">&quot;40490&quot;</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSHY2D&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;EXCLUDE: CHRONIC RENAL FAILURE&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;40300&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40301&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40310&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40311&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40390&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40391&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40400&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40401&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40402&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40403&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40410&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40411&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40412&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40413&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40490&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40491&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40492&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40493&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;585  &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5855 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5856 &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;CRENLFD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Renal Failure&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;5845&quot;</span><span class="p">,</span> <span class="s2">&quot;5846&quot;</span><span class="p">,</span> <span class="s2">&quot;5847&quot;</span><span class="p">,</span> <span class="s2">&quot;5848&quot;</span><span class="p">,</span> <span class="s2">&quot;5849&quot;</span><span class="p">,</span> <span class="s2">&quot;586 &quot;</span><span class="p">,</span> <span class="s2">&quot;9975&quot;</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;PHYSIDB&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Congestive Heart Failure&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;39891&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40201&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40211&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40291&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40401&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40403&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40411&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40413&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40491&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40493&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4280 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4281 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42820&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42821&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42822&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42823&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42830&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42831&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42832&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42833&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42840&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42841&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42842&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42843&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4289 &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSCHFD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Congestive Heart Failure rate (ACSCHF) - ACSC #8&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Congestive Heart Failure&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;39891&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4280 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4281 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42820&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42821&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42822&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42823&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42830&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42831&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42832&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42833&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42840&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42841&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42842&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;42843&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4289 &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSCH2D&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Liveborn (Populaton at Risk)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;V3000&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3001&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3100&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3101&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3200&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3201&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3300&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3301&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3400&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3401&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3500&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3501&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3600&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3601&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3700&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3701&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3900&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V3901&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;LIVEBND&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Low Birth Weight rate (ACSLBW) - ACSC #9&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Liveborn (Populaton at Risk)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;V290&quot;</span><span class="p">,</span> <span class="s2">&quot;V291&quot;</span><span class="p">,</span> <span class="s2">&quot;V292&quot;</span><span class="p">,</span> <span class="s2">&quot;V293&quot;</span><span class="p">,</span> <span class="s2">&quot;V298&quot;</span><span class="p">,</span> <span class="s2">&quot;V299&quot;</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;V29D&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Liveborn (Populaton at Risk)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;V301 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V302 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V311 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V312 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V321 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V322 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V331 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V332 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V341 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V342 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V351 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V352 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V361 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V362 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V371 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V372 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V391 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V392 &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;LIVEB2D&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Dehydration&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;2765 &quot;</span><span class="p">,</span> <span class="s2">&quot;27650&quot;</span><span class="p">,</span> <span class="s2">&quot;27651&quot;</span><span class="p">,</span> <span class="s2">&quot;27652&quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSDEHD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Dehydration rate (ACSDEH) - ACSC #10&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Bacterial Pneumonia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;481  &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4822 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;48230&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;48231&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;48232&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;48239&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;48241&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;48242&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4829 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4830 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4831 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4838 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;485  &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;486  &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSBACD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Bacterial Pneumonia rate (ACSBAC) - ACSC #11&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Exclude: Sickle Cell&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;28241&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28242&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28260&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28261&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28262&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28263&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28264&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28268&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28269&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSBA2D&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;HYPEROSMOLALITY AND /OR HYPERNATREMIA&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;2760 &quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;HYPERID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Urinary Infection&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;59010&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;59011&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5902 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5903 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;59080&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;59081&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5909 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5950 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5959 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5990 &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSUTID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Urinary Infection rate (ACSUTI) - ACSC #12&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;EXCLUDE: IMMUNOCOMPROMISED&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;042  &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;1363 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;1992 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;23873&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;23876&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;23877&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;23879&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;260  &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;261  &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;262  &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27900&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27901&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27902&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27903&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27904&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27905&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27906&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27909&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27910&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27911&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27912&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27913&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27919&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;2792 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;2793 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;2794 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27941&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27949&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27950&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27951&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27952&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;27953&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;2798 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;2799 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28409&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;2841 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28411&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28412&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28419&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;2880 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28800&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28801&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28802&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28803&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28809&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;2881 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;2882 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;2884 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28850&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28851&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28859&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28953&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;28983&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40301&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40311&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40391&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40402&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40403&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40412&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40413&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40492&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;40493&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5793 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;585  &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5855 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5856 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;9968 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;99680&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;99681&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;99682&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;99683&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;99684&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;99685&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;99686&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;99687&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;99688&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;99689&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V420 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V421 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V426 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V427 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V428 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V4281&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V4282&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V4283&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V4284&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V4289&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V451 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V4511&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V560 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V561 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;V562 &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;IMMUNID&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;XCLUDE: KIDNEY OR URINARY TRACT DISORDER&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;59000&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;59001&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;59370&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;59371&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;59372&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;59373&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7530 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75310&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75311&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75312&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75313&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75314&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75315&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75316&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75317&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75319&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75320&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75321&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75322&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75323&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;75329&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7533 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7534 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7535 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7536 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7538 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;7539 &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;KIDNEY&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Angina&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;4111 &quot;</span><span class="p">,</span> <span class="s2">&quot;41181&quot;</span><span class="p">,</span> <span class="s2">&quot;41189&quot;</span><span class="p">,</span> <span class="s2">&quot;4130 &quot;</span><span class="p">,</span> <span class="s2">&quot;4131 &quot;</span><span class="p">,</span> <span class="s2">&quot;4139 &quot;</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSANGD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Angina (w/o procedure) rate (ACSANG) - ACSC #13&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Diabetes uncontrolled&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;25002&quot;</span><span class="p">,</span> <span class="s2">&quot;25003&quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACDIAUD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Diabetes uncontrolled rate (ACDIAU) - ACSC #14&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Include only: Diabetes&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;25000&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25001&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25002&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25003&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25010&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25011&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25012&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25013&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25020&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25021&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25022&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25023&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25030&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25031&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25032&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25033&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25040&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25041&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25042&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25043&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25050&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25051&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25052&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25053&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25060&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25061&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25062&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25063&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25070&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25071&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25072&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25073&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25080&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25081&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25082&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25083&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25090&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25091&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25092&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;25093&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSLEAD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Exclude: Trauma&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;8950 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8951 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8960 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8961 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8962 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8963 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8970 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8971 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8972 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8973 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8974 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8975 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8976 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8977 &quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACLEA2D&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;EXCLUDE: TOE AMPUTATION PROCEDURE&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;8411 &quot;</span><span class="p">]),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;TOEAMIP&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span><span class="p">[</span><span class="s2">&quot;lst_dx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="p">[</span><span class="s2">&quot;lst_dx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;dxgrp.csv&quot;</span><span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="generate_prgrp_file"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation.generate_prgrp_file">[docs]</a><span class="k">def</span> <span class="nf">generate_prgrp_file</span><span class="p">():</span>
+    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;primary_outcome&quot;</span><span class="p">,</span> <span class="s2">&quot;lst_pr&quot;</span><span class="p">,</span> <span class="s2">&quot;var_name&quot;</span><span class="p">,</span> <span class="s2">&quot;comments&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">df_pqi_prgrp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Haemodialysis&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_pr&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;3895&quot;</span><span class="p">,</span> <span class="s2">&quot;3927&quot;</span><span class="p">,</span> <span class="s2">&quot;3929&quot;</span><span class="p">,</span> <span class="s2">&quot;3942&quot;</span><span class="p">,</span> <span class="s2">&quot;3943&quot;</span><span class="p">,</span> <span class="s2">&quot;3993&quot;</span><span class="p">,</span> <span class="s2">&quot;3994&quot;</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSHYPP&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">df_pqi_prgrp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Exclude: Cardiac Procedures&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_pr&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;0050&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0051&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0052&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0053&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0054&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0056&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0057&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;0066&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;1751&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;1752&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;1755&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3500&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3501&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3502&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3503&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3504&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3505&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3506&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3507&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3508&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3509&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3510&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3511&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3512&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3513&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3514&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3520&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3521&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3522&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3523&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3524&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3525&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3526&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3527&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3528&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3531&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3532&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3533&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3534&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3535&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3539&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3541&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3542&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3550&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3551&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3552&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3553&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3554&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3555&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3560&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3561&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3562&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3563&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3570&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3571&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3572&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3573&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3581&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3582&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3583&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3584&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3591&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3592&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3593&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3594&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3595&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3596&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3597&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3598&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3599&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3601&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3602&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3603&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3604&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3605&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3606&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3607&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3609&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3610&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3611&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3612&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3613&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3614&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3615&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3616&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3617&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3619&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;362 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;363 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3631&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3632&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3633&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3634&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3639&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3691&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3699&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3731&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3732&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3733&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3734&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3735&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3736&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3737&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3741&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;375 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3751&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3752&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3753&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3754&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3755&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3760&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3761&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3762&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3763&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3764&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3765&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3766&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3770&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3771&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3772&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3773&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3774&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3775&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3776&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3777&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3778&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3779&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3780&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3781&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3782&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3783&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3785&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3786&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3787&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3789&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3794&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3795&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3796&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3797&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3798&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3826&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSCARP&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">df_pqi_prgrp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;EXCLUDE: IMMUNOCOMPROMISED&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_pr&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;0018&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;335 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3350&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3351&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3352&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;336 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;375 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;3751&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;410 &quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4100&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4101&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4102&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4103&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4104&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4105&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4106&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4107&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4108&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;4109&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5051&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5059&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5280&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5281&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5282&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5283&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5285&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5286&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;5569&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;IMMUNIP&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">df_pqi_prgrp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Lower extremity amputation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;lst_pr&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;8410&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8411&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8412&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8413&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8414&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8415&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8416&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8417&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8418&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;8419&quot;</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;var_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ACSLEAP&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">&quot;Lower extremity amputation rate(ACSCLEA) - ACSC #16&quot;</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df_pqi_prgrp</span><span class="p">[</span><span class="s2">&quot;lst_pr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_pqi_prgrp</span><span class="p">[</span><span class="s2">&quot;lst_pr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">df_pqi_prgrp</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;prgrp.csv&quot;</span><span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<span class="n">generate_dxgrp_file</span><span class="p">()</span>
+<span class="n">generate_prgrp_file</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

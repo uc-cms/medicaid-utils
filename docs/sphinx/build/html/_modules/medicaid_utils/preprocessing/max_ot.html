@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.preprocessing.max_ot &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.preprocessing.max_ot</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.preprocessing.max_ot</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module has MAXOT class which wraps together cleaning/ preprocessing routines specific for MAX OT files&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">medicaid_utils.preprocessing</span> <span class="kn">import</span> <span class="n">max_file</span>
+<span class="kn">from</span> <span class="nn">medicaid_utils.common_utils</span> <span class="kn">import</span> <span class="n">dataframe_utils</span>
+
+
+<div class="viewcode-block" id="MAXOT"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT">[docs]</a><span class="k">class</span> <span class="nc">MAXOT</span><span class="p">(</span><span class="n">max_file</span><span class="o">.</span><span class="n">MAXFile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">data_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BENE_MSIS&quot;</span><span class="p">,</span>
+        <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">preprocess</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">tmp_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pq_engine</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes MAX OT file object by preloading and preprocessing(if opted in) the file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Year of claim file</span>
+<span class="sd">        state : str</span>
+<span class="sd">            State of claim file</span>
+<span class="sd">        data_root : str</span>
+<span class="sd">            Root folder of raw claim files</span>
+<span class="sd">        index_col : str, default=&#39;BENE_MSIS&#39;</span>
+<span class="sd">            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already</span>
+<span class="sd">        sorted with index column</span>
+<span class="sd">        clean : bool, default=True</span>
+<span class="sd">            Should the associated files be cleaned?</span>
+<span class="sd">        preprocess : bool, default=True</span>
+<span class="sd">            Should the associated files be preprocessed?</span>
+<span class="sd">        tmp_folder : str, default=None</span>
+<span class="sd">            Folder location to use for caching intermediate results. Can be turned off by not passing this argument.</span>
+<span class="sd">        pq_engine : str, default=&#39;pyarrow&#39;</span>
+<span class="sd">            Parquet engine to use</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;ot&quot;</span><span class="p">,</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">data_root</span><span class="o">=</span><span class="n">data_root</span><span class="p">,</span>
+            <span class="n">index_col</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span>
+            <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">tmp_folder</span><span class="o">=</span><span class="n">tmp_folder</span><span class="p">,</span>
+            <span class="n">pq_engine</span><span class="o">=</span><span class="n">pq_engine</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_default_filters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;missing_dob&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;duplicated&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;missing_srvc_bgn_date&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">preprocess</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MAXOT.clean"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs cleaning routines and adds common exclusion flags based on default filters&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_diag_codes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_proc_codes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_common_exclusions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_duplicates</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MAXOT.preprocess"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds payment, ed use, transport, dental, and em flags&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calculate_payment</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_ed_use</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_transport</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_dental</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_em</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MAXOT.flag_ip_overlaps_and_ed"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_ip_overlaps_and_ed">[docs]</a>    <span class="k">def</span> <span class="nf">flag_ip_overlaps_and_ed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df_ip</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds flags to indicate overlaps with IP claims</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df_ip : pd.DataFrame</span>
+<span class="sd">            IP claim dataframe</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_ot_ip_overlaps</span><span class="p">(</span><span class="n">df_ip</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_ot_flags</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MAXOT.flag_common_exclusions"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_common_exclusions">[docs]</a>    <span class="k">def</span> <span class="nf">flag_common_exclusions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="n">drop_column</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">excl_missing_dob</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">excl_missing_srvc_bgn_date</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">excl_encounter_claim</span><span class="o">=</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PHP_TYPE&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">77</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span>
+                        <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PHP_TYPE&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">88</span><span class="p">)</span>
+                        <span class="o">&amp;</span> <span class="p">(</span>
+                            <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;TYPE_CLM_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                            <span class="o">==</span> <span class="mi">3</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">excl_capitation_claim</span><span class="o">=</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PHP_TYPE&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">88</span><span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;TYPE_CLM_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">excl_ffs_claim</span><span class="o">=</span><span class="p">(</span>
+                    <span class="o">~</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PHP_TYPE&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">77</span><span class="p">)</span>
+                        <span class="o">|</span> <span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PHP_TYPE&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                                <span class="o">==</span> <span class="mi">88</span>
+                            <span class="p">)</span>
+                            <span class="o">&amp;</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;TYPE_CLM_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">excl_female</span><span class="o">=</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;female&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXOT.flag_duplicates"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_duplicates">[docs]</a>    <span class="k">def</span> <span class="nf">flag_duplicates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">excl_duplicated</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">_index_col</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span>
+                    <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="s2">&quot;excl_duplicated&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXOT.flag_em"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_em">[docs]</a>    <span class="k">def</span> <span class="nf">flag_em</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Flag claim if procedure code belongs to E/M category</span>
+<span class="sd">        New Column(s):</span>
+<span class="sd">            EM - 0 or 1, 1 when PRCDR_CD in [99201, 99215] or [99301, 99350]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">EM</span><span class="o">=</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PRCDR_CD_SYS&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="p">(</span>
+                        <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PRCDR_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">99201</span><span class="p">,</span> <span class="mi">99205</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+                        <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PRCDR_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">99211</span><span class="p">,</span> <span class="mi">99215</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+                        <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PRCDR_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">99381</span><span class="p">,</span> <span class="mi">99387</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+                        <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PRCDR_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">99391</span><span class="p">,</span> <span class="mi">99397</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXOT.flag_dental"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_dental">[docs]</a>    <span class="k">def</span> <span class="nf">flag_dental</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Flag dental claims</span>
+<span class="sd">        New Column(s):</span>
+<span class="sd">            dental_TOS - 0 or 1, 1 when MAX_TOS = 9</span>
+<span class="sd">            dental_PRCDR - 0 or 1, 1 when PRCDR_CD starts with &#39;D&#39;</span>
+<span class="sd">            dental - 0 or 1, 1 when any of dental_TOS or dental_PRCDR</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">dental_TOS</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MAX_TOS&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">9</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">dental_PROC</span><span class="o">=</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">PRCDR_CD</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;D&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;dental&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;dental_TOS&quot;</span><span class="p">,</span> <span class="s2">&quot;dental_PROC&quot;</span><span class="p">]]</span>
+            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXOT.flag_transport"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.flag_transport">[docs]</a>    <span class="k">def</span> <span class="nf">flag_transport</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Flag transport claims</span>
+<span class="sd">        New Column(s):</span>
+<span class="sd">            transport_TOS - 0 or 1, 1 when MAX_TOS = 26</span>
+<span class="sd">            transport_POS - 0 or 1, 1 when PLC_OF_SRVC_CD is 41 or 42</span>
+<span class="sd">            transport - 0 or 1, 1 when any of transport_TOS or transport_POS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">transport_TOS</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;MAX_TOS&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>  <span class="c1"># TOS: TYPE OF SERVICE</span>
+                    <span class="p">)</span>
+                    <span class="o">==</span> <span class="mi">26</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">transport_POS</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;PLC_OF_SRVC_CD&quot;</span><span class="p">],</span>
+                    <span class="c1"># # 41 = AMBULANCE - LAND 42 = AMBULANCE - AIR OR WATER</span>
+                    <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">41</span><span class="p">,</span> <span class="mi">42</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;transport&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;transport_TOS&quot;</span><span class="p">,</span> <span class="s2">&quot;transport_POS&quot;</span><span class="p">]]</span>
+            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXOT.find_ot_ip_overlaps"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.find_ot_ip_overlaps">[docs]</a>    <span class="k">def</span> <span class="nf">find_ot_ip_overlaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df_ip</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks for OT claims that have an overlapping IP claim</span>
+<span class="sd">        New Column(s):</span>
+<span class="sd">            overlap - 0 or 1, 1 when OT claim has an overlapping IP claim</span>
+<span class="sd">        :param DataFrame df_ip: IP DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df_ot_ip</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">,</span> <span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]]</span>
+            <span class="o">.</span><span class="n">repartition</span><span class="p">(</span><span class="n">partition_size</span><span class="o">=</span><span class="s2">&quot;10MB&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">df_ip</span><span class="p">[[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">,</span> <span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;ip_srvc_end_date&quot;</span><span class="p">}</span>
+                <span class="p">),</span>
+                <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_ot_ip</span> <span class="o">=</span> <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span><span class="n">df_ot_ip</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
+
+        <span class="n">df_ot_ip</span> <span class="o">=</span> <span class="n">df_ot_ip</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">overlap</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">],</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;ip_srvc_end_date&quot;</span><span class="p">],</span>
+                        <span class="n">inclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="o">|</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">],</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;ip_srvc_end_date&quot;</span><span class="p">],</span>
+                        <span class="n">inclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">df_ot_ip</span> <span class="o">=</span> <span class="n">df_ot_ip</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">,</span> <span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]</span>
+            <span class="p">)[</span><span class="s2">&quot;overlap&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_ot_ip</span> <span class="o">=</span> <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span><span class="n">df_ot_ip</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
+
+        <span class="n">df_ot_ip</span> <span class="o">=</span> <span class="n">df_ot_ip</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">([</span><span class="s2">&quot;overlap&quot;</span><span class="p">])]</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">df_ot_ip</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">,</span> <span class="s2">&quot;srvc_end_date&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXOT.add_ot_flags"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ot.MAXOT.add_ot_flags">[docs]</a>    <span class="k">def</span> <span class="nf">add_ot_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign flags for IP, OT and ED calculation</span>
+<span class="sd">        Based on hierarchical principal: IP first,then ED, and then OT</span>
+<span class="sd">        Marks claims that have overlapping IP claims, has ED services or have only OT services</span>
+<span class="sd">        New Column(s):</span>
+<span class="sd">            ip_incl - 0 or 1, 1 when has no dental and transport claims, and has an overlapping IP claim</span>
+<span class="sd">            ed_incl - 0 or 1, 1 when has no dental and transport claims, has no overlapping IP claim, and has an ED</span>
+<span class="sd">                      service in any visits corresponding this claim</span>
+<span class="sd">            ot_incl - 0 or 1, 1 when has no dental and transport claims, has no overlapping IP claim, and has no ED</span>
+<span class="sd">                      service in any visits corresponding this claim</span>
+<span class="sd">            flag_drop - 0 or 1, 1 when ip_incl, ed_incl and ot_incl are all null</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ip_incl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ed_incl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ed_incl_dental&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ot_incl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">transport_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;transport&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span>
+        <span class="n">dental_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;dental&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span>
+        <span class="n">overlap_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;overlap&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">ed_claim_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;any_ed&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">duration_mask</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">srvc_bgn_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">ip_mask</span> <span class="o">=</span> <span class="n">transport_mask</span> <span class="o">&amp;</span> <span class="n">dental_mask</span> <span class="o">&amp;</span> <span class="n">overlap_mask</span>
+        <span class="n">ed_mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">transport_mask</span>
+            <span class="o">&amp;</span> <span class="n">dental_mask</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">overlap_mask</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">duration_mask</span>
+            <span class="o">&amp;</span> <span class="n">ed_claim_mask</span>
+        <span class="p">)</span>
+        <span class="n">ed_mask_dental_allowed</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">transport_mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">overlap_mask</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">duration_mask</span> <span class="o">&amp;</span> <span class="n">ed_claim_mask</span>
+        <span class="p">)</span>
+        <span class="n">ot_mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">transport_mask</span>
+            <span class="o">&amp;</span> <span class="n">dental_mask</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">overlap_mask</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">duration_mask</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">ed_claim_mask</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ip_incl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ip_incl&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">ip_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ed_incl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ed_incl&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">ed_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ed_incl_dental&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ed_incl_dental&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="o">~</span><span class="n">ed_mask_dental_allowed</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ot_incl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ot_incl&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">ot_mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;flag_drop&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;ip_incl&quot;</span><span class="p">,</span> <span class="s2">&quot;ed_incl&quot;</span><span class="p">,</span> <span class="s2">&quot;ot_incl&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

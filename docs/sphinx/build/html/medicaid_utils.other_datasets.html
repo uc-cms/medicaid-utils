@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.other_datasets package &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="medicaid_utils.preprocessing package" href="medicaid_utils.preprocessing.html" />
+    <link rel="prev" title="medicaid_utils.filters.patients package" href="medicaid_utils.filters.patients.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="medicaid_utils.html">medicaid_utils package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="medicaid_utils.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html">medicaid_utils.common_utils package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.html">medicaid_utils.filters package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">medicaid_utils.other_datasets package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#medicaid-utils-other-datasets-fqhc-module">medicaid_utils.other_datasets.fqhc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#medicaid-utils-other-datasets-hcris-module">medicaid_utils.other_datasets.hcris module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.other_datasets.npi">medicaid_utils.other_datasets.npi module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#medicaid-utils-other-datasets-uds-module">medicaid_utils.other_datasets.uds module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.other_datasets.zip">medicaid_utils.other_datasets.zip module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html">medicaid_utils.preprocessing package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.topics.html">medicaid_utils.topics package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.other_datasets package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/medicaid_utils.other_datasets.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-medicaid_utils.other_datasets">
+<span id="medicaid-utils-other-datasets-package"></span><h1>medicaid_utils.other_datasets package<a class="headerlink" href="#module-medicaid_utils.other_datasets" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="medicaid-utils-other-datasets-fqhc-module">
+<h2>medicaid_utils.other_datasets.fqhc module<a class="headerlink" href="#medicaid-utils-other-datasets-fqhc-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="medicaid-utils-other-datasets-hcris-module">
+<h2>medicaid_utils.other_datasets.hcris module<a class="headerlink" href="#medicaid-utils-other-datasets-hcris-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-medicaid_utils.other_datasets.npi">
+<span id="medicaid-utils-other-datasets-npi-module"></span><h2>medicaid_utils.other_datasets.npi module<a class="headerlink" href="#module-medicaid_utils.other_datasets.npi" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.npi.cleanup_raw_npi_files">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.npi.</span></span><span class="sig-name descname"><span class="pre">cleanup_raw_npi_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst_year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fastparquet'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/npi.html#cleanup_raw_npi_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.npi.cleanup_raw_npi_files" title="Permalink to this definition"></a></dt>
+<dd><p>Cleans up raw NPPES files for a list of years by standardizing column names, generating long format mappings
+from the flat raw file and creating NPI mappings for a known set of taxonomies
+:param lst_year:
+:param pq_engine: Parquet engine, fastparquet or pyarrow
+:return:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.npi.generate_npi_taxonomy_mappings">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.npi.</span></span><span class="sig-name descname"><span class="pre">generate_npi_taxonomy_mappings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fastparquet'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/npi.html#generate_npi_taxonomy_mappings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.npi.generate_npi_taxonomy_mappings" title="Permalink to this definition"></a></dt>
+<dd><p>Generates taxonomy type x NPI mappings for the set of taxonomy types in taxonomy codes lookup file
+(taxonomy_codes.csv)
+:param year:
+:param pq_engine: Parquet engine, fastparquet or pyarrow
+:return:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.npi.generate_oscar_fqhc_npis">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.npi.</span></span><span class="sig-name descname"><span class="pre">generate_oscar_fqhc_npis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst_year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fastparquet'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/npi.html#generate_oscar_fqhc_npis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.npi.generate_oscar_fqhc_npis" title="Permalink to this definition"></a></dt>
+<dd><p>Saves list of NPIs with FQHC range oscar provider ids into a pickle file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.npi.wide_to_long_nppes_taxonomy_file">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.npi.</span></span><span class="sig-name descname"><span class="pre">wide_to_long_nppes_taxonomy_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/npi.html#wide_to_long_nppes_taxonomy_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.npi.wide_to_long_nppes_taxonomy_file" title="Permalink to this definition"></a></dt>
+<dd><p>Creates long format provider and taxonomy mapping datasets from NPI file. Two versions of provider
+mapping files are created, one of which has the provider ids cleaned by removing non alphanumeric characters
+:param year: year
+:param pq_engine: Parquet engine, fastparquet or pyarrow
+:return: None</p>
+</dd></dl>
+
+</section>
+<section id="medicaid-utils-other-datasets-uds-module">
+<h2>medicaid_utils.other_datasets.uds module<a class="headerlink" href="#medicaid-utils-other-datasets-uds-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-medicaid_utils.other_datasets.zip">
+<span id="medicaid-utils-other-datasets-zip-module"></span><h2>medicaid_utils.other_datasets.zip module<a class="headerlink" href="#module-medicaid_utils.other_datasets.zip" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.zip.generate_zip_pcsa_ruca_crosswalk">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.zip.</span></span><span class="sig-name descname"><span class="pre">generate_zip_pcsa_ruca_crosswalk</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/zip.html#generate_zip_pcsa_ruca_crosswalk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.zip.generate_zip_pcsa_ruca_crosswalk" title="Permalink to this definition"></a></dt>
+<dd><p>Generate zip x pcsa x ruca crosswalk</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.zip.pool_zipcode_pcsa_datasets">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.zip.</span></span><span class="sig-name descname"><span class="pre">pool_zipcode_pcsa_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/zip.html#pool_zipcode_pcsa_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.zip.pool_zipcode_pcsa_datasets" title="Permalink to this definition"></a></dt>
+<dd><p>Combine multiple sources of zipcode &amp; PCSA datasets</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="medicaid_utils.filters.patients.html" class="btn btn-neutral float-left" title="medicaid_utils.filters.patients package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="medicaid_utils.preprocessing.html" class="btn btn-neutral float-right" title="medicaid_utils.preprocessing package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

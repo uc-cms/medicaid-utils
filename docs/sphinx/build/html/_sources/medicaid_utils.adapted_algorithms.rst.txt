@@ -1,11 +1,16 @@
 medicaid\_utils.adapted\_algorithms package
 ===========================================
 
+.. automodule:: medicaid_utils.adapted_algorithms
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 10
+   :maxdepth: 4
 
    medicaid_utils.adapted_algorithms.py_betos
    medicaid_utils.adapted_algorithms.py_cdpsmrx

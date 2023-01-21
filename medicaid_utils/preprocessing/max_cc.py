@@ -48,12 +48,12 @@ class MAXCC(max_file.MAXFile):
         # CC files are not separated by state. So load the single CC file for the year and filter to the specific state
         super().__init__(
             "cc",
-            year,
-            "",
-            data_root,
-            index_col,
-            clean,
-            preprocess,
+            year=year,
+            state="",
+            data_root=data_root,
+            index_col=index_col,
+            clean=False,
+            preprocess=False,
             pq_engine=pq_engine,
         )
         self.df = self.df.loc[self.df["STATE_CD"] == state]

@@ -10,9 +10,13 @@ import pandas as pd
 from medicaid_utils.preprocessing import (
     max_file,
     max_ip,
-    max_ot,
     max_ps,
+    max_cc,
+    max_ot,  # pylint: disable=unused-import
     taf_file,
+    taf_ip,
+    taf_ot,
+    taf_ps,  # pylint: disable=unused-import
 )
 from medicaid_utils.filters.claims import dx_and_proc
 
@@ -218,20 +222,19 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
     return claim, df_filter_counts
 
 
-def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
+def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     state: str,
-    year: int,
-    dct_diag_codes: dict,
-    dct_proc_codes: dict,
-    dct_cohort_filters: dict,
-    dct_export_filters: dict,
+    lst_year: List[int],
+    dct_diag_proc_codes: dict,
+    dct_filters: dict,
     lst_types_to_export: List[str],
-    data_root: str,
-    dest_folder: str,
+    dct_data_paths: dict,
+    cms_format: str = "MAX",
     clean_exports: bool = True,
     preprocess_exports: bool = True,
+    export_format: str = "csv",
     logger_name: str = __file__,
-) -> None:
+):
     """
     Extracts and exports claim files corresponded cohort defined by the input filters
 
@@ -239,27 +242,29 @@ def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
     ----------
     state : str
         State
-    year : int
-        Year
-    dct_diag_codes : dict
-        Dictionary of diagnosis codes. Should be in the format
-            {condition_name: {['incl' / 'excl']: {[9/ 10]: list of codes} }
-            Eg: {'oud_nqf': {'incl': {9: ['3040','3055']}}}
-    dct_proc_codes : dict
-        Dictionary of procedure codes. Should be in the format
-            {procedure_name: {procedure_system_code: list of codes} }
-            Eg: {'methadone_7': {7: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,'
-                                   'HZ96ZZZ'.split(",")}}
-    dct_cohort_filters : dict
-        Filters to apply to the cohort. Filter dictionary should be of the format:
-        {claim_type_1: {range_[datatype]_[col_name]: (start, end),
+    lst_year : list of int
+        List of years from which cohort should be created
+    dct_diag_proc_codes : dict
+        Dictionary of diagnosis and procedure codes. Should be in the format
+            {'diag_codes': {condition_name: {['incl' / 'excl']: {[9/ 10]: list of codes} },
+             'proc_codes': {procedure_name: {procedure_system_code: list of codes} }}
+            Eg: {'diag_codes': {'oud_nqf': {'incl': {9: ['3040','3055']}}},
+                 'proc_codes': {'methadone_7': {7: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,'
+                                   'HZ96ZZZ'.split(",")}}}
+    dct_filters: dict
+        Filters to apply to the cohort, and the exported claim files. Filter dictionary should be of the format:
+        {'cohort': {claim_type_1: {range_[datatype]_[col_name]: (start, end),
                         excl_[col_name]: [0/1],
                         [col_name]: value,
-                        ..}
-        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with
+                        ..},
+        'export': {claim_type_1: {range_[datatype]_[col_name]: (start, end),
+                        excl_[col_name]: [0/1],
+                        [col_name]: value,
+                        ..}}
+        date and numeric range type filters are currently supported. Filter names beginning with
         `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
-        names that are just column names will restrict the result to benes with the filter value for the corresponding
-        column.
+        names that are just column names will restrict the result to benes with the filter value for the
+        corresponding column.
         Eg: {'ip': {'range_numeric_age_prncpl_proc': (0, 18),
                                       'missing_dob': 0,
                                       'excl_female': 1}}
@@ -267,41 +272,24 @@ def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
                                       'missing_dob': 0,
                                       'excl_female': 1}}
                               }
-        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
-        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
-        prinicipal procedure data/ service begin date.
-    dct_export_filters : dict
-        Additional filters that should be applied to the raw claims of the selected cohort. Filter dictionary should be
-        of the format:
-        {claim_type_1: {range_[datatype]_[col_name]: (start, end),
-                        excl_[col_name]: [0/1],
-                        [col_name]: value,
-                        ..}
-        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with
-        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
-        names that are just column names will restrict the result to benes with the filter value for the corresponding
-        column.
-        Eg: {'ip': {'range_numeric_age_prncpl_proc': (0, 18),
-                                      'missing_dob': 0,
-                                      'excl_female': 1}}
-                              'ot': {'range_numeric_age_srvc_bgn': (0, 18),
-                                      'missing_dob': 0,
-                                      'excl_female': 1}}
-                              }
-        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
-        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
-        prinicipal procedure data/ service begin date.
+        The example filter will exclude the cohort to all IP claims of female benes and also claims with missing
+        DOB. The resulting set will also be restricted to those of benes whose age is between 0-18 (inclusive of
+        both 0 and 18) as of principal procedure date/ service begin date.
     lst_types_to_export : List[str]
         List of types to export. Currently supported types are ip, ot, rx, ps.
-    data_root : str
-        Root folder of raw claim files
-    dest_folder : str
-        Folder to export the datasets to
+    dct_data_paths : dict
+        Dictionary with information on raw claim files root folder and export folder. Should be of the format,
+        {'source_root': /path/to/medicaid/folder,
+         'export_folder': /path/to/export/data}
+    cms_format : {'MAX', 'TAF'}
+        CMS file format.
     clean_exports : bool, default=False
         Should the exported datasets be cleaned?
     preprocess_exports : bool, default=False
         Should the exported datasets be preprocessed?
-    logger_name : bool, default=__file__
+    export_format : str, default=csv
+        Format of exported files
+    logger_name : str, default=__file__
         Logger name
 
     Raises
@@ -311,215 +299,410 @@ def extract_cohort(  # pylint: disable=missing-param-doc, too-many-arguments
 
     """
     logger = logging.getLogger(logger_name)
-    tmp_folder = os.path.join(dest_folder, "tmp_files")
-    dct_claims = {}
-    try:
-        dct_claims["ip"] = max_ip.MAXIP(
-            year, state, data_root, clean=True, preprocess=True
-        )
-        dct_claims["ot"] = max_ot.MAXOT(
-            year,
-            state,
-            data_root,
-            clean=True,
-            preprocess=True,
-            tmp_folder=os.path.join(tmp_folder, "ot"),
-        )
-        dct_claims["rx"] = max_file.MAXFile(
-            "rx", year, state, data_root, clean=False, preprocess=False
-        )
-        dct_claims["ps"] = max_ps.MAXPS(
-            year,
-            state,
-            data_root,
-            clean=True,
-            preprocess="ps" in dct_cohort_filters,
-            tmp_folder=os.path.join(tmp_folder, "ps"),
-        )
-        logger.info(
-            "%s (%d) has %d benes",
-            state,
-            year,
-            dct_claims["ps"].df.shape[0].compute(),
-        )
-    except FileNotFoundError as ex:
-        logger.warning("%d data is missing for %s", year, state)
-        logger.exception(ex)
-        raise FileNotFoundError from ex
-    os.makedirs(dest_folder, exist_ok=True)
-    os.makedirs(tmp_folder, exist_ok=True)
-
-    dct_cohort_filter_stats = {}
-
-    for f_type in dct_cohort_filters:
-        (
-            dct_claims[f_type],
-            dct_cohort_filter_stats[f_type],
-        ) = filter_claim_files(
-            dct_claims[f_type],
-            dct_cohort_filters,
-            os.path.join(tmp_folder, f_type),
-            logger_name=logger_name,
-        )
-    pdf_patients = None
-    if bool(dct_diag_codes) | bool(dct_proc_codes):
-        pdf_patients, _ = dx_and_proc.get_patient_ids_with_conditions(
-            dct_diag_codes,
-            dct_proc_codes,
-            logger_name=logger_name,
-            ip=dct_claims["ip"].df.rename(
-                columns={"prncpl_proc_date": "service_date"}
-            )[
-                [
-                    col
-                    for col in dct_claims["ip"].df.columns
-                    if col.startswith(
-                        (
-                            "PRCDR",
-                            "DIAG",
-                        )
-                    )
-                ]
-                + ["service_date"]
-            ],
-            ot=dct_claims["ot"].df.rename(
-                columns={"srvc_bgn_date": "service_date"}
-            )[
-                [
-                    col
-                    for col in dct_claims["ot"].df.columns
-                    if col.startswith(
-                        (
-                            "PRCDR",
-                            "DIAG",
-                        )
-                    )
-                ]
-                + ["service_date"]
-            ],
-        )
-        pdf_patients = pdf_patients.assign(include=1)
-    else:
-        pdf_patients = (
-            pd.concat(
-                [
-                    claim.df.assign(
-                        **{claim.index_col: claim.df.index, "include": 1}
-                    )[[claim.index_col, "include"]].compute()
-                    for f_type, claim in dct_claims.items()
-                ]
-            )
-            .drop_duplicates()
-            .set_index(dct_claims["ps"].index_col)
-        )
-    pdf_patients = pdf_patients.assign(YEAR=year, STATE_CD=state)
-    logger.info(
-        "%s (%d) has %d benes with specified  conditions/ procedures",
-        state,
-        year,
-        pdf_patients.shape[0],
+    dct_data_paths["tmp_folder"] = os.path.join(
+        dct_data_paths["export_folder"], "tmp_files"
     )
+    lst_year = sorted(lst_year)
+    pdf_patients_all_years = pd.DataFrame()
+    for year in lst_year:
+        dct_claims = {}
 
-    if "ps" not in dct_cohort_filters:
-        dct_cohort_filter_stats["ps"] = pd.DataFrame(
-            {"N": dct_claims["ps"].df.shape[0].compute()}, index=[0]
+        try:
+            for claim_type in ["ip", "ot", "ps", "rx"]:
+                if claim_type == "rx":
+                    # Not yet implemented for TAF
+                    if cms_format == "MAX":
+                        dct_claims[claim_type] = max_file.MAXFile(
+                            "rx",
+                            year,
+                            state,
+                            dct_data_paths["source_root"],
+                            clean=False,
+                            preprocess=False,
+                        )
+                else:
+                    dct_claims[claim_type] = (
+                        max_file.MAXFile.get_claim_instance(
+                            claim_type,
+                            year,
+                            state,
+                            dct_data_paths["source_root"],
+                            clean=True,
+                            preprocess=True,
+                            **(
+                                {}
+                                if claim_type != "ip"
+                                else {
+                                    "tmp_folder": os.path.join(
+                                        dct_data_paths["tmp_folder"],
+                                        claim_type,
+                                    )
+                                }
+                            ),
+                        )
+                        if cms_format == "MAX"
+                        else taf_file.TAFFile.get_claim_instance(
+                            claim_type,
+                            year,
+                            state,
+                            dct_data_paths["source_root"],
+                            clean=True,
+                            preprocess=True,
+                            **(
+                                {}
+                                if claim_type != "ip"
+                                else {
+                                    "tmp_folder": os.path.join(
+                                        dct_data_paths["tmp_folder"],
+                                        claim_type,
+                                    )
+                                }
+                            ),
+                        )
+                    )
+        except FileNotFoundError as ex:
+            logger.warning("%d data is missing for %s", year, state)
+            logger.exception(ex)
+            continue
+        except Exception as ex:
+            logging.critical(ex, exc_info=True)
+            continue
+
+        os.makedirs(dct_data_paths["export_folder"], exist_ok=True)
+        os.makedirs(dct_data_paths["tmp_folder"], exist_ok=True)
+
+        dct_cohort_filter_stats = {}
+        if "cohort" in dct_filters:
+            for f_type in dct_filters["cohort"]:
+                dct_cohort_filter_stats[f_type] = {}
+                lst_subtypes = (
+                    [None]
+                    if (cms_format == "MAX")
+                    else ["base"]  # list(dct_claims[f_type].dct_files.keys())
+                )
+                for subtype in lst_subtypes:
+                    (dct_claims[f_type], filter_stats_df) = filter_claim_files(
+                        dct_claims[f_type],
+                        dct_filters["cohort"],
+                        os.path.join(dct_data_paths["tmp_folder"], f_type),
+                        subtype=subtype,
+                        logger_name=logger_name,
+                    )
+                    dct_cohort_filter_stats[f_type] = (
+                        filter_stats_df.copy()
+                        # if (not bool(subtype))
+                        # else {
+                        #     **dct_cohort_filter_stats[f_type],
+                        #     **{subtype: filter_stats_df.copy()},
+                        # }
+                    )
+
+        pdf_patients = None
+        if bool(dct_diag_proc_codes) and (
+            ("diag_codes" in dct_diag_proc_codes)
+            or ("proc_codes" in dct_diag_proc_codes)
+        ):
+            pdf_patients, _ = dx_and_proc.get_patient_ids_with_conditions(
+                dct_diag_proc_codes["diag_codes"],
+                dct_diag_proc_codes["proc_codes"],
+                logger_name=logger_name,
+                cms_format=cms_format,
+                ip=dct_claims["ip"].df.rename(
+                    columns={"prncpl_proc_date": "service_date"}
+                )[
+                    [
+                        col
+                        for col in dct_claims["ip"].df.columns
+                        if col.startswith(
+                            (
+                                "PRCDR",
+                                "DIAG",
+                            )
+                        )
+                    ]
+                    + ["service_date"]
+                ]
+                if (cms_format == "MAX")
+                else dct_claims["ip"]
+                .dct_files["base"]
+                .rename(columns={"prncpl_proc_date": "service_date"})[
+                    [
+                        col
+                        for col in dct_claims["ip"].dct_files["base"].columns
+                        if col.startswith(
+                            ("DGNS", "ADMTG_DGNS", "PRCDR_CD", "LINE_PRCDR_CD")
+                        )
+                    ]
+                    + ["service_date"]
+                ],
+                ot=dct_claims["ot"].df.rename(
+                    columns={"srvc_bgn_date": "service_date"}
+                )[
+                    [
+                        col
+                        for col in dct_claims["ot"].df.columns
+                        if col.startswith(
+                            (
+                                "PRCDR",
+                                "DIAG",
+                            )
+                        )
+                    ]
+                    + ["service_date"]
+                ]
+                if (cms_format == "MAX")
+                else dct_claims["ot"]
+                .dct_files["base"]
+                .rename(columns={"srvc_bgn_date": "service_date"})[
+                    [
+                        col
+                        for col in dct_claims["ot"].dct_files["base"].columns
+                        if col.startswith(
+                            ("DGNS", "ADMTG_DGNS", "PRCDR_CD", "LINE_PRCDR_CD")
+                        )
+                    ]
+                    + ["service_date"]
+                ],
+                **(
+                    {
+                        "ot_line": dct_claims["ot"]
+                        .dct_files["line"]
+                        .rename(columns={"srvc_bgn_date": "service_date"})[
+                            [
+                                col
+                                for col in dct_claims["ot"]
+                                .dct_files["line"]
+                                .columns
+                                if col.startswith(
+                                    (
+                                        "DGNS",
+                                        "ADMTG_DGNS",
+                                        "PRCDR_CD",
+                                        "LINE_PRCDR_CD",
+                                    )
+                                )
+                            ]
+                            + ["service_date"]
+                        ]
+                    }
+                    if cms_format == "TAF"
+                    else {}
+                ),
+            )
+            pdf_patients = pdf_patients.assign(include=1)
+        else:
+            pdf_patients = (
+                (
+                    pd.concat(
+                        [
+                            claim.df.assign(
+                                **{
+                                    claim.index_col: claim.df.index,
+                                    "include": 1,
+                                }
+                            )[[claim.index_col, "include"]].compute()
+                            for f_type, claim in dct_claims.items()
+                            if (
+                                not (
+                                    bool(dct_filters)
+                                    and ("cohort" in dct_filters)
+                                )
+                            )
+                            or (f_type in dct_filters["cohort"])
+                        ]
+                    )
+                    .drop_duplicates()
+                    .set_index(dct_claims["ps"].index_col)
+                )
+                if cms_format == "MAX"
+                else (
+                    pd.concat(
+                        [
+                            claim.dct_files["base"]
+                            .assign(
+                                **{
+                                    claim.index_col: claim.dct_files[
+                                        "base"
+                                    ].index,
+                                    "include": 1,
+                                }
+                            )[[claim.index_col, "include"]]
+                            .compute()
+                            for f_type, claim in dct_claims.items()
+                            if (
+                                not (
+                                    bool(dct_filters)
+                                    and ("cohort" in dct_filters)
+                                )
+                            )
+                            or (f_type in dct_filters["cohort"])
+                        ]
+                    )
+                    .drop_duplicates()
+                    .set_index(dct_claims["ps"].index_col)
+                )
+            )
+        pdf_patients = pdf_patients.assign(YEAR=year, STATE_CD=state)
+        logger.info(
+            "%s (%d) has %d benes with specified  conditions/ procedures",
+            state,
+            year,
+            pdf_patients.shape[0],
         )
-    dct_claims["ps"].df = (
-        dct_claims["ps"]
-        .df.loc[
-            dct_claims["ps"].df.index.isin(
+
+        if ("cohort" not in dct_filters) or (
+            "ps" not in dct_filters["cohort"]
+        ):
+            dct_cohort_filter_stats["ps"] = pd.DataFrame(
+                {
+                    "N": dct_claims["ps"].df.shape[0].compute()
+                    if (cms_format == "MAX")
+                    else dct_claims["ps"].dct_files["base"].shape[0].compute()
+                },
+                index=[0],
+            )
+        df_ps = (
+            dct_claims["ps"].df.copy()
+            if (cms_format == "MAX")
+            else dct_claims["ps"].dct_files["base"].copy()
+        )
+        df_ps = df_ps.loc[
+            df_ps.index.isin(
                 pdf_patients.loc[pdf_patients["include"] == 1].index.tolist()
             )
         ]
-        .persist()
-    )
-    dct_claims["ps"].df = dct_claims["ps"].cache_results(repartition=True)
-    dct_cohort_filter_stats["ps"]["with specified conditions"] = (
-        dct_claims["ps"].df.shape[0].compute()
-    )
+        if cms_format == "MAX":
+            dct_claims["ps"].df = df_ps.copy()
+            dct_claims["ps"].cache_results(repartition=True)
+        else:
+            dct_claims["ps"].dct_files["base"] = df_ps.copy()
+            dct_claims["ps"].cache_results("base", repartition=True)
 
-    if "ps" not in dct_cohort_filters:
-        dct_claims["ps"], df_cohort_filter_stats = filter_claim_files(
-            dct_claims["ps"],
-            {},
-            os.path.join(tmp_folder, "ps"),
-            logger_name=logger_name,
+        dct_cohort_filter_stats["ps"]["with specified conditions"] = (
+            (dct_claims["ps"].df.shape[0].compute())
+            if (cms_format == "MAX")
+            else dct_claims["ps"].dct_files["base"].shape[0].compute()
         )
-        dct_cohort_filter_stats["ps"] = pd.concat(
-            [
-                dct_cohort_filter_stats["ps"],
-                df_cohort_filter_stats[
-                    [
-                        col
-                        for col in df_cohort_filter_stats.columns
-                        if col != "N"
-                    ]
+        del df_ps
+
+        if ("cohort" not in dct_filters) or (
+            "ps" not in dct_filters["cohort"]
+        ):
+            (dct_claims["ps"], df_filter_stats) = filter_claim_files(
+                dct_claims["ps"],
+                {},
+                os.path.join(dct_data_paths["tmp_folder"], "ps"),
+                subtype="base" if (cms_format == "TAF") else None,
+                logger_name=logger_name,
+            )
+            dct_cohort_filter_stats["ps"] = pd.concat(
+                [
+                    dct_cohort_filter_stats["ps"],
+                    df_filter_stats[
+                        [col for col in df_filter_stats.columns if col != "N"]
+                    ],
                 ],
-            ],
-            axis=1,
+                axis=1,
+            )
+        logger.info(
+            "%s (%d) has  %d benes  with specified conditions who also meet the cohort inclusion  criteria",
+            state,
+            year,
+            dct_cohort_filter_stats["ps"].iloc[0, -1],
         )
-    logger.info(
-        "%s (%d) has  %d benes  with specified conditions who also meet the cohort inclusion  criteria",
-        state,
-        year,
-        dct_cohort_filter_stats["ps"].iloc[0, -1],
-    )
-    pdf_patients["include"] = pdf_patients["include"].where(
-        pdf_patients.index.isin(dct_claims["ps"].df.index.compute().tolist()),
-        0,
-    )
-    logger.info(
-        "For %s (%d), %d benes remain after cleaning PS",
-        state,
-        year,
-        pdf_patients.loc[pdf_patients["include"] == 1].shape[0],
-    )
-    pdf_dob = dct_claims["ps"].df[["birth_date"]].compute()
-    for f_type, cohort_filter_stats in dct_cohort_filter_stats.items():
-        cohort_filter_stats.to_parquet(
-            os.path.join(
-                dest_folder,
-                f"cohort_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}.parquet",
+        pdf_patients["include"] = pdf_patients["include"].where(
+            pdf_patients.index.isin(
+                dct_claims["ps"].df.index.compute().tolist()
+                if (cms_format == "MAX")
+                else dct_claims["ps"]
+                .dct_files["base"]
+                .index.compute()
+                .tolist()
             ),
-            engine=dct_claims[f_type].pq_engine,
-            index=False,
+            0,
         )
-    del dct_claims
-    del dct_cohort_filter_stats
-    gc.collect()
+        logger.info(
+            "For %s (%d), %d benes remain after cleaning PS",
+            state,
+            year,
+            pdf_patients.loc[pdf_patients["include"] == 1].shape[0],
+        )
 
-    pdf_patients = pdf_patients.merge(
-        pdf_dob, left_index=True, right_index=True, how="inner"
-    )
-    pdf_patients.to_csv(
-        os.path.join(dest_folder, f"cohort_{state}_{year}.csv"), index=True
-    )
+        pdf_dob = (
+            dct_claims["ps"].df[["birth_date"]].compute()
+            if (cms_format == "MAX")
+            else dct_claims["ps"].dct_files["base"][["birth_date"]].compute()
+        )
+        for f_type, cohort_filter_stats in dct_cohort_filter_stats.items():
+            if isinstance(cohort_filter_stats, dict):
+                for (
+                    sub_type,
+                    df_cohort_filter_stats,
+                ) in cohort_filter_stats.items():
+                    df_cohort_filter_stats.to_parquet(
+                        os.path.join(
+                            dct_data_paths["export_folder"],
+                            f"cohort_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}_{sub_type}.parquet",
+                        ),
+                        engine=dct_claims[f_type].pq_engine,
+                        index=False,
+                    )
+            else:
+                cohort_filter_stats.to_parquet(
+                    os.path.join(
+                        dct_data_paths["export_folder"],
+                        f"cohort_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}.parquet",
+                    ),
+                    engine=dct_claims[f_type].pq_engine,
+                    index=False,
+                )
+        del dct_claims
+        del dct_cohort_filter_stats
+        gc.collect()
 
-    shutil.rmtree(tmp_folder)
-    export_cohort_max_datasets(
-        pdf_patients,
-        year,
-        state,
-        data_root,
-        lst_types_to_export,
-        dest_folder,
-        dct_export_filters,
-        clean_exports,
-        preprocess_exports,
-        logger_name,
-    )
+        pdf_patients = pdf_patients.merge(
+            pdf_dob, left_index=True, right_index=True, how="inner"
+        )
+        del pdf_dob
+        pdf_patients.to_csv(
+            os.path.join(
+                dct_data_paths["export_folder"], f"cohort_{state}_{year}.csv"
+            ),
+            index=True,
+        )
+        pdf_patients_all_years = pd.concat(
+            [pdf_patients_all_years, pdf_patients.reset_index(drop=False)],
+            ignore_index=False,
+        )
+
+        export_cohort_datasets(
+            pdf_patients_all_years,
+            year,
+            state,
+            lst_types_to_export,
+            dct_filters["export"] if "export" in dct_filters else {},
+            dct_data_paths,
+            cms_format,
+            clean_exports,
+            preprocess_exports,
+            export_format,
+            logger_name,
+        )
+
+    shutil.rmtree(dct_data_paths["tmp_folder"], ignore_errors=True)
 
 
-def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
+def export_cohort_datasets(  # pylint: disable=missing-param-doc
     pdf_cohort: pd.DataFrame,
     year: int,
     state: str,
-    data_root: str,
     lst_types_to_export: List[str],
-    dest_folder: str,
     dct_export_filters: dict,
+    dct_data_paths: dict,
+    cms_format: str = "MAX",
     clean_exports: bool = False,
     preprocess_exports: bool = False,
+    export_format: str = "csv",
     logger_name: str = __file__,
 ) -> None:
     """
@@ -533,12 +716,8 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
         Year of the claim files
     state : str
         State
-    data_root : str
-        Root folder of the raw claim files
     lst_types_to_export : list of str
         List of file types to export. Supported types are [ip, ot, ps, rx]
-    dest_folder : str
-        Folder to export the datasets to
     dct_export_filters : dict
         Additional filters that should be applied to the raw claims of the selected cohort while exporting. Filter
         dictionary should be of the format:
@@ -559,11 +738,19 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
                               }
         The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
         set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
-        prinicipal procedure data/ service begin date.
+        principal procedure date/ service begin date.
+    dct_data_paths : dict
+        Dictionary with information on raw claim files root folder and export folder. Should be of the format,
+        {'source_root': /path/to/medicaid/folder,
+         'export_folder': /path/to/export/data}
+    cms_format : {'MAX', TAF'}
+        CMS file format.
     clean_exports : bool, default=False
         Should the exported datasets be cleaned?
     preprocess_exports : bool, default=False
         Should the exported datasets be preprocessed?
+    export_format : str, default='csv'
+        Format of exported files
     logger_name : str, default=__file__
         Logger name
 
@@ -574,77 +761,111 @@ def export_cohort_max_datasets(  # pylint: disable=missing-param-doc
 
     """
     logger = logging.getLogger(logger_name)
-    tmp_folder = os.path.join(dest_folder, "tmp_files")
-    os.makedirs(dest_folder, exist_ok=True)
-    os.makedirs(tmp_folder, exist_ok=True)
+    dct_data_paths["tmp_folder"] = os.path.join(
+        dct_data_paths["export_folder"], "tmp_files"
+    )
+    os.makedirs(dct_data_paths["export_folder"], exist_ok=True)
+    os.makedirs(dct_data_paths["tmp_folder"], exist_ok=True)
     dct_claims = {}
-    for f_type in sorted(lst_types_to_export):
-        try:
-            if f_type == "ip":
-                dct_claims[f_type] = max_ip.MAXIP(
-                    year, state, data_root, clean=False, preprocess=False
-                )
-            elif f_type == "ot":
-                dct_claims[f_type] = max_ot.MAXOT(
+    try:
+        for claim_type in sorted(lst_types_to_export):
+            dct_claims[claim_type] = (
+                max_file.MAXFile.get_claim_instance(
+                    claim_type,
                     year,
                     state,
-                    data_root,
+                    dct_data_paths["source_root"],
                     clean=False,
                     preprocess=False,
-                    tmp_folder=os.path.join(tmp_folder, f_type),
+                    **(
+                        {}
+                        if claim_type not in ["ip", "rx", "lt"]
+                        else {
+                            "tmp_folder": os.path.join(
+                                dct_data_paths["tmp_folder"], claim_type
+                            )
+                        }
+                    ),
                 )
-            elif f_type == "ps":
-                dct_claims[f_type] = max_ps.MAXPS(
+                if cms_format == "MAX"
+                else taf_file.TAFFile.get_claim_instance(
+                    claim_type,
                     year,
                     state,
-                    data_root,
+                    dct_data_paths["source_root"],
                     clean=False,
                     preprocess=False,
-                    tmp_folder=os.path.join(tmp_folder, f_type),
+                    **(
+                        {}
+                        if claim_type not in ["ip", "rx", "lt"]
+                        else {
+                            "tmp_folder": os.path.join(
+                                dct_data_paths["tmp_folder"], claim_type
+                            )
+                        }
+                    ),
                 )
-            else:
-                dct_claims[f_type] = max_file.MAXFile(
-                    f_type,
-                    year,
-                    state,
-                    data_root,
-                    clean=False,
-                    preprocess=False,
-                )
-        except FileNotFoundError as ex:
-            logger.warning("%d %s data is missing for %s", year, f_type, state)
-            logger.exception(ex)
-            raise FileNotFoundError from ex
+            )
+    except FileNotFoundError as ex:
+        logger.warning("%d data is missing for %s", year, state)
+        logger.exception(ex)
+        raise FileNotFoundError from ex
+
     for f_type in sorted(lst_types_to_export):
         logger.info("Exporting %s for %s (%d)", f_type, state, year)
-        dct_claims[f_type].df = dct_claims[f_type].df.loc[
-            dct_claims[f_type].df.index.isin(
-                pdf_cohort.loc[pdf_cohort["include"] == 1].index.tolist()
-            )
-        ]
-        dct_claims[f_type].df = dct_claims[f_type].cache_results()
+        if cms_format == "MAX":
+            dct_claims[f_type].df = dct_claims[f_type].df.loc[
+                dct_claims[f_type].df.index.isin(
+                    pdf_cohort.loc[pdf_cohort["include"] == 1].index.tolist()
+                )
+            ]
+        else:
+            lst_taf_sub_file_types = list(dct_claims[f_type].dct_files.keys())
+            for subtype in lst_taf_sub_file_types:
+                claim_object = dct_claims[f_type]
+                claim_object.dct_files[subtype] = claim_object.dct_files[
+                    subtype
+                ].loc[
+                    claim_object.dct_files[subtype].index.isin(
+                        pdf_cohort.loc[
+                            pdf_cohort["include"] == 1
+                        ].index.tolist()
+                    )
+                ]
+                dct_claims[f_type] = claim_object
+
+        dct_claims[f_type].cache_results()
         if clean_exports or preprocess_exports:
             if clean_exports:
                 dct_claims[f_type].clean()
             if preprocess_exports:
                 dct_claims[f_type].preprocess()
-            dct_claims[f_type].df = dct_claims[f_type].cache_results()
+            dct_claims[f_type].cache_results()
         if bool(dct_export_filters):
-            dct_claims[f_type], df_filter_counts = filter_claim_files(
-                dct_claims[f_type],
-                dct_export_filters,
-                os.path.join(tmp_folder, f"{f_type}"),
-                logger_name=logger_name,
+            lst_subtypes = (
+                [None]
+                if (cms_format == "MAX")
+                else list(dct_claims[f_type].dct_files.keys())
             )
-            df_filter_counts.to_parquet(
-                os.path.join(
-                    dest_folder,
-                    f"export_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}.parquet",
-                ),
-                engine=dct_claims[f_type].pq_engine,
-                index=False,
-            )
+            for subtype in lst_subtypes:
+                (dct_claims[f_type], filter_stats) = filter_claim_files(
+                    dct_claims[f_type],
+                    dct_export_filters,
+                    os.path.join(dct_data_paths["tmp_folder"], f_type),
+                    subtype=subtype,
+                    logger_name=logger_name,
+                )
+                filter_stats.to_parquet(
+                    os.path.join(
+                        dct_data_paths["export_folder"],
+                        f"export_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}"
+                        + f"{'_' + subtype if bool(subtype) else ''}.parquet",
+                    ),
+                    engine=dct_claims[f_type].pq_engine,
+                    index=False,
+                )
+        dct_claims[f_type].export(
+            dct_data_paths["export_folder"], output_format=export_format
+        )
 
-        dct_claims[f_type].export(dest_folder)
-
-    shutil.rmtree(tmp_folder)
+    shutil.rmtree(dct_data_paths["tmp_folder"])

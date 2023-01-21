@@ -1,4 +1,4 @@
-"""This a python package for computing Elixhauser comorbidity score; only ICD-9 coding system is currently supported."""
+"""This a python package for computing Elixhauser comorbidity score"""
 import sys
 import os
 
@@ -13,13 +13,21 @@ class ElixhauserScoring:
     data_folder = os.path.join(package_folder, "data")
 
     @classmethod
-    def flag_comorbidities_icd9(
-        cls, df: dd.DataFrame, lst_diag_col_name
+    def flag_comorbidities(
+        cls, df: dd.DataFrame, lst_diag_col_name, cms_format="MAX"
     ) -> dd.DataFrame:
-        df_icd9_mapping = pd.read_csv(
-            os.path.join(cls.data_folder, "icd9_mapping.csv")
+        df_icd_mapping = pd.read_csv(
+            os.path.join(
+                cls.data_folder,
+                f"icd{9 if cms_format == 'MAX' else 10}_mapping.csv",
+            )
         )
-        df_icd9_mapping["ICD9"] = df_icd9_mapping["ICD9"].str.split(",")
+        df_icd_mapping = df_icd_mapping.assign(
+            ICD=df_icd_mapping[
+                f"ICD{9 if cms_format == 'MAX' else 10}"
+            ].str.split(",")
+        )
+
         df = df.map_partitions(
             lambda pdf: pdf.assign(
                 **dict(
@@ -34,9 +42,9 @@ class ElixhauserScoring:
                                 .str.upper()
                                 .str.startswith(
                                     tuple(
-                                        df_icd9_mapping.loc[
-                                            df_icd9_mapping["ELX_GRP"] == i,
-                                            "ICD9",
+                                        df_icd_mapping.loc[
+                                            df_icd_mapping["ELX_GRP"] == i,
+                                            "ICD",
                                         ].values[0]
                                     )
                                 )
@@ -65,7 +73,10 @@ class ElixhauserScoring:
 
 
 def score(
-    df: dd.DataFrame, lst_diag_col_name, output_column_name="elixhauser_score"
+    df: dd.DataFrame,
+    lst_diag_col_name,
+    cms_format="MAX",
+    output_column_name="elixhauser_score",
 ) -> dd.DataFrame:
     """
     Computes Elixhauser score for the benes in the input dataframe. The input dataframe should be at bene level, with
@@ -77,13 +88,18 @@ def score(
         Bene level dataframe
     lst_diag_col_name : str
         Column name containing the list of diagnosis codes
+    cms_format : {'MAX', 'TAF'}
+        CMS file format.
     output_column_name : str, default='elixhauser_score'
         Output column name. Defaults to elixhauser score
 
     Returns
     -------
+    dask.DataFrame
 
     """
-    df = ElixhauserScoring.flag_comorbidities_icd9(df, lst_diag_col_name)
+    df = ElixhauserScoring.flag_comorbidities(
+        df, lst_diag_col_name, cms_format=cms_format
+    )
     df = ElixhauserScoring.calculate_final_score(df, output_column_name)
     return df

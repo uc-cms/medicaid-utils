@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.other_datasets.zip &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.other_datasets.zip</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.other_datasets.zip</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">from</span> <span class="nn">dask</span> <span class="kn">import</span> <span class="n">delayed</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="n">uds_lookup_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;nppes&quot;</span><span class="p">)</span>
+<span class="n">zip_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;zip&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="pool_zipcode_pcsa_datasets"><a class="viewcode-back" href="../../../medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.zip.pool_zipcode_pcsa_datasets">[docs]</a><span class="k">def</span> <span class="nf">pool_zipcode_pcsa_datasets</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Combine multiple sources of zipcode &amp; PCSA datasets&quot;&quot;&quot;</span>
+
+    <span class="c1"># Load PCSA x ZIP crosswalk from Dartmouth Atlas (https://data.world/dartmouthatlas/pcsa-data-crosswalk)</span>
+    <span class="n">df_pcsa</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;zip5_pcsav31.csv&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span>
+    <span class="p">)</span>
+    <span class="n">df_pcsa</span> <span class="o">=</span> <span class="n">df_pcsa</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">zip5</span><span class="o">=</span><span class="n">df_pcsa</span><span class="p">[</span><span class="s2">&quot;zip5&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;zip5&quot;</span><span class="p">:</span> <span class="s2">&quot;zip&quot;</span><span class="p">})</span>
+
+    <span class="c1"># Load zipcode dataset from Simplemaps (https://simplemaps.com/data/us-zips)</span>
+    <span class="n">df_zips1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;uszips.csv&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span>
+    <span class="p">)</span>
+    <span class="n">df_zips1</span> <span class="o">=</span> <span class="n">df_zips1</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="o">=</span><span class="n">df_zips1</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df_zips1</span> <span class="o">=</span> <span class="n">df_zips1</span><span class="p">[[</span><span class="s2">&quot;zip&quot;</span><span class="p">,</span> <span class="s2">&quot;state_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="s2">&quot;state_cd&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Load zipcode dataset from geonames.org (http://download.geonames.org/export/zip/)</span>
+    <span class="n">df_zips2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;US.txt&quot;</span><span class="p">),</span>
+        <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">names</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;countr_code&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zip&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zip_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;state_cd&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;county&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fips_code&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;community_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;community_area_code&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lat&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lng&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;accuracy&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">df_zips2</span> <span class="o">=</span> <span class="n">df_zips2</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="o">=</span><span class="n">df_zips2</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">df_zips_combined</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">df_zips2</span><span class="p">,</span> <span class="n">df_zips1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">df_zips1</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df_zips2</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">])]]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Load zip x zcta crosswalk from UDS Mapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/)</span>
+    <span class="n">df_zips3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;zip_to_zcta_2019.xlsx&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span>
+    <span class="p">)</span>
+    <span class="n">df_zips3</span> <span class="o">=</span> <span class="n">df_zips3</span><span class="p">[[</span><span class="s2">&quot;ZIP_CODE&quot;</span><span class="p">,</span> <span class="s2">&quot;STATE&quot;</span><span class="p">,</span> <span class="s2">&quot;ZCTA&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ZIP_CODE&quot;</span><span class="p">:</span> <span class="s2">&quot;zip&quot;</span><span class="p">,</span> <span class="s2">&quot;STATE&quot;</span><span class="p">:</span> <span class="s2">&quot;state_cd&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">df_zips3</span> <span class="o">=</span> <span class="n">df_zips3</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="o">~</span><span class="p">(</span><span class="n">df_zips3</span><span class="p">[</span><span class="s2">&quot;state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_zips3</span><span class="p">[</span><span class="s2">&quot;ZCTA&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;No ZCTA&quot;</span><span class="p">))</span>
+    <span class="p">]</span>
+
+    <span class="n">df_zips3</span> <span class="o">=</span> <span class="n">df_zips3</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="o">=</span><span class="n">df_zips3</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">df_zips_combined</span> <span class="o">=</span> <span class="n">df_zips_combined</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">df_zips3</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;state_cd&quot;</span><span class="p">:</span> <span class="s2">&quot;uds_state_cd&quot;</span><span class="p">}),</span>
+        <span class="n">on</span><span class="o">=</span><span class="s2">&quot;zip&quot;</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df_zips_combined</span> <span class="o">=</span> <span class="n">df_zips_combined</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">state_cd</span><span class="o">=</span><span class="n">df_zips_combined</span><span class="p">[</span><span class="s2">&quot;state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">df_zips_combined</span><span class="p">[</span><span class="s2">&quot;state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span>
+            <span class="n">df_zips_combined</span><span class="p">[</span><span class="s2">&quot;uds_state_cd&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">df_zips_combined</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;us_zips_multiple_sources.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Get PCSA x state crosswalk from HRR geographical boundaries file from Dartmouth Atlas</span>
+    <span class="c1"># (https://data.dartmouthatlas.org/supplemental/)</span>
+    <span class="n">df_pcsa_ct</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;ct_pcsav31.csv&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span>
+    <span class="p">)</span>
+    <span class="n">df_pcsa_st</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_pcsa_ct</span><span class="p">[[</span><span class="s2">&quot;PCSA&quot;</span><span class="p">,</span> <span class="s2">&quot;PCSA_ST&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_pcsa</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;PCSA&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df_pcsa_st</span> <span class="o">=</span> <span class="n">df_pcsa_st</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">df_pcsa_st</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span>
+
+    <span class="n">df_pcsa_st_zip</span> <span class="o">=</span> <span class="n">df_pcsa_st</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_zips_combined</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;zip&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">)</span>
+    <span class="n">df_pcsa_st_zip</span> <span class="o">=</span> <span class="n">df_pcsa_st_zip</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">state_cd</span><span class="o">=</span><span class="n">df_pcsa_st_zip</span><span class="p">[</span><span class="s2">&quot;state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="o">~</span><span class="n">df_pcsa_st_zip</span><span class="p">[</span><span class="s2">&quot;state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span> <span class="n">df_pcsa_st_zip</span><span class="p">[</span><span class="s2">&quot;PCSA_ST&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">df_pcsa_st_zip</span> <span class="o">=</span> <span class="n">df_pcsa_st_zip</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;accuracy&quot;</span><span class="p">])</span>
+    <span class="n">df_pcsa_st_zip</span> <span class="o">=</span> <span class="n">df_pcsa_st_zip</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;zip&quot;</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+    <span class="n">df_pcsa_st_zip</span> <span class="o">=</span> <span class="n">df_pcsa_st_zip</span><span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;PCSA&quot;</span><span class="p">,</span> <span class="s2">&quot;zip&quot;</span><span class="p">,</span> <span class="s2">&quot;state_cd&quot;</span><span class="p">,</span> <span class="s2">&quot;ZCTA&quot;</span><span class="p">,</span> <span class="s2">&quot;fips_code&quot;</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;lng&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;PCSA&quot;</span><span class="p">:</span> <span class="s2">&quot;pcsa&quot;</span><span class="p">,</span> <span class="s2">&quot;ZCTA&quot;</span><span class="p">:</span> <span class="s2">&quot;zcta&quot;</span><span class="p">})</span>
+
+    <span class="n">df_pcsa_st_zip</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;pcsa_st_zip_fips.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="generate_zip_pcsa_ruca_crosswalk"><a class="viewcode-back" href="../../../medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.zip.generate_zip_pcsa_ruca_crosswalk">[docs]</a><span class="k">def</span> <span class="nf">generate_zip_pcsa_ruca_crosswalk</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate zip x pcsa x ruca crosswalk&quot;&quot;&quot;</span>
+    <span class="n">df_pcsa_st_zip</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;pcsa_st_zip_fips.csv&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span>
+    <span class="p">)</span>
+    <span class="c1"># Load RUCA 3.1 dataset from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=4790.9</span>
+    <span class="c1"># or https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673)</span>
+    <span class="n">df_ruca</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;RUCA2010zipcode.xlsx&quot;</span><span class="p">),</span>
+        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Data&quot;</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df_ruca</span> <span class="o">=</span> <span class="n">df_ruca</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">ZIP_CODE</span><span class="o">=</span><span class="n">df_ruca</span><span class="p">[</span><span class="s2">&quot;ZIP_CODE&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df_ruca</span> <span class="o">=</span> <span class="n">df_ruca</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;ZIP_CODE&quot;</span><span class="p">:</span> <span class="s2">&quot;zip&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ZIP_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;zip_type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;RUCA2&quot;</span><span class="p">:</span> <span class="s2">&quot;ruca_code&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">df_merged</span> <span class="o">=</span> <span class="n">df_pcsa_st_zip</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">df_ruca</span><span class="p">[[</span><span class="s2">&quot;zip&quot;</span><span class="p">,</span> <span class="s2">&quot;zip_type&quot;</span><span class="p">,</span> <span class="s2">&quot;ruca_code&quot;</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;zip&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">df_merged</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_merged</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span> <span class="mi">199</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;state_cd&quot;</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;AK&quot;</span>
+    <span class="n">df_merged</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">df_merged</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;569&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">df_merged</span><span class="p">[</span><span class="s2">&quot;state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span>
+        <span class="s2">&quot;state_cd&quot;</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;DC&quot;</span>
+    <span class="n">df_merged</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">df_merged</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;888&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">df_merged</span><span class="p">[</span><span class="s2">&quot;state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span>
+        <span class="s2">&quot;state_cd&quot;</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;DC&quot;</span>
+
+    <span class="n">df_merged</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;zip_state_pcsa_ruca_zcta.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

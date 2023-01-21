@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;This program creates claim level Potentially Preventable ED visit indicators (Sheryl Davies, Ellen Schultz</span>
+<span class="sd"> et al 2017).&quot;&quot;&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Manoradhan Murugesan&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;manorathan@uchicago.edu&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+
+
+<div class="viewcode-block" id="fix_index"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.fix_index">[docs]</a><span class="k">def</span> <span class="nf">fix_index</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">index_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">drop_column</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">index_name</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">divisions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">index_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">index_name</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> not in dataframe&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index_name</span><span class="p">))</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">index_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_name</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="n">drop_column</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">drop_column</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">index_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="n">index_name</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="EDPreventionQualityIndicators"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.EDPreventionQualityIndicators">[docs]</a><span class="k">class</span> <span class="nc">EDPreventionQualityIndicators</span><span class="p">:</span>
+    <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EDPreventionQualityIndicators.get_patient_exclusion_indicators"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.EDPreventionQualityIndicators.get_patient_exclusion_indicators">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_patient_exclusion_indicators</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df_ip</span><span class="p">,</span> <span class="n">df_ot</span><span class="p">,</span> <span class="n">df_ps</span><span class="p">):</span>
+        <span class="n">pdf_icd9_diseases</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;icd9_codes.xlsx&quot;</span><span class="p">),</span>
+            <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;disease_diagnoses&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">pdf_icd9_edvsts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;icd9_codes.xlsx&quot;</span><span class="p">),</span>
+            <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;edvst_types&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">dct_conditions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_icd9_diseases</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;condition&quot;</span><span class="p">)[</span><span class="s2">&quot;include_icd9&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]))</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">dct_edvst_cat</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_icd9_edvsts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;condition&quot;</span><span class="p">)[</span><span class="s2">&quot;include_icd9&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]))</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">flag_disease_diagnoses</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">dct_conditions</span><span class="p">,</span> <span class="n">dct_edvst_cat</span><span class="p">):</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="p">(</span>
+                                <span class="s2">&quot;diag_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span>
+                                <span class="n">pdf</span><span class="p">[</span>
+                                    <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span>
+                                        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                            <span class="s2">&quot;DIAG_CD&quot;</span>
+                                        <span class="p">)</span>
+                                    <span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                                <span class="p">]</span>
+                                <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                        <span class="n">dct_conditions</span><span class="p">[</span><span class="n">condn</span><span class="p">]</span>
+                                    <span class="p">)</span>
+                                <span class="p">)</span>
+                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                            <span class="p">)</span>
+                            <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="p">[</span>
+                                <span class="s2">&quot;facial_trauma&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;diabetes&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;immunocompromised&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;cystic_fibrosis&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;pneumonia&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;fever&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;uti&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;spinal&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;trauma&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;cancer&quot;</span><span class="p">,</span>
+                            <span class="p">]</span>
+                        <span class="p">]</span>
+                        <span class="o">+</span> <span class="p">[</span>
+                            <span class="p">(</span>
+                                <span class="s2">&quot;diag_uti_with_ut_malformation&quot;</span><span class="p">,</span>
+                                <span class="p">(</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;DIAG_CD_1&quot;</span><span class="p">]</span>
+                                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">dct_conditions</span><span class="p">[</span><span class="s2">&quot;uti&quot;</span><span class="p">])</span>
+                                    <span class="o">&amp;</span> <span class="n">pdf</span><span class="p">[</span>
+                                        <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span>
+                                            <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                                                <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
+                                            <span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;DIAG_CD&quot;</span><span class="p">)</span>
+                                        <span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                                    <span class="p">]</span>
+                                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                                        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                            <span class="n">dct_conditions</span><span class="p">[</span><span class="s2">&quot;ut_malformation&quot;</span><span class="p">]</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span>
+                                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                            <span class="p">)</span>
+                        <span class="p">]</span>
+                        <span class="o">+</span> <span class="p">[</span>
+                            <span class="p">(</span>
+                                <span class="s2">&quot;diag_cellulitis_with_diabetes&quot;</span><span class="p">,</span>
+                                <span class="p">(</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;DIAG_CD_1&quot;</span><span class="p">]</span>
+                                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                        <span class="n">dct_edvst_cat</span><span class="p">[</span><span class="s2">&quot;acute_acsc_cellulitis&quot;</span><span class="p">]</span>
+                                    <span class="p">)</span>
+                                    <span class="o">&amp;</span> <span class="n">pdf</span><span class="p">[</span>
+                                        <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span>
+                                            <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                                                <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
+                                            <span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;DIAG_CD&quot;</span><span class="p">)</span>
+                                        <span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                                    <span class="p">]</span>
+                                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                                        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                            <span class="n">dct_conditions</span><span class="p">[</span><span class="s2">&quot;diabetes&quot;</span><span class="p">]</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span>
+                                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+                                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                            <span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">df</span>
+
+        <span class="n">lst_conditions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;facial_trauma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;diabetes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;immunocompromised&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cystic_fibrosis&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pneumonia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fever&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;uti&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;spinal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;trauma&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cancer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;uti_with_ut_malformation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cellulitis_with_diabetes&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">agg_conditions_to_patient_level</span><span class="p">(</span><span class="n">pdf_claims</span><span class="p">,</span> <span class="n">lst_conditions</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">pdf_claims</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span><span class="s2">&quot;diag_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;diag_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">lst_conditions</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">df_ip_with_indicators</span> <span class="o">=</span> <span class="n">flag_disease_diagnoses</span><span class="p">(</span>
+            <span class="n">df_ip</span><span class="p">,</span> <span class="n">dct_conditions</span><span class="p">,</span> <span class="n">dct_edvst_cat</span>
+        <span class="p">)</span>
+        <span class="n">fix_index</span><span class="p">(</span><span class="n">df_ip_with_indicators</span><span class="p">,</span> <span class="n">index_name</span><span class="o">=</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
+        <span class="n">df_ip_with_indicators</span> <span class="o">=</span> <span class="n">df_ip_with_indicators</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">agg_conditions_to_patient_level</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">lst_conditions</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">df_ip_with_indicators</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">:</span>
+            <span class="n">df_ip_with_indicators</span> <span class="o">=</span> <span class="n">df_ip_with_indicators</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
+        <span class="n">df_ip_with_indicators</span><span class="p">[</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_ip_with_indicators</span><span class="o">.</span><span class="n">index</span>
+
+        <span class="n">df_ot_with_indicators</span> <span class="o">=</span> <span class="n">flag_disease_diagnoses</span><span class="p">(</span>
+            <span class="n">df_ot</span><span class="p">,</span> <span class="n">dct_conditions</span><span class="p">,</span> <span class="n">dct_edvst_cat</span>
+        <span class="p">)</span>
+        <span class="n">fix_index</span><span class="p">(</span><span class="n">df_ot_with_indicators</span><span class="p">,</span> <span class="n">index_name</span><span class="o">=</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
+        <span class="n">df_ot_with_indicators</span> <span class="o">=</span> <span class="n">df_ot_with_indicators</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">agg_conditions_to_patient_level</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">lst_conditions</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">df_ot_with_indicators</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">:</span>
+            <span class="n">df_ot_with_indicators</span> <span class="o">=</span> <span class="n">df_ot_with_indicators</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
+        <span class="n">df_ot_with_indicators</span><span class="p">[</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_ot_with_indicators</span><span class="o">.</span><span class="n">index</span>
+
+        <span class="n">pdf_ps</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">df_ip_with_indicators</span><span class="p">,</span> <span class="n">df_ot_with_indicators</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">pdf_ps</span> <span class="o">=</span> <span class="n">agg_conditions_to_patient_level</span><span class="p">(</span><span class="n">pdf_ps</span><span class="p">,</span> <span class="n">lst_conditions</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pdf_ps</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">:</span>
+            <span class="n">pdf_ps</span> <span class="o">=</span> <span class="n">pdf_ps</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
+        <span class="n">pdf_ps</span> <span class="o">=</span> <span class="n">pdf_ps</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf_ps</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">]]</span>
+        <span class="n">df_ps</span> <span class="o">=</span> <span class="n">df_ps</span><span class="p">[[</span><span class="s2">&quot;Female&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="s2">&quot;ageday&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">pdf_ps</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df_ps</span> <span class="o">=</span> <span class="n">df_ps</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Female&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="s2">&quot;ageday&quot;</span><span class="p">,</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">fix_index</span><span class="p">(</span><span class="n">df_ps</span><span class="p">,</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_ps</span></div>
+
+<div class="viewcode-block" id="EDPreventionQualityIndicators.flag_potentially_preventable_ed_visits"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.EDPreventionQualityIndicators.flag_potentially_preventable_ed_visits">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">flag_potentially_preventable_ed_visits</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df_ed</span><span class="p">,</span> <span class="n">df_ps</span><span class="p">,</span> <span class="n">months_restricted</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="n">pdf_icd9_diseases</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;icd9_codes.xlsx&quot;</span><span class="p">),</span>
+            <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;disease_diagnoses&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">pdf_icd9_edvsts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;icd9_codes.xlsx&quot;</span><span class="p">),</span>
+            <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;edvst_types&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">dct_conditions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_icd9_diseases</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;condition&quot;</span><span class="p">)[</span><span class="s2">&quot;include_icd9&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]))</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">dct_edvst_cat</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_icd9_edvsts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;condition&quot;</span><span class="p">)[</span><span class="s2">&quot;include_icd9&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]))</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">months_restricted</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">df_ed</span><span class="p">[</span><span class="s2">&quot;valid_month&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">lst_claimtype</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">months_restricted</span><span class="p">:</span>
+            <span class="n">lst_claimtype</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;valid_&quot;</span><span class="p">)</span>
+
+        <span class="n">fix_index</span><span class="p">(</span><span class="n">df_ed</span><span class="p">,</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">mptn_categorise_ed_visits</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">dct_edvst_cat</span><span class="p">,</span> <span class="n">dct_conditions</span><span class="p">):</span>
+
+            <span class="c1">### Adding indicator and cost columns for each of PQI ED covered disease conditions</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;DIAG_CD_1&quot;</span><span class="p">]</span>
+                            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">dct_edvst_cat</span><span class="p">[</span><span class="n">condn</span><span class="p">])</span>
+                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;edcost_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;pymt_amt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;DIAG_CD_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                    <span class="n">dct_edvst_cat</span><span class="p">[</span><span class="n">condn</span><span class="p">]</span>
+                                <span class="p">),</span>
+                                <span class="mi">0</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="c1">### Lower respiratory infection related ED visits: first-listed diagnosis for Lower respiratory infection</span>
+            <span class="c1">### and 2) a second-listed diagnosis of COPD or asthma.</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span>
+                            <span class="p">(</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;DIAG_CD_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                    <span class="n">dct_edvst_cat</span><span class="p">[</span><span class="n">condn</span><span class="p">]</span>
+                                <span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="n">pdf</span><span class="p">[</span>
+                                    <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span>
+                                        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                            <span class="s2">&quot;DIAG_CD&quot;</span>
+                                        <span class="p">)</span>
+                                    <span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                                <span class="p">]</span>
+                                <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                        <span class="nb">tuple</span><span class="p">(</span>
+                                            <span class="nb">list</span><span class="p">(</span>
+                                                <span class="n">dct_edvst_cat</span><span class="p">[</span>
+                                                    <span class="s2">&quot;chronic_acsc_asthma&quot;</span>
+                                                <span class="p">]</span>
+                                            <span class="p">)</span>
+                                            <span class="o">+</span> <span class="nb">list</span><span class="p">(</span>
+                                                <span class="n">dct_edvst_cat</span><span class="p">[</span>
+                                                    <span class="s2">&quot;chronic_acsc_copd&quot;</span>
+                                                <span class="p">]</span>
+                                            <span class="p">)</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span>
+                                <span class="p">)</span>
+                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;chronic_acsc_lresp&quot;</span><span class="p">]</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;edcost_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;pymt_amt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                <span class="p">(</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;DIAG_CD_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                        <span class="n">dct_edvst_cat</span><span class="p">[</span><span class="n">condn</span><span class="p">]</span>
+                                    <span class="p">)</span>
+                                    <span class="o">&amp;</span> <span class="n">pdf</span><span class="p">[</span>
+                                        <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span>
+                                            <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                                                <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
+                                            <span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;DIAG_CD&quot;</span><span class="p">)</span>
+                                        <span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                                    <span class="p">]</span>
+                                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                                        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                            <span class="nb">tuple</span><span class="p">(</span>
+                                                <span class="nb">list</span><span class="p">(</span>
+                                                    <span class="n">dct_edvst_cat</span><span class="p">[</span>
+                                                        <span class="s2">&quot;chronic_acsc_asthma&quot;</span>
+                                                    <span class="p">]</span>
+                                                <span class="p">)</span>
+                                                <span class="o">+</span> <span class="nb">list</span><span class="p">(</span>
+                                                    <span class="n">dct_edvst_cat</span><span class="p">[</span>
+                                                        <span class="s2">&quot;chronic_acsc_copd&quot;</span>
+                                                    <span class="p">]</span>
+                                                <span class="p">)</span>
+                                            <span class="p">)</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span>
+                                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+                                <span class="p">),</span>
+                                <span class="mi">0</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;chronic_acsc_lresp&quot;</span><span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1">### Subsetting claims that meet months restriction</span>
+            <span class="n">pdf_months_restricted</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;valid_month&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1">### Aggregating claims to day level</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;DATE&quot;</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                    <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="p">(</span><span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">))</span>
+                            <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                        <span class="p">]</span>
+                        <span class="o">+</span> <span class="p">[</span>
+                            <span class="p">(</span><span class="s2">&quot;edcost_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;edcost_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">))</span>
+                            <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1">### Aggregating claims to patient level</span>
+            <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_count&quot;</span><span class="p">,</span>
+                            <span class="p">(</span><span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_cost&quot;</span><span class="p">,</span>
+                            <span class="p">(</span><span class="s2">&quot;edcost_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">pdf_months_restricted</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pdf_months_restricted</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;DATE&quot;</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                    <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="p">(</span><span class="s2">&quot;valid_edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">))</span>
+                            <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                        <span class="p">]</span>
+                        <span class="o">+</span> <span class="p">[</span>
+                            <span class="p">(</span>
+                                <span class="s2">&quot;valid_edcost_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span>
+                                <span class="p">(</span><span class="s2">&quot;edcost_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">),</span>
+                            <span class="p">)</span>
+                            <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">pdf_months_restricted</span> <span class="o">=</span> <span class="n">pdf_months_restricted</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="s2">&quot;MSIS_ID&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;valid_edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_count&quot;</span><span class="p">,</span>
+                            <span class="p">(</span><span class="s2">&quot;valid_edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;valid_edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_cost&quot;</span><span class="p">,</span>
+                            <span class="p">(</span><span class="s2">&quot;valid_edcost_&quot;</span> <span class="o">+</span> <span class="n">condn</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="n">pdf_combined</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">pdf_months_restricted</span><span class="p">,</span>
+                <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">pdf_combined</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">:</span>
+                <span class="n">pdf_combined</span> <span class="o">=</span> <span class="n">pdf_combined</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">pdf_combined</span>
+
+        <span class="n">df_ed</span> <span class="o">=</span> <span class="n">df_ed</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">mptn_categorise_ed_visits</span><span class="p">(</span>
+                <span class="n">pdf</span><span class="p">,</span> <span class="n">dct_edvst_cat</span><span class="p">,</span> <span class="n">dct_conditions</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">fix_index</span><span class="p">(</span><span class="n">df_ed</span><span class="p">,</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">,</span> <span class="n">drop_column</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">df_ed</span> <span class="o">=</span> <span class="n">df_ed</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
+        <span class="n">df_ed</span> <span class="o">=</span> <span class="n">df_ps</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">df_ed</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df_ed</span> <span class="o">=</span> <span class="n">df_ed</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;edvst&quot;</span><span class="p">)</span>
+                            <span class="o">|</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;valid_edvst&quot;</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_ed</span> <span class="o">=</span> <span class="n">df_ed</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;pqi_ed_dental_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;edvst_dental_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_facial_trauma&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">claim_type</span><span class="p">,</span> <span class="n">agg_type</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span>
+                            <span class="n">lst_claimtype</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;pqi_ed_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span>
+                                <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">40</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">claim_type</span><span class="p">,</span> <span class="n">agg_type</span><span class="p">,</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span>
+                            <span class="n">lst_claimtype</span><span class="p">,</span>
+                            <span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">],</span>
+                            <span class="p">[</span>
+                                <span class="n">condn_abbr</span>
+                                <span class="k">for</span> <span class="n">condn_abbr</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                <span class="k">if</span> <span class="n">condn_abbr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;chronic_acsc&quot;</span><span class="p">)</span>
+                            <span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;pqi_ed_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span>
+                                <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;ageday&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">90</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">65</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_immunocompromised&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span>
+                                    <span class="o">~</span><span class="p">(</span>
+                                        <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;Female&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                                        <span class="o">&amp;</span> <span class="p">(</span>
+                                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
+                                                <span class="mi">18</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="kc">True</span>
+                                            <span class="p">)</span>
+                                        <span class="p">)</span>
+                                        <span class="o">&amp;</span> <span class="p">(</span>
+                                            <span class="n">pdf</span><span class="p">[</span>
+                                                <span class="s2">&quot;diag_uti_with_ut_malformation&quot;</span>
+                                            <span class="p">]</span>
+                                            <span class="o">==</span> <span class="mi">1</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span>
+                                <span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_cellulitis_with_diabetes&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">claim_type</span><span class="p">,</span> <span class="n">agg_type</span><span class="p">,</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span>
+                            <span class="n">lst_claimtype</span><span class="p">,</span>
+                            <span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">],</span>
+                            <span class="p">[</span>
+                                <span class="n">condn_abbr</span>
+                                <span class="k">for</span> <span class="n">condn_abbr</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                <span class="k">if</span> <span class="n">condn_abbr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;acute_acsc&quot;</span><span class="p">)</span>
+                            <span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;pqi_ed_asthma_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span>
+                                <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_cystic_fibrosis&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_pneumonia&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">claim_type</span><span class="p">,</span> <span class="n">agg_type</span><span class="p">,</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span>
+                            <span class="n">lst_claimtype</span><span class="p">,</span>
+                            <span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">],</span>
+                            <span class="p">[</span><span class="s2">&quot;chronic_acsc_asthma&quot;</span><span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;pqi_ed_back_pain_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span>
+                                <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">18</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_trauma&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_uti&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_fever&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_cancer&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_spinal&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">claim_type</span><span class="p">,</span> <span class="n">agg_type</span><span class="p">,</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span>
+                            <span class="n">lst_claimtype</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;back_pain&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_ed</span> <span class="o">=</span> <span class="n">df_ed</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">claim_type</span>
+                            <span class="o">+</span> <span class="s2">&quot;pqi_ed_&quot;</span>
+                            <span class="o">+</span> <span class="n">condn_cat</span>
+                            <span class="o">+</span> <span class="s2">&quot;_acsc_&quot;</span>
+                            <span class="o">+</span> <span class="n">agg_type</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span>
+                                <span class="p">[</span>
+                                    <span class="n">claim_type</span>
+                                    <span class="o">+</span> <span class="s2">&quot;pqi_ed_&quot;</span>
+                                    <span class="o">+</span> <span class="n">condn</span>
+                                    <span class="o">+</span> <span class="s2">&quot;_&quot;</span>
+                                    <span class="o">+</span> <span class="n">agg_type</span>
+                                    <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_edvst_cat</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                    <span class="k">if</span> <span class="n">condn</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">condn_cat</span> <span class="o">+</span> <span class="s2">&quot;_acsc&quot;</span><span class="p">)</span>
+                                <span class="p">]</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">claim_type</span><span class="p">,</span> <span class="n">agg_type</span><span class="p">,</span> <span class="n">condn_cat</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span>
+                            <span class="n">lst_claimtype</span><span class="p">,</span>
+                            <span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">],</span>
+                            <span class="p">[</span><span class="s2">&quot;chronic&quot;</span><span class="p">,</span> <span class="s2">&quot;acute&quot;</span><span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">fix_index</span><span class="p">(</span><span class="n">df_ed</span><span class="p">,</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">,</span> <span class="n">drop_column</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">df_ed</span> <span class="o">=</span> <span class="n">df_ed</span><span class="p">[</span>
+            <span class="p">[</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;pqi_ed_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span>
+                <span class="k">for</span> <span class="n">claim_type</span><span class="p">,</span> <span class="n">condn</span><span class="p">,</span> <span class="n">agg_type</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span>
+                    <span class="n">lst_claimtype</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="s2">&quot;dental&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;chronic_acsc&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;acute_acsc&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;asthma&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;back_pain&quot;</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">df_ed</span></div></div>
+
+
+<div class="viewcode-block" id="get_ed_pqis"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.get_ed_pqis">[docs]</a><span class="k">def</span> <span class="nf">get_ed_pqis</span><span class="p">(</span><span class="n">df_ip</span><span class="p">,</span> <span class="n">df_ot</span><span class="p">,</span> <span class="n">df_ps</span><span class="p">,</span> <span class="n">df_ed</span><span class="p">,</span> <span class="n">restrict_months</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">df_ps</span> <span class="o">=</span> <span class="n">EDPreventionQualityIndicators</span><span class="o">.</span><span class="n">get_patient_exclusion_indicators</span><span class="p">(</span>
+        <span class="n">df_ip</span><span class="p">,</span> <span class="n">df_ot</span><span class="p">,</span> <span class="n">df_ps</span>
+    <span class="p">)</span>
+    <span class="n">df_ed</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">EDPreventionQualityIndicators</span><span class="o">.</span><span class="n">flag_potentially_preventable_ed_visits</span><span class="p">(</span>
+            <span class="n">df_ed</span><span class="p">,</span> <span class="n">df_ps</span><span class="p">,</span> <span class="n">restrict_months</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_ed</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

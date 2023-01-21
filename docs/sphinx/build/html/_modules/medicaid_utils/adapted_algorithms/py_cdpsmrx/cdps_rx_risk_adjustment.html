@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+
+<div class="viewcode-block" id="CdpsRxRiskAdjustment"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment">[docs]</a><span class="k">class</span> <span class="nc">CdpsRxRiskAdjustment</span><span class="p">:</span>
+    <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CdpsRxRiskAdjustment.add_age_and_gender_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_age_and_gender_cols">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">add_age_and_gender_cols</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds age &amp; gender related covariates used in CDPS Rx Risk Adjustment model. Returns a dataframe with the</span>
+<span class="sd">        below columns:</span>
+
+<span class="sd">        * a_under1 - 0 or 1, age&lt;=1</span>
+<span class="sd">        * a_1_4 - 0 or 1, 1&lt;age&lt;5</span>
+<span class="sd">        * a_5_14m - 0 or 1, 5&lt;=age&lt;15 male</span>
+<span class="sd">        * a_5_14f - 0 or 1, 5&lt;=age&lt;15 female</span>
+<span class="sd">        * a_15_24m - 0 or 1, 15&lt;=age&lt;25 male</span>
+<span class="sd">        * a_15_24f - 0 or 1, 15&lt;=age&lt;25 female</span>
+<span class="sd">        * a_25_44m - 0 or 1, 25&lt;=age&lt;45 male</span>
+<span class="sd">        * a_25_44f - 0 or 1, 25&lt;=age&lt;45 female</span>
+<span class="sd">        * a_45_64m - 0 or 1, 45&lt;=age&lt;65 male</span>
+<span class="sd">        * a_45_64f - 0 or 1, 45&lt;=age&lt;65 female</span>
+<span class="sd">        * a_65 - 0 or 1, 65&lt;=age</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df - dask.DataFrame</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lst_age_and_gender_cols</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;a_under1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a_1_4&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a_5_14m&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a_5_14f&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a_15_24m&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a_15_24f&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a_25_44m&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a_25_44f&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a_45_64m&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a_45_64f&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a_65&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">male</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Female&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Female&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Female&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">a_under1</span><span class="o">=</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_1_4</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_5_14m</span><span class="o">=</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_5_14f</span><span class="o">=</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_15_24m</span><span class="o">=</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">25</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_15_24f</span><span class="o">=</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">25</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_25_44m</span><span class="o">=</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">25</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">45</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_25_44f</span><span class="o">=</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">25</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">45</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_45_64m</span><span class="o">=</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">45</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">65</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_45_64f</span><span class="o">=</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">45</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">65</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_65</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">65</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">lst_age_and_gender_cols</span></div>
+
+<div class="viewcode-block" id="CdpsRxRiskAdjustment.add_cdps_category_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_cdps_category_cols">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">add_cdps_category_cols</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_diag_cd_col_name</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds CDPS category columns</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            PS Dataframe with LST_DIAG_CD column</span>
+<span class="sd">        lst_diag_cd_col_name : str</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load var lists and maps</span>
+        <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;cdps&quot;</span><span class="p">)</span>
+        <span class="n">pdf_var_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;cdps_hierarchical_vars.csv&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">pdf_adult_var_map</span> <span class="o">=</span> <span class="n">pdf_var_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_var_map</span><span class="p">[</span><span class="s2">&quot;adult&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">dct_adult_diag_var</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_adult_var_map</span><span class="p">[[</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">]]</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;val&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">pdf_child_var_map</span> <span class="o">=</span> <span class="n">pdf_var_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_var_map</span><span class="p">[</span><span class="s2">&quot;adult&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">dct_child_diag_var</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_child_var_map</span><span class="p">[[</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">]]</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;val&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">lst_interaction_vars</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">lbl</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;lst_interaction_vars.csv&quot;</span><span class="p">),</span>
+                <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="n">lst_regression_vars</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">lbl</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;lst_regr_var_cdps.csv&quot;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="n">lst_adult_vars</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">lbl</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;lst_cdps_categories_adult.csv&quot;</span><span class="p">),</span>
+                <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="n">lst_child_vars</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">lbl</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;lst_cdps_categories_child.csv&quot;</span><span class="p">),</span>
+                <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="n">lst_non_hierarchical_diags_adult</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_adult_var_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_adult_var_map</span><span class="p">[</span><span class="s2">&quot;level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">lst_non_hierarchical_diags_child</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_child_var_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_child_var_map</span><span class="p">[</span><span class="s2">&quot;level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">pdf_adult_hierarchical_labels</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_adult_var_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_adult_var_map</span><span class="p">[</span><span class="s2">&quot;level&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">][</span>
+                <span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">pdf_child_hierarchical_labels</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_child_var_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_child_var_map</span><span class="p">[</span><span class="s2">&quot;level&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">][</span>
+                <span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">lst_common_hierarchical_labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span><span class="n">pdf_adult_hierarchical_labels</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
+                <span class="nb">set</span><span class="p">(</span><span class="n">pdf_child_hierarchical_labels</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">dct_diag_hierarchies_adult</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_adult_hierarchical_labels</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">dct_diag_hierarchies_child</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_child_hierarchical_labels</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Fix missing levels in child diag hierarchies</span>
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dct_diag_hierarchies_child</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">dct_diag_hierarchies_child</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="o">!=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">dct_diag_hierarchies_child</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">):</span>
+                <span class="n">dct_level</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                            <span class="nb">list</span><span class="p">(</span>
+                                <span class="nb">sorted</span><span class="p">(</span>
+                                    <span class="n">dct_diag_hierarchies_child</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">dct_diag_hierarchies_child</span><span class="p">[</span><span class="n">level</span><span class="p">]</span> <span class="o">=</span> <span class="n">dct_level</span>
+
+        <span class="c1"># Store list of new columns</span>
+        <span class="n">lst_cdps_cat_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="n">lst_adult_vars</span>
+                <span class="o">+</span> <span class="n">lst_child_vars</span>
+                <span class="o">+</span> <span class="n">lst_interaction_vars</span>
+                <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;NONE&quot;</span><span class="p">,</span> <span class="s2">&quot;OTHER&quot;</span><span class="p">,</span> <span class="s2">&quot;NOCDPS&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">NONE</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">lst_diag_cd_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+                <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">lst_diag_cd_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;LST_ADULT_DIAG_CD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">LST_ADULT_DIAG_CD</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;LST_ADULT_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">LST_CHILD_DIAG_CD</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;LST_ADULT_DIAG_CD&quot;</span><span class="p">],</span>
+            <span class="n">LST_ADULT_DIAG_CD</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;LST_ADULT_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DA&quot;</span><span class="p">,</span> <span class="s2">&quot;AA&quot;</span><span class="p">]),</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">lst_diag_cd_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">lst_raw_diag</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span>
+                        <span class="nb">set</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="n">dct_adult_diag_var</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                                    <span class="n">diag_cd</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                                    <span class="s2">&quot;OTHER&quot;</span><span class="p">,</span>
+                                <span class="p">)</span>
+                                <span class="k">for</span> <span class="n">diag_cd</span> <span class="ow">in</span> <span class="n">lst_raw_diag</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                            <span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">LST_CHILD_DIAG_CD</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;LST_CHILD_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="s2">&quot;AC&quot;</span><span class="p">]),</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">lst_diag_cd_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">lst_raw_diag</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span>
+                        <span class="nb">set</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="n">dct_child_diag_var</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                                    <span class="n">diag_cd</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                                    <span class="s2">&quot;OTHER&quot;</span><span class="p">,</span>
+                                <span class="p">)</span>
+                                <span class="k">for</span> <span class="n">diag_cd</span> <span class="ow">in</span> <span class="n">lst_raw_diag</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                            <span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">OTHER</span><span class="o">=</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DA&quot;</span><span class="p">,</span> <span class="s2">&quot;AA&quot;</span><span class="p">])</span>
+                        <span class="o">&amp;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_ADULT_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span>
+                        <span class="p">)</span>
+                        <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;OTHER&quot;</span><span class="p">])</span>
+                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="o">|</span> <span class="p">(</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="s2">&quot;AC&quot;</span><span class="p">])</span>
+                            <span class="o">&amp;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_CHILD_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                            <span class="p">)</span>
+                            <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;OTHER&quot;</span><span class="p">])</span>
+                            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">diag</span><span class="p">,</span>
+                            <span class="p">(</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DA&quot;</span><span class="p">,</span> <span class="s2">&quot;AA&quot;</span><span class="p">])</span>
+                                <span class="o">&amp;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_ADULT_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                    <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                <span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
+                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">lst_non_hierarchical_diags_adult</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">diag</span><span class="p">,</span>
+                            <span class="p">(</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="s2">&quot;AC&quot;</span><span class="p">])</span>
+                                <span class="o">&amp;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_CHILD_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                    <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                <span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
+                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">lst_non_hierarchical_diags_child</span>
+                        <span class="k">if</span> <span class="n">diag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lst_non_hierarchical_diags_adult</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">diag</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="n">diag</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                <span class="o">~</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="s2">&quot;AC&quot;</span><span class="p">]),</span>
+                                <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_CHILD_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                    <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                <span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
+                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">lst_non_hierarchical_diags_child</span>
+                        <span class="k">if</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">lst_non_hierarchical_diags_adult</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">item</span>
+                        <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="p">[</span>
+                                <span class="p">(</span>
+                                    <span class="n">diag</span><span class="p">,</span>
+                                    <span class="p">(</span>
+                                        <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DA&quot;</span><span class="p">,</span> <span class="s2">&quot;AA&quot;</span><span class="p">])</span>
+                                        <span class="o">&amp;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_ADULT_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                            <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                        <span class="p">)</span>
+                                        <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
+                                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                        <span class="o">&amp;</span> <span class="p">(</span>
+                                            <span class="p">(</span><span class="n">level_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                                            <span class="o">|</span> <span class="p">(</span>
+                                                <span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                                    <span class="n">pdf</span><span class="p">[</span>
+                                                        <span class="s2">&quot;LST_ADULT_DIAG_CD&quot;</span>
+                                                    <span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                                    <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                                <span class="p">)</span>
+                                                <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                                                    <span class="p">[</span>
+                                                        <span class="n">diag</span>
+                                                        <span class="k">for</span> <span class="n">level_order</span><span class="p">,</span> <span class="n">diag</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                                                            <span class="n">dct_level</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                                        <span class="p">)[</span>
+                                                            <span class="p">:</span> <span class="n">level_order</span> <span class="o">-</span> <span class="mi">1</span>
+                                                        <span class="p">]</span>
+                                                    <span class="p">]</span>
+                                                <span class="p">)</span>
+                                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                            <span class="p">)</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                                <span class="p">)</span>
+                                <span class="k">for</span> <span class="n">level_order</span><span class="p">,</span> <span class="n">diag</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                                    <span class="n">dct_level</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                <span class="p">)</span>
+                            <span class="p">]</span>
+                            <span class="k">for</span> <span class="n">level</span><span class="p">,</span> <span class="n">dct_level</span> <span class="ow">in</span> <span class="n">dct_diag_hierarchies_adult</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                        <span class="p">]</span>
+                        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">item</span>
+                        <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="p">[</span>
+                                <span class="p">(</span>
+                                    <span class="n">diag</span><span class="p">,</span>
+                                    <span class="p">(</span>
+                                        <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="s2">&quot;AC&quot;</span><span class="p">])</span>
+                                        <span class="o">&amp;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_CHILD_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                            <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                        <span class="p">)</span>
+                                        <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
+                                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                        <span class="o">&amp;</span> <span class="p">(</span>
+                                            <span class="p">(</span><span class="n">level_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                                            <span class="o">|</span> <span class="p">(</span>
+                                                <span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                                    <span class="n">pdf</span><span class="p">[</span>
+                                                        <span class="s2">&quot;LST_CHILD_DIAG_CD&quot;</span>
+                                                    <span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                                    <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                                <span class="p">)</span>
+                                                <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                                                    <span class="p">[</span>
+                                                        <span class="n">diag</span>
+                                                        <span class="k">for</span> <span class="n">level_order</span><span class="p">,</span> <span class="n">diag</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                                                            <span class="n">dct_level</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                                        <span class="p">)[</span>
+                                                            <span class="p">:</span> <span class="n">level_order</span> <span class="o">-</span> <span class="mi">1</span>
+                                                        <span class="p">]</span>
+                                                    <span class="p">]</span>
+                                                <span class="p">)</span>
+                                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                            <span class="p">)</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                                <span class="p">)</span>
+                                <span class="k">for</span> <span class="n">level_order</span><span class="p">,</span> <span class="n">diag</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                                    <span class="n">dct_level</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                <span class="p">)</span>
+                                <span class="k">if</span> <span class="n">diag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lst_common_hierarchical_labels</span>
+                            <span class="p">]</span>
+                            <span class="o">+</span> <span class="p">[</span>
+                                <span class="p">(</span>
+                                    <span class="n">diag</span><span class="p">,</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="n">diag</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                        <span class="o">~</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="s2">&quot;AC&quot;</span><span class="p">]),</span>
+                                        <span class="p">(</span>
+                                            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                                <span class="n">pdf</span><span class="p">[</span>
+                                                    <span class="s2">&quot;LST_CHILD_DIAG_CD&quot;</span>
+                                                <span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                                <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                            <span class="p">)</span>
+                                            <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
+                                            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                            <span class="o">&amp;</span> <span class="p">(</span>
+                                                <span class="p">(</span><span class="n">level_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                                                <span class="o">|</span> <span class="p">(</span>
+                                                    <span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                                        <span class="n">pdf</span><span class="p">[</span>
+                                                            <span class="s2">&quot;LST_CHILD_DIAG_CD&quot;</span>
+                                                        <span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                                        <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                                    <span class="p">)</span>
+                                                    <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                                                        <span class="p">[</span>
+                                                            <span class="n">diag</span>
+                                                            <span class="k">for</span> <span class="n">level_order</span><span class="p">,</span> <span class="n">diag</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                                                                <span class="n">dct_level</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                                            <span class="p">)[</span>
+                                                                <span class="p">:</span> <span class="n">level_order</span>
+                                                                <span class="o">-</span> <span class="mi">1</span>
+                                                            <span class="p">]</span>
+                                                        <span class="p">]</span>
+                                                    <span class="p">)</span>
+                                                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                                <span class="p">)</span>
+                                            <span class="p">)</span>
+                                        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                                    <span class="p">),</span>
+                                <span class="p">)</span>
+                                <span class="k">for</span> <span class="n">level_order</span><span class="p">,</span> <span class="n">diag</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                                    <span class="n">dct_level</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                <span class="p">)</span>
+                                <span class="k">if</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">lst_common_hierarchical_labels</span>
+                            <span class="p">]</span>
+                            <span class="k">for</span> <span class="n">level</span><span class="p">,</span> <span class="n">dct_level</span> <span class="ow">in</span> <span class="n">dct_diag_hierarchies_child</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                        <span class="p">]</span>
+                        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">diag</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="s2">&quot;AC&quot;</span><span class="p">]),</span> <span class="mi">0</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;CANB&quot;</span><span class="p">,</span> <span class="s2">&quot;DIA1H&quot;</span><span class="p">,</span> <span class="s2">&quot;DIA1M&quot;</span><span class="p">,</span> <span class="s2">&quot;DIA2M&quot;</span><span class="p">,</span> <span class="s2">&quot;EYEL&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">PULH</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;PULH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;AA&quot;</span><span class="p">,</span> <span class="s2">&quot;AC&quot;</span><span class="p">,</span> <span class="s2">&quot;AG&quot;</span><span class="p">]),</span>
+                <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;PULH&quot;</span><span class="p">,</span> <span class="s2">&quot;PULVH&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">PULVH</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;PULVH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;AA&quot;</span><span class="p">,</span> <span class="s2">&quot;AC&quot;</span><span class="p">,</span> <span class="s2">&quot;AG&quot;</span><span class="p">]),</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">DDL</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;DDL&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;AA&quot;</span><span class="p">,</span> <span class="s2">&quot;AG&quot;</span><span class="p">]),</span> <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;DDL&quot;</span><span class="p">,</span> <span class="s2">&quot;DDM&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">DDM</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;DDM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;AA&quot;</span><span class="p">,</span> <span class="s2">&quot;AG&quot;</span><span class="p">]),</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">NOCDPS</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">lst_regression_vars</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">idiag</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">diag</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DC&quot;</span><span class="p">]),</span> <span class="mi">0</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">idiag</span><span class="p">,</span> <span class="n">diag</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                        <span class="n">lst_interaction_vars</span><span class="p">,</span>
+                        <span class="p">[</span><span class="n">diag</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">lst_interaction_vars</span><span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span>
+                        <span class="n">diag</span><span class="p">,</span>
+                        <span class="n">df</span><span class="p">[</span><span class="n">diag</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="s2">&quot;DA&quot;</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">lst_interaction_vars</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="n">col</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+                    <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;LST_ADULT_DIAG_CD&quot;</span><span class="p">,</span> <span class="s2">&quot;LST_CHILD_DIAG_CD&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="p">],</span>
+            <span class="n">lst_cdps_cat_cols</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="CdpsRxRiskAdjustment.add_mrx_cat_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_mrx_cat_cols">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">add_mrx_cat_cols</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_ndc_col_name</span><span class="o">=</span><span class="s2">&quot;LST_NDC&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds MRX category columns</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">        lst_ndc_col_name : str, default=&#39;LST_NDC&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Load var lists and maps</span>
+        <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;mrx&quot;</span><span class="p">)</span>
+        <span class="n">pdf_ndc_mrx_cat_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;ndc_mrx_cat_map.csv&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span>
+        <span class="p">)</span>
+        <span class="n">dct_ndc_mrx_cat</span> <span class="o">=</span> <span class="n">pdf_ndc_mrx_cat_map</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;NDC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span>
+            <span class="s2">&quot;MRX_CAT&quot;</span>
+        <span class="p">]</span>
+        <span class="n">pdf_mrx_cat_hierarchies</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;mrx_cat_hierarchies.csv&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span>
+        <span class="p">)</span>
+        <span class="n">pdf_mrx_cat_hierarchies</span><span class="p">[</span>
+            <span class="p">[</span><span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">]</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">pdf_mrx_cat_hierarchies</span><span class="p">[[</span><span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">lst_non_hierarchical_mrx_cat</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_mrx_cat_hierarchies</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_mrx_cat_hierarchies</span><span class="p">[</span><span class="s2">&quot;level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span>
+                <span class="s2">&quot;mrx_cat&quot;</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">pdf_hierarchical_mrx_cats</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_mrx_cat_hierarchies</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_mrx_cat_hierarchies</span><span class="p">[</span><span class="s2">&quot;level&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">][</span>
+                <span class="p">[</span><span class="s2">&quot;mrx_cat&quot;</span><span class="p">,</span> <span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">dct_mrx_hierarchies</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_hierarchical_mrx_cats</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;level_order&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">name</span><span class="p">)[</span><span class="s2">&quot;mrx_cat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="c1"># Store list of columns in output file</span>
+        <span class="n">lst_mrx_cat_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="n">pdf_mrx_cat_hierarchies</span><span class="p">[</span><span class="s2">&quot;mrx_cat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;NONE&quot;</span><span class="p">,</span> <span class="s2">&quot;OTHER&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">NONE</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">lst_ndc_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+                <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">lst_ndc_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">LST_NDC_MRX</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">lst_ndc_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">lst_ndc</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="nb">set</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">dct_ndc_mrx_cat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                                <span class="n">ndc_cd</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                                <span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">11</span><span class="p">),</span>
+                                <span class="s2">&quot;OTHER&quot;</span><span class="p">,</span>
+                            <span class="p">)</span>
+                            <span class="k">for</span> <span class="n">ndc_cd</span> <span class="ow">in</span> <span class="n">lst_ndc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">OTHER</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_NDC_MRX&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;OTHER&quot;</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">mrx</span><span class="p">,</span>
+                            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_NDC_MRX&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span>
+                            <span class="p">)</span>
+                            <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">mrx</span><span class="p">])</span>
+                            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">mrx</span> <span class="ow">in</span> <span class="n">lst_non_hierarchical_mrx_cat</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">item</span>
+                        <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="p">[</span>
+                                <span class="p">(</span>
+                                    <span class="n">mrx</span><span class="p">,</span>
+                                    <span class="p">(</span>
+                                        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_NDC_MRX&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                            <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                        <span class="p">)</span>
+                                        <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">mrx</span><span class="p">])</span>
+                                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                        <span class="o">&amp;</span> <span class="p">(</span>
+                                            <span class="p">(</span><span class="n">level_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                                            <span class="o">|</span> <span class="p">(</span>
+                                                <span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                                                    <span class="n">pdf</span><span class="p">[</span>
+                                                        <span class="s2">&quot;LST_NDC_MRX&quot;</span>
+                                                    <span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                                    <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                                <span class="p">)</span>
+                                                <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                                                    <span class="p">[</span>
+                                                        <span class="n">mrx</span>
+                                                        <span class="k">for</span> <span class="n">level_order</span><span class="p">,</span> <span class="n">mrx</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                                                            <span class="n">dct_level</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                                        <span class="p">)[</span>
+                                                            <span class="p">:</span> <span class="n">level_order</span> <span class="o">-</span> <span class="mi">1</span>
+                                                        <span class="p">]</span>
+                                                    <span class="p">]</span>
+                                                <span class="p">)</span>
+                                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                            <span class="p">)</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                                <span class="p">)</span>
+                                <span class="k">for</span> <span class="n">level_order</span><span class="p">,</span> <span class="n">mrx</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
+                                    <span class="n">dct_level</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                <span class="p">)</span>
+                            <span class="p">]</span>
+                            <span class="k">for</span> <span class="n">level</span><span class="p">,</span> <span class="n">dct_level</span> <span class="ow">in</span> <span class="n">dct_mrx_hierarchies</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                        <span class="p">]</span>
+                        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;LST_NDC_MRX&quot;</span><span class="p">]]],</span>
+            <span class="n">lst_mrx_cat_cols</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">combine_cdps_mrx_hierarchies</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply CDPS MRX hierarchical rollups</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX1</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;CARVH&quot;</span><span class="p">,</span> <span class="s2">&quot;CARM&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">CARL</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CARL&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX1&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">CAREL</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CAREL&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX1&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX2</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX1&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;CARVH&quot;</span><span class="p">,</span> <span class="s2">&quot;CARM&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;CARL&quot;</span><span class="p">,</span> <span class="s2">&quot;CAREL&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX3</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;PSYH&quot;</span><span class="p">,</span> <span class="s2">&quot;PSYM&quot;</span><span class="p">,</span> <span class="s2">&quot;PSYML&quot;</span><span class="p">,</span> <span class="s2">&quot;PSYL&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+                    <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX4</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX4&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;DIA1H&quot;</span><span class="p">,</span> <span class="s2">&quot;DIA1M&quot;</span><span class="p">,</span> <span class="s2">&quot;DIA2M&quot;</span><span class="p">,</span> <span class="s2">&quot;DIA2L&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span>
+                    <span class="p">)</span>
+                    <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX5</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX5&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;RENEH&quot;</span><span class="p">,</span> <span class="s2">&quot;RENVH&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">RENM</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;RENM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX5&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">RENL</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;RENL&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX5&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">MRX6</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX6&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;HEMEH&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">HEMVH</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;HEMVH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX6&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">HEMM</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;HEMM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX6&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">HEML</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;HEML&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX6&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX9</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX9&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;AIDSH&quot;</span><span class="p">,</span> <span class="s2">&quot;INFH&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">HIVM</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;HIVM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX9&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX7</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX7&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;AIDSH&quot;</span><span class="p">,</span> <span class="s2">&quot;INFH&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;HIVM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX8</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX8&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;AIDSH&quot;</span><span class="p">,</span> <span class="s2">&quot;INFH&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;HIVM&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">INFM</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;INFM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;MRX7&quot;</span><span class="p">,</span> <span class="s2">&quot;MRX8&quot;</span><span class="p">,</span> <span class="s2">&quot;MRX9&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">INFL</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;INFL&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;MRX7&quot;</span><span class="p">,</span> <span class="s2">&quot;MRX8&quot;</span><span class="p">,</span> <span class="s2">&quot;MRX9&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX10</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX10&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;SKCM&quot;</span><span class="p">,</span> <span class="s2">&quot;SKCL&quot;</span><span class="p">,</span> <span class="s2">&quot;SKCVL&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX11</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX11&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;CANVH&quot;</span><span class="p">,</span> <span class="s2">&quot;CANH&quot;</span><span class="p">,</span> <span class="s2">&quot;CANM&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">CANL</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CANL&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX11&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX12</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX12&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;CNSH&quot;</span><span class="p">,</span> <span class="s2">&quot;CNSM&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">CNSL</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CNSL&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX12&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX14</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX14&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;CNSH&quot;</span><span class="p">,</span> <span class="s2">&quot;CNSM&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX12&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CNSL&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX13</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX13&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;CNSH&quot;</span><span class="p">,</span> <span class="s2">&quot;CNSM&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX12&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CNSL&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX14&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">MRX15</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX15&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;PULVH&quot;</span><span class="p">,</span> <span class="s2">&quot;PULH&quot;</span><span class="p">,</span> <span class="s2">&quot;PULM&quot;</span><span class="p">,</span> <span class="s2">&quot;PULL&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+                    <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">CCARM</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CCARM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX1&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DC&quot;</span><span class="p">)),</span> <span class="mi">1</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">CHEMEH</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CHEMEH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX6&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DC&quot;</span><span class="p">)),</span> <span class="mi">1</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">CHIVM</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CHIVM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX9&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DC&quot;</span><span class="p">)),</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">CINFM</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CINFM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;MRX9&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DC&quot;</span><span class="p">)),</span> <span class="mi">0</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">CHIVM</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CHIVM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;MRX7&quot;</span><span class="p">,</span> <span class="s2">&quot;MRX8&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DC&quot;</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">CINFM</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;CINFM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;MRX7&quot;</span><span class="p">,</span> <span class="s2">&quot;MRX8&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DC&quot;</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="mi">0</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="CdpsRxRiskAdjustment.calculate_risk"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.calculate_risk">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">calculate_risk</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_cov</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">score_col_name</span><span class="o">=</span><span class="s2">&quot;risk&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates CDPS risk adjustment score. The returned dataframe has the following new columns:</span>
+
+<span class="sd">            * risk - CDPS risk score, dtype: float64</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">        lst_cov : list of str</span>
+<span class="sd">            List of covariates that CDPS MRX model uses</span>
+<span class="sd">        score_col_name : str, default=&#39;risk&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dct_weights</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;cdps_mrx_con_weighting.xlsx&quot;</span><span class="p">),</span>
+                <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;CDPSMRX2&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">&quot;records&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">score_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">np_aa_coef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">dct_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;AA_&quot;</span> <span class="o">+</span> <span class="n">col</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_cov</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">np_ac_coef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">dct_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;AC_&quot;</span> <span class="o">+</span> <span class="n">col</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_cov</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">np_dadc_coef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">dct_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DADC_&quot;</span> <span class="o">+</span> <span class="n">col</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_cov</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span>
+                        <span class="n">score_col_name</span><span class="p">,</span>
+                        <span class="n">df</span><span class="p">[</span><span class="n">score_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                            <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;AA&quot;</span><span class="p">),</span>
+                            <span class="n">dct_weights</span><span class="p">[</span><span class="s2">&quot;AA_Intercept&quot;</span><span class="p">]</span>
+                            <span class="o">+</span> <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_cov</span><span class="p">]]</span> <span class="o">*</span> <span class="n">np_aa_coef</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+                            <span class="p">),</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span>
+                        <span class="n">score_col_name</span><span class="p">,</span>
+                        <span class="n">df</span><span class="p">[</span><span class="n">score_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                            <span class="o">~</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;AC&quot;</span><span class="p">),</span>
+                            <span class="n">dct_weights</span><span class="p">[</span><span class="s2">&quot;AC_Intercept&quot;</span><span class="p">]</span>
+                            <span class="o">+</span> <span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_cov</span><span class="p">]]</span> <span class="o">*</span> <span class="n">np_ac_coef</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+                            <span class="p">),</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span>
+                        <span class="n">score_col_name</span><span class="p">,</span>
+                        <span class="n">df</span><span class="p">[</span><span class="n">score_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                            <span class="o">~</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DC&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DA&quot;</span><span class="p">)),</span>
+                            <span class="n">dct_weights</span><span class="p">[</span><span class="s2">&quot;DADC_Intercept&quot;</span><span class="p">]</span>
+                            <span class="o">+</span> <span class="p">(</span>
+                                <span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_cov</span><span class="p">]]</span> <span class="o">*</span> <span class="n">np_dadc_coef</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lst_cov</span><span class="p">]]</span></div></div>
+
+
+<div class="viewcode-block" id="cdps_rx_risk_adjust"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.cdps_rx_risk_adjust">[docs]</a><span class="k">def</span> <span class="nf">cdps_rx_risk_adjust</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">lst_diag_col_name</span><span class="o">=</span><span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">,</span>
+    <span class="n">lst_ndc_col_name</span><span class="o">=</span><span class="s2">&quot;LST_NDC&quot;</span><span class="p">,</span>
+    <span class="n">score_col_name</span><span class="o">=</span><span class="s2">&quot;risk&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate CDPS MRX risk adjustment score. This function expects the input dataframe to be aggregated to patient</span>
+<span class="sd">    level, with columns containing comma separated lists of diagnosis codes &amp; NDC codes during the observed time period.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : dask.DataFrame</span>
+<span class="sd">        BENE level Dataframe with diagnosis code &amp; ndc_code list columns</span>
+<span class="sd">    lst_diag_col_name : str, default=&#39;LST_DIAG_CD&#39;</span>
+<span class="sd">        Name of diagnosis code list column.</span>
+<span class="sd">    lst_ndc_col_name : str, default=&#39;LST_NDC&#39;</span>
+<span class="sd">        Name of NDC code list column</span>
+<span class="sd">    score_col_name : str, default=&#39;risk&#39;</span>
+<span class="sd">        CDPS MRX score output column name</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dask.DataFrame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">lst_age_and_gender_cols</span> <span class="o">=</span> <span class="n">CdpsRxRiskAdjustment</span><span class="o">.</span><span class="n">add_age_and_gender_cols</span><span class="p">(</span>
+        <span class="n">df</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">lst_cdps_category_cols</span> <span class="o">=</span> <span class="n">CdpsRxRiskAdjustment</span><span class="o">.</span><span class="n">add_cdps_category_cols</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">lst_diag_col_name</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">lst_mrx_category_cols</span> <span class="o">=</span> <span class="n">CdpsRxRiskAdjustment</span><span class="o">.</span><span class="n">add_mrx_cat_cols</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">lst_ndc_col_name</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">CdpsRxRiskAdjustment</span><span class="o">.</span><span class="n">combine_cdps_mrx_hierarchies</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">lst_cov</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">lst_age_and_gender_cols</span>
+        <span class="o">+</span> <span class="n">lst_cdps_category_cols</span>
+        <span class="o">+</span> <span class="n">lst_mrx_category_cols</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">CdpsRxRiskAdjustment</span><span class="o">.</span><span class="n">calculate_risk</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">lst_cov</span><span class="p">,</span> <span class="n">score_col_name</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

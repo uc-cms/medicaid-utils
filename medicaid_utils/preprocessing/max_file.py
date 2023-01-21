@@ -56,6 +56,7 @@ class MAXFile:
             Raised when raw claim files are missing
 
         """
+        self.data_root = data_root
         self.fileloc = links.get_max_parquet_loc(data_root, ftype, state, year)
         self.ftype = ftype
         self.index_col = index_col
@@ -82,6 +83,29 @@ class MAXFile:
         if preprocess:
             self.preprocess()
 
+    @classmethod
+    def get_claim_instance(
+        cls, claim_type, *args, **kwargs
+    ):  # pylint: disable=missing-param-doc
+        """
+        Returns an instance of the requested claim type
+
+        Parameters
+        ----------
+        claim_type : {'ip', 'ot', 'cc', 'rx'}
+            Claim type
+        *args : list
+            List of position arguments
+        **kwargs : dict
+            Dictionary of keyword arguments
+
+        """
+        return next(
+            claim
+            for claim in cls.__subclasses__()
+            if claim.__name__ == f"MAX{claim_type.upper()}"
+        )(*args, **kwargs)
+
     def cache_results(
         self, repartition=False
     ):  # pylint: disable=missing-param-doc
@@ -100,8 +124,7 @@ class MAXFile:
                     partition_size="20MB"
                 ).persist()  # Patch, currently to_parquet results
                 # in error when any of the partitions is empty
-            return self.pq_export(self.tmp_folder)
-        return self.df
+            self.pq_export(self.tmp_folder)
 
     def pq_export(self, dest_path_and_fname):
         """
@@ -114,6 +137,7 @@ class MAXFile:
 
         """
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
+        os.makedirs(os.path.dirname(dest_path_and_fname), exist_ok=True)
         try:
             self.df.to_parquet(
                 dest_path_and_fname + "_tmp",
@@ -127,11 +151,11 @@ class MAXFile:
                 .difference([self.pq_engine])
                 .pop(),
                 write_index=True,
-                **(
-                    {"schema": "infer"}
-                    if (self.pq_engine == "pyarrow")
-                    else {}
-                ),
+                # **(
+                #     {"schema": "infer"}
+                #     if (self.pq_engine == "pyarrow")
+                #     else {}
+                # ),
             )
         del self.df
         shutil.rmtree(dest_path_and_fname, ignore_errors=True)
@@ -173,10 +197,12 @@ class MAXFile:
                 index=True,
                 single_file=True,
             )
+        else:
+            self.pq_export(self.fileloc.split(self.data_root + os.path.sep)[1])
 
     def add_gender(self) -> None:
         """Adds integer 'female' column based on 'EL_SEX_CD' column. Undefined values ('U') in EL_SEX_CD column will
-        result in female column taking the value np.nan"""
+        result in female column taking the value -1"""
         if "EL_SEX_CD" in self.df.columns:
             self.df = self.df.map_partitions(
                 lambda pdf: pdf.assign(
@@ -186,11 +212,10 @@ class MAXFile:
                             pdf["EL_SEX_CD"].str.strip() == "M",
                         ],
                         [1, 0],
-                        default=np.nan,
-                    )
+                        default=-1,
+                    ).astype(int)
                 )
             )
-            self.df = self.df.assign(female=self.df["female"].astype("Int64"))
 
     def clean_diag_codes(self):
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
@@ -360,8 +385,8 @@ class MAXFile:
                 .astype(pd.Int64Dtype()),
             )
             df = df.assign(
-                adult=df["adult"].where(~(df["age"].isna()), np.nan),
-                child=df["child"].where(~(df["age"].isna()), np.nan),
+                adult=df["adult"].where(~(df["age"].isna()), -1).astype(int),
+                child=df["child"].where(~(df["age"].isna()), -1).astype(int),
             )
             if self.ftype != "ps":
                 df = df.map_partitions(

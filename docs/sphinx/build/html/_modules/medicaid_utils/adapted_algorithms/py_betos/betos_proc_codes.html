@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;Python module to apply Berenson-Eggors Type of Service (BETOS) categorization for claims&quot;&quot;&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Manoradhan Murugesan&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;manorathan@uchicago.edu&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+
+<div class="viewcode-block" id="BetosProcCodes"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_betos.html#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes">[docs]</a><span class="k">class</span> <span class="nc">BetosProcCodes</span><span class="p">:</span>
+    <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BetosProcCodes.get_betos_cpt_crosswalk"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_betos.html#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.get_betos_cpt_crosswalk">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_betos_cpt_crosswalk</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get CPT x Betos code crosswalk, with betos code and betos category information.</span>
+<span class="sd">        The returned CPT x Betos code crosswalk dataframe  has the below columns:</span>
+
+<span class="sd">        * cpt_code - HCPCS codes A0010-V9999 AMA/CPT-4 codes 00100-99999</span>
+<span class="sd">        * betos_code - BETOS codes D1A-Z2</span>
+<span class="sd">        * betos_code_name - BETOS code description</span>
+<span class="sd">        * betos_cat - BETOS category abbrevation, with the below 7 values:</span>
+<span class="sd">                * EVALUATION AND MANAGEMENT - betos_eval</span>
+<span class="sd">                * PROCEDURES - betos_proc</span>
+<span class="sd">                * IMAGING	- betos_img</span>
+<span class="sd">                * TESTS -	betos_test</span>
+<span class="sd">                * DURABLE MEDICAL EQUIPMENT - betos_dme</span>
+<span class="sd">                * OTHER - betos_oth</span>
+<span class="sd">                * EXCEPTIONS/UNCLASSIFIED - betos_uncla</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        year : type</span>
+<span class="sd">                   Public use file year</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pdf_crosswalk</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;betpuf</span><span class="si">{0}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">year</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
+            <span class="p">),</span>
+            <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tmp&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">year</span> <span class="o">!=</span> <span class="mi">2020</span><span class="p">:</span>
+            <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;cpt_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;tmp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;betos_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;tmp&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;termination_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;tmp&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">combine_first</span><span class="p">(</span>
+                    <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;tmp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+                <span class="p">),</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">pdf_crosswalk</span> <span class="o">=</span> <span class="n">pdf_crosswalk</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;betos_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+            <span class="p">][[</span><span class="s2">&quot;cpt_code&quot;</span><span class="p">,</span> <span class="s2">&quot;betos_code&quot;</span><span class="p">]]</span>
+            <span class="n">pdf_code_lookup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;r-me-bet</span><span class="si">{0}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">year</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
+                <span class="p">),</span>
+                <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;=&quot;</span><span class="p">,</span>
+                <span class="n">error_bad_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">skiprows</span><span class="o">=</span><span class="mi">54</span><span class="p">,</span>
+                <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;betos_code&quot;</span><span class="p">,</span> <span class="s2">&quot;betos_code_name&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">pdf_code_lookup</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">pdf_code_lookup</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">pdf_code_lookup</span><span class="p">[</span><span class="s2">&quot;betos_code_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">pdf_code_lookup</span> <span class="o">=</span> <span class="n">pdf_code_lookup</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="n">pdf_code_lookup</span> <span class="o">=</span> <span class="n">pdf_code_lookup</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+            <span class="n">pdf_cat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;betos_cat.csv&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">dct_betos_cat</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">pdf_cat</span><span class="p">[</span>
+                    <span class="p">[</span><span class="s2">&quot;betos_code_start&quot;</span><span class="p">,</span> <span class="s2">&quot;betos_code_abbr&quot;</span><span class="p">]</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;betos_cat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;betos_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">dct_betos_cat</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="p">)</span>
+            <span class="n">pdf_crosswalk</span> <span class="o">=</span> <span class="n">pdf_crosswalk</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">pdf_code_lookup</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;betos_code&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pdf_crosswalk</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;betpuf</span><span class="si">{0}</span><span class="s2">.txt&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">year</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
+                <span class="p">),</span>
+                <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cpt_code&quot;</span><span class="p">,</span> <span class="s2">&quot;betos_code&quot;</span><span class="p">,</span> <span class="s2">&quot;betos_code_name&quot;</span><span class="p">],</span>
+                <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">pdf_crosswalk</span> <span class="o">=</span> <span class="n">pdf_crosswalk</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;betos_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+            <span class="p">]</span>
+            <span class="n">pdf_cat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;betos2_cat.csv&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">pdf_cat_lvl2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;betos2_cat_lvl2.csv&quot;</span><span class="p">),</span>
+                <span class="n">na_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">pdf_fam</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;betfam20.txt&quot;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span>
+            <span class="p">)</span>
+            <span class="n">pdf_fam</span><span class="p">[</span><span class="s2">&quot;betos_fam_abbr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;betos_fam_&quot;</span> <span class="o">+</span> <span class="n">pdf_fam</span><span class="p">[</span><span class="s2">&quot;family&quot;</span><span class="p">]</span>
+            <span class="n">dct_betos_cat</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">pdf_cat</span><span class="p">[</span>
+                    <span class="p">[</span><span class="s2">&quot;betos_code_start&quot;</span><span class="p">,</span> <span class="s2">&quot;betos_code_abbr&quot;</span><span class="p">]</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">dct_betos_cat_lvl2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">pdf_cat_lvl2</span><span class="p">[</span>
+                    <span class="p">[</span><span class="s2">&quot;betos_code_start&quot;</span><span class="p">,</span> <span class="s2">&quot;betos_code_abbr&quot;</span><span class="p">]</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">dct_betos_fam</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">pdf_fam</span><span class="p">[[</span><span class="s2">&quot;family&quot;</span><span class="p">,</span> <span class="s2">&quot;betos_fam_abbr&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;betos_cat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;betos_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">dct_betos_cat</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="p">)</span>
+            <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;betos_cat_lvl2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf_crosswalk</span><span class="p">[</span>
+                <span class="s2">&quot;betos_code&quot;</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">dct_betos_cat_lvl2</span><span class="p">[</span><span class="n">x</span><span class="p">[:</span><span class="mi">2</span><span class="p">]])</span>
+            <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;betos_fam&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf_crosswalk</span><span class="p">[</span><span class="s2">&quot;betos_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">dct_betos_fam</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]]</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pdf_crosswalk</span></div>
+
+<div class="viewcode-block" id="BetosProcCodes.get_betos_cat"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_betos.html#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.get_betos_cat">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_betos_cat</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">pdf_crosswalk</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">claim_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medicaid&quot;</span><span class="p">,</span>
+        <span class="n">proc_code_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PRCDR_CD&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get claimwise Betos codes &amp; categories related to CPT procedure codes in claim</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">                Claim dask dataframe</span>
+<span class="sd">        pdf_crosswalk : pandas.DataFrame</span>
+<span class="sd">                CPT x Betos code crosswalk, with betos code and betos category information</span>
+<span class="sd">        claim_type : {&#39;medicaid&#39;, &#39;medicare&#39;}</span>
+<span class="sd">                Medicaid or Medicare claim type</span>
+<span class="sd">        proc_code_prefix : str, default=&#39;PRCDR_CD&#39;</span>
+<span class="sd">                Column name prefix for procedure code columns</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dct_code_lookup</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_crosswalk</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;betos_code&quot;</span><span class="p">])[</span><span class="s2">&quot;cpt_code&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">dct_cat_lookup</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pdf_crosswalk</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;betos_cat&quot;</span><span class="p">])[</span><span class="s2">&quot;cpt_code&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">lst_col_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">claim_type</span> <span class="o">==</span> <span class="s2">&quot;medicaid&quot;</span><span class="p">:</span>
+            <span class="n">proc_code_col_prefix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">proc_code_prefix</span><span class="p">)</span>
+            <span class="c1"># Filtering procedure codes with sys code = 1 (CPT) &amp; 6 (HCPCS)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="p">(</span>
+                                <span class="s2">&quot;VALID_&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_SYS&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)),</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_SYS&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)]</span>
+                                <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                    <span class="p">(</span>
+                                        <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                                            <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                                        <span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+                                    <span class="p">),</span>
+                                    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                                <span class="p">)</span>
+                                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                            <span class="p">)</span>
+                            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
+                            <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">proc_code_col_prefix</span> <span class="o">+</span> <span class="s2">&quot;_SYS&quot;</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">lst_col_to_delete</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;VALID_&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_SYS&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+                    <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">proc_code_col_prefix</span> <span class="o">+</span> <span class="s2">&quot;_SYS&quot;</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">proc_code_prefix</span> <span class="o">=</span> <span class="s2">&quot;VALID_&quot;</span> <span class="o">+</span> <span class="n">proc_code_prefix</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;lst_betos_code&quot;</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span>
+                                <span class="p">[</span>
+                                    <span class="n">col</span>
+                                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
+                                    <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">proc_code_prefix</span><span class="p">)</span>
+                                <span class="p">]</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                    <span class="nb">list</span><span class="p">(</span>
+                                        <span class="nb">set</span><span class="p">(</span>
+                                            <span class="p">[</span>
+                                                <span class="n">betos_code</span>
+                                                <span class="k">for</span> <span class="n">betos_code</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span>
+                                                    <span class="n">dct_code_lookup</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                                <span class="p">)</span>
+                                                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                                                    <span class="n">cpt_code</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                                        <span class="n">dct_code_lookup</span><span class="p">[</span>
+                                                            <span class="n">betos_code</span>
+                                                        <span class="p">]</span>
+                                                    <span class="p">)</span>
+                                                    <span class="k">for</span> <span class="n">cpt_code</span> <span class="ow">in</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                                        <span class="n">x</span>
+                                                    <span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                                                <span class="p">)</span>
+                                            <span class="p">]</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span>
+                                <span class="p">),</span>
+                                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">),</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;lst_betos_cat&quot;</span><span class="p">,</span>
+                            <span class="n">pdf</span><span class="p">[</span>
+                                <span class="p">[</span>
+                                    <span class="n">col</span>
+                                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
+                                    <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">proc_code_prefix</span><span class="p">)</span>
+                                <span class="p">]</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                    <span class="nb">list</span><span class="p">(</span>
+                                        <span class="nb">set</span><span class="p">(</span>
+                                            <span class="p">[</span>
+                                                <span class="n">betos_cat</span>
+                                                <span class="k">for</span> <span class="n">betos_cat</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span>
+                                                    <span class="n">dct_cat_lookup</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                                <span class="p">)</span>
+                                                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                                                    <span class="n">cpt_code</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                                        <span class="n">dct_cat_lookup</span><span class="p">[</span>
+                                                            <span class="n">betos_cat</span>
+                                                        <span class="p">]</span>
+                                                    <span class="p">)</span>
+                                                    <span class="k">for</span> <span class="n">cpt_code</span> <span class="ow">in</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                                        <span class="n">x</span>
+                                                    <span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                                                <span class="p">)</span>
+                                            <span class="p">]</span>
+                                        <span class="p">)</span>
+                                    <span class="p">)</span>
+                                <span class="p">),</span>
+                                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">),</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lst_col_to_delete</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">df</span></div></div>
+
+
+<div class="viewcode-block" id="assign_betos_cat"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_betos.html#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.assign_betos_cat">[docs]</a><span class="k">def</span> <span class="nf">assign_betos_cat</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">claim_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medicaid&quot;</span><span class="p">,</span>
+    <span class="n">proc_code_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PRCDR_CD&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get claimwise BETOS codes &amp; categories related to CPT procedure codes in claim. Columns in output dataframe:</span>
+
+<span class="sd">    * If concat_codes_to_list=True,</span>
+<span class="sd">            * lst_betos_code - Comma separated BETOS codes</span>
+<span class="sd">            * lst_betos_cat - Comma separated BETOS cat</span>
+<span class="sd">    * Else,</span>
+<span class="sd">            * One boolean column each for all BETOS codes &amp; BETOS categories</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : dask.DataFrame</span>
+<span class="sd">            Claim dask dataframe</span>
+<span class="sd">    year : int</span>
+<span class="sd">            Public use file year</span>
+<span class="sd">    claim_type : {&#39;medicaid&#39;, &#39;medicare}</span>
+<span class="sd">            Medicaid or Medicare claim type</span>
+<span class="sd">    proc_code_prefix : str, default=&#39;PRCDR_CD&#39;</span>
+<span class="sd">            Column name prefix for procedure code columns</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dask.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pdf_crosswalk</span> <span class="o">=</span> <span class="n">BetosProcCodes</span><span class="o">.</span><span class="n">get_betos_cpt_crosswalk</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">BetosProcCodes</span><span class="o">.</span><span class="n">get_betos_cat</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">pdf_crosswalk</span><span class="p">,</span> <span class="n">claim_type</span><span class="p">,</span> <span class="n">proc_code_prefix</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

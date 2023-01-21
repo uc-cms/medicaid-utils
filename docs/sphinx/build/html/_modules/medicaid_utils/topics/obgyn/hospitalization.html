@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.topics.obgyn.hospitalization &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.topics.obgyn.hospitalization</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.topics.obgyn.hospitalization</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">...filters.claims</span> <span class="kn">import</span> <span class="n">dx_and_proc</span>
+
+
+<div class="viewcode-block" id="flag_preterm"><a class="viewcode-back" href="../../../../medicaid_utils.topics.obgyn.html#medicaid_utils.topics.obgyn.hospitalization.flag_preterm">[docs]</a><span class="k">def</span> <span class="nf">flag_preterm</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detects preterm birth related hospitalization in claims</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - hosp_preterm: integer column, 1 when claim has codes denoting</span>
+<span class="sd">          preterm birth and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims: dd.DataFrame</span>
+<span class="sd">        Claims dataframe</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_diag_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;preterm&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;6440&quot;</span><span class="p">,</span> <span class="s2">&quot;6442&quot;</span><span class="p">,</span> <span class="s2">&quot;7651&quot;</span><span class="p">,</span> <span class="s2">&quot;7650&quot;</span><span class="p">,</span> <span class="s2">&quot;7652&quot;</span><span class="p">]},</span>
+            <span class="s2">&quot;excl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;76520&quot;</span><span class="p">,</span> <span class="s2">&quot;76529&quot;</span><span class="p">]},</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="n">dct_diag_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+    <span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;diag_preterm&quot;</span><span class="p">:</span> <span class="s2">&quot;hosp_preterm&quot;</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_multiple_births"><a class="viewcode-back" href="../../../../medicaid_utils.topics.obgyn.html#medicaid_utils.topics.obgyn.hospitalization.flag_multiple_births">[docs]</a><span class="k">def</span> <span class="nf">flag_multiple_births</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identifies multiple births</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - hosp_multiple_births: 0 or 1, 1 when claim has codes indicating a</span>
+<span class="sd">          multiple birt hdelivery</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims: dd.DataFrame</span>
+<span class="sd">        Claims dataframe</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_diag_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;multiple_births&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;V272&quot;</span><span class="p">,</span> <span class="s2">&quot;V273&quot;</span><span class="p">,</span> <span class="s2">&quot;V274&quot;</span><span class="p">,</span> <span class="s2">&quot;V275&quot;</span><span class="p">,</span> <span class="s2">&quot;V276&quot;</span><span class="p">,</span> <span class="s2">&quot;V277&quot;</span><span class="p">]}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="n">dct_diag_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+    <span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;diag_multiple_births&quot;</span><span class="p">:</span> <span class="s2">&quot;hosp_multiple_births&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_delivery_mode"><a class="viewcode-back" href="../../../../medicaid_utils.topics.obgyn.html#medicaid_utils.topics.obgyn.hospitalization.flag_delivery_mode">[docs]</a><span class="k">def</span> <span class="nf">flag_delivery_mode</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identifies mode of birth</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - hosp_vag_dlvry: 0 or 1, 1 denotes vaginal delivery</span>
+<span class="sd">        - hosp_csrn_dlvry: 0 or 1, 1 denotes caesarian delivery</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims: dd.DataFrame</span>
+<span class="sd">        Claims dataframe</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;vag_dlvry&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">59400</span><span class="p">,</span> <span class="mi">59411</span><span class="p">)],</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">59400</span><span class="p">,</span> <span class="mi">59411</span><span class="p">)],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;csrn_dlvry&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">59510</span><span class="p">,</span> <span class="mi">59516</span><span class="p">)]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">59618</span><span class="p">,</span> <span class="mi">59623</span><span class="p">)],</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;74&quot;</span><span class="p">],</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">59510</span><span class="p">,</span> <span class="mi">59516</span><span class="p">)]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">cd</span><span class="p">)</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">59618</span><span class="p">,</span> <span class="mi">59623</span><span class="p">)],</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="p">{},</span> <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="n">df_claims</span>
+    <span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;proc_vag_dlvry&quot;</span><span class="p">:</span> <span class="s2">&quot;hosp_vag_dlvry&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;proc_csrn_dlvry&quot;</span><span class="p">:</span> <span class="s2">&quot;hosp_csrn_dlvry&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_delivery"><a class="viewcode-back" href="../../../../medicaid_utils.topics.obgyn.html#medicaid_utils.topics.obgyn.hospitalization.flag_delivery">[docs]</a><span class="k">def</span> <span class="nf">flag_delivery</span><span class="p">(</span><span class="n">df_ip_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detects normal and stillbirths related hospitalization in claims</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - hosp_birth: integer column, 1 when claim denotes live or still</span>
+<span class="sd">          birth and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_ip_claims: dd.DataFrame</span>
+<span class="sd">        IP claims dataframe</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_ip_claims</span> <span class="o">=</span> <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">hosp_birth</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ip_claims</span><span class="p">[</span><span class="s2">&quot;RCPNT_DLVRY_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_ip_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_abnormal_pregnancy"><a class="viewcode-back" href="../../../../medicaid_utils.topics.obgyn.html#medicaid_utils.topics.obgyn.hospitalization.flag_abnormal_pregnancy">[docs]</a><span class="k">def</span> <span class="nf">flag_abnormal_pregnancy</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Detects ectopic, molar, or abnormal pregnancy, spontaneous or induced</span>
+<span class="sd">    abortion related hospitalization</span>
+
+<span class="sd">    New Column(s):</span>
+<span class="sd">        - hosp_abnormal_pregnancy:  integer column, 1 when claim denotes</span>
+<span class="sd">          ectopic, molar, or abnormal pregnancy, spontaneous or induced</span>
+<span class="sd">          abortion and 0 otherwise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims: dd.DataFrame</span>
+<span class="sd">        Claims dataframe</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_diag_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;abnormal_pregnancy&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;63&quot;</span><span class="p">]}}}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="n">dct_diag_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+    <span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;diag_abnormal_pregnancy&quot;</span><span class="p">:</span> <span class="s2">&quot;hosp_abnormal_pregnancy&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_prenatal"><a class="viewcode-back" href="../../../../medicaid_utils.topics.obgyn.html#medicaid_utils.topics.obgyn.hospitalization.flag_prenatal">[docs]</a><span class="k">def</span> <span class="nf">flag_prenatal</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds flag columns denoting presence of codes indicating pre-natal care</span>
+
+<span class="sd">    New Columns:</span>
+<span class="sd">        - prenatal: 0 or 1, 1 when claim has codes indicating pre-natal care</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims: dd.DataFrame</span>
+<span class="sd">        Claims dataframe</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_diag_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;prenatal&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;V22&quot;</span><span class="p">,</span> <span class="s2">&quot;V23&quot;</span><span class="p">]}}}</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="n">dct_diag_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+    <span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;diag_prenatal&quot;</span><span class="p">:</span> <span class="s2">&quot;hosp_prenatal&quot;</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">df_claims</span></div>
+
+
+<div class="viewcode-block" id="flag_smm_events"><a class="viewcode-back" href="../../../../medicaid_utils.topics.obgyn.html#medicaid_utils.topics.obgyn.hospitalization.flag_smm_events">[docs]</a><span class="k">def</span> <span class="nf">flag_smm_events</span><span class="p">(</span>
+    <span class="n">df_ip_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">index_admsn_date_col</span><span class="o">=</span><span class="s2">&quot;index_admsn_date&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds flags for SMM related hospitaliztions</span>
+
+<span class="sd">    New Columns:</span>
+<span class="sd">        - hosp_smm_myo</span>
+<span class="sd">        - hosp_smm_aneurysm</span>
+<span class="sd">        - hosp_smm_renal</span>
+<span class="sd">        - hosp_smm_respiratory</span>
+<span class="sd">        - hosp_smm_embolism</span>
+<span class="sd">        - hosp_smm_cardiac</span>
+<span class="sd">        - hosp_smm_coagulation</span>
+<span class="sd">        - hosp_smm_eclampsia</span>
+<span class="sd">        - hosp_smm_heart</span>
+<span class="sd">        - hosp_smm_cerebrovascular</span>
+<span class="sd">        - hosp_smm_edema</span>
+<span class="sd">        - hosp_smm_anesthesia</span>
+<span class="sd">        - hosp_smm_sepsis</span>
+<span class="sd">        - hosp_smm_shock</span>
+<span class="sd">        - hosp_smm_sickle</span>
+<span class="sd">        - hosp_smm_thrombotic</span>
+<span class="sd">        - hosp_smm_cardiac_rhythm</span>
+<span class="sd">        - hosp_smm_transfusion</span>
+<span class="sd">        - hosp_smm_hysterectomy</span>
+<span class="sd">        - hosp_smm_tracheostomy</span>
+<span class="sd">        - hosp_smm_ventilation</span>
+<span class="sd">        - hosp_smm: Any SMM related hospitalization</span>
+<span class="sd">        - hosp_smm_no_blood: Any SMM related hospitalization,</span>
+<span class="sd">          with transfusion not as the sole cause</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_ip_claims: dd.DataFrame</span>
+<span class="sd">        IP claims dataframe</span>
+<span class="sd">    index_admsn_date_col: str, default=&#39;index_admsn_date&#39;</span>
+<span class="sd">        Name of column containing delivery date</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dct_diag_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;smm_myo&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;410&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_aneurysm&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;441&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_renal&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;5845&quot;</span><span class="p">,</span> <span class="s2">&quot;5846&quot;</span><span class="p">,</span> <span class="s2">&quot;5847&quot;</span><span class="p">,</span> <span class="s2">&quot;5848&quot;</span><span class="p">,</span> <span class="s2">&quot;5849&quot;</span><span class="p">,</span> <span class="s2">&quot;6693&quot;</span><span class="p">]}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;smm_respiratory&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;5185&quot;</span><span class="p">,</span> <span class="s2">&quot;51881&quot;</span><span class="p">,</span> <span class="s2">&quot;51882&quot;</span><span class="p">,</span> <span class="s2">&quot;51884&quot;</span><span class="p">,</span> <span class="s2">&quot;7991&quot;</span><span class="p">]}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;smm_embolism&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;6731&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_cardiac&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;42741&quot;</span><span class="p">,</span> <span class="s2">&quot;42742&quot;</span><span class="p">,</span> <span class="s2">&quot;4275&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_coagulation&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;2866&quot;</span><span class="p">,</span> <span class="s2">&quot;2869&quot;</span><span class="p">,</span> <span class="s2">&quot;6663&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_eclampsia&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;6426&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_heart&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;9971&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_cerebrovascular&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="mi">9</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;430&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;431&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;432&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;433&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;434&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;436&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;437&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;6715&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;6740&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;99702&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;smm_edema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="mi">9</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;5184&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;4281&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;4280&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;42821&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;42823&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;42831&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;42833&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;42841&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;42843&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;smm_anesthesia&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;6680&quot;</span><span class="p">,</span> <span class="s2">&quot;6681&quot;</span><span class="p">,</span> <span class="s2">&quot;6682&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_sepsis&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;038&quot;</span><span class="p">,</span> <span class="s2">&quot;6702&quot;</span><span class="p">,</span> <span class="s2">&quot;99591&quot;</span><span class="p">,</span> <span class="s2">&quot;99592&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_shock&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;6691&quot;</span><span class="p">,</span> <span class="s2">&quot;7855&quot;</span><span class="p">,</span> <span class="s2">&quot;9980&quot;</span><span class="p">,</span> <span class="s2">&quot;9950&quot;</span><span class="p">,</span> <span class="s2">&quot;9954&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_sickle&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;28242&quot;</span><span class="p">,</span> <span class="s2">&quot;28262&quot;</span><span class="p">,</span> <span class="s2">&quot;28264&quot;</span><span class="p">,</span> <span class="s2">&quot;28269&quot;</span><span class="p">]}},</span>
+        <span class="s2">&quot;smm_thrombotic&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;4151&quot;</span><span class="p">,</span> <span class="s2">&quot;6730&quot;</span><span class="p">,</span> <span class="s2">&quot;6732&quot;</span><span class="p">,</span> <span class="s2">&quot;6733&quot;</span><span class="p">,</span> <span class="s2">&quot;6738&quot;</span><span class="p">]}</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;smm_cardiac_rhythm&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;996&quot;</span><span class="p">]},</span>
+        <span class="s2">&quot;smm_transfusion&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;990&quot;</span><span class="p">]},</span>
+        <span class="s2">&quot;smm_hysterectomy&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;683&quot;</span><span class="p">,</span> <span class="s2">&quot;684&quot;</span><span class="p">,</span> <span class="s2">&quot;685&quot;</span><span class="p">,</span> <span class="s2">&quot;686&quot;</span><span class="p">,</span> <span class="s2">&quot;687&quot;</span><span class="p">,</span> <span class="s2">&quot;688&quot;</span><span class="p">,</span> <span class="s2">&quot;689&quot;</span><span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;smm_tracheostomy&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;311&quot;</span><span class="p">]},</span>
+        <span class="s2">&quot;smm_ventilation&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;9390&quot;</span><span class="p">,</span> <span class="s2">&quot;9601&quot;</span><span class="p">,</span> <span class="s2">&quot;9602&quot;</span><span class="p">,</span> <span class="s2">&quot;9603&quot;</span><span class="p">,</span> <span class="s2">&quot;9605&quot;</span><span class="p">]},</span>
+    <span class="p">}</span>
+    <span class="n">df_ip_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+        <span class="n">dct_diag_codes</span><span class="p">,</span> <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="n">df_ip_claims</span>
+    <span class="p">)</span>
+    <span class="n">df_ip_claims</span> <span class="o">=</span> <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="p">[(</span><span class="sa">f</span><span class="s2">&quot;diag_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;hosp_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_diag_codes</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[(</span><span class="sa">f</span><span class="s2">&quot;proc_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;hosp_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_proc_codes</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df_ip_claims</span><span class="p">[</span><span class="s2">&quot;hosp_smm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_ip_claims</span><span class="p">[</span>
+        <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">df_ip_claims</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;hosp_smm_&quot;</span><span class="p">)]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">df_ip_claims</span><span class="p">[</span><span class="s2">&quot;hosp_smm_no_blood&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_ip_claims</span><span class="p">[</span><span class="s2">&quot;hosp_smm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">df_ip_claims</span><span class="p">[</span><span class="s2">&quot;hosp_smm_transfusion&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="o">|</span> <span class="p">(</span>
+            <span class="n">df_ip_claims</span><span class="p">[</span>
+                <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span>
+                    <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;hosp_smm_&quot;</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="p">),</span>
+        <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">index_admsn_date_col</span> <span class="ow">in</span> <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">admsn_col_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;admsn_date&quot;</span>
+            <span class="k">if</span> <span class="s2">&quot;admsn_date&quot;</span> <span class="ow">in</span> <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">columns</span>
+            <span class="k">else</span> <span class="s2">&quot;srvc_bgn_date&quot;</span>
+        <span class="p">)</span>
+        <span class="n">lst_smm_col</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;hosp_smm&quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">df_ip_claims</span> <span class="o">=</span> <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span>
+                        <span class="n">col</span> <span class="o">+</span> <span class="s2">&quot;_on_index_hosp&quot;</span><span class="p">,</span>
+                        <span class="p">(</span>
+                            <span class="p">(</span><span class="n">df_ip_claims</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="o">&amp;</span> <span class="p">(</span>
+                                <span class="n">df_ip_claims</span><span class="p">[</span><span class="n">admsn_col_name</span><span class="p">]</span>
+                                <span class="o">==</span> <span class="n">df_ip_claims</span><span class="p">[</span><span class="n">index_admsn_date_col</span><span class="p">]</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_smm_col</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_ip_claims</span> <span class="o">=</span> <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">col</span> <span class="o">+</span> <span class="s2">&quot;_12weeks_after_index_hosp&quot;</span><span class="p">,</span>
+                            <span class="p">(</span>
+                                <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="n">pdf</span><span class="p">[</span><span class="n">admsn_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="n">index_admsn_date_col</span><span class="p">],</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="n">index_admsn_date_col</span><span class="p">]</span>
+                                    <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">83</span><span class="p">),</span>
+                                    <span class="n">inclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_smm_col</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_ip_claims</span> <span class="o">=</span> <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">col</span> <span class="o">+</span> <span class="s2">&quot;_6weeks_after_index_hosp&quot;</span><span class="p">,</span>
+                            <span class="p">(</span>
+                                <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="n">pdf</span><span class="p">[</span><span class="n">admsn_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="n">index_admsn_date_col</span><span class="p">],</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="n">index_admsn_date_col</span><span class="p">]</span>
+                                    <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">41</span><span class="p">),</span>
+                                    <span class="n">inclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_smm_col</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_ip_claims</span> <span class="o">=</span> <span class="n">df_ip_claims</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="p">(</span>
+                            <span class="n">col</span> <span class="o">+</span> <span class="s2">&quot;_6weeks_prior_index_hosp&quot;</span><span class="p">,</span>
+                            <span class="p">(</span>
+                                <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="n">pdf</span><span class="p">[</span><span class="n">admsn_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="n">index_admsn_date_col</span><span class="p">]</span>
+                                    <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">41</span><span class="p">),</span>
+                                    <span class="n">pdf</span><span class="p">[</span><span class="n">index_admsn_date_col</span><span class="p">],</span>
+                                    <span class="n">inclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_smm_col</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_ip_claims</span></div>
+
+
+<div class="viewcode-block" id="calculate_conception"><a class="viewcode-back" href="../../../../medicaid_utils.topics.obgyn.html#medicaid_utils.topics.obgyn.hospitalization.calculate_conception">[docs]</a><span class="k">def</span> <span class="nf">calculate_conception</span><span class="p">(</span>
+    <span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimates conception date based on type of delivery and delivery date.</span>
+
+<span class="sd">    Conception date is calculated as,</span>
+<span class="sd">        - 75 days before date of abortive claims</span>
+<span class="sd">        - 255 days before full term deliveries</span>
+<span class="sd">        - 230 days before pre-term deliveries</span>
+<span class="sd">        - 45 days before pre-natal claims</span>
+
+<span class="sd">    New columns:</span>
+<span class="sd">        - conception_date: Date of conception.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_claims: dd.DataFrame</span>
+<span class="sd">        Claims dataframe that has indicator columns for type of deliveries,</span>
+<span class="sd">        viz., hosp_abnormal_pregnancy, hosp_birth, hosp_preterm,</span>
+<span class="sd">        and hosp_prenatal</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lst_hosp_pregnancy_col</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;hosp_abnormal_pregnancy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hosp_birth&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hosp_preterm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hosp_prenatal&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">lst_missing_col</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_hosp_pregnancy_col</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">columns</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst_missing_col</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_missing_col</span><span class="p">])</span>
+        <span class="p">)</span>
+
+    <span class="n">lst_conception_col</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;abortive&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;full_term_delivery&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;preterm_delivery&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;prenatal&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">abortive</span><span class="o">=</span><span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;hosp_abnormal_pregnancy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+        <span class="n">full_term_delivery</span><span class="o">=</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;hosp_abnormal_pregnancy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;hosp_birth&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;hosp_preterm&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+        <span class="n">preterm_delivery</span><span class="o">=</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;hosp_abnormal_pregnancy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;hosp_birth&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;hosp_preterm&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+        <span class="n">prenatal</span><span class="o">=</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;hosp_abnormal_pregnancy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;hosp_birth&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;hosp_prenatal&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">df_conception</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">df_claims</span><span class="p">[</span><span class="n">lst_conception_col</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="p">]</span>
+
+    <span class="n">df_conception</span> <span class="o">=</span> <span class="n">df_conception</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">conception_date</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;service_date&quot;</span><span class="p">]</span>
+            <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;abortive&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;full_term_delivery&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;preterm_delivery&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;prenatal&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">75</span><span class="p">),</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">270</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">245</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">45</span><span class="p">),</span>
+                <span class="p">],</span>
+                <span class="n">default</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df_conception</span> <span class="o">=</span> <span class="n">df_conception</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">lst_conception_col</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_conception</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

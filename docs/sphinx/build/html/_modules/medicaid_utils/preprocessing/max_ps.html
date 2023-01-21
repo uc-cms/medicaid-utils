@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.preprocessing.max_ps &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.preprocessing.max_ps</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.preprocessing.max_ps</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module has MAXPS class which wraps together cleaning/ preprocessing</span>
+<span class="sd">routines specific for MAX PS files&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+
+<span class="kn">from</span> <span class="nn">medicaid_utils.preprocessing</span> <span class="kn">import</span> <span class="n">max_file</span>
+
+<span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="n">other_data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;other_datasets&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="MAXPS"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS">[docs]</a><span class="k">class</span> <span class="nc">MAXPS</span><span class="p">(</span><span class="n">max_file</span><span class="o">.</span><span class="n">MAXFile</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scripts to preprocess PS file&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">data_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BENE_MSIS&quot;</span><span class="p">,</span>
+        <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">preprocess</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">rural_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ruca&quot;</span><span class="p">,</span>
+        <span class="n">tmp_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pq_engine</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes PS file object by preloading and preprocessing(if opted</span>
+<span class="sd">        in) the file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        year : int</span>
+<span class="sd">            Year of claim file</span>
+<span class="sd">        state : str</span>
+<span class="sd">            State of claim file</span>
+<span class="sd">        data_root : str</span>
+<span class="sd">            Root folder of raw claim files</span>
+<span class="sd">        index_col : str, default=&#39;BENE_MSIS&#39;</span>
+<span class="sd">            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is</span>
+<span class="sd">            expected to be already</span>
+<span class="sd">        sorted with index column</span>
+<span class="sd">        clean : bool, default=True</span>
+<span class="sd">            Should the associated files be cleaned?</span>
+<span class="sd">        preprocess : bool, default=True</span>
+<span class="sd">            Should the associated files be preprocessed?</span>
+<span class="sd">        rural_method : {&#39;ruca&#39;, &#39;rucc&#39;}</span>
+<span class="sd">            Method to use for rural variable construction</span>
+<span class="sd">        tmp_folder : str, default=None</span>
+<span class="sd">            Folder location to use for caching intermediate results. Can be</span>
+<span class="sd">            turned off by not passing this argument.</span>
+<span class="sd">        pq_engine : str, default=&#39;pyarrow&#39;</span>
+<span class="sd">            Parquet engine to use</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="s2">&quot;ps&quot;</span><span class="p">,</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+            <span class="n">data_root</span><span class="o">=</span><span class="n">data_root</span><span class="p">,</span>
+            <span class="n">index_col</span><span class="o">=</span><span class="n">index_col</span><span class="p">,</span>
+            <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">tmp_folder</span><span class="o">=</span><span class="n">tmp_folder</span><span class="p">,</span>
+            <span class="n">pq_engine</span><span class="o">=</span><span class="n">pq_engine</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Default filters to filter out benes that do not meet minimum</span>
+        <span class="c1"># standard of cleanliness criteria duplicated_bene_id exclusion will</span>
+        <span class="c1"># remove benes with duplicated BENE_MSIS ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_default_filters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;duplicated_bene_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">preprocess</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">(</span><span class="n">rural_method</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MAXPS.clean"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs cleaning routines and adds common exclusion flags based on</span>
+<span class="sd">        default filters&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_common_exclusions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MAXPS.preprocess"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">rural_method</span><span class="o">=</span><span class="s2">&quot;ruca&quot;</span>
+    <span class="p">):</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds rural, eligibility criteria, dual, and restricted benefits</span>
+<span class="sd">        indicator variables</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rural_method : {&#39;ruca&#39;, &#39;rucc&#39;}</span>
+<span class="sd">            Method to use for rural variable construction</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_rural</span><span class="p">(</span><span class="n">rural_method</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_eligibility_status_columns</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_duals</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_restricted_benefits</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_tanf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MAXPS.flag_common_exclusions"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.flag_common_exclusions">[docs]</a>    <span class="k">def</span> <span class="nf">flag_common_exclusions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds exclusion flags</span>
+<span class="sd">        New Column(s):</span>
+<span class="sd">            - excl_duplicated_bene_id - 0 or 1, 1 when bene&#39;s index column</span>
+<span class="sd">            is repeated</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="nb">dict</span><span class="p">([(</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)])</span>
+        <span class="p">)</span>
+        <span class="c1"># Some BENE_MSIS&#39;s are repeated in PS files. Some patients share the</span>
+        <span class="c1"># same BENE_ID and yet have different MSIS_IDs. Some of them even</span>
+        <span class="c1"># have different &#39;dates of birth&#39;. Since we cannot find any</span>
+        <span class="c1"># explanation for such patterns, we decided on removing these</span>
+        <span class="c1"># BENE_MSIS&#39;s as per issue #29 in FARA project</span>
+        <span class="c1"># (https://rcg.bsd.uchicago.edu/gitlab/mmurugesan/hrsa_max_feature_extraction/issues/29)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">excl_duplicated_bene_id</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXPS.flag_duals"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.flag_duals">[docs]</a>    <span class="k">def</span> <span class="nf">flag_duals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Flags dual patients</span>
+<span class="sd">        New column(s):</span>
+<span class="sd">            dual - 0 or 1 column, 0 if 0 &lt;= EL_MDCR_DUAL_ANN &lt;= 9 for years</span>
+<span class="sd">            2007, 2009, 2011 0 &lt;= EL_MDCR_DUAL_ANN &lt;= 9 for other years</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">dual</span><span class="o">=</span><span class="p">(</span>
+                <span class="o">~</span><span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span>
+                        <span class="s2">&quot;EL_MDCR_DUAL_ANN&quot;</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2007</span><span class="p">,</span> <span class="mi">2009</span><span class="p">,</span> <span class="mi">2011</span><span class="p">])</span>
+                        <span class="k">else</span> <span class="s2">&quot;EL_MDCR_ANN_XOVR_99&quot;</span>
+                    <span class="p">],</span>
+                    <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXPS.flag_rural"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.flag_rural">[docs]</a>    <span class="k">def</span> <span class="nf">flag_rural</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ruca&quot;</span>
+    <span class="p">):</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of</span>
+<span class="sd">        their resident ZIP/ FIPS codes</span>
+
+<span class="sd">        New Columns:</span>
+
+<span class="sd">            - resident_state_cd</span>
+<span class="sd">            - rural - 0/ 1/ -1, 1 when bene&#39;s residence is in a rural</span>
+<span class="sd">            location, 0 when not. -1 when zip code is missing</span>
+<span class="sd">            - pcsa - resident PCSA code</span>
+<span class="sd">            - {ruca_code/ rucc_code} - resident ruca_code</span>
+
+<span class="sd">        This function uses</span>
+<span class="sd">            - RUCA 3.1 dataset (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673). RUCA</span>
+<span class="sd">            codes &gt;= 4 denote rural and the rest denote urban as per https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1</span>
+<span class="sd">            - RUCC codes were downloaded from https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372.</span>
+<span class="sd">            RUCC codes &gt;= 8 denote rural and the rest denote urban.</span>
+<span class="sd">            - ZCTAs x zipcode crosswalk from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),</span>
+<span class="sd">            - zipcodes from multiple sources</span>
+<span class="sd">            - istance between centroids of zipcodes using NBER data (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        method : {&#39;ruca&#39;, &#39;rucc&#39;}</span>
+<span class="sd">            Method to use for rural variable construction</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">zip_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">other_data_folder</span><span class="p">,</span> <span class="s2">&quot;zip&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="nb">dict</span><span class="p">([(</span><span class="n">index_col</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)]))</span>
+
+        <span class="c1"># 2012 RI claims report zip codes have problems. They are all</span>
+        <span class="c1"># invalid unless the last character is dropped. So</span>
+        <span class="c1"># dropping it as per email exchange with Alex Knitter &amp; Dr.</span>
+        <span class="c1"># Laiteerapong (May 2020)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">EL_RSDNC_ZIP_CD_LTST</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;EL_RSDNC_ZIP_CD_LTST&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RI&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2012</span><span class="p">)),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;EL_RSDNC_ZIP_CD_LTST&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># zip_state_pcsa_ruca_zcta.csv was constructed with RUCA 3.1</span>
+        <span class="c1"># (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673),</span>
+        <span class="c1"># ZCTAs x zipcode mappings from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),</span>
+        <span class="c1"># zipcodes from multiple sources, and distance between centroids of zipcodes using NBER data</span>
+        <span class="c1"># (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)</span>
+        <span class="n">df_zip_state_pcsa</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;zip_state_pcsa_ruca_zcta.csv&quot;</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df_zip_state_pcsa</span> <span class="o">=</span> <span class="n">df_zip_state_pcsa</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="o">=</span><span class="n">df_zip_state_pcsa</span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_zip_state_pcsa</span> <span class="o">=</span> <span class="n">df_zip_state_pcsa</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;zip&quot;</span><span class="p">:</span> <span class="s2">&quot;EL_RSDNC_ZIP_CD_LTST&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state_cd&quot;</span><span class="p">:</span> <span class="s2">&quot;resident_state_cd&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;resident_state_cd&quot;</span><span class="p">,</span> <span class="s2">&quot;pcsa&quot;</span><span class="p">,</span> <span class="s2">&quot;ruca_code&quot;</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">EL_RSDNC_ZIP_CD_LTST</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;EL_RSDNC_ZIP_CD_LTST&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">df_zip_state_pcsa</span><span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;EL_RSDNC_ZIP_CD_LTST&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;resident_state_cd&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;pcsa&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ruca_code&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="s2">&quot;EL_RSDNC_ZIP_CD_LTST&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># RUCC codes were downloaded from</span>
+        <span class="c1"># https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372</span>
+        <span class="n">df_rucc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;ruralurbancodes2013.xls&quot;</span><span class="p">),</span>
+            <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Rural-urban Continuum Code 2013&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df_rucc</span> <span class="o">=</span> <span class="n">df_rucc</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;State&quot;</span><span class="p">:</span> <span class="s2">&quot;resident_state_cd&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;RUCC_2013&quot;</span><span class="p">:</span> <span class="s2">&quot;rucc_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FIPS&quot;</span><span class="p">:</span> <span class="s2">&quot;EL_RSDNC_CNTY_CD_LTST&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">df_rucc</span> <span class="o">=</span> <span class="n">df_rucc</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">EL_RSDNC_CNTY_CD_LTST</span><span class="o">=</span><span class="n">df_rucc</span><span class="p">[</span><span class="s2">&quot;EL_RSDNC_CNTY_CD_LTST&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span>
+            <span class="n">resident_state_cd</span><span class="o">=</span><span class="n">df_rucc</span><span class="p">[</span><span class="s2">&quot;resident_state_cd&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">EL_RSDNC_CNTY_CD_LTST</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;EL_RSDNC_CNTY_CD_LTST&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+            <span class="n">resident_state_cd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;resident_state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;resident_state_cd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span>
+            <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rucc_code&quot;</span><span class="p">]]</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">df_rucc</span><span class="p">[</span>
+                <span class="p">[</span><span class="s2">&quot;EL_RSDNC_CNTY_CD_LTST&quot;</span><span class="p">,</span> <span class="s2">&quot;resident_state_cd&quot;</span><span class="p">,</span> <span class="s2">&quot;rucc_code&quot;</span><span class="p">]</span>
+            <span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;EL_RSDNC_CNTY_CD_LTST&quot;</span><span class="p">,</span> <span class="s2">&quot;resident_state_cd&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">col</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rucc_code&quot;</span><span class="p">,</span> <span class="s2">&quot;ruca_code&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="c1"># RUCA codes &gt;= 4 denote rural and the rest denote urban</span>
+        <span class="c1"># as per https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1</span>
+        <span class="c1"># and as in FARA year 1 papers</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;ruca&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="n">rural</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;ruca_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
+                                <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;neither&quot;</span>
+                            <span class="p">),</span>
+                            <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;ruca_code&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">),</span>
+                        <span class="p">],</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># RUCC codes &gt;= 8 denote rural and the rest denote urban</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="n">rural</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;rucc_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">),</span>
+                            <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;rucc_code&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">8</span><span class="p">),</span>
+                        <span class="p">],</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">index_col</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">,</span> <span class="nb">sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXPS.add_eligibility_status_columns"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.add_eligibility_status_columns">[docs]</a>    <span class="k">def</span> <span class="nf">add_eligibility_status_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add eligibility columns based on MAX_ELG_CD_MO_{month} values for</span>
+<span class="sd">        each month.</span>
+<span class="sd">        MAX_ELG_CD_MO:00 = NOT ELIGIBLE, 99 = UNKNOWN ELIGIBILITY  =&gt; codes</span>
+<span class="sd">        to denote ineligibility</span>
+
+<span class="sd">        New Column(s):</span>
+<span class="sd">            - elg_mon_{month} - 0 or 1 value column, denoting eligibility</span>
+<span class="sd">            for each month</span>
+<span class="sd">            - total_elg_mon - No. of eligible months</span>
+<span class="sd">            - elg_full_year - 0 or 1 value column, 1 if total_elg_mon = 12</span>
+<span class="sd">            - elg_over_9mon - 0 or 1 value column, 1 if total_elg_mon &gt;= 9</span>
+<span class="sd">            - elg_over_6mon - 0 or 1 value column, 1 if total_elg_mon &gt;= 6</span>
+<span class="sd">            - elg_cont_6mon - 0 or 1 value column, 1 if patient has 6</span>
+<span class="sd">            continuous eligible months</span>
+<span class="sd">            - mas_elg_change - 0 or 1 value column, 1 if patient had</span>
+<span class="sd">            multiple mas group memberships during claim year</span>
+<span class="sd">            - mas_assignments - comma separated list of MAS assignments</span>
+<span class="sd">            - boe_assignments - comma separated list of BOE assignments</span>
+<span class="sd">            - dominant_boe_group - BOE status held for the most number of</span>
+<span class="sd">            months</span>
+<span class="sd">            - boe_elg_change - 0 or 1 value column, 1 if patient had</span>
+<span class="sd">            multiple boe group memberships during claim year</span>
+<span class="sd">            - child_boe_elg_change - 0 or 1 value column, 1 if patient had</span>
+<span class="sd">            multiple boe group memberships during claim year</span>
+<span class="sd">            - elg_change - 0 or 1 value column, 1 if patient had multiple</span>
+<span class="sd">            eligibility group memberships during claim year</span>
+<span class="sd">            - eligibility_aged - Eligibility as aged anytime during the</span>
+<span class="sd">            claim year</span>
+<span class="sd">            - eligibility_child - Eligibility as child anytime during the</span>
+<span class="sd">            claim year</span>
+<span class="sd">            - max_gap - Maximum gap in enrollment in months</span>
+<span class="sd">            - max_cont_enrollment - Maximum duration of continuous enrollment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># MAS &amp; BOE groups are arrived at from MAX_ELG_CD variable</span>
+        <span class="c1"># (https://resdac.org/sites/datadocumentation.resdac.org/files/MAX%20UNIFORM%20ELIGIBILITY%20CODE%20TABLE.txt)</span>
+        <span class="c1"># FARA year 2 peds paper decided to collapse BOE assignments,</span>
+        <span class="c1"># combining disabled and child groups</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="sa">f</span><span class="s2">&quot;MAS_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="o">~</span><span class="p">(</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                            <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                            <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;00&quot;</span><span class="p">,</span> <span class="s2">&quot;99&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">])</span>
+                            <span class="o">|</span> <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+                        <span class="p">),</span>
+                        <span class="s2">&quot;99&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">mas_elg_change</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">pdf</span><span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;MAS_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]]</span>
+                    <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;9&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">nunique</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="o">&gt;</span> <span class="mi">1</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">mas_assignments</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAS_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;9&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="sa">f</span><span class="s2">&quot;BOE_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;21&quot;</span><span class="p">,</span> <span class="s2">&quot;31&quot;</span><span class="p">,</span> <span class="s2">&quot;41&quot;</span><span class="p">]),</span>  <span class="c1"># aged</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;22&quot;</span><span class="p">,</span> <span class="s2">&quot;32&quot;</span><span class="p">,</span> <span class="s2">&quot;42&quot;</span><span class="p">]),</span>
+                                <span class="c1"># blind / disabled</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                                    <span class="p">[</span><span class="s2">&quot;14&quot;</span><span class="p">,</span> <span class="s2">&quot;16&quot;</span><span class="p">,</span> <span class="s2">&quot;24&quot;</span><span class="p">,</span> <span class="s2">&quot;34&quot;</span><span class="p">,</span> <span class="s2">&quot;44&quot;</span><span class="p">,</span> <span class="s2">&quot;48&quot;</span><span class="p">]</span>
+                                <span class="p">),</span>  <span class="c1"># child</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                                    <span class="p">[</span><span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;17&quot;</span><span class="p">,</span> <span class="s2">&quot;25&quot;</span><span class="p">,</span> <span class="s2">&quot;35&quot;</span><span class="p">,</span> <span class="s2">&quot;3A&quot;</span><span class="p">,</span> <span class="s2">&quot;45&quot;</span><span class="p">]</span>
+                                <span class="p">),</span>  <span class="c1"># adult</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;51&quot;</span><span class="p">,</span> <span class="s2">&quot;52&quot;</span><span class="p">,</span> <span class="s2">&quot;54&quot;</span><span class="p">,</span> <span class="s2">&quot;55&quot;</span><span class="p">]),</span>
+                            <span class="p">],</span>
+                            <span class="c1"># state demonstration EXPANSION</span>
+                            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+                            <span class="n">default</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                    <span class="p">},</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="sa">f</span><span class="s2">&quot;CHILD_BOE_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;11&quot;</span><span class="p">,</span> <span class="s2">&quot;21&quot;</span><span class="p">,</span> <span class="s2">&quot;31&quot;</span><span class="p">,</span> <span class="s2">&quot;41&quot;</span><span class="p">]),</span>  <span class="c1"># aged</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                                    <span class="p">[</span>
+                                        <span class="s2">&quot;12&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;22&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;32&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;42&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;14&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;16&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;24&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;34&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;44&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;48&quot;</span><span class="p">,</span>
+                                    <span class="p">]</span>
+                                <span class="p">),</span>
+                                <span class="c1"># blind / disabled OR CHILD</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                                    <span class="p">[</span><span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;17&quot;</span><span class="p">,</span> <span class="s2">&quot;25&quot;</span><span class="p">,</span> <span class="s2">&quot;35&quot;</span><span class="p">,</span> <span class="s2">&quot;3A&quot;</span><span class="p">,</span> <span class="s2">&quot;45&quot;</span><span class="p">]</span>
+                                <span class="p">),</span>  <span class="c1"># adult</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;51&quot;</span><span class="p">,</span> <span class="s2">&quot;52&quot;</span><span class="p">,</span> <span class="s2">&quot;54&quot;</span><span class="p">,</span> <span class="s2">&quot;55&quot;</span><span class="p">]),</span>
+                            <span class="p">],</span>
+                            <span class="c1"># state demonstration EXPANSION</span>
+                            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+                            <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">boe_elg_change</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">pdf</span><span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;BOE_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]]</span>
+                    <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">nunique</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="o">&gt;</span> <span class="mi">1</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">child_boe_elg_change</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">pdf</span><span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;CHILD_BOE_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]]</span>
+                    <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">nunique</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="o">&gt;</span> <span class="mi">1</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">boe_assignments</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;BOE_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+                <span class="p">),</span>
+                <span class="n">dominant_boe_grp</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;BOE_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">elg_change</span><span class="o">=</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;boe_elg_change&quot;</span><span class="p">,</span> <span class="s2">&quot;mas_elg_change&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">eligibility_aged</span><span class="o">=</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;BOE_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]]</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">),</span>
+            <span class="n">eligibility_child</span><span class="o">=</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;BOE_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]]</span> <span class="o">==</span> <span class="mi">3</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="sa">f</span><span class="s2">&quot;elg_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="o">~</span><span class="p">(</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                        <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;00&quot;</span><span class="p">,</span> <span class="s2">&quot;99&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">])</span>
+                        <span class="o">|</span> <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAX_ELG_CD_MO_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">total_elg_mon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;elg_mon_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">elg_full_year</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;total_elg_mon&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">elg_over_9mon</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;total_elg_mon&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">elg_over_6mon</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;total_elg_mon&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">max_gap</span><span class="o">=</span><span class="n">pdf</span><span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;elg_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]]</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">max</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">gap</span><span class="p">)</span> <span class="k">for</span> <span class="n">gap</span> <span class="ow">in</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)]),</span>
+                    <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">max_cont_enrollment</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span>
+                    <span class="p">[</span><span class="s2">&quot;elg_mon_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="nb">len</span><span class="p">(</span><span class="n">enrolled_months</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">enrolled_months</span> <span class="ow">in</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">),</span>
+                    <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">elg_cont_6mon</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;max_cont_enrollment&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">lst_cols_to_delete</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;MAS_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;BOE_ELG_MON_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">lst_cols_to_delete</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXPS.flag_restricted_benefits"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.flag_restricted_benefits">[docs]</a>    <span class="k">def</span> <span class="nf">flag_restricted_benefits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks individual&#39;s eligibility for various medicaid services,</span>
+<span class="sd">        based on EL_RSTRCT_BNFT_FLG_{month} values,</span>
+<span class="sd">            - 1 = full scope; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE</span>
+<span class="sd">            MONTH AND IS ENTITLED TO THE FULL SCOPE OF MEDICAID BENEFITS.</span>
+<span class="sd">            - 2 = alien; INDIVIDUAL IS ELIGIBLE FOR MEDICAID DURING THE</span>
+<span class="sd">            MONTH BUT ONLY ENTITLED TO RESTRICTED BENEFITS</span>
+<span class="sd">                BASED ON ALIEN STATUS</span>
+<span class="sd">            - 3 = dual</span>
+<span class="sd">            - 4 = pregnancy</span>
+<span class="sd">            - 5 = other, eg. substance abuse, medically needy</span>
+<span class="sd">            - 6 = family planning</span>
+<span class="sd">            - 7 = alternative package of benchmark equivalent coverage,</span>
+<span class="sd">            2011 data had no values of 7 and 8</span>
+<span class="sd">            - 8 = &quot;money follows the person&quot; rebalancing demonstration,</span>
+<span class="sd">            2011 data had no values of 7 and 8</span>
+<span class="sd">            - 9 = unknown</span>
+<span class="sd">            - A = Psychiatric residential treatments demonstration</span>
+<span class="sd">            - B = Health Opportunity Account</span>
+<span class="sd">            - C = CHIP dental coverage, supplemental to employer sponsored</span>
+<span class="sd">            insurance</span>
+<span class="sd">            - W = Medicaid health insurance premium payment assistance (MA,</span>
+<span class="sd">            NJ, VT, OK)</span>
+<span class="sd">            - X = rx drug</span>
+<span class="sd">            - Y = drug and dual</span>
+<span class="sd">            - Z = drug and dual, but Medicaid was not paying for the benefits.</span>
+
+<span class="sd">        Benefits are non-comprehensive (restricted) when</span>
+<span class="sd">        EL_RSTRCT_BNFT_FLG_{month} has any of the below values:</span>
+<span class="sd">            - &quot;2&quot;, &quot;3&quot;, &quot;6&quot;:  for states other than &quot;AR&quot;, &quot;ID&quot;, &quot;SD&quot;</span>
+<span class="sd">            - &quot;2&quot;, &quot;4&quot;, &quot;3&quot;, &quot;6&quot;:  for states &quot;AR&quot;, &quot;ID&quot;, &quot;SD&quot;</span>
+
+<span class="sd">        New column(s):</span>
+<span class="sd">            - any_restricted_benefit_month: 0 or 1, 1 when bene&#39;s benefits</span>
+<span class="sd">            are restricted for atleast 1 month</span>
+<span class="sd">            - restricted_benefit_months: Number of restricted benefit months</span>
+<span class="sd">            - restricted_benefits: 0 or 1, 1 when number of restricted</span>
+<span class="sd">            benefit months are more than the number of number of months the</span>
+<span class="sd">            bene was enrolled in medicaid</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lst_excluded_restricted_benefit_code</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="s2">&quot;6&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;AR&quot;</span><span class="p">,</span> <span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;SD&quot;</span><span class="p">]</span>
+            <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="s2">&quot;6&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">any_restricted_benefit_month</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                        <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">lst_excluded_restricted_benefit_code</span><span class="p">])</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;EL_RSTRCT_BNFT_FLG_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">restricted_benefit_months</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                        <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">lst_excluded_restricted_benefit_code</span><span class="p">])</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;EL_RSTRCT_BNFT_FLG_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">restricted_benefits</span><span class="o">=</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;restricted_benefit_months&quot;</span><span class="p">]</span>
+                <span class="o">&gt;</span> <span class="p">(</span><span class="mi">12</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;total_elg_mon&quot;</span><span class="p">])</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MAXPS.flag_tanf"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_ps.MAXPS.flag_tanf">[docs]</a>    <span class="k">def</span> <span class="nf">flag_tanf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The Temporary Assistance for Needy Families (TANF) program provides</span>
+<span class="sd">        temporary financial assistance for pregnant women and families with</span>
+<span class="sd">        one or more dependent children. This provides financial assistance to</span>
+<span class="sd">        help pay for food, shelter, utilities, and expenses other than</span>
+<span class="sd">        medical. In MAX files this is identified via</span>
+
+<span class="sd">        EL_TANF_CASH_FLG:</span>
+<span class="sd">            - 1 = INDIVIDUAL DID NOT RECEIVE TANF BENEFITS DURING THE MONTH;</span>
+<span class="sd">            - 2 = INDIVIDUAL DID RECEIVE TANF BENEFITS DURING THE MONTH. CO</span>
+<span class="sd">            and ID either 0 or 9</span>
+
+<span class="sd">        New Column(s):</span>
+<span class="sd">            - tanf : 0 or 1, denoting usage of TANF benefits in any of the</span>
+<span class="sd">            months</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">tanf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                            <span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;CO&quot;</span><span class="p">,</span> <span class="s2">&quot;ID&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;EL_TANF_CASH_FLG_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

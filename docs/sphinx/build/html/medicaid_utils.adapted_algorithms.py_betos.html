@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>medicaid_utils.adapted_algorithms.py_betos package &mdash; medicaid-utils 0.0.0 documentation</title>
+  <title>medicaid_utils.adapted_algorithms.py_betos package &mdash; medicaid_utils 0.0.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -14,7 +14,9 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -27,8 +29,11 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> medicaid-utils
+            <a href="index.html" class="icon icon-home"> medicaid_utils
           </a>
+              <div class="version">
+                0.0.0
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -39,13 +44,17 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">medicaid_utils</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="medicaid_utils.html">medicaid_utils package</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="medicaid_utils.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="medicaid_utils.html">medicaid_utils package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="medicaid_utils.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html#subpackages">Subpackages</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html">medicaid_utils.common_utils package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.html">medicaid_utils.filters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html">medicaid_utils.other_datasets package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html">medicaid_utils.preprocessing package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.topics.html">medicaid_utils.topics package</a></li>
 </ul>
 </li>
 </ul>
@@ -58,18 +67,17 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">medicaid-utils</a>
+          <a href="index.html">medicaid_utils</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">medicaid_utils</a> &raquo;</li>
-          <li><a href="medicaid_utils.html">medicaid_utils package</a> &raquo;</li>
-          <li><a href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a> &raquo;</li>
-      <li>medicaid_utils.adapted_algorithms.py_betos package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
+          <li class="breadcrumb-item"><a href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_betos package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.adapted_algorithms.py_betos.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -79,17 +87,90 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="medicaid-utils-adapted-algorithms-py-betos-package">
-<h1>medicaid_utils.adapted_algorithms.py_betos package<a class="headerlink" href="#medicaid-utils-adapted-algorithms-py-betos-package" title="Permalink to this headline"></a></h1>
+  <section id="module-medicaid_utils.adapted_algorithms.py_betos">
+<span id="medicaid-utils-adapted-algorithms-py-betos-package"></span><h1>medicaid_utils.adapted_algorithms.py_betos package<a class="headerlink" href="#module-medicaid_utils.adapted_algorithms.py_betos" title="Permalink to this heading"></a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
 <section id="module-medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes">
-<span id="medicaid-utils-adapted-algorithms-py-betos-betos-proc-codes-module"></span><h2>medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes module<a class="headerlink" href="#module-medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes" title="Permalink to this headline"></a></h2>
+<span id="medicaid-utils-adapted-algorithms-py-betos-betos-proc-codes-module"></span><h2>medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes module<a class="headerlink" href="#module-medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes" title="Permalink to this heading"></a></h2>
 <p>Python module to apply Berenson-Eggors Type of Service (BETOS) categorization for claims</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.</span></span><span class="sig-name descname"><span class="pre">BetosProcCodes</span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_betos/betos_proc_codes.html#BetosProcCodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.data_folder">
+<span class="sig-name descname"><span class="pre">data_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_betos/data'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.data_folder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.filename">
+<span class="sig-name descname"><span class="pre">filename</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'betos_proc_codes.py'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.filename" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.get_betos_cat">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_betos_cat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdf_crosswalk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">claim_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'medicaid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proc_code_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'PRCDR_CD'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_betos/betos_proc_codes.html#BetosProcCodes.get_betos_cat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.get_betos_cat" title="Permalink to this definition"></a></dt>
+<dd><p>Get claimwise Betos codes &amp; categories related to CPT procedure codes in claim</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>dask.DataFrame</em>) – Claim dask dataframe</p></li>
+<li><p><strong>pdf_crosswalk</strong> (<em>pandas.DataFrame</em>) – CPT x Betos code crosswalk, with betos code and betos category information</p></li>
+<li><p><strong>claim_type</strong> (<em>{'medicaid'</em><em>, </em><em>'medicare'}</em>) – Medicaid or Medicare claim type</p></li>
+<li><p><strong>proc_code_prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='PRCDR_CD'</em>) – Column name prefix for procedure code columns</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dask.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.get_betos_cpt_crosswalk">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_betos_cpt_crosswalk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_betos/betos_proc_codes.html#BetosProcCodes.get_betos_cpt_crosswalk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.get_betos_cpt_crosswalk" title="Permalink to this definition"></a></dt>
+<dd><p>Get CPT x Betos code crosswalk, with betos code and betos category information.
+The returned CPT x Betos code crosswalk dataframe  has the below columns:</p>
+<ul class="simple">
+<li><p>cpt_code - HCPCS codes A0010-V9999 AMA/CPT-4 codes 00100-99999</p></li>
+<li><p>betos_code - BETOS codes D1A-Z2</p></li>
+<li><p>betos_code_name - BETOS code description</p></li>
+<li><dl class="simple">
+<dt>betos_cat - BETOS category abbrevation, with the below 7 values:</dt><dd><ul>
+<li><p>EVALUATION AND MANAGEMENT - betos_eval</p></li>
+<li><p>PROCEDURES - betos_proc</p></li>
+<li><p>IMAGING       - betos_img</p></li>
+<li><p>TESTS -       betos_test</p></li>
+<li><p>DURABLE MEDICAL EQUIPMENT - betos_dme</p></li>
+<li><p>OTHER - betos_oth</p></li>
+<li><p>EXCEPTIONS/UNCLASSIFIED - betos_uncla</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.11)"><em>type</em></a>) – Public use file year</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.package_folder">
+<span class="sig-name descname"><span class="pre">package_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_betos'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.package_folder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.assign_betos_cat">
-<span class="sig-prename descclassname"><span class="pre">medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.</span></span><span class="sig-name descname"><span class="pre">assign_betos_cat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dask.dataframe.core.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">claim_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'medicaid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proc_code_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'PRCDR_CD'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dask.dataframe.core.DataFrame</span></span></span><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.assign_betos_cat" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.</span></span><span class="sig-name descname"><span class="pre">assign_betos_cat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">claim_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'medicaid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proc_code_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'PRCDR_CD'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_betos/betos_proc_codes.html#assign_betos_cat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.assign_betos_cat" title="Permalink to this definition"></a></dt>
 <dd><p>Get claimwise BETOS codes &amp; categories related to CPT procedure codes in claim. Columns in output dataframe:</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -112,9 +193,9 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>dask.DataFrame</em>) – Claim dask dataframe</p></li>
-<li><p><strong>year</strong> (<em>int</em>) – Public use file year</p></li>
+<li><p><strong>year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Public use file year</p></li>
 <li><p><strong>claim_type</strong> (<em>{'medicaid'</em><em>, </em><em>'medicare}</em>) – Medicaid or Medicare claim type</p></li>
-<li><p><strong>proc_code_prefix</strong> (<em>str</em><em>, </em><em>default='PRCDR_CD'</em>) – Column name prefix for procedure code columns</p></li>
+<li><p><strong>proc_code_prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='PRCDR_CD'</em>) – Column name prefix for procedure code columns</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -137,7 +218,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

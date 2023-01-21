@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>medicaid_utils.adapted_algorithms.py_cdpsmrx package &mdash; medicaid-utils 0.0.0 documentation</title>
+  <title>medicaid_utils.adapted_algorithms.py_cdpsmrx package &mdash; medicaid_utils 0.0.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -14,7 +14,9 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -27,8 +29,11 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> medicaid-utils
+            <a href="index.html" class="icon icon-home"> medicaid_utils
           </a>
+              <div class="version">
+                0.0.0
+              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -39,13 +44,17 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">medicaid_utils</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="medicaid_utils.html">medicaid_utils package</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="medicaid_utils.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4 current"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="medicaid_utils.html">medicaid_utils package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="medicaid_utils.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html#subpackages">Subpackages</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.common_utils.html">medicaid_utils.common_utils package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.html">medicaid_utils.filters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html">medicaid_utils.other_datasets package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html">medicaid_utils.preprocessing package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.topics.html">medicaid_utils.topics package</a></li>
 </ul>
 </li>
 </ul>
@@ -58,18 +67,17 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">medicaid-utils</a>
+          <a href="index.html">medicaid_utils</a>
       </nav>
 
       <div class="wy-nav-content">
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="modules.html">medicaid_utils</a> &raquo;</li>
-          <li><a href="medicaid_utils.html">medicaid_utils package</a> &raquo;</li>
-          <li><a href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a> &raquo;</li>
-      <li>medicaid_utils.adapted_algorithms.py_cdpsmrx package</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
+          <li class="breadcrumb-item"><a href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_cdpsmrx package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.adapted_algorithms.py_cdpsmrx.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -79,25 +87,145 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="medicaid-utils-adapted-algorithms-py-cdpsmrx-package">
-<h1>medicaid_utils.adapted_algorithms.py_cdpsmrx package<a class="headerlink" href="#medicaid-utils-adapted-algorithms-py-cdpsmrx-package" title="Permalink to this headline"></a></h1>
+  <section id="module-medicaid_utils.adapted_algorithms.py_cdpsmrx">
+<span id="medicaid-utils-adapted-algorithms-py-cdpsmrx-package"></span><h1>medicaid_utils.adapted_algorithms.py_cdpsmrx package<a class="headerlink" href="#module-medicaid_utils.adapted_algorithms.py_cdpsmrx" title="Permalink to this heading"></a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
 <section id="module-medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment">
-<span id="medicaid-utils-adapted-algorithms-py-cdpsmrx-cdps-rx-risk-adjustment-module"></span><h2>medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment module<a class="headerlink" href="#module-medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment" title="Permalink to this headline"></a></h2>
+<span id="medicaid-utils-adapted-algorithms-py-cdpsmrx-cdps-rx-risk-adjustment-module"></span><h2>medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment module<a class="headerlink" href="#module-medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.</span></span><span class="sig-name descname"><span class="pre">CdpsRxRiskAdjustment</span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_cdpsmrx/cdps_rx_risk_adjustment.html#CdpsRxRiskAdjustment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_age_and_gender_cols">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_age_and_gender_cols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">df:</span> <span class="pre">~dask.dataframe.core.DataFrame)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'dask.dataframe.core.DataFrame'&gt;,</span> <span class="pre">typing.List[str]</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_cdpsmrx/cdps_rx_risk_adjustment.html#CdpsRxRiskAdjustment.add_age_and_gender_cols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_age_and_gender_cols" title="Permalink to this definition"></a></dt>
+<dd><p>Adds age &amp; gender related covariates used in CDPS Rx Risk Adjustment model. Returns a dataframe with the
+below columns:</p>
+<ul class="simple">
+<li><p>a_under1 - 0 or 1, age&lt;=1</p></li>
+<li><p>a_1_4 - 0 or 1, 1&lt;age&lt;5</p></li>
+<li><p>a_5_14m - 0 or 1, 5&lt;=age&lt;15 male</p></li>
+<li><p>a_5_14f - 0 or 1, 5&lt;=age&lt;15 female</p></li>
+<li><p>a_15_24m - 0 or 1, 15&lt;=age&lt;25 male</p></li>
+<li><p>a_15_24f - 0 or 1, 15&lt;=age&lt;25 female</p></li>
+<li><p>a_25_44m - 0 or 1, 25&lt;=age&lt;45 male</p></li>
+<li><p>a_25_44f - 0 or 1, 25&lt;=age&lt;45 female</p></li>
+<li><p>a_45_64m - 0 or 1, 45&lt;=age&lt;65 male</p></li>
+<li><p>a_45_64f - 0 or 1, 45&lt;=age&lt;65 female</p></li>
+<li><p>a_65 - 0 or 1, 65&lt;=age</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dask.DataFrame</strong> (<em>df -</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dask.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_cdps_category_cols">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_cdps_category_cols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">df:</span> <span class="pre">~dask.dataframe.core.DataFrame,</span> <span class="pre">lst_diag_cd_col_name)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'dask.dataframe.core.DataFrame'&gt;,</span> <span class="pre">typing.List[str]</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_cdpsmrx/cdps_rx_risk_adjustment.html#CdpsRxRiskAdjustment.add_cdps_category_cols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_cdps_category_cols" title="Permalink to this definition"></a></dt>
+<dd><p>Adds CDPS category columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>dask.DataFrame</em>) – PS Dataframe with LST_DIAG_CD column</p></li>
+<li><p><strong>lst_diag_cd_col_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dask.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_mrx_cat_cols">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_mrx_cat_cols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">df:</span> <span class="pre">~dask.dataframe.core.DataFrame,</span> <span class="pre">lst_ndc_col_name='LST_NDC')</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'dask.dataframe.core.DataFrame'&gt;,</span> <span class="pre">typing.List[str]</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_cdpsmrx/cdps_rx_risk_adjustment.html#CdpsRxRiskAdjustment.add_mrx_cat_cols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_mrx_cat_cols" title="Permalink to this definition"></a></dt>
+<dd><p>Adds MRX category columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>dask.DataFrame</em>) – </p></li>
+<li><p><strong>lst_ndc_col_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='LST_NDC'</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dask.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.calculate_risk">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculate_risk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_cov</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'risk'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_cdpsmrx/cdps_rx_risk_adjustment.html#CdpsRxRiskAdjustment.calculate_risk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.calculate_risk" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates CDPS risk adjustment score. The returned dataframe has the following new columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>risk - CDPS risk score, dtype: float64</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>dask.DataFrame</em>) – </p></li>
+<li><p><strong>lst_cov</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – List of covariates that CDPS MRX model uses</p></li>
+<li><p><strong>score_col_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='risk'</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dask.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">combine_cdps_mrx_hierarchies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_cdpsmrx/cdps_rx_risk_adjustment.html#CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies" title="Permalink to this definition"></a></dt>
+<dd><p>Apply CDPS MRX hierarchical rollups</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>dask.DataFrame</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dask.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.data_folder">
+<span class="sig-name descname"><span class="pre">data_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_cdpsmrx/data'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.data_folder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.filename">
+<span class="sig-name descname"><span class="pre">filename</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cdps_rx_risk_adjustment.py'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.filename" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.package_folder">
+<span class="sig-name descname"><span class="pre">package_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_cdpsmrx'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.package_folder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.cdps_rx_risk_adjust">
-<span class="sig-prename descclassname"><span class="pre">medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.</span></span><span class="sig-name descname"><span class="pre">cdps_rx_risk_adjust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dask.dataframe.core.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_diag_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LST_DIAG_CD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_ndc_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LST_NDC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'risk'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dask.dataframe.core.DataFrame</span></span></span><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.cdps_rx_risk_adjust" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.</span></span><span class="sig-name descname"><span class="pre">cdps_rx_risk_adjust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_diag_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LST_DIAG_CD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_ndc_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LST_NDC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'risk'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_cdpsmrx/cdps_rx_risk_adjustment.html#cdps_rx_risk_adjust"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.cdps_rx_risk_adjust" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate CDPS MRX risk adjustment score. This function expects the input dataframe to be aggregated to patient
 level, with columns containing comma separated lists of diagnosis codes &amp; NDC codes during the observed time period.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>dask.DataFrame</em>) – BENE level Dataframe with diagnosis code &amp; ndc_code list columns</p></li>
-<li><p><strong>lst_diag_col_name</strong> (<em>str</em><em>, </em><em>default='LST_DIAG_CD'</em>) – Name of diagnosis code list column.</p></li>
-<li><p><strong>lst_ndc_col_name</strong> (<em>str</em><em>, </em><em>default='LST_NDC'</em>) – Name of NDC code list column</p></li>
-<li><p><strong>score_col_name</strong> (<em>str</em><em>, </em><em>default='risk'</em>) – CDPS MRX score output column name</p></li>
+<li><p><strong>lst_diag_col_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='LST_DIAG_CD'</em>) – Name of diagnosis code list column.</p></li>
+<li><p><strong>lst_ndc_col_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='LST_NDC'</em>) – Name of NDC code list column</p></li>
+<li><p><strong>score_col_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='risk'</em>) – CDPS MRX score output column name</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -120,7 +248,7 @@ level, with columns containing comma separated lists of diagnosis codes &amp; ND
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

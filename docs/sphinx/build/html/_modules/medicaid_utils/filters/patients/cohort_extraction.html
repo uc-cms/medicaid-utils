@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.filters.patients.cohort_extraction &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.filters.patients.cohort_extraction</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.filters.patients.cohort_extraction</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module has functions that extract cohorts for studies based on multiple filters&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">gc</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">medicaid_utils.preprocessing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">max_file</span><span class="p">,</span>
+    <span class="n">max_ip</span><span class="p">,</span>
+    <span class="n">max_ps</span><span class="p">,</span>
+    <span class="n">max_cc</span><span class="p">,</span>
+    <span class="n">max_ot</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-import</span>
+    <span class="n">taf_file</span><span class="p">,</span>
+    <span class="n">taf_ip</span><span class="p">,</span>
+    <span class="n">taf_ot</span><span class="p">,</span>
+    <span class="n">taf_ps</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-import</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">medicaid_utils.filters.claims</span> <span class="kn">import</span> <span class="n">dx_and_proc</span>
+
+<span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="apply_range_filter"><a class="viewcode-back" href="../../../../medicaid_utils.filters.patients.html#medicaid_utils.filters.patients.cohort_extraction.apply_range_filter">[docs]</a><span class="k">def</span> <span class="nf">apply_range_filter</span><span class="p">(</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+    <span class="n">tpl_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">filter_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="vm">__file__</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies data/ numeric range based filter on a dataframe</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tpl_range : tuple</span>
+<span class="sd">        Upper and lower bound tuple</span>
+<span class="sd">    df : dd.DataFrame</span>
+<span class="sd">        Dataframe to be filtered</span>
+<span class="sd">    filter_name : str</span>
+<span class="sd">        Name of filter. Should be of the format range_[datatype]_[col_name]. date and numeric range type filters are</span>
+<span class="sd">        currently supported</span>
+<span class="sd">    col_name : str</span>
+<span class="sd">        Name of column</span>
+<span class="sd">    data_type : str</span>
+<span class="sd">        Datatype of column. Eg. date, int</span>
+<span class="sd">    logger_name : str, default=__file__</span>
+<span class="sd">        Logger name</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dd.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">tpl_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;date&quot;</span><span class="p">)</span>
+        <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">tpl_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">tpl_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;date&quot;</span><span class="p">)</span>
+        <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">tpl_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">end</span><span class="p">):</span>
+        <span class="k">if</span> <span class="o">~</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">end</span><span class="p">)):</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">start</span><span class="p">):</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> range (</span><span class="si">%s</span><span class="s2">) is  invalid.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filter_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]),</span>
+            <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">tpl_range</span><span class="p">]),</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="filter_claim_files"><a class="viewcode-back" href="../../../../medicaid_utils.filters.patients.html#medicaid_utils.filters.patients.cohort_extraction.filter_claim_files">[docs]</a><span class="k">def</span> <span class="nf">filter_claim_files</span><span class="p">(</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+    <span class="n">claim</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">max_file</span><span class="o">.</span><span class="n">MAXFile</span><span class="p">,</span> <span class="n">taf_file</span><span class="o">.</span><span class="n">TAFFile</span><span class="p">],</span>
+    <span class="n">dct_claim_filters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">tmp_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">subtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="vm">__file__</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">max_file</span><span class="o">.</span><span class="n">MAXFile</span><span class="p">,</span> <span class="n">taf_file</span><span class="o">.</span><span class="n">TAFFile</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filters claim files</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    claim : Union[max_file.MAXFile, taf_file.TAFFile]</span>
+<span class="sd">        Claim object</span>
+<span class="sd">    dct_claim_filters : dict</span>
+<span class="sd">        Filters to apply. Filter dictionary should be of the format:</span>
+<span class="sd">        {claim_type_1: {range_[datatype]_[col_name]: (start, end),</span>
+<span class="sd">                        excl_[col_name]: [0/1],</span>
+<span class="sd">                        [col_name]: value,</span>
+<span class="sd">                        ..}</span>
+<span class="sd">        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with</span>
+<span class="sd">        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter</span>
+<span class="sd">        names that are just column names will restrict the result to benes with the filter value for the corresponding</span>
+<span class="sd">        column.</span>
+<span class="sd">        Eg: {&#39;ip&#39;: {&#39;range_numeric_age_prncpl_proc&#39;: (0, 18),</span>
+<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
+<span class="sd">                              &#39;ot&#39;: {&#39;range_numeric_age_srvc_bgn&#39;: (0, 18),</span>
+<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
+<span class="sd">                              }</span>
+<span class="sd">        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting</span>
+<span class="sd">        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of</span>
+<span class="sd">        prinicipal procedure data/ service begin date.</span>
+<span class="sd">    tmp_folder : str</span>
+<span class="sd">        Temporary folder to cache results mid-processing. This is useful for large datasets, as the dask cluster can</span>
+<span class="sd">        crash if the task graph is too large for large datasets. This is handled by caching results at intermediate</span>
+<span class="sd">        stages.</span>
+<span class="sd">    subtype : str, default=None</span>
+<span class="sd">        Claim subtype (required for TAF datasets)</span>
+<span class="sd">    logger_name : str, default=None</span>
+<span class="sd">        Logger name</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[Union[max_file.MAXFile, taf_file.TAFFile], pd.DataFrame]</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        When subtype is parameter is missing for a function with TAFFile claim type input</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">claim</span><span class="p">,</span> <span class="n">taf_file</span><span class="o">.</span><span class="n">TAFFile</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">subtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Parameter </span><span class="si">{</span><span class="n">subtype</span><span class="si">}</span><span class="s2"> is required to filter TAF </span><span class="si">{</span><span class="n">claim</span><span class="o">.</span><span class="n">ftype</span><span class="si">}</span><span class="s2"> file&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">df_claim</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">claim</span><span class="p">,</span> <span class="n">max_file</span><span class="o">.</span><span class="n">MAXFile</span><span class="p">)</span>
+        <span class="k">else</span> <span class="n">claim</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">subtype</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">df_filter_counts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">) has </span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">claims&quot;</span><span class="p">,</span>
+        <span class="n">claim</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+        <span class="n">claim</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+        <span class="n">df_filter_counts</span><span class="o">.</span><span class="n">N</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">claim</span><span class="o">.</span><span class="n">ftype</span><span class="p">,</span>
+        <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">subtype</span> <span class="o">+</span> <span class="s2">&quot;) &quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">subtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">dct_filter</span> <span class="o">=</span> <span class="n">claim</span><span class="o">.</span><span class="n">dct_default_filters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">claim</span><span class="o">.</span><span class="n">ftype</span> <span class="ow">in</span> <span class="n">dct_claim_filters</span><span class="p">:</span>
+        <span class="n">dct_filter</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dct_claim_filters</span><span class="p">[</span><span class="n">claim</span><span class="o">.</span><span class="n">ftype</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">filter_name</span> <span class="ow">in</span> <span class="n">dct_filter</span><span class="p">:</span>
+        <span class="n">filtered</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">filter_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;range_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filter_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">:])</span> <span class="ow">in</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">columns</span>
+        <span class="p">):</span>
+            <span class="n">df_claim</span> <span class="o">=</span> <span class="n">apply_range_filter</span><span class="p">(</span>
+                <span class="n">dct_filter</span><span class="p">[</span><span class="n">filter_name</span><span class="p">],</span>
+                <span class="n">df_claim</span><span class="p">,</span>
+                <span class="n">filter_name</span><span class="p">,</span>
+                <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filter_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">:]),</span>
+                <span class="n">filter_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">logger_name</span><span class="o">=</span><span class="n">logger_name</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="sa">f</span><span class="s2">&quot;excl_</span><span class="si">{</span><span class="n">filter_name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df_claim</span> <span class="o">=</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="o">~</span><span class="p">(</span>
+                    <span class="n">df_claim</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;excl_</span><span class="si">{</span><span class="n">filter_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+                    <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">dct_filter</span><span class="p">[</span><span class="n">filter_name</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">elif</span> <span class="n">filter_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;excl_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="n">filter_name</span> <span class="ow">in</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">columns</span>
+        <span class="p">):</span>
+            <span class="n">df_claim</span> <span class="o">=</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">df_claim</span><span class="p">[</span><span class="n">filter_name</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">dct_filter</span><span class="p">[</span><span class="n">filter_name</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">elif</span> <span class="n">filter_name</span> <span class="ow">in</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df_claim</span> <span class="o">=</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">df_claim</span><span class="p">[</span><span class="n">filter_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">dct_filter</span><span class="p">[</span><span class="n">filter_name</span><span class="p">]</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filtered</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Filter </span><span class="si">%s</span><span class="s2"> is currently not supported for </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">files&quot;</span><span class="p">,</span>
+                <span class="n">filter_name</span><span class="p">,</span>
+                <span class="n">claim</span><span class="o">.</span><span class="n">ftype</span><span class="p">,</span>
+                <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">subtype</span> <span class="o">+</span> <span class="s2">&quot;) &quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">subtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">filtered</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">claim</span><span class="o">.</span><span class="n">tmp_folder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">claim</span><span class="o">.</span><span class="n">tmp_folder</span> <span class="o">=</span> <span class="n">tmp_folder</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">claim</span><span class="p">,</span> <span class="n">max_file</span><span class="o">.</span><span class="n">MAXFile</span><span class="p">):</span>
+                <span class="n">claim</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">claim</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span>
+                <span class="n">df_claim</span> <span class="o">=</span> <span class="n">claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">claim</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">subtype</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">claim</span><span class="o">.</span><span class="n">cache_results</span><span class="p">(</span><span class="n">subtype</span><span class="o">=</span><span class="n">subtype</span><span class="p">)</span>
+                <span class="n">df_claim</span> <span class="o">=</span> <span class="n">claim</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">subtype</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="n">df_filter_counts</span><span class="p">[</span><span class="n">filter_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_claim</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+            <span class="n">filter_status</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Applying </span><span class="si">{</span><span class="n">filter_name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">dct_filter</span><span class="p">[</span><span class="n">filter_name</span><span class="p">]</span><span class="si">}</span><span class="s2"> filter&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; reduces </span><span class="si">{</span><span class="n">claim</span><span class="o">.</span><span class="n">ftype</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;(&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">subtype</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;) &#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">subtype</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="kc">None</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">claim count to&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">df_filter_counts</span><span class="p">[</span><span class="n">filter_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">filter_status</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">claim</span><span class="p">,</span> <span class="n">df_filter_counts</span></div>
+
+
+<div class="viewcode-block" id="extract_cohort"><a class="viewcode-back" href="../../../../medicaid_utils.filters.patients.html#medicaid_utils.filters.patients.cohort_extraction.extract_cohort">[docs]</a><span class="k">def</span> <span class="nf">extract_cohort</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-locals, missing-param-doc</span>
+    <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">lst_year</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">dct_diag_proc_codes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">dct_filters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">lst_types_to_export</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">dct_data_paths</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MAX&quot;</span><span class="p">,</span>
+    <span class="n">clean_exports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">preprocess_exports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">export_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+    <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="vm">__file__</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts and exports claim files corresponded cohort defined by the input filters</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    state : str</span>
+<span class="sd">        State</span>
+<span class="sd">    lst_year : list of int</span>
+<span class="sd">        List of years from which cohort should be created</span>
+<span class="sd">    dct_diag_proc_codes : dict</span>
+<span class="sd">        Dictionary of diagnosis and procedure codes. Should be in the format</span>
+<span class="sd">            {&#39;diag_codes&#39;: {condition_name: {[&#39;incl&#39; / &#39;excl&#39;]: {[9/ 10]: list of codes} },</span>
+<span class="sd">             &#39;proc_codes&#39;: {procedure_name: {procedure_system_code: list of codes} }}</span>
+<span class="sd">            Eg: {&#39;diag_codes&#39;: {&#39;oud_nqf&#39;: {&#39;incl&#39;: {9: [&#39;3040&#39;,&#39;3055&#39;]}}},</span>
+<span class="sd">                 &#39;proc_codes&#39;: {&#39;methadone_7&#39;: {7: &#39;HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,&#39;</span>
+<span class="sd">                                   &#39;HZ96ZZZ&#39;.split(&quot;,&quot;)}}}</span>
+<span class="sd">    dct_filters: dict</span>
+<span class="sd">        Filters to apply to the cohort, and the exported claim files. Filter dictionary should be of the format:</span>
+<span class="sd">        {&#39;cohort&#39;: {claim_type_1: {range_[datatype]_[col_name]: (start, end),</span>
+<span class="sd">                        excl_[col_name]: [0/1],</span>
+<span class="sd">                        [col_name]: value,</span>
+<span class="sd">                        ..},</span>
+<span class="sd">        &#39;export&#39;: {claim_type_1: {range_[datatype]_[col_name]: (start, end),</span>
+<span class="sd">                        excl_[col_name]: [0/1],</span>
+<span class="sd">                        [col_name]: value,</span>
+<span class="sd">                        ..}}</span>
+<span class="sd">        date and numeric range type filters are currently supported. Filter names beginning with</span>
+<span class="sd">        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter</span>
+<span class="sd">        names that are just column names will restrict the result to benes with the filter value for the</span>
+<span class="sd">        corresponding column.</span>
+<span class="sd">        Eg: {&#39;ip&#39;: {&#39;range_numeric_age_prncpl_proc&#39;: (0, 18),</span>
+<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
+<span class="sd">                              &#39;ot&#39;: {&#39;range_numeric_age_srvc_bgn&#39;: (0, 18),</span>
+<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
+<span class="sd">                              }</span>
+<span class="sd">        The example filter will exclude the cohort to all IP claims of female benes and also claims with missing</span>
+<span class="sd">        DOB. The resulting set will also be restricted to those of benes whose age is between 0-18 (inclusive of</span>
+<span class="sd">        both 0 and 18) as of principal procedure date/ service begin date.</span>
+<span class="sd">    lst_types_to_export : List[str]</span>
+<span class="sd">        List of types to export. Currently supported types are ip, ot, rx, ps.</span>
+<span class="sd">    dct_data_paths : dict</span>
+<span class="sd">        Dictionary with information on raw claim files root folder and export folder. Should be of the format,</span>
+<span class="sd">        {&#39;source_root&#39;: /path/to/medicaid/folder,</span>
+<span class="sd">         &#39;export_folder&#39;: /path/to/export/data}</span>
+<span class="sd">    cms_format : {&#39;MAX&#39;, &#39;TAF&#39;}</span>
+<span class="sd">        CMS file format.</span>
+<span class="sd">    clean_exports : bool, default=False</span>
+<span class="sd">        Should the exported datasets be cleaned?</span>
+<span class="sd">    preprocess_exports : bool, default=False</span>
+<span class="sd">        Should the exported datasets be preprocessed?</span>
+<span class="sd">    export_format : str, default=csv</span>
+<span class="sd">        Format of exported files</span>
+<span class="sd">    logger_name : str, default=__file__</span>
+<span class="sd">        Logger name</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        Raised when any of file types requested to be imported does not exist for the state and year</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
+    <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;export_folder&quot;</span><span class="p">],</span> <span class="s2">&quot;tmp_files&quot;</span>
+    <span class="p">)</span>
+    <span class="n">lst_year</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lst_year</span><span class="p">)</span>
+    <span class="n">pdf_patients_all_years</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">lst_year</span><span class="p">:</span>
+        <span class="n">dct_claims</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">claim_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="s2">&quot;ps&quot;</span><span class="p">,</span> <span class="s2">&quot;rx&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">claim_type</span> <span class="o">==</span> <span class="s2">&quot;rx&quot;</span><span class="p">:</span>
+                    <span class="c1"># Not yet implemented for TAF</span>
+                    <span class="k">if</span> <span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">:</span>
+                        <span class="n">dct_claims</span><span class="p">[</span><span class="n">claim_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_file</span><span class="o">.</span><span class="n">MAXFile</span><span class="p">(</span>
+                            <span class="s2">&quot;rx&quot;</span><span class="p">,</span>
+                            <span class="n">year</span><span class="p">,</span>
+                            <span class="n">state</span><span class="p">,</span>
+                            <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;source_root&quot;</span><span class="p">],</span>
+                            <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dct_claims</span><span class="p">[</span><span class="n">claim_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">max_file</span><span class="o">.</span><span class="n">MAXFile</span><span class="o">.</span><span class="n">get_claim_instance</span><span class="p">(</span>
+                            <span class="n">claim_type</span><span class="p">,</span>
+                            <span class="n">year</span><span class="p">,</span>
+                            <span class="n">state</span><span class="p">,</span>
+                            <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;source_root&quot;</span><span class="p">],</span>
+                            <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">preprocess</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="o">**</span><span class="p">(</span>
+                                <span class="p">{}</span>
+                                <span class="k">if</span> <span class="n">claim_type</span> <span class="o">!=</span> <span class="s2">&quot;ip&quot;</span>
+                                <span class="k">else</span> <span class="p">{</span>
+                                    <span class="s2">&quot;tmp_folder&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                        <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">],</span>
+                                        <span class="n">claim_type</span><span class="p">,</span>
+                                    <span class="p">)</span>
+                                <span class="p">}</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span>
+                        <span class="k">else</span> <span class="n">taf_file</span><span class="o">.</span><span class="n">TAFFile</span><span class="o">.</span><span class="n">get_claim_instance</span><span class="p">(</span>
+                            <span class="n">claim_type</span><span class="p">,</span>
+                            <span class="n">year</span><span class="p">,</span>
+                            <span class="n">state</span><span class="p">,</span>
+                            <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;source_root&quot;</span><span class="p">],</span>
+                            <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">preprocess</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="o">**</span><span class="p">(</span>
+                                <span class="p">{}</span>
+                                <span class="k">if</span> <span class="n">claim_type</span> <span class="o">!=</span> <span class="s2">&quot;ip&quot;</span>
+                                <span class="k">else</span> <span class="p">{</span>
+                                    <span class="s2">&quot;tmp_folder&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                        <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">],</span>
+                                        <span class="n">claim_type</span><span class="p">,</span>
+                                    <span class="p">)</span>
+                                <span class="p">}</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> data is missing for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;export_folder&quot;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">dct_cohort_filter_stats</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="s2">&quot;cohort&quot;</span> <span class="ow">in</span> <span class="n">dct_filters</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">f_type</span> <span class="ow">in</span> <span class="n">dct_filters</span><span class="p">[</span><span class="s2">&quot;cohort&quot;</span><span class="p">]:</span>
+                <span class="n">dct_cohort_filter_stats</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">lst_subtypes</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>  <span class="c1"># list(dct_claims[f_type].dct_files.keys())</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">subtype</span> <span class="ow">in</span> <span class="n">lst_subtypes</span><span class="p">:</span>
+                    <span class="p">(</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">],</span> <span class="n">filter_stats_df</span><span class="p">)</span> <span class="o">=</span> <span class="n">filter_claim_files</span><span class="p">(</span>
+                        <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">],</span>
+                        <span class="n">dct_filters</span><span class="p">[</span><span class="s2">&quot;cohort&quot;</span><span class="p">],</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">],</span> <span class="n">f_type</span><span class="p">),</span>
+                        <span class="n">subtype</span><span class="o">=</span><span class="n">subtype</span><span class="p">,</span>
+                        <span class="n">logger_name</span><span class="o">=</span><span class="n">logger_name</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">dct_cohort_filter_stats</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">filter_stats_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="c1"># if (not bool(subtype))</span>
+                        <span class="c1"># else {</span>
+                        <span class="c1">#     **dct_cohort_filter_stats[f_type],</span>
+                        <span class="c1">#     **{subtype: filter_stats_df.copy()},</span>
+                        <span class="c1"># }</span>
+                    <span class="p">)</span>
+
+        <span class="n">pdf_patients</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">dct_diag_proc_codes</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;diag_codes&quot;</span> <span class="ow">in</span> <span class="n">dct_diag_proc_codes</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;proc_codes&quot;</span> <span class="ow">in</span> <span class="n">dct_diag_proc_codes</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">pdf_patients</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">get_patient_ids_with_conditions</span><span class="p">(</span>
+                <span class="n">dct_diag_proc_codes</span><span class="p">[</span><span class="s2">&quot;diag_codes&quot;</span><span class="p">],</span>
+                <span class="n">dct_diag_proc_codes</span><span class="p">[</span><span class="s2">&quot;proc_codes&quot;</span><span class="p">],</span>
+                <span class="n">logger_name</span><span class="o">=</span><span class="n">logger_name</span><span class="p">,</span>
+                <span class="n">cms_format</span><span class="o">=</span><span class="n">cms_format</span><span class="p">,</span>
+                <span class="n">ip</span><span class="o">=</span><span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prncpl_proc_date&quot;</span><span class="p">:</span> <span class="s2">&quot;service_date&quot;</span><span class="p">}</span>
+                <span class="p">)[</span>
+                    <span class="p">[</span>
+                        <span class="n">col</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="s2">&quot;PRCDR&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;DIAG&quot;</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;service_date&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prncpl_proc_date&quot;</span><span class="p">:</span> <span class="s2">&quot;service_date&quot;</span><span class="p">})[</span>
+                    <span class="p">[</span>
+                        <span class="n">col</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                            <span class="p">(</span><span class="s2">&quot;DGNS&quot;</span><span class="p">,</span> <span class="s2">&quot;ADMTG_DGNS&quot;</span><span class="p">,</span> <span class="s2">&quot;PRCDR_CD&quot;</span><span class="p">,</span> <span class="s2">&quot;LINE_PRCDR_CD&quot;</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;service_date&quot;</span><span class="p">]</span>
+                <span class="p">],</span>
+                <span class="n">ot</span><span class="o">=</span><span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ot&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">:</span> <span class="s2">&quot;service_date&quot;</span><span class="p">}</span>
+                <span class="p">)[</span>
+                    <span class="p">[</span>
+                        <span class="n">col</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ot&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="s2">&quot;PRCDR&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;DIAG&quot;</span><span class="p">,</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;service_date&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ot&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">:</span> <span class="s2">&quot;service_date&quot;</span><span class="p">})[</span>
+                    <span class="p">[</span>
+                        <span class="n">col</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ot&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                            <span class="p">(</span><span class="s2">&quot;DGNS&quot;</span><span class="p">,</span> <span class="s2">&quot;ADMTG_DGNS&quot;</span><span class="p">,</span> <span class="s2">&quot;PRCDR_CD&quot;</span><span class="p">,</span> <span class="s2">&quot;LINE_PRCDR_CD&quot;</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;service_date&quot;</span><span class="p">]</span>
+                <span class="p">],</span>
+                <span class="o">**</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;ot_line&quot;</span><span class="p">:</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ot&quot;</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;line&quot;</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">:</span> <span class="s2">&quot;service_date&quot;</span><span class="p">})[</span>
+                            <span class="p">[</span>
+                                <span class="n">col</span>
+                                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ot&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;line&quot;</span><span class="p">]</span>
+                                <span class="o">.</span><span class="n">columns</span>
+                                <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                    <span class="p">(</span>
+                                        <span class="s2">&quot;DGNS&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;ADMTG_DGNS&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;PRCDR_CD&quot;</span><span class="p">,</span>
+                                        <span class="s2">&quot;LINE_PRCDR_CD&quot;</span><span class="p">,</span>
+                                    <span class="p">)</span>
+                                <span class="p">)</span>
+                            <span class="p">]</span>
+                            <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;service_date&quot;</span><span class="p">]</span>
+                        <span class="p">]</span>
+                    <span class="p">}</span>
+                    <span class="k">if</span> <span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;TAF&quot;</span>
+                    <span class="k">else</span> <span class="p">{}</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">pdf_patients</span> <span class="o">=</span> <span class="n">pdf_patients</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pdf_patients</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                                <span class="o">**</span><span class="p">{</span>
+                                    <span class="n">claim</span><span class="o">.</span><span class="n">index_col</span><span class="p">:</span> <span class="n">claim</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                    <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                <span class="p">}</span>
+                            <span class="p">)[[</span><span class="n">claim</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="s2">&quot;include&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+                            <span class="k">for</span> <span class="n">f_type</span><span class="p">,</span> <span class="n">claim</span> <span class="ow">in</span> <span class="n">dct_claims</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="p">(</span>
+                                <span class="ow">not</span> <span class="p">(</span>
+                                    <span class="nb">bool</span><span class="p">(</span><span class="n">dct_filters</span><span class="p">)</span>
+                                    <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;cohort&quot;</span> <span class="ow">in</span> <span class="n">dct_filters</span><span class="p">)</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                            <span class="ow">or</span> <span class="p">(</span><span class="n">f_type</span> <span class="ow">in</span> <span class="n">dct_filters</span><span class="p">[</span><span class="s2">&quot;cohort&quot;</span><span class="p">])</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+                    <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span>
+                <span class="k">else</span> <span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">claim</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+                            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                                <span class="o">**</span><span class="p">{</span>
+                                    <span class="n">claim</span><span class="o">.</span><span class="n">index_col</span><span class="p">:</span> <span class="n">claim</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span>
+                                        <span class="s2">&quot;base&quot;</span>
+                                    <span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                                    <span class="s2">&quot;include&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                <span class="p">}</span>
+                            <span class="p">)[[</span><span class="n">claim</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="s2">&quot;include&quot;</span><span class="p">]]</span>
+                            <span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+                            <span class="k">for</span> <span class="n">f_type</span><span class="p">,</span> <span class="n">claim</span> <span class="ow">in</span> <span class="n">dct_claims</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="p">(</span>
+                                <span class="ow">not</span> <span class="p">(</span>
+                                    <span class="nb">bool</span><span class="p">(</span><span class="n">dct_filters</span><span class="p">)</span>
+                                    <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;cohort&quot;</span> <span class="ow">in</span> <span class="n">dct_filters</span><span class="p">)</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                            <span class="ow">or</span> <span class="p">(</span><span class="n">f_type</span> <span class="ow">in</span> <span class="n">dct_filters</span><span class="p">[</span><span class="s2">&quot;cohort&quot;</span><span class="p">])</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+                    <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">pdf_patients</span> <span class="o">=</span> <span class="n">pdf_patients</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">YEAR</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">STATE_CD</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">) has </span><span class="si">%d</span><span class="s2"> benes with specified  conditions/ procedures&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="p">,</span>
+            <span class="n">year</span><span class="p">,</span>
+            <span class="n">pdf_patients</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;cohort&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dct_filters</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="s2">&quot;ps&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dct_filters</span><span class="p">[</span><span class="s2">&quot;cohort&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">dct_cohort_filter_stats</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+                <span class="p">},</span>
+                <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="n">df_ps</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">df_ps</span> <span class="o">=</span> <span class="n">df_ps</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">df_ps</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                <span class="n">pdf_patients</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_patients</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">:</span>
+            <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df_ps</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cache_results</span><span class="p">(</span><span class="n">repartition</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_ps</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cache_results</span><span class="p">(</span><span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="n">repartition</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">dct_cohort_filter_stats</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">][</span><span class="s2">&quot;with specified conditions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">())</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">del</span> <span class="n">df_ps</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;cohort&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dct_filters</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="s2">&quot;ps&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dct_filters</span><span class="p">[</span><span class="s2">&quot;cohort&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="p">(</span><span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">],</span> <span class="n">df_filter_stats</span><span class="p">)</span> <span class="o">=</span> <span class="n">filter_claim_files</span><span class="p">(</span>
+                <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">],</span>
+                <span class="p">{},</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">],</span> <span class="s2">&quot;ps&quot;</span><span class="p">),</span>
+                <span class="n">subtype</span><span class="o">=</span><span class="s2">&quot;base&quot;</span> <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;TAF&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">logger_name</span><span class="o">=</span><span class="n">logger_name</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">dct_cohort_filter_stats</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">dct_cohort_filter_stats</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">],</span>
+                    <span class="n">df_filter_stats</span><span class="p">[</span>
+                        <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_filter_stats</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="s2">&quot;N&quot;</span><span class="p">]</span>
+                    <span class="p">],</span>
+                <span class="p">],</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">) has  </span><span class="si">%d</span><span class="s2"> benes  with specified conditions who also meet the cohort inclusion  criteria&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="p">,</span>
+            <span class="n">year</span><span class="p">,</span>
+            <span class="n">dct_cohort_filter_stats</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">pdf_patients</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf_patients</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">pdf_patients</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">),</span>
+            <span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;For </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">), </span><span class="si">%d</span><span class="s2"> benes remain after cleaning PS&quot;</span><span class="p">,</span>
+            <span class="n">state</span><span class="p">,</span>
+            <span class="n">year</span><span class="p">,</span>
+            <span class="n">pdf_patients</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_patients</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">pdf_dob</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">dct_claims</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">][[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">f_type</span><span class="p">,</span> <span class="n">cohort_filter_stats</span> <span class="ow">in</span> <span class="n">dct_cohort_filter_stats</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cohort_filter_stats</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">for</span> <span class="p">(</span>
+                    <span class="n">sub_type</span><span class="p">,</span>
+                    <span class="n">df_cohort_filter_stats</span><span class="p">,</span>
+                <span class="p">)</span> <span class="ow">in</span> <span class="n">cohort_filter_stats</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">df_cohort_filter_stats</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;export_folder&quot;</span><span class="p">],</span>
+                            <span class="sa">f</span><span class="s2">&quot;cohort_exclusions_</span><span class="si">{</span><span class="n">f_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">sub_type</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+                        <span class="p">),</span>
+                        <span class="n">engine</span><span class="o">=</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">pq_engine</span><span class="p">,</span>
+                        <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cohort_filter_stats</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;export_folder&quot;</span><span class="p">],</span>
+                        <span class="sa">f</span><span class="s2">&quot;cohort_exclusions_</span><span class="si">{</span><span class="n">f_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">engine</span><span class="o">=</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">pq_engine</span><span class="p">,</span>
+                    <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">del</span> <span class="n">dct_claims</span>
+        <span class="k">del</span> <span class="n">dct_cohort_filter_stats</span>
+        <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+        <span class="n">pdf_patients</span> <span class="o">=</span> <span class="n">pdf_patients</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">pdf_dob</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span>
+        <span class="p">)</span>
+        <span class="k">del</span> <span class="n">pdf_dob</span>
+        <span class="n">pdf_patients</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;export_folder&quot;</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;cohort_</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">.csv&quot;</span>
+            <span class="p">),</span>
+            <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">pdf_patients_all_years</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">pdf_patients_all_years</span><span class="p">,</span> <span class="n">pdf_patients</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)],</span>
+            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">export_cohort_datasets</span><span class="p">(</span>
+            <span class="n">pdf_patients_all_years</span><span class="p">,</span>
+            <span class="n">year</span><span class="p">,</span>
+            <span class="n">state</span><span class="p">,</span>
+            <span class="n">lst_types_to_export</span><span class="p">,</span>
+            <span class="n">dct_filters</span><span class="p">[</span><span class="s2">&quot;export&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;export&quot;</span> <span class="ow">in</span> <span class="n">dct_filters</span> <span class="k">else</span> <span class="p">{},</span>
+            <span class="n">dct_data_paths</span><span class="p">,</span>
+            <span class="n">cms_format</span><span class="p">,</span>
+            <span class="n">clean_exports</span><span class="p">,</span>
+            <span class="n">preprocess_exports</span><span class="p">,</span>
+            <span class="n">export_format</span><span class="p">,</span>
+            <span class="n">logger_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">],</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="export_cohort_datasets"><a class="viewcode-back" href="../../../../medicaid_utils.filters.patients.html#medicaid_utils.filters.patients.cohort_extraction.export_cohort_datasets">[docs]</a><span class="k">def</span> <span class="nf">export_cohort_datasets</span><span class="p">(</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+    <span class="n">pdf_cohort</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">lst_types_to_export</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">dct_export_filters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">dct_data_paths</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MAX&quot;</span><span class="p">,</span>
+    <span class="n">clean_exports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">preprocess_exports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">export_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+    <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="vm">__file__</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exports MAX files corresponding to the cohort as defined by the filters input to this function</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pdf_cohort : pd.DataFrame</span>
+<span class="sd">        Pandas dataframe with patient IDs (BENE_MSIS) and indicator flag denoting inclusion into the cohort (include=1)</span>
+<span class="sd">    year : int</span>
+<span class="sd">        Year of the claim files</span>
+<span class="sd">    state : str</span>
+<span class="sd">        State</span>
+<span class="sd">    lst_types_to_export : list of str</span>
+<span class="sd">        List of file types to export. Supported types are [ip, ot, ps, rx]</span>
+<span class="sd">    dct_export_filters : dict</span>
+<span class="sd">        Additional filters that should be applied to the raw claims of the selected cohort while exporting. Filter</span>
+<span class="sd">        dictionary should be of the format:</span>
+<span class="sd">        {claim_type_1: {range_[datatype]_[col_name]: (start, end),</span>
+<span class="sd">                        excl_[col_name]: [0/1],</span>
+<span class="sd">                        [col_name]: value,</span>
+<span class="sd">                        ..}</span>
+<span class="sd">        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with</span>
+<span class="sd">        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter</span>
+<span class="sd">        names that are just column names will restrict the result to benes with the filter value for the corresponding</span>
+<span class="sd">        column.</span>
+<span class="sd">        Eg: {&#39;ip&#39;: {&#39;range_numeric_age_prncpl_proc&#39;: (0, 18),</span>
+<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
+<span class="sd">                              &#39;ot&#39;: {&#39;range_numeric_age_srvc_bgn&#39;: (0, 18),</span>
+<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
+<span class="sd">                              }</span>
+<span class="sd">        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting</span>
+<span class="sd">        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of</span>
+<span class="sd">        principal procedure date/ service begin date.</span>
+<span class="sd">    dct_data_paths : dict</span>
+<span class="sd">        Dictionary with information on raw claim files root folder and export folder. Should be of the format,</span>
+<span class="sd">        {&#39;source_root&#39;: /path/to/medicaid/folder,</span>
+<span class="sd">         &#39;export_folder&#39;: /path/to/export/data}</span>
+<span class="sd">    cms_format : {&#39;MAX&#39;, TAF&#39;}</span>
+<span class="sd">        CMS file format.</span>
+<span class="sd">    clean_exports : bool, default=False</span>
+<span class="sd">        Should the exported datasets be cleaned?</span>
+<span class="sd">    preprocess_exports : bool, default=False</span>
+<span class="sd">        Should the exported datasets be preprocessed?</span>
+<span class="sd">    export_format : str, default=&#39;csv&#39;</span>
+<span class="sd">        Format of exported files</span>
+<span class="sd">    logger_name : str, default=__file__</span>
+<span class="sd">        Logger name</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    FileNotFoundError</span>
+<span class="sd">        Raised when any of file types requested to be imported does not exist for the state and year</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
+    <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;export_folder&quot;</span><span class="p">],</span> <span class="s2">&quot;tmp_files&quot;</span>
+    <span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;export_folder&quot;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">],</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dct_claims</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">claim_type</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lst_types_to_export</span><span class="p">):</span>
+            <span class="n">dct_claims</span><span class="p">[</span><span class="n">claim_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">max_file</span><span class="o">.</span><span class="n">MAXFile</span><span class="o">.</span><span class="n">get_claim_instance</span><span class="p">(</span>
+                    <span class="n">claim_type</span><span class="p">,</span>
+                    <span class="n">year</span><span class="p">,</span>
+                    <span class="n">state</span><span class="p">,</span>
+                    <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;source_root&quot;</span><span class="p">],</span>
+                    <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="o">**</span><span class="p">(</span>
+                        <span class="p">{}</span>
+                        <span class="k">if</span> <span class="n">claim_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;rx&quot;</span><span class="p">,</span> <span class="s2">&quot;lt&quot;</span><span class="p">]</span>
+                        <span class="k">else</span> <span class="p">{</span>
+                            <span class="s2">&quot;tmp_folder&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">],</span> <span class="n">claim_type</span>
+                            <span class="p">)</span>
+                        <span class="p">}</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span>
+                <span class="k">else</span> <span class="n">taf_file</span><span class="o">.</span><span class="n">TAFFile</span><span class="o">.</span><span class="n">get_claim_instance</span><span class="p">(</span>
+                    <span class="n">claim_type</span><span class="p">,</span>
+                    <span class="n">year</span><span class="p">,</span>
+                    <span class="n">state</span><span class="p">,</span>
+                    <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;source_root&quot;</span><span class="p">],</span>
+                    <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="o">**</span><span class="p">(</span>
+                        <span class="p">{}</span>
+                        <span class="k">if</span> <span class="n">claim_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;rx&quot;</span><span class="p">,</span> <span class="s2">&quot;lt&quot;</span><span class="p">]</span>
+                        <span class="k">else</span> <span class="p">{</span>
+                            <span class="s2">&quot;tmp_folder&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                                <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">],</span> <span class="n">claim_type</span>
+                            <span class="p">)</span>
+                        <span class="p">}</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> data is missing for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span> <span class="kn">from</span> <span class="nn">ex</span>
+
+    <span class="k">for</span> <span class="n">f_type</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lst_types_to_export</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exporting </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">f_type</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">:</span>
+            <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                    <span class="n">pdf_cohort</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_cohort</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lst_taf_sub_file_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">subtype</span> <span class="ow">in</span> <span class="n">lst_taf_sub_file_types</span><span class="p">:</span>
+                <span class="n">claim_object</span> <span class="o">=</span> <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span>
+                <span class="n">claim_object</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">subtype</span><span class="p">]</span> <span class="o">=</span> <span class="n">claim_object</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span>
+                    <span class="n">subtype</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                    <span class="n">claim_object</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">subtype</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                        <span class="n">pdf_cohort</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                            <span class="n">pdf_cohort</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+                        <span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+                <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">claim_object</span>
+
+        <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">clean_exports</span> <span class="ow">or</span> <span class="n">preprocess_exports</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">clean_exports</span><span class="p">:</span>
+                <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">preprocess_exports</span><span class="p">:</span>
+                <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+            <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">dct_export_filters</span><span class="p">):</span>
+            <span class="n">lst_subtypes</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">subtype</span> <span class="ow">in</span> <span class="n">lst_subtypes</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">],</span> <span class="n">filter_stats</span><span class="p">)</span> <span class="o">=</span> <span class="n">filter_claim_files</span><span class="p">(</span>
+                    <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">],</span>
+                    <span class="n">dct_export_filters</span><span class="p">,</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">],</span> <span class="n">f_type</span><span class="p">),</span>
+                    <span class="n">subtype</span><span class="o">=</span><span class="n">subtype</span><span class="p">,</span>
+                    <span class="n">logger_name</span><span class="o">=</span><span class="n">logger_name</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">filter_stats</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;export_folder&quot;</span><span class="p">],</span>
+                        <span class="sa">f</span><span class="s2">&quot;export_exclusions_</span><span class="si">{</span><span class="n">f_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;_&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">subtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">bool</span><span class="p">(</span><span class="n">subtype</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="n">engine</span><span class="o">=</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">pq_engine</span><span class="p">,</span>
+                    <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+            <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;export_folder&quot;</span><span class="p">],</span> <span class="n">output_format</span><span class="o">=</span><span class="n">export_format</span>
+        <span class="p">)</span>
+
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;tmp_folder&quot;</span><span class="p">])</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

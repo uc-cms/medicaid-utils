@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.common_utils package &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="medicaid_utils.filters package" href="medicaid_utils.filters.html" />
+    <link rel="prev" title="medicaid_utils.adapted_algorithms.py_pmca package" href="medicaid_utils.adapted_algorithms.py_pmca.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="medicaid_utils.html">medicaid_utils package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="medicaid_utils.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">medicaid_utils.common_utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.dataframe_utils">medicaid_utils.common_utils.dataframe_utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.links">medicaid_utils.common_utils.links module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.recipes">medicaid_utils.common_utils.recipes module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.stats_utils">medicaid_utils.common_utils.stats_utils module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#medicaid-utils-common-utils-usps-address-module">medicaid_utils.common_utils.usps_address module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.html">medicaid_utils.filters package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.other_datasets.html">medicaid_utils.other_datasets package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.preprocessing.html">medicaid_utils.preprocessing package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="medicaid_utils.topics.html">medicaid_utils.topics package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.common_utils package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/medicaid_utils.common_utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-medicaid_utils.common_utils">
+<span id="medicaid-utils-common-utils-package"></span><h1>medicaid_utils.common_utils package<a class="headerlink" href="#module-medicaid_utils.common_utils" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-medicaid_utils.common_utils.dataframe_utils">
+<span id="medicaid-utils-common-utils-dataframe-utils-module"></span><h2>medicaid_utils.common_utils.dataframe_utils module<a class="headerlink" href="#module-medicaid_utils.common_utils.dataframe_utils" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.convert_ddcols_to_datetime">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">convert_ddcols_to_datetime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_col</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#convert_ddcols_to_datetime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.convert_ddcols_to_datetime" title="Permalink to this definition"></a></dt>
+<dd><p>Convert list of columns specified in a dataframe to datetime type
+:param pandas_df df: dataframe
+:param list(str) lst_col: list of column names
+:rtype: None</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.copy_ddcols">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">copy_ddcols</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_new_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#copy_ddcols"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.copy_ddcols" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.export">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">df:</span> <span class="pre">~dask.dataframe.core.DataFrame,</span> <span class="pre">pq_engine:</span> <span class="pre">str,</span> <span class="pre">output_filename:</span> <span class="pre">str,</span> <span class="pre">pq_location:</span> <span class="pre">str,</span> <span class="pre">csv_location:</span> <span class="pre">str,</span> <span class="pre">lst_datetime_col:</span> <span class="pre">~typing.List[str],</span> <span class="pre">is_dask:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">n_rows:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">-1,</span> <span class="pre">do_csv:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">df_schema:</span> <span class="pre">~pandas.core.frame.DataFrame</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'pandas.core.frame.DataFrame'&gt;,</span> <span class="pre">logger_name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'Dataframe</span> <span class="pre">utils',</span> <span class="pre">rewrite:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">do_parquet:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.export" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – </p></li>
+<li><p><strong>output_filename</strong> – </p></li>
+<li><p><strong>pq_location</strong> – </p></li>
+<li><p><strong>is_dask</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.fix_index">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">fix_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#fix_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.fix_index" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.get_first_day_gap">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">get_first_day_gap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#get_first_day_gap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.get_first_day_gap" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.get_reduced_column_names">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">get_reduced_column_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiidx_df_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combine_levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#get_reduced_column_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.get_reduced_column_names" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.prepare_dtypes_for_csv">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">prepare_dtypes_for_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#prepare_dtypes_for_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.prepare_dtypes_for_csv" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.safe_convert_int_to_str">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">safe_convert_int_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_col</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#safe_convert_int_to_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.safe_convert_int_to_str" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.sas_to_pandas">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">sas_to_pandas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#sas_to_pandas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.sas_to_pandas" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.toggle_datetime_string">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">toggle_datetime_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_datetime_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#toggle_datetime_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.toggle_datetime_string" title="Permalink to this definition"></a></dt>
+<dd><p>Toggles data columnes in the passed dataframe to string/ datatime types. Inplace updates.
+:param df: dask dataframe
+:param to_string bool: True to convert to string, False otherwise
+:return: None</p>
+</dd></dl>
+
+</section>
+<section id="module-medicaid_utils.common_utils.links">
+<span id="medicaid-utils-common-utils-links-module"></span><h2>medicaid_utils.common_utils.links module<a class="headerlink" href="#module-medicaid_utils.common_utils.links" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.links.get_max_parquet_loc">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.links.</span></span><span class="sig-name descname"><span class="pre">get_max_parquet_loc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">claim_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/common_utils/links.html#get_max_parquet_loc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.links.get_max_parquet_loc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.links.get_taf_parquet_loc">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.links.</span></span><span class="sig-name descname"><span class="pre">get_taf_parquet_loc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">claim_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/links.html#get_taf_parquet_loc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.links.get_taf_parquet_loc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-medicaid_utils.common_utils.recipes">
+<span id="medicaid-utils-common-utils-recipes-module"></span><h2>medicaid_utils.common_utils.recipes module<a class="headerlink" href="#module-medicaid_utils.common_utils.recipes" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.recipes.convert_to_int_str">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.recipes.</span></span><span class="sig-name descname"><span class="pre">convert_to_int_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/recipes.html#convert_to_int_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.recipes.convert_to_int_str" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.recipes.is_number">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.recipes.</span></span><span class="sig-name descname"><span class="pre">is_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/recipes.html#is_number"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.recipes.is_number" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.recipes.log_assert">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.recipes.</span></span><span class="sig-name descname"><span class="pre">log_assert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/recipes.html#log_assert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.recipes.log_assert" title="Permalink to this definition"></a></dt>
+<dd><p>Use this as a replacement for assert if you want the failing of the
+assert statement to be logged.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.recipes.remove_ignore_if_not_exists">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.recipes.</span></span><span class="sig-name descname"><span class="pre">remove_ignore_if_not_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/recipes.html#remove_ignore_if_not_exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.recipes.remove_ignore_if_not_exists" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.recipes.remove_tail_dot_zeros">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.recipes.</span></span><span class="sig-name descname"><span class="pre">remove_tail_dot_zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/recipes.html#remove_tail_dot_zeros"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.recipes.remove_tail_dot_zeros" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.recipes.setup_logger">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.recipes.</span></span><span class="sig-name descname"><span class="pre">setup_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/recipes.html#setup_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.recipes.setup_logger" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-medicaid_utils.common_utils.stats_utils">
+<span id="medicaid-utils-common-utils-stats-utils-module"></span><h2>medicaid_utils.common_utils.stats_utils module<a class="headerlink" href="#module-medicaid_utils.common_utils.stats_utils" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.color_positive_green">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">color_positive_green</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#color_positive_green"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.color_positive_green" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.compute_contingency_table">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">compute_contingency_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_count_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gt_50pc_hrsa_fqhc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'STATE_CD'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#compute_contingency_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.compute_contingency_table" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.compute_descriptives">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">compute_descriptives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'STATE_CD'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#compute_descriptives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.compute_descriptives" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.compute_missing_stats">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">compute_missing_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'STATE_CD'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#compute_missing_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.compute_missing_stats" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.compute_t_stats">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">compute_t_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gt_50pc_hrsa_fqhc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_col_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'STATE_CD'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#compute_t_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.compute_t_stats" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.cramers_corrected_stat">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">cramers_corrected_stat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">confusion_matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#cramers_corrected_stat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.cramers_corrected_stat" title="Permalink to this definition"></a></dt>
+<dd><p>calculate Cramers V statistic for categorial-categorial association.
+uses correction from Bergsma and Wicher,
+Journal of the Korean Statistical Society 42 (2013): 323-328</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.get_cont_table_statewise">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">get_cont_table_statewise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_included</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_col_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_count_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_st</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_col_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#get_cont_table_statewise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.get_cont_table_statewise" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.get_contingency_table">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">get_contingency_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_categorical_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_col_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_numeric_col_to_binarize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#get_contingency_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.get_contingency_table" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.get_covar_plots">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">get_covar_plots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_covar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_hist_covar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_outliers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#get_covar_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.get_covar_plots" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.get_descriptives">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">get_descriptives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_st</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_col_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#get_descriptives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.get_descriptives" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.get_missingness_stats">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">get_missingness_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputfname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#get_missingness_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.get_missingness_stats" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.get_phi">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">get_phi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#get_phi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.get_phi" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.get_ranksum_table">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">get_ranksum_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_col_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#get_ranksum_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.get_ranksum_table" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.get_ranksum_table_statewise">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">get_ranksum_table_statewise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_included</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_metrics</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pop_col_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_st</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_col_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#get_ranksum_table_statewise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.get_ranksum_table_statewise" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.stats_utils.get_utilisation_histograms">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.stats_utils.</span></span><span class="sig-name descname"><span class="pre">get_utilisation_histograms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_covar</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/stats_utils.html#get_utilisation_histograms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.stats_utils.get_utilisation_histograms" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="medicaid-utils-common-utils-usps-address-module">
+<h2>medicaid_utils.common_utils.usps_address module<a class="headerlink" href="#medicaid-utils-common-utils-usps-address-module" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="medicaid_utils.adapted_algorithms.py_pmca.html" class="btn btn-neutral float-left" title="medicaid_utils.adapted_algorithms.py_pmca package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="medicaid_utils.filters.html" class="btn btn-neutral float-right" title="medicaid_utils.filters package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

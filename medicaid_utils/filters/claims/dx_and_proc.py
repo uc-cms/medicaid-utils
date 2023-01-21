@@ -1,5 +1,4 @@
 """This module has functions to add diagnosis/ procedure code based indicator flags to claims"""
-import os
 import logging
 from typing import List
 import itertools
@@ -9,13 +8,12 @@ import numpy as np
 import pandas as pd
 import dask.dataframe as dd
 
-data_folder = os.path.join(os.path.dirname(__file__), "data")
 
-
-def get_patient_ids_with_conditions(
+def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
     dct_diag_codes: dict,
     dct_proc_codes: dict,
-    logger_name=__file__,
+    logger_name: str = __file__,
+    cms_format: str = "MAX",
     **dct_claims,
 ) -> (pd.DataFrame(), dict):
     """
@@ -34,6 +32,8 @@ def get_patient_ids_with_conditions(
                                    'HZ96ZZZ'.split(",")}}
     logger_name : str
         Logger name
+    cms_format : {'MAX', TAF'}
+        CMS file format.
     **dct_claims : dict
         Keyword arguments of claim dataframes. Should be in the format:
             {file_type: dask.dataframe}
@@ -55,7 +55,10 @@ def get_patient_ids_with_conditions(
     for claim_type, df_claim in dct_claims.items():
         lst_col = ["proc_condn", "diag_condn"]
         df = flag_diagnoses_and_procedures(
-            dct_diag_codes, dct_proc_codes, df_claim.copy()
+            dct_diag_codes,
+            dct_proc_codes,
+            df_claim.copy(),
+            cms_format,
         )
         dct_filter_results[claim_type] = pd.DataFrame(
             {"N": df.shape[0].compute()}, index=[0]
@@ -74,27 +77,41 @@ def get_patient_ids_with_conditions(
                 )
             index_col = df.index.name
             if bool(dct_diag_codes):
-                df = df.assign(
-                    diag_condn=df[
+                df = df.assign(diag_condn=0)
+                lst_diag_col = [
+                    col
+                    for col in [f"diag_{condn}" for condn in dct_diag_codes]
+                    if col in df.columns
+                ]
+                if bool(lst_diag_col):
+                    df = df.assign(
+                        diag_condn=df[lst_diag_col].any(axis=1).astype(int)
+                    )
+                    lst_col.extend(
                         [f"diag_{condn}" for condn in dct_diag_codes]
-                    ]
-                    .any(axis=1)
-                    .astype(int)
-                )
-                lst_col.extend([f"diag_{condn}" for condn in dct_diag_codes])
+                    )
             if bool(dct_proc_codes):
-                df = df.assign(
-                    proc_condn=df[[f"proc_{proc}" for proc in dct_proc_codes]]
-                    .any(axis=1)
-                    .astype(int)
-                )
-                lst_col.extend([f"proc_{proc}" for proc in dct_proc_codes])
+                df = df.assign(proc_condn=0)
+                lst_proc_col = [
+                    col
+                    for col in [f"proc_{proc}" for proc in dct_proc_codes]
+                    if col in df.columns
+                ]
+                if bool(lst_proc_col):
+                    df = df.assign(
+                        proc_condn=df[
+                            [f"proc_{proc}" for proc in dct_proc_codes]
+                        ]
+                        .any(axis=1)
+                        .astype(int)
+                    )
+                    lst_col.extend([f"proc_{proc}" for proc in dct_proc_codes])
             df = df.loc[df[lst_col].any(axis=1)][lst_col + ["service_date"]]
             dct_filter_results[claim_type][
                 "with_conditions_procedures"
             ] = df.shape[0].compute()
             logger.info(
-                "Restricting %s to condition diagnoses/ procedures  reduces the claim count to %d",
+                "Restricting %s to condition diagnoses/ procedures reduces the claim count to %d",
                 claim_type,
                 dct_filter_results[claim_type][
                     "with_conditions_procedures"
@@ -215,8 +232,8 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
     )
     if bool(dct_invalid_proc_codes) or bool(dct_invalid_diag_codes):
         raise ValueError(
+            f"Non-alphanumeric values exist in "
             f"{','.join(list(dct_invalid_proc_codes.keys()) + list(dct_invalid_diag_codes.keys()))}"
-            f"have codes with non-alphanumeric values"
         )
     if df_claims is not None:
         lst_diag_col = (

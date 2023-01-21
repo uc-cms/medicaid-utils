@@ -1,24 +1,32 @@
-import sys
+"""This module has functions used to flag presence of chronic conditions"""
 import dask.dataframe as dd
 
-from medicaid_utils.preprocessing import max_cc
+from ...preprocessing import max_cc
 
 
 def flag_chronic_conditions(cc_file: max_cc.MAXCC) -> dd.DataFrame:
     """
     Adds boolean columns that denote presence of chronic conditions.
-     New Columns:
-        - any cardiac comorbidity
-            diab_combined- diabetes
-            hypten_combined- hypertension
-            ckd_combined - chronic kidney disease
-            depr_combined- depression
-            copd_combined - COPD
-            toba_combined - tobacco use
 
-    :param cc_file:
-    :return: dataframe
+    New Columns:
+        - ckd_combined: any cardiac comorbidity
+        - diab_combined: diabetes
+        - hypten_combined: hypertension
+        - ckd_combined: chronic kidney disease
+        - depr_combined: depression
+        - copd_combined: COPD
+        - toba_combined: tobacco use
+
+    Parameters
+    ----------
+    cc_file: max_cc.MAXCC
+
+    Returns
+    -------
+    dd.DataFrame
+
     """
+
     lst_conditions = [
         "diab",
         "hypten",
