@@ -10,7 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 10
 
    medicaid_utils.adapted_algorithms
    medicaid_utils.common_utils
