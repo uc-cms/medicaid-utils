@@ -425,11 +425,12 @@ class MAXFile:
                     .isnull()
                     .astype(int),
                 )
-
                 df = df.assign(
                     admsn_date=df["admsn_date"].where(
                         ~df["admsn_date"].isnull(), df["srvc_bgn_date"]
-                    ),
+                    )
+                )
+                df = df.assign(
                     los=(df["srvc_end_date"] - df["admsn_date"]).dt.days + 1,
                 )
                 df = df.assign(
