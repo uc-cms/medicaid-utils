@@ -559,16 +559,15 @@ class TAFFile:
                             **{
                                 col: df[col].where(
                                     df[col].between(
-                                        dd.to_datetime(
+                                        pd.to_datetime(
                                             "18001231", errors="coerce"
                                         ),
-                                        dd.to_datetime("", errors="coerce"),
-                                        dd.to_datetime(
+                                        pd.to_datetime(
                                             "21001231", errors="coerce"
                                         ),
                                         inclusive="both",
                                     ),
-                                    dd.to_datetime("", errors="coerce"),
+                                    pd.to_datetime("", errors="coerce"),
                                 )
                                 for col in [
                                     "admsn_date",
@@ -673,34 +672,6 @@ class TAFFile:
                             )
                             .fillna(False)
                             .astype(int)
-                        )
-                    if (
-                        ("srvc_bgn_date" in df.columns)
-                        or ("admsn_date" in df.columns)
-                        or ("srvc_bgn_date" in df.columns)
-                    ):
-                        df = df.assign(
-                            **{
-                                col: df[col].where(
-                                    df[col].between(
-                                        dd.to_datetime(
-                                            "18001231", errors="coerce"
-                                        ),
-                                        dd.to_datetime("", errors="coerce"),
-                                        dd.to_datetime(
-                                            "21001231", errors="coerce"
-                                        ),
-                                        inclusive="both",
-                                    ),
-                                    dd.to_datetime("", errors="coerce"),
-                                )
-                                for col in [
-                                    "admsn_date",
-                                    "srvc_bgn_date",
-                                    "srvc_end_date",
-                                ]
-                                if col in df.columns
-                            }
                         )
                     if (self.ftype == "ip") and ("admsn_date" in df.columns):
                         df = df.assign(
