@@ -549,42 +549,57 @@ class TAFFile:
                             ).astype(int)
                         )
 
+                    # Remove abnormally large or low date values. The bounds
+                    # used are Dec 31, 1800 and Dec 31, 2100
+                    if any(
+                        col in ["srvc_bgn_date", "admsn_date", "srvc_bgn_date"]
+                        for col in df.columns
+                    ):
+                        df = df.assign(
+                            **{
+                                col: df[col].where(
+                                    df[col].between(
+                                        dd.to_datetime(
+                                            "18001231", errors="coerce"
+                                        ),
+                                        dd.to_datetime("", errors="coerce"),
+                                        dd.to_datetime(
+                                            "21001231", errors="coerce"
+                                        ),
+                                        inclusive="both",
+                                    ),
+                                    dd.to_datetime("", errors="coerce"),
+                                )
+                                for col in [
+                                    "admsn_date",
+                                    "srvc_bgn_date",
+                                    "srvc_end_date",
+                                    "birth_date",
+                                ]
+                                if col in df.columns
+                            }
+                        )
                     if "birth_date" in df.columns:
                         df = df.assign(
                             birth_year=df.birth_date.dt.year,
                             birth_month=df.birth_date.dt.month,
                             birth_day=df.birth_date.dt.day,
                         )
-                        df = df.map_partitions(
-                            lambda pdf: pdf.assign(
-                                age_delta=pd.to_timedelta(
-                                    pdf.apply(
-                                        lambda e: (
-                                            pd.to_datetime(
-                                                str(e["year"]) + "1231",
-                                                errors="coerce",
-                                            ).date()
-                                            - e["birth_date"].date()
-                                        )
-                                        if (
-                                            pd.notna(
-                                                pd.to_datetime(
-                                                    str(e["year"]) + "1231",
-                                                    errors="coerce",
-                                                )
-                                            )
-                                            and pd.notna(e["birth_date"])
-                                        )
-                                        else np.nan,
-                                        axis=1,
-                                    ),
+                        df = df.assign(
+                            age_day=(
+                                dd.to_datetime(
+                                    df["year"].astype(str) + "1231",
                                     errors="coerce",
                                 )
+                                - df["birth_date"]
+                            ).dt.days,
+                            age_decimal=(
+                                dd.to_datetime(
+                                    df["year"].astype(str) + "1231",
+                                    errors="coerce",
+                                )
+                                - df["birth_date"]
                             )
-                        )
-                        df = df.assign(
-                            age_day=df["age_delta"].dt.days,
-                            age_decimal=df["age_delta"]
                             / np.timedelta64(1, "Y"),
                         )
 
@@ -659,6 +674,34 @@ class TAFFile:
                             .fillna(False)
                             .astype(int)
                         )
+                    if (
+                        ("srvc_bgn_date" in df.columns)
+                        or ("admsn_date" in df.columns)
+                        or ("srvc_bgn_date" in df.columns)
+                    ):
+                        df = df.assign(
+                            **{
+                                col: df[col].where(
+                                    df[col].between(
+                                        dd.to_datetime(
+                                            "18001231", errors="coerce"
+                                        ),
+                                        dd.to_datetime("", errors="coerce"),
+                                        dd.to_datetime(
+                                            "21001231", errors="coerce"
+                                        ),
+                                        inclusive="both",
+                                    ),
+                                    dd.to_datetime("", errors="coerce"),
+                                )
+                                for col in [
+                                    "admsn_date",
+                                    "srvc_bgn_date",
+                                    "srvc_end_date",
+                                ]
+                                if col in df.columns
+                            }
+                        )
                     if (self.ftype == "ip") and ("admsn_date" in df.columns):
                         df = df.assign(
                             missing_admsn_date=df["admsn_date"]
@@ -670,25 +713,11 @@ class TAFFile:
                                 ~df["admsn_date"].isnull(), df["srvc_bgn_date"]
                             ),
                         )
-                        df = df.map_partitions(
-                            lambda pdf: pdf.assign(
-                                los=pd.to_timedelta(
-                                    pdf.apply(
-                                        lambda e: (
-                                            e["srvc_end_date"].date()
-                                            - e["admsn_date"].date()
-                                        )
-                                        if (
-                                            pd.notna(e["srvc_end_date"])
-                                            and pd.notna(e["admsn_date"])
-                                        )
-                                        else np.nan,
-                                        axis=1,
-                                    ),
-                                    errors="coerce",
-                                ).dt.days
-                                + 1
-                            )
+                        df = df.assign(
+                            los=(
+                                df["srvc_end_date"] - df["admsn_date"]
+                            ).dt.days
+                            + 1
                         )
 
                         df = df.assign(
@@ -700,24 +729,10 @@ class TAFFile:
                                 np.nan,
                             )
                         )
-                        df = df.map_partitions(
-                            lambda pdf: pdf.assign(
-                                age_day_admsn=pd.to_timedelta(
-                                    pdf.apply(
-                                        lambda e: (
-                                            e["admsn_date"].date()
-                                            - e["birth_date"].date()
-                                        )
-                                        if (
-                                            pd.notna(e["admsn_date"])
-                                            and pd.notna(e["birth_date"])
-                                        )
-                                        else np.nan,
-                                        axis=1,
-                                    ),
-                                    errors="coerce",
-                                ).dt.days
-                            )
+                        df = df.assign(
+                            age_day_admsn=(
+                                df["admsn_date"] - df["birth_date"]
+                            ).dt.days
                         )
 
                         df = df.assign(
@@ -729,25 +744,10 @@ class TAFFile:
                     if (self.ftype == "ot") and (
                         "srvc_bgn_date" in df.columns
                     ):
-
-                        df = df.map_partitions(
-                            lambda pdf: pdf.assign(
-                                duration=pd.to_timedelta(
-                                    pdf.apply(
-                                        lambda e: (
-                                            e["srvc_end_date"].date()
-                                            - e["srvc_bgn_date"].date()
-                                        )
-                                        if (
-                                            pd.notna(e["srvc_end_date"])
-                                            and pd.notna(e["srvc_bgn_date"])
-                                        )
-                                        else np.nan,
-                                        axis=1,
-                                    ),
-                                    errors="coerce",
-                                ).dt.days
-                            )
+                        df = df.assign(
+                            duration=(
+                                df["srvc_end_date"] - df["srvc_bgn_date"]
+                            ).dt.days
                         )
 
                         df = df.assign(
@@ -757,24 +757,10 @@ class TAFFile:
                             )
                         )
                         if "birth_date" in df.columns:
-                            df = df.map_partitions(
-                                lambda pdf: pdf.assign(
-                                    age_day_srvc_bgn=pd.to_timedelta(
-                                        pdf.apply(
-                                            lambda e: (
-                                                e["srvc_bgn_date"].date()
-                                                - e["birth_date"].date()
-                                            )
-                                            if (
-                                                pd.notna(e["srvc_bgn_date"])
-                                                and pd.notna(e["birth_date"])
-                                            )
-                                            else np.nan,
-                                            axis=1,
-                                        ),
-                                        errors="coerce",
-                                    ).dt.days
-                                )
+                            df = df.assign(
+                                age_day_srvc_bgn=(
+                                    df["srvc_bgn_date"] - df["birth_date"]
+                                ).dt.days
                             )
 
                             df = df.assign(
