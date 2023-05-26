@@ -499,204 +499,288 @@ class TAFFile:
                 )
 
                 # converting lst_col columns to datetime type
-                lst_col_to_convert = [
-                    dct_date_col[col]
-                    for col in dct_date_col.keys()
-                    if (
-                        df[[dct_date_col[col]]]
-                        .select_dtypes(include=[np.datetime64])
-                        .shape[1]
-                        == 0
+                lst_col_to_convert = list(
+                    {
+                        dct_date_col[col] for col in dct_date_col.keys()
+                    }.difference(
+                        set(df.select_dtypes(include=[np.datetime64]).columns)
                     )
-                ]
-                if not bool(lst_col_to_convert):
-                    continue
-                df = dataframe_utils.convert_ddcols_to_datetime(
-                    df, lst_col_to_convert
                 )
+                if bool(lst_col_to_convert):
+                    df = df.assign(
+                        **{
+                            col: dd.to_datetime(df[col], errors="coerce")
+                            for col in lst_col_to_convert
+                        }
+                    )
 
-                if self.ftype in ["ip", "ot"]:
-                    if f"{self.ftype.upper()}_FIL_DT" in df.columns:
-                        if self.ftype == "ip":
+                    if self.ftype in ["ip", "ot"]:
+                        if f"{self.ftype.upper()}_FIL_DT" in df.columns:
+                            if self.ftype == "ip":
+                                df = df.assign(
+                                    filing_period=df[
+                                        f"{self.ftype.upper()}_FIL_DT"
+                                    ].str[1:7],
+                                )
+                            else:
+                                df = df.assign(
+                                    filing_period=df[
+                                        f"{self.ftype.upper()}_FIL_DT"
+                                    ].str[0:6],
+                                )
                             df = df.assign(
-                                filing_period=df[
-                                    f"{self.ftype.upper()}_FIL_DT"
-                                ].str[1:7],
+                                year=df.filing_period.str[:4].astype(int)
                             )
-                        else:
-                            df = df.assign(
-                                filing_period=df[
-                                    f"{self.ftype.upper()}_FIL_DT"
-                                ].str[0:6],
+                            df = df.map_partitions(
+                                lambda pdf: pdf.assign(
+                                    **{
+                                        f"{self.ftype.lower()}_version": pd.to_numeric(
+                                            pdf[f"{self.ftype.upper()}_VRSN"],
+                                            errors="coerce",
+                                        )
+                                    }
+                                )
                             )
+
+                    else:
                         df = df.assign(
-                            year=df.filing_period.str[:4].astype(int)
+                            year=dd.to_numeric(
+                                df.RFRNC_YR, errors="coerce"
+                            ).astype(int)
+                        )
+
+                    if "birth_date" in df.columns:
+                        df = df.assign(
+                            birth_year=df.birth_date.dt.year,
+                            birth_month=df.birth_date.dt.month,
+                            birth_day=df.birth_date.dt.day,
                         )
                         df = df.map_partitions(
                             lambda pdf: pdf.assign(
-                                **{
-                                    f"{self.ftype.lower()}_version": pd.to_numeric(
-                                        pdf[f"{self.ftype.upper()}_VRSN"],
-                                        errors="coerce",
-                                    )
-                                }
+                                age_delta=pd.to_timedelta(
+                                    pdf.apply(
+                                        lambda e: (
+                                            pd.to_datetime(
+                                                str(e["year"]) + "1231",
+                                                errors="coerce",
+                                            ).date()
+                                            - e["birth_date"].date()
+                                        )
+                                        if (
+                                            pd.notna(
+                                                pd.to_datetime(
+                                                    str(e["year"]) + "1231",
+                                                    errors="coerce",
+                                                )
+                                            )
+                                            and pd.notna(e["birth_date"])
+                                        )
+                                        else np.nan,
+                                        axis=1,
+                                    ),
+                                    errors="coerce",
+                                )
                             )
-                        )
-
-                else:
-                    df = df.assign(
-                        year=dd.to_numeric(
-                            df.RFRNC_YR, errors="coerce"
-                        ).astype(int)
-                    )
-
-                if "birth_date" in df.columns:
-                    df = df.assign(
-                        birth_year=df.birth_date.dt.year,
-                        birth_month=df.birth_date.dt.month,
-                        birth_day=df.birth_date.dt.day,
-                    )
-                    df = df.assign(
-                        age_day=(
-                            dd.to_datetime(
-                                df.year.astype(str) + "1231", format="%Y%m%d"
-                            )
-                            - df.birth_date
-                        ).dt.days,
-                        age_decimal=(
-                            dd.to_datetime(
-                                df.year.astype(str) + "1231", format="%Y%m%d"
-                            )
-                            - df.birth_date
-                        )
-                        / np.timedelta64(1, "Y"),
-                    )
-                    if "AGE" not in df.columns:
-                        df = df.assign(age=df.year - df.birth_year)
-                if "AGE" in df.columns:
-                    df = df.assign(
-                        age=dd.to_numeric(df["AGE"], errors="coerce")
-                    )
-                if "AGE_GRP_CD" in df.columns:
-                    df = df.assign(
-                        age_group=dd.to_numeric(
-                            df["AGE_GRP_CD"], errors="coerce"
-                        )
-                        .fillna(-1)
-                        .astype(int),
-                    )
-                if "age" in df.columns:
-                    df = df.assign(
-                        adult=df["age"]
-                        .between(18, 64, inclusive="both")
-                        .astype(pd.Int64Dtype())
-                        .fillna(-1)
-                        .astype(int),
-                        elderly=(df["age"] >= 65)
-                        .astype(pd.Int64Dtype())
-                        .fillna(-1)
-                        .astype(int),
-                        child=(df["age"] <= 17)
-                        .astype(pd.Int64Dtype())
-                        .fillna(-1)
-                        .astype(int),
-                    )
-
-                if (self.ftype != "ps") and ("age" in df.columns):
-                    df = df.map_partitions(
-                        lambda pdf: pdf.assign(
-                            adult=pdf.groupby(pdf.index)["adult"].transform(
-                                max
-                            ),
-                            child=pdf.groupby(pdf.index)["child"].transform(
-                                max
-                            ),
-                            age=pdf.groupby(pdf.index)["age"].transform(max),
-                            age_day=pdf.groupby(pdf.index)[
-                                "age_day"
-                            ].transform(max),
-                            age_decimal=pdf.groupby(pdf.index)[
-                                "age_decimal"
-                            ].transform(max),
-                        )
-                    )
-                if "death_date" in df.columns:
-                    df = df.assign(
-                        death=(
-                            df.death_date.dt.year.fillna(df.year + 10).astype(
-                                int
-                            )
-                            <= df.year
-                        )
-                        .fillna(False)
-                        .astype(int)
-                    )
-                if "DEATH_IND" in df.columns:
-                    df = df.assign(
-                        death=(
-                            dd.to_numeric(df["DEATH_IND"], errors="coerce")
-                            == 1
-                        )
-                        .fillna(False)
-                        .astype(int)
-                    )
-                if (self.ftype == "ip") and ("admsn_date" in df.columns):
-                    df = df.assign(
-                        missing_admsn_date=df["admsn_date"]
-                        .isnull()
-                        .astype(int)
-                    )
-
-                    df = df.assign(
-                        admsn_date=df["admsn_date"].where(
-                            ~df["admsn_date"].isnull(), df["srvc_bgn_date"]
-                        ),
-                        los=(df["srvc_end_date"] - df["admsn_date"]).dt.days
-                        + 1,
-                    )
-                    df = df.assign(
-                        los=df["los"].where(
-                            (
-                                (df["year"] >= df["admsn_date"].dt.year)
-                                & (df["admsn_date"] <= df["srvc_end_date"])
-                            ),
-                            np.nan,
-                        )
-                    )
-
-                    df = df.assign(
-                        age_day_admsn=(
-                            df["admsn_date"] - df["birth_date"]
-                        ).dt.days,
-                    )
-                    df = df.assign(
-                        age_admsn=(
-                            df["age_day_admsn"].fillna(0) / 365.25
-                        ).astype(int),
-                    )
-
-                if (self.ftype == "ot") and ("srvc_bgn_date" in df.columns):
-                    df = df.assign(
-                        duration=(
-                            df["srvc_end_date"] - df["srvc_bgn_date"]
-                        ).dt.days
-                    )
-                    df = df.assign(
-                        duration=df["duration"].where(
-                            (df["srvc_bgn_date"] <= df["srvc_end_date"]),
-                            np.nan,
-                        )
-                    )
-                    if "birth_date" in df.columns:
-                        df = df.assign(
-                            age_day_srvc_bgn=(
-                                df["srvc_bgn_date"] - df["birth_date"]
-                            ).dt.days,
                         )
                         df = df.assign(
-                            age_srvc_bgn=(
-                                df["age_day_srvc_bgn"].fillna(0) / 365.25
+                            age_day=df["age_delta"].dt.days,
+                            age_decimal=df["age_delta"]
+                            / np.timedelta64(1, "Y"),
+                        )
+
+                        if "AGE" not in df.columns:
+                            df = df.assign(age=df.year - df.birth_year)
+                    if "AGE" in df.columns:
+                        df = df.assign(
+                            age=dd.to_numeric(df["AGE"], errors="coerce")
+                        )
+                    if "AGE_GRP_CD" in df.columns:
+                        df = df.assign(
+                            age_group=dd.to_numeric(
+                                df["AGE_GRP_CD"], errors="coerce"
+                            )
+                            .fillna(-1)
+                            .astype(int),
+                        )
+                    if "age" in df.columns:
+                        df = df.assign(
+                            adult=df["age"]
+                            .between(18, 64, inclusive="both")
+                            .astype(pd.Int64Dtype())
+                            .fillna(-1)
+                            .astype(int),
+                            elderly=(df["age"] >= 65)
+                            .astype(pd.Int64Dtype())
+                            .fillna(-1)
+                            .astype(int),
+                            child=(df["age"] <= 17)
+                            .astype(pd.Int64Dtype())
+                            .fillna(-1)
+                            .astype(int),
+                        )
+
+                    if (self.ftype != "ps") and ("age" in df.columns):
+                        df = df.map_partitions(
+                            lambda pdf: pdf.assign(
+                                adult=pdf.groupby(pdf.index)[
+                                    "adult"
+                                ].transform(max),
+                                child=pdf.groupby(pdf.index)[
+                                    "child"
+                                ].transform(max),
+                                age=pdf.groupby(pdf.index)["age"].transform(
+                                    max
+                                ),
+                                age_day=pdf.groupby(pdf.index)[
+                                    "age_day"
+                                ].transform(max),
+                                age_decimal=pdf.groupby(pdf.index)[
+                                    "age_decimal"
+                                ].transform(max),
+                            )
+                        )
+                    if "death_date" in df.columns:
+                        df = df.assign(
+                            death=(
+                                df.death_date.dt.year.fillna(
+                                    df.year + 10
+                                ).astype(int)
+                                <= df.year
+                            )
+                            .fillna(False)
+                            .astype(int)
+                        )
+                    if "DEATH_IND" in df.columns:
+                        df = df.assign(
+                            death=(
+                                dd.to_numeric(df["DEATH_IND"], errors="coerce")
+                                == 1
+                            )
+                            .fillna(False)
+                            .astype(int)
+                        )
+                    if (self.ftype == "ip") and ("admsn_date" in df.columns):
+                        df = df.assign(
+                            missing_admsn_date=df["admsn_date"]
+                            .isnull()
+                            .astype(int)
+                        )
+                        df = df.assign(
+                            admsn_date=df["admsn_date"].where(
+                                ~df["admsn_date"].isnull(), df["srvc_bgn_date"]
+                            ),
+                        )
+                        df = df.map_partitions(
+                            lambda pdf: pdf.assign(
+                                los=pd.to_timedelta(
+                                    pdf.apply(
+                                        lambda e: (
+                                            e["srvc_end_date"].date()
+                                            - e["admsn_date"].date()
+                                        )
+                                        if (
+                                            pd.notna(e["srvc_end_date"])
+                                            and pd.notna(e["admsn_date"])
+                                        )
+                                        else np.nan,
+                                        axis=1,
+                                    ),
+                                    errors="coerce",
+                                ).dt.days
+                                + 1
+                            )
+                        )
+
+                        df = df.assign(
+                            los=df["los"].where(
+                                (
+                                    (df["year"] >= df["admsn_date"].dt.year)
+                                    & (df["admsn_date"] <= df["srvc_end_date"])
+                                ),
+                                np.nan,
+                            )
+                        )
+                        df = df.map_partitions(
+                            lambda pdf: pdf.assign(
+                                age_day_admsn=pd.to_timedelta(
+                                    pdf.apply(
+                                        lambda e: (
+                                            e["admsn_date"].date()
+                                            - e["birth_date"].date()
+                                        )
+                                        if (
+                                            pd.notna(e["admsn_date"])
+                                            and pd.notna(e["birth_date"])
+                                        )
+                                        else np.nan,
+                                        axis=1,
+                                    ),
+                                    errors="coerce",
+                                ).dt.days
+                            )
+                        )
+
+                        df = df.assign(
+                            age_admsn=(
+                                df["age_day_admsn"].fillna(0) / 365.25
                             ).astype(int),
                         )
+
+                    if (self.ftype == "ot") and (
+                        "srvc_bgn_date" in df.columns
+                    ):
+
+                        df = df.map_partitions(
+                            lambda pdf: pdf.assign(
+                                duration=pd.to_timedelta(
+                                    pdf.apply(
+                                        lambda e: (
+                                            e["srvc_end_date"].date()
+                                            - e["srvc_bgn_date"].date()
+                                        )
+                                        if (
+                                            pd.notna(e["srvc_end_date"])
+                                            and pd.notna(e["srvc_bgn_date"])
+                                        )
+                                        else np.nan,
+                                        axis=1,
+                                    ),
+                                    errors="coerce",
+                                ).dt.days
+                            )
+                        )
+
+                        df = df.assign(
+                            duration=df["duration"].where(
+                                (df["srvc_bgn_date"] <= df["srvc_end_date"]),
+                                np.nan,
+                            )
+                        )
+                        if "birth_date" in df.columns:
+                            df = df.map_partitions(
+                                lambda pdf: pdf.assign(
+                                    age_day_srvc_bgn=pd.to_timedelta(
+                                        pdf.apply(
+                                            lambda e: (
+                                                e["srvc_bgn_date"].date()
+                                                - e["birth_date"].date()
+                                            )
+                                            if (
+                                                pd.notna(e["srvc_bgn_date"])
+                                                and pd.notna(e["birth_date"])
+                                            )
+                                            else np.nan,
+                                            axis=1,
+                                        ),
+                                        errors="coerce",
+                                    ).dt.days
+                                )
+                            )
+
+                            df = df.assign(
+                                age_srvc_bgn=(
+                                    df["age_day_srvc_bgn"].fillna(0) / 365.25
+                                ).astype(int),
+                            )
 
                 self.dct_files[ftype] = df

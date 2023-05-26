@@ -63,7 +63,6 @@ class TAFIP(taf_file.TAFFile):
         self.clean_diag_codes()
         self.clean_proc_codes()
         self.flag_common_exclusions()
-        self.flag_duplicates()
 
     def preprocess(self):
         """Add basic constructed variables"""
