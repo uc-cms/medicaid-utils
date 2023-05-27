@@ -11,6 +11,12 @@ def flag_cooccurring_mental_health_claims(
     Adds indicator column denoting presence of mental health diagnosis codes in
     claims.
 
+    ICD-9 Codes: 295-299, 300-301, 3071, 3075, 30981, 311-312, 314
+    ICD-10 Codes: F20-F29, F30-F39, F40-F42, F431, F50, F60, F9091 (MODRN,
+    2021)
+
+    Source: `MODRN, 2021 <https://qpp.cms.gov/docs/QPP_quality_measure_specifications/CQM-Measures/2019_Measure_468_MIPSCQM.pdf>`_
+
     New Column(s):
         - diag_cooccurring_mental_health - integer column, 1 when claim has
           mental health diagnosis codes and 0 otherwise
@@ -45,6 +51,13 @@ def flag_cooccurring_mental_health_claims(
 def flag_cooccurring_sud_claims(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     Adds indicator column denoting presence of SUD diagnosis codes in claims.
+
+    ICD-9 Codes: 303-305, excluding 3040, 3047,
+    3055 (OUD); 3051 (Tobacco); Remission codes (5th digit = ‘3’)
+    ICD-10 Codes: F10-F19, excluding F11 (OUD); F17 (tobacco); remission
+    codes, AND F55, O355, O9931, O9932
+
+    Source: `MODRN, 2021 <https://qpp.cms.gov/docs/QPP_quality_measure_specifications/CQM-Measures/2019_Measure_468_MIPSCQM.pdf>`_
 
     New Column(s):
         - diag_cooccurring_sud: integer column, 1 when claim has SUD
