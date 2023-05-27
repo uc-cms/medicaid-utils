@@ -233,6 +233,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     clean_exports: bool = True,
     preprocess_exports: bool = True,
     export_format: str = "csv",
+    pq_engine: str = "pyarrow",
     logger_name: str = __file__,
 ):
     """
@@ -319,6 +320,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             dct_data_paths["source_root"],
                             clean=False,
                             preprocess=False,
+                            pq_engine=pq_engine,
                         )
                 else:
                     dct_claims[claim_type] = (
@@ -329,6 +331,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             dct_data_paths["source_root"],
                             clean=True,
                             preprocess=True,
+                            pq_engine=pq_engine,
                             **(
                                 {}
                                 if claim_type != "ip"
@@ -348,6 +351,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             dct_data_paths["source_root"],
                             clean=True,
                             preprocess=True,
+                            pq_engine=pq_engine,
                             **(
                                 {}
                                 if claim_type != "ip"

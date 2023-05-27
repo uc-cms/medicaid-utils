@@ -259,6 +259,15 @@ class TAFFile:
                     ),
                 )
 
+    def clean_codes(self) -> None:
+        """Clean diagnostic code columns by removing non-alphanumeric
+        characters and converting them to upper case and NDC codes columns
+        by removing white space characters and padding 0s to the left so the
+        codes are of length 12"""
+        self.clean_diag_codes()
+        self.clean_ndc_codes()
+        self.clean_diag_codes()
+
     def clean_diag_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric
         characters and converting them to upper case"""
@@ -398,6 +407,59 @@ class TAFFile:
                     df[f"{self.ftype.lower()}_version"] == df["max_version"]
                 ].drop("max_version", axis=1)
             self.dct_files[ftype] = df
+
+    def gather_bene_level_diag_ndc_codes(self):
+        """
+        Constructs patient level NDC and diagnosis code list columns and
+        saves them to individual files
+        """
+        if self.ftype in ["ip", "ot"]:
+            df_base = self.dct_files["base"]
+            df_base = df_base.map_partitions(
+                lambda pdf: pdf.assign(
+                    LST_DIAG_CD=pdf[
+                        [
+                            col
+                            for col in pdf.columns
+                            if col.startswith("DGNS_CD_")
+                            or (col == ["ADMTG_DGNS_CD"])
+                        ]
+                    ].values.tolist()
+                )
+            )
+            df_base = df_base.map_partitions(
+                lambda pdf: pdf.groupby(pdf.index).agg({"LST_DIAG_CD": "sum"})
+            )
+            df_base = df_base.map_partitions(
+                lambda pdf: pdf.assign(
+                    LST_DIAG_CD_RAW=pdf["LST_DIAG_CD"].apply(
+                        lambda lst: ",".join([cd for cd in lst if bool(cd)])
+                    ),
+                    LST_DIAG_CD=pdf["LST_DIAG_CD"].apply(
+                        lambda lst: ",".join(set(cd for cd in lst if bool(cd)))
+                    ),
+                )
+            )
+            self.dct_files["base_diag_codes"] = df_base
+            self.cache_results("base_diag_codes")
+        df_line = self.dct_files["line"]
+        df_line = df_line.map_partitions(
+            lambda pdf: pdf.assign(
+                LST_NDC=pdf.groupby(pdf.index)["NDC"].apply(list)
+            )
+        )
+        df_line = df_line.map_partitions(
+            lambda pdf: pdf.assign(
+                LST_NDC_RAW=pdf["LST_NDC"].apply(
+                    lambda lst: ",".join([cd for cd in lst if bool(cd)])
+                ),
+                LST_NDC=pdf["LST_NDC"].apply(
+                    lambda lst: ",".join(set(cd for cd in lst if bool(cd)))
+                ),
+            )
+        )
+        self.dct_files["line_ndc_codes"] = df_line
+        self.cache_results("line_ndc_codes")
 
     def flag_ffs_and_encounter_claims(self):
         """

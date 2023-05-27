@@ -2,21 +2,21 @@
 routines specific for TAF PS files"""
 import os
 
+from itertools import product
 import numpy as np
 import pandas as pd
 import dask.dataframe as dd
 
-from medicaid_utils.preprocessing import taf_file
+from medicaid_utils.preprocessing import taf_file, taf_ip, taf_ot, taf_rx
 from medicaid_utils.common_utils import dataframe_utils
+from medicaid_utils.adapted_algorithms.py_elixhauser import (
+    elixhauser_comorbidity,
+)
 
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 other_data_folder = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "other_datasets", "data"
 )
-
-# MC - 1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 17
-# FFS - 2, 14, 15
-# unknown - 3, 4, 16, 18, 60, 70, 80
 
 
 class TAFPS(taf_file.TAFFile):
@@ -163,8 +163,8 @@ class TAFPS(taf_file.TAFFile):
             "chip": 0,
             "aged": 1,
             "blind_disabled": 2,
-            "child": 3,
-            "adults": 4,
+            "child": 4,
+            "adults": 5,
             "breast_and_cervical_cancer": 11,
             "child_of_unemployed": 6,
             "unemployed": 7,
@@ -249,7 +249,61 @@ class TAFPS(taf_file.TAFFile):
                 ]
                 .idxmax(axis=1)
                 .str[4:]
+                .str[:-7],
+                f"boe_gt_6_mon": (
+                    df[
+                        [
+                            f"boe_{boe_type}_months"
+                            for boe_type in dct_boe_codes
+                        ]
+                    ]
+                    > 6
+                )
+                .astype(int)
+                .idxmax(axis=1)
+                .str[4:]
                 .str[:-7]
+                .where(
+                    (
+                        df[
+                            [
+                                f"boe_{boe_type}_months"
+                                for boe_type in dct_boe_codes
+                            ]
+                        ]
+                        > 6
+                    )
+                    .astype(int)
+                    .any(axis=1),
+                    np.nan,
+                ),
+                f"mas_gt_6_mon": (
+                    df[
+                        [
+                            f"mas_{mas_type}_months"
+                            for mas_type in dct_mas_codes
+                        ]
+                    ]
+                    > 6
+                )
+                .astype(int)
+                .idxmax(axis=1)
+                .str[4:]
+                .str[:-7]
+                .where(
+                    (
+                        df[
+                            [
+                                f"mas" f"_" f"" f"" f"{mas_type}_months"
+                                for mas_type in dct_mas_codes
+                            ]
+                        ]
+                        > 6
+                    )
+                    .astype(int)
+                    .any(axis=1),
+                    np.nan,
+                ),
             }
         )
         self.dct_files["base"] = df
@@ -505,35 +559,50 @@ class TAFPS(taf_file.TAFFile):
         df = self.dct_files["base"]
         df = df.map_partitions(
             lambda pdf: pdf.assign(
-                any_restricted_benefit_month=np.column_stack(
+                **{
+                    f"restricted_benefit_mon_{mon}": (
+                        ~pd.to_numeric(
+                            pdf[f"RSTRCTD_BNFTS_CD_{str(mon).zfill(2)}"],
+                            errors="coerce",
+                        ).isin([1, 4, 5, 7])
+                    ).astype(int)
+                    for mon in range(1, 13)
+                }
+            )
+        )
+        df = df.map_partitions(
+            lambda pdf: pdf.assign(
+                any_restricted_benefit_month=pdf[
                     [
-                        ~pd.to_numeric(pdf[col], errors="coerce").isin(
-                            [1, 4, 5, 7]
-                        )
-                        for col in [
-                            f"RSTRCTD_BNFTS_CD_{str(mon).zfill(2)}"
-                            for mon in range(1, 13)
-                        ]
+                        f"restricted_benefit_mon" f"_{mon}"
+                        for mon in range(1, 13)
                     ]
-                )
+                ]
                 .any(axis=1)
                 .astype(int),
-                restricted_benefit_months=np.column_stack(
-                    [
-                        (
-                            ~pd.to_numeric(pdf[col], errors="coerce").isin(
-                                [1, 4, 5, 7]
-                            )
-                        ).astype(int)
-                        for col in [
-                            f"RSTRCTD_BNFTS_CD_{str(mon).zfill(2)}"
-                            for mon in range(1, 13)
+                restricted_benefit_months=pdf[f"restricted_benefit_mon_1"]
+                .astype(str)
+                .str.cat(
+                    pdf[
+                        [
+                            f"restricted_benefit_mon" f"_{mon}"
+                            for mon in range(2, 13)
                         ]
+                    ].astype(str),
+                    sep="",
+                ),
+                total_restricted_benefit_months=pdf[
+                    [
+                        f"restricted_benefit_mon" f"_{mon}"
+                        for mon in range(1, 13)
                     ]
-                )
+                ]
                 .sum(axis=1)
                 .astype(int),
             )
+        )
+        df = df.drop(
+            columns=[f"restricted_benefit_mon_{mon}" for mon in range(1, 13)]
         )
         self.dct_files["base"] = df
 
@@ -645,3 +714,290 @@ class TAFPS(taf_file.TAFFile):
                 ]
             }
         )
+
+    def flag_medicaid_enrolled_months(self):
+        """
+        Creates flags for medicaid enrollment for each and computes the
+        total number of months enroled in medicaid. Bene has to be enrolled
+        for all days of the month without missing eligibility information
+        for the month to be considered a medicaid enrolled month.
+        """
+        df_base = self.dct_files["base"]
+        df_base = df_base.assign(
+            **{
+                f"enrollment_mon_{mon}": (
+                    (
+                        (
+                            dd.to_numeric(
+                                df_base[
+                                    f"MDCD_ENRLMT_DAYS_"
+                                    f""
+                                    f"{str(mon).zfill(2)}"
+                                ],
+                                errors="coerce",
+                            )
+                            >= (
+                                28
+                                if (mon == 2)
+                                else (
+                                    31
+                                    if (mon in [1, 3, 5, 7, 8, 10, 12])
+                                    else 30
+                                )
+                            )
+                        )
+                        | (
+                            dd.to_numeric(
+                                df_base[
+                                    f"CHIP_ENRLMT_DAYS_" f"{str(mon).zfill(2)}"
+                                ],
+                                errors="coerce",
+                            )
+                            >= (
+                                28
+                                if (mon == 2)
+                                else (
+                                    31
+                                    if (mon in [1, 3, 5, 7, 8, 10, 12])
+                                    else 30
+                                )
+                            )
+                        )
+                    )
+                    & (
+                        dd.to_numeric(
+                            df_base[
+                                f"MISG_ENRLMT_TYPE_IND_{str(mon).zfill(2)}"
+                            ],
+                            errors="coerce",
+                        )
+                        == 0
+                    )
+                ).astype(int)
+                for mon in range(1, 13)
+            }
+        )
+        df_base = df_base.map_partitions(
+            lambda pdf: pdf.assign(
+                total_enrolled_months=pdf[
+                    [f"enrollment_mon_{mon}" for mon in range(1, 13)]
+                ]
+                .sum(axis=1)
+                .astype(int),
+                enrolled_months=pdf[f"enrollment_mon_1"]
+                .astype(str)
+                .str.cat(
+                    pdf[
+                        [f"enrollment_mon_{mon}" for mon in range(2, 13)]
+                    ].astype(str),
+                    sep="",
+                ),
+            )
+        )
+        df_base = df_base.drop(
+            columns=[f"enrollment_mon_{mon}" for mon in range(1, 13)]
+        )
+        self.dct_files["base"] = df_base
+
+    def flag_managed_care_months(self):
+        """
+        Creates flags for 3 categories of managed care plans for each month,
+        and adds columns denoting total number of months enrolled in these
+        plans and the enrollment sequence pattern.
+        """
+        df_mc = self.dct_files["managed_care"]
+        df_mc = df_mc.assign(
+            **{
+                f"MC_PLAN_TYPE_CD_"
+                f"{str(seq).zfill(2)}_": dd.to_numeric(
+                    df_mc[
+                        f"MC_PLAN_TYPE_CD_{str(seq).zfill(2)}_{str(mon).zfill(2)}"
+                    ],
+                    errors="coerce",
+                )
+                for seq, mon in product(range(1, 17), range(1, 13))
+            }
+        )
+        df_mc = df_mc.assign(
+            **{
+                **{
+                    f"mc_comp_mon_{mon}": df_mc[
+                        [
+                            f"MC_PLAN_TYPE_CD_"
+                            f"{str(seq).zfill(2)}_"
+                            f"{str(mon).zfill(2)}"
+                            for seq in range(1, 17)
+                        ]
+                    ]
+                    .isin([1, 4, 80])
+                    .any(axis=1)
+                    .astype(int)
+                    for mon in range(1, 13)
+                },
+                **{
+                    f"mc_behav_health_mon_{mon}": df_mc[
+                        [
+                            f"MC_PLAN_TYPE_CD_"
+                            f"{str(seq).zfill(2)}_"
+                            f"{str(mon).zfill(2)}"
+                            for seq in range(1, 17)
+                        ]
+                    ]
+                    .isin([8, 9, 10, 11, 12, 13])
+                    .any(axis=1)
+                    .astype(int)
+                    for mon in range(1, 13)
+                },
+                **{
+                    f"mc_pccm_health_mon_{mon}": df_mc[
+                        [
+                            f"MC_PLAN_TYPE_CD_"
+                            f"{str(seq).zfill(2)}_"
+                            f"{str(mon).zfill(2)}"
+                            for seq in range(1, 17)
+                        ]
+                    ]
+                    .isin([2, 3, 70])
+                    .any(axis=1)
+                    .astype(int)
+                    for mon in range(1, 13)
+                },
+            }
+        )
+        df_mc = df_mc.assign(
+            **{
+                **{
+                    f"mc_{mc_type}_months": df_mc[f"mc_{mc_type}_mon_1"]
+                    .astype(str)
+                    .str.cat(
+                        df_mc[
+                            [f"mc_{mc_type}_mon_{mon}" for mon in range(2, 13)]
+                        ].astype(str),
+                        sep="",
+                    )
+                    for mc_type in ["comp", "behav_health", "pccm"]
+                },
+                **{
+                    f"tot_mc_{mc_type}_months": df_mc[
+                        [f"mc_{mc_type}_mon_" f"{mon}" for mon in range(1, 13)]
+                    ].sum(axis=1)
+                    for mc_type in ["comp", "behav_health", "pccm"]
+                },
+            }
+        )
+        df_mc = df_mc.drop(
+            columns=[
+                f"mc_{mc_type}_mon_{mon}"
+                for mc_type, mon in product(
+                    ["comp", "behav_health", "pccm"], range(1, 13)
+                )
+            ]
+        )
+
+        self.dct_files["mc"] = df_mc
+        self.dct_files["base"] = self.dct_files["base"].merge(
+            df_mc[
+                [
+                    f"mc_{mc_type}_months"
+                    for mc_type in ["comp", "behav_health", "pccm"]
+                ]
+                + [
+                    f"tot_mc_{mc_type}_months"
+                    for mc_type in ["comp", "behav_health", "pccm"]
+                ]
+            ].compute(),
+            left_index=True,
+            right_index=True,
+            how="left",
+        )
+
+    def flag_tanf(self):
+        """
+        The Temporary Assistance for Needy Families (TANF) program provides
+        temporary financial assistance for pregnant women and families with
+        one or more dependent children. This provides financial assistance to
+        help pay for food, shelter, utilities, and expenses other than
+        medical. In TAF files this is identified via
+
+        TANF_CASH_CD:
+            - 1: INDIVIDUAL DID NOT RECEIVE TANF BENEFITS DURING THE YEAR;
+            - 2: INDIVIDUAL DID RECEIVE TANF BENEFITS DURING THE YEAR
+        """
+        df_base = self.dct_files["base"]
+        df_base = df_base.assign(
+            tanf=(
+                dd.to_numeric(df_base["TANF_CASH_CD"], errors="coerce") == 2
+            ).astype(int)
+        )
+        self.dct_files["base"] = df_base
+
+    def gather_bene_level_diag_ndc_codes(self):
+        """Constructs patient level NDC and diagnosis code list columns and
+        saves them to individual file
+        """
+        lst_util_claim_types = ["ip", "ot", "rx"]
+        dct_utilization_claims = {
+            claim_type: taf_file.TAFFile.get_claim_instance(
+                claim_type,
+                self.year,
+                self.state,
+                self.data_root,
+                clean=False,
+                preprocess=False,
+                pq_engine=self.pq_engine,
+                tmp_folder=self.tmp_folder,
+            )
+            for claim_type in lst_util_claim_types
+        }
+        for claim_type in lst_util_claim_types:
+            claim_file = dct_utilization_claims[claim_type]
+            claim_file.clean_codes()
+            claim_file.gather_bene_level_diag_ndc_codes()
+
+        df_diag = dd.concat(
+            [
+                dct_utilization_claims[claim_type]["base_diag_codes"]
+                for claim_type in ["ip", "ot"]
+            ],
+            axis=0,
+            interleave_partitions=True,
+        )
+        df_ndc = dd.concat(
+            [
+                dct_utilization_claims[claim_type]["line_ndc_codes"]
+                for claim_type in ["ip", "ot", "ndc"]
+            ],
+            axis=0,
+            interleave_partitions=True,
+        )
+
+        dataframe_utils.fix_index(df_diag, index_name=self.index_col)
+        dataframe_utils.fix_index(df_ndc, index_name=self.index_col)
+        df_diag = df_diag.assign(
+            **{col: df_ndc[col] for col in ["LST_NDC", "LST_NDC_RAW"]}
+        )
+        self.dct_files["diag_and_ndc_codes"] = df_diag
+        self.cache_results("diag_and_ndc_codes")
+
+    def add_risk_adjustment_scores(self):
+        """Adds bene level risk adjustment scores. Currently supports
+        Elixhauser scores."""
+        if "diag_and_ndc_codes" not in self.dct_files:
+            self.gather_bene_level_diag_ndc_codes()
+        df_diag_ndc = self.dct_files["diag_and_ndc_codes"]
+        df_diag_ndc = elixhauser_comorbidity.score(
+            df_diag_ndc, "LST_DIAG_CD", cms_format="TAF"
+        )
+        dataframe_utils.fix_index(df_diag_ndc, "BENE_MSIS")
+        self.dct_files["diag_ang_ndc"] = df_diag_ndc
+        self.cache_results("diag_and_ndc")
+        df_base = self.dct_files["base"]
+        df_base = df_base.assign(
+            **{
+                col: df_diag_ndc[col]
+                for col in ["elixhauser_score"]
+                + ["ELX_GRP_" + str(i) for i in range(1, 32)]
+            }
+        )
+        self.dct_files["base"] = df_base
+        self.cache_results("base")
