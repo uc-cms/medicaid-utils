@@ -863,7 +863,7 @@ class TAFPS(taf_file.TAFFile):
                     for mon in range(1, 13)
                 },
                 **{
-                    f"mc_pccm_health_mon_{mon}": df_mc[
+                    f"mc_pccm_mon_{mon}": df_mc[
                         [
                             f"MC_PLAN_TYPE_CD_"
                             f"{str(seq).zfill(2)}_"
@@ -878,26 +878,34 @@ class TAFPS(taf_file.TAFFile):
                 },
             }
         )
-        df_mc = df_mc.assign(
-            **{
+        df_mc = df_mc.map_partitions(
+            lambda pdf: pdf.assign(
                 **{
-                    f"mc_{mc_type}_months": df_mc[f"mc_{mc_type}_mon_1"]
-                    .astype(str)
-                    .str.cat(
-                        df_mc[
-                            [f"mc_{mc_type}_mon_{mon}" for mon in range(2, 13)]
-                        ].astype(str),
-                        sep="",
-                    )
-                    for mc_type in ["comp", "behav_health", "pccm"]
-                },
-                **{
-                    f"tot_mc_{mc_type}_months": df_mc[
-                        [f"mc_{mc_type}_mon_" f"{mon}" for mon in range(1, 13)]
-                    ].sum(axis=1)
-                    for mc_type in ["comp", "behav_health", "pccm"]
-                },
-            }
+                    **{
+                        f"mc_{mc_type}_months": pdf[f"mc_{mc_type}_mon_1"]
+                        .astype(str)
+                        .str.cat(
+                            pdf[
+                                [
+                                    f"mc_{mc_type}_mon_{mon}"
+                                    for mon in range(2, 13)
+                                ]
+                            ].astype(str),
+                            sep="",
+                        )
+                        for mc_type in ["comp", "behav_health", "pccm"]
+                    },
+                    **{
+                        f"tot_mc_{mc_type}_months": pdf[
+                            [
+                                f"mc_{mc_type}_mon_" f"{mon}"
+                                for mon in range(1, 13)
+                            ]
+                        ].sum(axis=1)
+                        for mc_type in ["comp", "behav_health", "pccm"]
+                    },
+                }
+            )
         )
         df_mc = df_mc.drop(
             columns=[
@@ -916,7 +924,7 @@ class TAFPS(taf_file.TAFFile):
                     for mc_type in ["comp", "behav_health", "pccm"]
                 ]
                 + [
-                    f"tot_mc_{mc_type}_months"
+                    f"total_mc_{mc_type}_months"
                     for mc_type in ["comp", "behav_health", "pccm"]
                 ]
             ].compute(),
