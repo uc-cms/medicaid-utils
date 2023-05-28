@@ -1044,7 +1044,7 @@ class TAFPS(taf_file.TAFFile):
         df_diag = df_diag.assign(
             **{col: df_ndc[col] for col in ["LST_NDC", "LST_NDC_RAW"]}
         )
-        self.dct_files["diag_and_ndc_codes"] = df_diag
+        self.add_custom_subtype("diag_and_ndc_codes", df_diag)
         self.cache_results("diag_and_ndc_codes")
 
     def add_risk_adjustment_scores(self):

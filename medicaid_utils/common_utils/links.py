@@ -28,6 +28,12 @@ def get_taf_parquet_loc(root, claim_type, state, year):
         dct_fileloc["occurrence_code"] = os.path.join(
             data_folder, claim_type, f"{claim_type.lower()}occr", "parquet"
         )
+        dct_fileloc["occurrence_code"] = os.path.join(
+            data_folder, claim_type, f"{claim_type.lower()}occr", "parquet"
+        )
+        dct_fileloc["base_diag_codes"] = os.path.join(
+            data_folder, claim_type, f"{claim_type.lower()}dx", "parquet"
+        )
     if claim_type == "ps":
         dct_fileloc["dates"] = os.path.join(
             data_folder, "de", "dedts", "parquet"
@@ -50,11 +56,18 @@ def get_taf_parquet_loc(root, claim_type, state, year):
         dct_fileloc["home_health"] = os.path.join(
             data_folder, "de", "dehsp", "parquet"
         )
+        dct_fileloc["diag_and_ndc_codes"] = os.path.join(
+            data_folder, "de", "dedxndc", "parquet"
+        )
     if claim_type in ["rx"]:
         dct_fileloc["base"] = os.path.join(
             data_folder, claim_type, f"{claim_type.lower()}h", "parquet"
         )
         dct_fileloc["line"] = os.path.join(
             data_folder, claim_type, f"{claim_type.lower()}l", "parquet"
+        )
+    if claim_type in ["ip", "ot", "lt", "rx"]:
+        dct_fileloc["line_ndc_codes"] = os.path.join(
+            data_folder, claim_type, f"{claim_type.lower()}ndc", "parquet"
         )
     return dct_fileloc

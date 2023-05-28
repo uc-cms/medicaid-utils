@@ -79,6 +79,9 @@ class TAFFile:
             "waiver",
             "home_health",
             "managed_care",
+            "line_ndc_codes",
+            "base_diag_codes",
+            "diag_and_ndc_codes",
         ]
         for subtype in list(self.dct_fileloc.keys()):
             if not os.path.exists(self.dct_fileloc[subtype]):
@@ -132,6 +135,13 @@ class TAFFile:
             for claim in cls.__subclasses__()
             if claim.__name__ == f"TAF{claim_type.upper()}"
         )(*args, **kwargs)
+
+    def add_custom_subtype(self, subtype_name: str, df_file: dd.DataFrame):
+        """Add custom subtype file to claim object"""
+        self.dct_fileloc[subtype_name] = links.get_taf_parquet_loc(
+            self.data_root, self.ftype, self.state, self.year
+        )[subtype_name]
+        self.dct_files[subtype_name] = df_file
 
     def cache_results(
         self, subtype=None, repartition=False
@@ -442,7 +452,7 @@ class TAFFile:
                     ),
                 )
             )
-            self.dct_files["base_diag_codes"] = df_base
+            self.add_custom_subtype("base_diag_codes", df_base)
             self.cache_results("base_diag_codes")
         df_line = self.dct_files["line"]
         df_line = df_line.map_partitions(
@@ -460,7 +470,7 @@ class TAFFile:
                 ),
             )
         )
-        self.dct_files["line_ndc_codes"] = df_line
+        self.add_custom_subtype("line_ndc_codes", df_line)
         self.cache_results("line_ndc_codes")
 
     def flag_ffs_and_encounter_claims(self):
