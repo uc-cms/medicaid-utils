@@ -265,7 +265,12 @@ class TAFFile:
                     os.path.join(
                         dest_folder,
                         self.dct_fileloc[subtype].split(
-                            self.data_root + os.path.sep
+                            self.data_root
+                            + (
+                                os.path.sep
+                                if not self.data_root.endswith(os.path.sep)
+                                else ""
+                            )
                         )[1],
                     ),
                 )
