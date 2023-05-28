@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.common_utils package &mdash; medicaid_utils 0.0.0 documentation</title>
@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -94,7 +91,27 @@
 <li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.stats_utils.get_utilisation_histograms"><code class="docutils literal notranslate"><span class="pre">get_utilisation_histograms()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="#medicaid-utils-common-utils-usps-address-module">medicaid_utils.common_utils.usps_address module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.common_utils.usps_address">medicaid_utils.common_utils.usps_address module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool"><code class="docutils literal notranslate"><span class="pre">AddressStandardizationWebTool</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool.api"><code class="docutils literal notranslate"><span class="pre">AddressStandardizationWebTool.api</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool.get_standardized_address"><code class="docutils literal notranslate"><span class="pre">AddressStandardizationWebTool.get_standardized_address()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.USPSAddress"><code class="docutils literal notranslate"><span class="pre">USPSAddress</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.USPSAddress.original"><code class="docutils literal notranslate"><span class="pre">USPSAddress.original()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.USPSAddress.standardized"><code class="docutils literal notranslate"><span class="pre">USPSAddress.standardized()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.USPSAddress.zipcode"><code class="docutils literal notranslate"><span class="pre">USPSAddress.zipcode()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.USPSShippingAPI"><code class="docutils literal notranslate"><span class="pre">USPSShippingAPI</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.USPSShippingAPI.send_request"><code class="docutils literal notranslate"><span class="pre">USPSShippingAPI.send_request()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.USPSShippingAPI.url"><code class="docutils literal notranslate"><span class="pre">USPSShippingAPI.url</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.dump_xml"><code class="docutils literal notranslate"><span class="pre">dump_xml()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.common_utils.usps_address.get_text"><code class="docutils literal notranslate"><span class="pre">get_text()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.html">medicaid_utils.filters package</a></li>
@@ -120,9 +137,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.common_utils package</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="medicaid_utils.html">medicaid_utils package</a> &raquo;</li>
+      <li>medicaid_utils.common_utils package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.common_utils.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -157,7 +174,7 @@
 <dt class="sig sig-object py" id="medicaid_utils.common_utils.dataframe_utils.export">
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.dataframe_utils.</span></span><span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">df:</span> <span class="pre">~dask.dataframe.core.DataFrame,</span> <span class="pre">pq_engine:</span> <span class="pre">str,</span> <span class="pre">output_filename:</span> <span class="pre">str,</span> <span class="pre">pq_location:</span> <span class="pre">str,</span> <span class="pre">csv_location:</span> <span class="pre">str,</span> <span class="pre">lst_datetime_col:</span> <span class="pre">~typing.List[str],</span> <span class="pre">is_dask:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">n_rows:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">-1,</span> <span class="pre">do_csv:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">df_schema:</span> <span class="pre">~pandas.core.frame.DataFrame</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'pandas.core.frame.DataFrame'&gt;,</span> <span class="pre">logger_name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'Dataframe</span> <span class="pre">utils',</span> <span class="pre">rewrite:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">do_parquet:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/common_utils/dataframe_utils.html#export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.dataframe_utils.export" title="Permalink to this definition"></a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> – </p></li>
 <li><p><strong>output_filename</strong> – </p></li>
@@ -165,7 +182,7 @@
 <li><p><strong>is_dask</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -238,7 +255,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="medicaid_utils.common_utils.recipes.log_assert">
-<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.recipes.</span></span><span class="sig-name descname"><span class="pre">log_assert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/recipes.html#log_assert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.recipes.log_assert" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.recipes.</span></span><span class="sig-name descname"><span class="pre">log_assert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bool_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/recipes.html#log_assert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.recipes.log_assert" title="Permalink to this definition"></a></dt>
 <dd><p>Use this as a replacement for assert if you want the failing of the
 assert statement to be logged.</p>
 </dd></dl>
@@ -340,8 +357,86 @@ Journal of the Korean Statistical Society 42 (2013): 323-328</p>
 <dd></dd></dl>
 
 </section>
-<section id="medicaid-utils-common-utils-usps-address-module">
-<h2>medicaid_utils.common_utils.usps_address module<a class="headerlink" href="#medicaid-utils-common-utils-usps-address-module" title="Permalink to this heading"></a></h2>
+<section id="module-medicaid_utils.common_utils.usps_address">
+<span id="medicaid-utils-common-utils-usps-address-module"></span><h2>medicaid_utils.common_utils.usps_address module<a class="headerlink" href="#module-medicaid_utils.common_utils.usps_address" title="Permalink to this heading"></a></h2>
+<p>This script shows an example of using <cite>requests</cite> and the USPS Address
+Information API. In order to use this, you must first register so you can
+get your USERID.  Your ID must be in the environment variable <cite>USPS_USERID</cite>.
+For information on the API see <cite>here &lt;https://www.usps.com/business/web-tools-apis/address-information-api.htm&gt;_</cite></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.usps_address.</span></span><span class="sig-name descname"><span class="pre">AddressStandardizationWebTool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">street</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">city</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip4</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">userid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'186UNIVE5985'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/usps_address.html#AddressStandardizationWebTool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#medicaid_utils.common_utils.usps_address.USPSShippingAPI" title="medicaid_utils.common_utils.usps_address.USPSShippingAPI"><code class="xref py py-class docutils literal notranslate"><span class="pre">USPSShippingAPI</span></code></a></p>
+<p>Object to get a standardized USPS Address.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool.api">
+<span class="sig-name descname"><span class="pre">api</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Verify'</span></em><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool.api" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool.get_standardized_address">
+<span class="sig-name descname"><span class="pre">get_standardized_address</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/usps_address.html#AddressStandardizationWebTool.get_standardized_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool.get_standardized_address" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a standardized format of the object’s address.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.USPSAddress">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.usps_address.</span></span><span class="sig-name descname"><span class="pre">USPSAddress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">street</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">city</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zip4</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/usps_address.html#USPSAddress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.USPSAddress" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Representation of an United States Postal Service address.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.USPSAddress.original">
+<span class="sig-name descname"><span class="pre">original</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/usps_address.html#USPSAddress.original"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.USPSAddress.original" title="Permalink to this definition"></a></dt>
+<dd><p>Return the non-standardized address format</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.USPSAddress.standardized">
+<span class="sig-name descname"><span class="pre">standardized</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/usps_address.html#USPSAddress.standardized"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.USPSAddress.standardized" title="Permalink to this definition"></a></dt>
+<dd><p>Return the standardized address format</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.USPSAddress.zipcode">
+<span class="sig-name descname"><span class="pre">zipcode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/usps_address.html#USPSAddress.zipcode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.USPSAddress.zipcode" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the zipcode based on whether or not <cite>zip4</cite> is used.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.USPSShippingAPI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.usps_address.</span></span><span class="sig-name descname"><span class="pre">USPSShippingAPI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">userid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'186UNIVE5985'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/usps_address.html#USPSShippingAPI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.USPSShippingAPI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Representation of the USPS Shipping API
+<a class="reference external" href="https://www.usps.com/business/web-tools-apis/address-information-api.htm">https://www.usps.com/business/web-tools-apis/address-information-api.htm</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.USPSShippingAPI.send_request">
+<span class="sig-name descname"><span class="pre">send_request</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/usps_address.html#USPSShippingAPI.send_request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.USPSShippingAPI.send_request" title="Permalink to this definition"></a></dt>
+<dd><p>Send the request and return the XML response.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.USPSShippingAPI.url">
+<span class="sig-name descname"><span class="pre">url</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'http://production.shippingapis.com/ShippingAPI.dll'</span></em><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.USPSShippingAPI.url" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.dump_xml">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.usps_address.</span></span><span class="sig-name descname"><span class="pre">dump_xml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_xml</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/usps_address.html#dump_xml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.dump_xml" title="Permalink to this definition"></a></dt>
+<dd><p>Return a string representation of XML with proper intendation</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.common_utils.usps_address.get_text">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.common_utils.usps_address.</span></span><span class="sig-name descname"><span class="pre">get_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/common_utils/usps_address.html#get_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.common_utils.usps_address.get_text" title="Permalink to this definition"></a></dt>
+<dd><p>Return the text of the XPath element, or None if the element was not found.</p>
+</dd></dl>
+
 </section>
 </section>
 

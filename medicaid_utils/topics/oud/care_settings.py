@@ -7,19 +7,20 @@ def flag_care_settings(df_ot: dd.DataFrame):
     Office, Behavioral Health Centers, Hospital & Office-based care
     settings.
 
-    References:
-    ----------
-    - `Gertner, 2020 <https://www.healthaffairs.org/doi/full/10.1377/hlthaff.2019.01559`_
-    - FARA, 2022
-
     Parameters
     ----------
     df_ot : dd.DataFrame
-            OT header claim dataframe
+        OT header claim dataframe
 
     Returns
     -------
     dd.DataFrame
+
+    References
+    -----------
+    - `Gertner, 2020 <https://www.healthaffairs.org/doi/full/10.1377/hlthaff
+      .2019.01559>`_
+    - FARA, 2022
 
     """
     df_ot = df_ot.assign(

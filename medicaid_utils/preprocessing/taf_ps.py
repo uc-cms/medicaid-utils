@@ -106,9 +106,12 @@ class TAFPS(taf_file.TAFFile):
     def flag_common_exclusions(self):
         """
         Adds commonly used exclusion flags
+
         New Column(s):
-            - excl_duplicated_bene_id - 0 or 1, 1 when bene's index column
-            is repeated
+
+            - excl_duplicated_bene_id - 0 or 1, 1 when bene's index column is
+              repeated
+
         """
         df_base = self.dct_files["base"]
         df_base = df_base.assign(**{f"_{self.index_col}": df_base.index})
@@ -133,37 +136,39 @@ class TAFPS(taf_file.TAFFile):
         Adds columns denoting number of months in each Maintenance
         Assistance Status (MAS) and Basis of Eligibility
         (BOE) category. Columns added are,
+
             - boe_chip_months : Number of months in Separate-CHIP BOE category
             - boe_aged_months : Number of months in Aged BOE category
-            - boe_blind_disabled_months : Number of months in Blind/
-            Disabled BOE category
+            - boe_blind_disabled_months : Number of months in Blind/Disabled
+              BOE category
             - boe_child_months : Number of months in Children BOE category
             - boe_adults_months : Number of months in Adult BOE category
             - boe_breast_and_cervical_cancer_months : Number of months in
-            Breast and Cervical Cancer Prevention and Treatment Act of 2000
-            BOE category
+              Breast and Cervical Cancer Prevention and Treatment Act of
+              2000 BOE category
             - boe_child_of_unemployed_months : Number of months in Child of
-            Unemployed Adult BOE category
+              Unemployed Adult BOE category
             - boe_unemployed_months : Number of months in Unemployed Adult
-            BOE category
+              BOE category
             - boe_foster_care_children_months : Number of months in Foster
-            Care Children BOE category
+              Care Children BOE category
             - boe_unknown_months : Number of months in Uknown BOE category
             - mas_chip_months : Number of months in Separate-CHIP MAS category
             - mas_cash_sec_1931_months : Number of months in Individuals
-            receiving cash assistance or eligible under section 1931 of the
-            Act MAS category
+              receiving cash assistance or eligible under section 1931 of
+              the Act MAS category
             - mas_medically_needy_months : Number of months in Medically
-            Needy MAS category
+              Needy MAS category
             - mas_poverty_months : Number of months in Poverty Related
-            Eligibles MAS category
+              Eligibles MAS category
             - mas_other_months : Number of months in Other Eligibles MAS
-            category
+              category
             - mas_demonstration_months : Number of months in Section 1115
-            Demonstration expansion eligible MAS category
+              Demonstration expansion eligible MAS category
             - mas_unknown_months : Number of months in Unknown MAS category
             - max_mas_type : Top MAS category for the bene
             - max_boe_type : Top BOE category for the bene
+
         """
         df = self.dct_files["base"]
         dct_boe_codes = {
@@ -342,22 +347,29 @@ class TAFPS(taf_file.TAFFile):
         their resident ZIP/ FIPS codes
 
         New Columns:
-            - resident_state_cd
-            - rural - 0/ 1/ np.nan, 1 when bene's residence is in a rural
-            location, 0 when not, -1 when zip code is missing
-            - pcsa - resident PCSA code
-            - {ruca_code/ rucc_code} - resident ruca_code
+
+        - resident_state_cd
+        - rural - 0/ 1/ np.nan, 1 when bene's residence is in a rural
+          location, 0 when not, -1 when zip code is missing
+        - pcsa - resident PCSA code
+        - {ruca_code/ rucc_code} - resident ruca_code
 
         This function uses
+
             - `RUCA 3.1 dataset
-            <https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673>`_. RUCA
-            codes >= 4 denote rural and the rest denote urban as per
-            `Cole, Megan B et al <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1>`_
-            - `RUCC codes <https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372>`_.
-            RUCC codes >= 8 denote rural and the rest denote urban.
-            - ZCTAs x zipcode crosswalk from `UDSMapper <https://udsmapper.org/zip-code-to-zcta-crosswalk/>`_.
+              <https://www.ers.usda.gov/webdocs/DataFiles/53241
+              /RUCA2010zipcode.xlsx?v=8673>`_. RUCA codes >= 4 denote rural
+              and the rest denote urban as per `Cole, Megan B et al
+              <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1>`_
+            - `RUCC codes <https://www.ers.usda.gov/webdocs/DataFiles/53251
+              /ruralurbancodes2013.xls?v=2372>`_. RUCC codes >= 8 denote
+              rural and the rest denote urban.
+            - ZCTAs x zipcode crosswalk from `UDSMapper
+              <https://udsmapper.org/zip-code-to-zcta-crosswalk/>`_.
             - zipcodes from multiple sources
-            - Distance between centroids of zipcodes using `NBER data <https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv>`_
+            - Distance between centroids of zipcodes using
+              `NBER data <https://nber.org/distance/2016/gaz/zcta5
+              /gaz2016zcta5centroid.csv>`_
 
         Parameters
         ----------
@@ -505,8 +517,12 @@ class TAFPS(taf_file.TAFFile):
         """
         Flags benes with  DUAL_ELGBL_CD equal to 1 (full dual), 2 (partial
         dual), or 3 (other dual) in any month are flagged as duals.
-        Reference: `Identifying beneficiaries with a substance use
-        disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
+
+        References
+        ----------
+        - `Identifying beneficiaries with a substance use disorder
+          <https://www.medicaid.gov/medicaid/data-and-systems/downloads
+          /macbis/sud_techspecs.docx>`_
         """
         df = self.dct_files["base"]
         df = df.assign(
@@ -548,21 +564,22 @@ class TAFPS(taf_file.TAFFile):
         below values in their RSTRCTD_BNFTS_CD_XX columns are NOT assumed to
         have restricted benefits:
 
-            1. Individual is eligible for Medicaid or CHIP and entitled to
-            the full scope of Medicaid or CHIP benefits.
-            4. Individual is eligible for Medicaid or CHIP but only entitled to
-            restricted benefits for pregnancy-related services.
-            5. Individual is eligible for Medicaid or Medicaid-Expansion
-            CHIP but, for reasons other than alien, dual-eligibility or
-            pregnancy-related status, is only entitled to restricted
-            benefits (e.g., restricted benefits based upon substance abuse,
-            medically needy or other criteria).
-            7. Individual is eligible for Medicaid and entitled to Medicaid
-            benefits under an alternative package of
-            benchmark-equivalent coverage, as enacted by the Deficit
-            Reduction Act of 2005.
+        - 1. Individual is eligible for Medicaid or CHIP and entitled to the
+          full scope of Medicaid or CHIP benefits.
+        - 4. Individual is eligible for Medicaid or CHIP but only entitled
+          to restricted benefits for pregnancy-related services.
+        - 5. Individual is eligible for Medicaid or Medicaid-Expansion CHIP
+          but, for reasons other than alien, dual-eligibility or
+          pregnancy-related status, is only entitled to restricted
+          benefits (e.g., restricted benefits based upon substance abuse,
+          medically needy or other criteria).
+        - 7. Individual is eligible for Medicaid and entitled to Medicaid
+          benefits under an alternative package of benchmark-equivalent
+          coverage, as enacted by the Deficit Reduction Act of 2005.
 
-        Reference: `Identifying beneficiaries with a substance use disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
+        Reference: `Identifying beneficiaries with a substance use disorder
+        <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis
+        /sud_techspecs.docx>`_
         """
         df = self.dct_files["base"]
         df = df.map_partitions(
@@ -941,9 +958,10 @@ class TAFPS(taf_file.TAFFile):
         help pay for food, shelter, utilities, and expenses other than
         medical. In TAF files this is identified via
 
-        TANF_CASH_CD:
+        `TANF_CASH_CD:`
             - 1: INDIVIDUAL DID NOT RECEIVE TANF BENEFITS DURING THE YEAR;
             - 2: INDIVIDUAL DID RECEIVE TANF BENEFITS DURING THE YEAR
+
         """
         df_base = self.dct_files["base"]
         df_base = df_base.assign(

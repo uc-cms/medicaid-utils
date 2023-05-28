@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.topics.oud package &mdash; medicaid_utils 0.0.0 documentation</title>
@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -55,6 +52,7 @@
 <li class="toctree-l5"><a class="reference internal" href="medicaid_utils.topics.obgyn.html">medicaid_utils.topics.obgyn package</a></li>
 <li class="toctree-l5 current"><a class="current reference internal" href="#">medicaid_utils.topics.oud package</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="#module-medicaid_utils.topics.oud.care_settings">medicaid_utils.topics.oud.care_settings module</a></li>
 <li class="toctree-l6"><a class="reference internal" href="#module-medicaid_utils.topics.oud.cooccurring_conditions">medicaid_utils.topics.oud.cooccurring_conditions module</a></li>
 <li class="toctree-l6"><a class="reference internal" href="#module-medicaid_utils.topics.oud.medication_and_behavioral_health">medicaid_utils.topics.oud.medication_and_behavioral_health module</a></li>
 </ul>
@@ -82,10 +80,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.topics.html">medicaid_utils.topics package</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.topics.oud package</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="medicaid_utils.html">medicaid_utils package</a> &raquo;</li>
+          <li><a href="medicaid_utils.topics.html">medicaid_utils.topics package</a> &raquo;</li>
+      <li>medicaid_utils.topics.oud package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.topics.oud.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -102,6 +100,31 @@ OUD related studies</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
+<section id="module-medicaid_utils.topics.oud.care_settings">
+<span id="medicaid-utils-topics-oud-care-settings-module"></span><h2>medicaid_utils.topics.oud.care_settings module<a class="headerlink" href="#module-medicaid_utils.topics.oud.care_settings" title="Permalink to this heading"></a></h2>
+<p>This module has functions that can be used to identify OUD care settings</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.topics.oud.care_settings.flag_care_settings">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.care_settings.</span></span><span class="sig-name descname"><span class="pre">flag_care_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_ot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/care_settings.html#flag_care_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.care_settings.flag_care_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Creates claim level flags for FQHC, Outpatient Hospital, Physician
+Office, Behavioral Health Centers, Hospital &amp; Office-based care
+settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df_ot</strong> (<em>dd.DataFrame</em>) – OT header claim dataframe</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.healthaffairs.org/doi/full/10.1377/hlthaff.2019.01559">Gertner, 2020</a></p></li>
+<li><p>FARA, 2022</p></li>
+</ul>
+</dd></dl>
+
+</section>
 <section id="module-medicaid_utils.topics.oud.cooccurring_conditions">
 <span id="medicaid-utils-topics-oud-cooccurring-conditions-module"></span><h2>medicaid_utils.topics.oud.cooccurring_conditions module<a class="headerlink" href="#module-medicaid_utils.topics.oud.cooccurring_conditions" title="Permalink to this heading"></a></h2>
 <p>This module has functions that can be used to construct covariates
@@ -111,27 +134,41 @@ denoting common co-occurring conditions with OUD</p>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.cooccurring_conditions.</span></span><span class="sig-name descname"><span class="pre">flag_cooccurring_mental_health_claims</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/cooccurring_conditions.html#flag_cooccurring_mental_health_claims"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.cooccurring_conditions.flag_cooccurring_mental_health_claims" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of mental health diagnosis codes in
 claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>Codes used are,</p>
+<ul class="simple">
+<li><p>ICD-9 Codes: 295-299, 300-301, 3071, 3075, 30981, 311-312, 314</p></li>
+<li><p>ICD-10 Codes: F20-F29, F30-F39, F40-F42, F431, F50, F60, F9091 (MODRN, 2021)</p></li>
+</ul>
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>diag_cooccurring_mental_health - integer column, 1 when claim has
 mental health diagnosis codes and 0 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://qpp.cms.gov/docs/QPP_quality_measure_specifications/CQM-Measures/2019_Measure_468_MIPSCQM.pdf">MODRN, 2021</a></p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="medicaid_utils.topics.oud.cooccurring_conditions.flag_cooccurring_sud_claims">
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.cooccurring_conditions.</span></span><span class="sig-name descname"><span class="pre">flag_cooccurring_sud_claims</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/cooccurring_conditions.html#flag_cooccurring_sud_claims"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.cooccurring_conditions.flag_cooccurring_sud_claims" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of SUD diagnosis codes in claims.</p>
+<p>Codes used are,</p>
+<ul class="simple">
+<li><p>ICD-9 Codes: 303-305, excluding 3040, 3047, 3055 (OUD); 3051 (
+Tobacco); Remission codes (5th digit = ‘3’)</p></li>
+<li><p>ICD-10 Codes: F10-F19, excluding F11 (OUD); F17 (tobacco); remission
+codes, AND F55, O355, O9931, O9932</p></li>
+</ul>
 <dl class="simple">
 <dt>New Column(s):</dt><dd><ul class="simple">
 <li><p>diag_cooccurring_sud: integer column, 1 when claim has SUD
@@ -140,13 +177,17 @@ diagnosis codes and 0 otherwise</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://qpp.cms.gov/docs/QPP_quality_measure_specifications/CQM-Measures/2019_Measure_468_MIPSCQM.pdf">MODRN, 2021</a></p></li>
+</ul>
 </dd></dl>
 
 </section>
@@ -159,18 +200,16 @@ medications and behavioral health service claims</p>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.medication_and_behavioral_health.</span></span><span class="sig-name descname"><span class="pre">flag_proc_behavioral_health_trtmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/medication_and_behavioral_health.html#flag_proc_behavioral_health_trtmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_behavioral_health_trtmt" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of Behavioral Health treatment
 procedure codes in claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>proc_behavioral_health_trtmt: 0 or 1, 1 when claim has Behavioral
 Health treatment procedure codes and 0 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -181,18 +220,16 @@ Health treatment procedure codes and 0 otherwise</p></li>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.medication_and_behavioral_health.</span></span><span class="sig-name descname"><span class="pre">flag_proc_buprenorphine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/medication_and_behavioral_health.html#flag_proc_buprenorphine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_buprenorphine" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of buprenorphine treatment
 procedure codes in claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>proc_buprenorphine: 0 or 1, 1 when claim has Buprenorphine
 treatment procedure codes and 0 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -203,18 +240,16 @@ treatment procedure codes and 0 otherwise</p></li>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.medication_and_behavioral_health.</span></span><span class="sig-name descname"><span class="pre">flag_proc_buprenorphine_naloxone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/medication_and_behavioral_health.html#flag_proc_buprenorphine_naloxone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_buprenorphine_naloxone" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of Buprenorphine/ Naloxone
 treatment procedure codes in claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>proc_buprenorphine_naloxone: 0 or 1, 1 when claim has
 Buprenorphine/ Naloxone treatment procedure codes and 0 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -225,18 +260,16 @@ Buprenorphine/ Naloxone treatment procedure codes and 0 otherwise</p></li>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.medication_and_behavioral_health.</span></span><span class="sig-name descname"><span class="pre">flag_proc_injectable_naltrexone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/medication_and_behavioral_health.html#flag_proc_injectable_naltrexone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_injectable_naltrexone" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of Injectable Naltrexone
 procedure codes in claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>proc_injectable_naltrexone: 0 or 1, 1 when claim has Injectable
 Naltrexone treatment procedure codes and 0 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -247,18 +280,16 @@ Naltrexone treatment procedure codes and 0 otherwise</p></li>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.medication_and_behavioral_health.</span></span><span class="sig-name descname"><span class="pre">flag_proc_methadone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/medication_and_behavioral_health.html#flag_proc_methadone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_methadone" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of Methadone procedure codes in
 claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>proc_methadone: 0 or 1, 1 when claim has Methadone treatment
 procedure codes and 0 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -269,20 +300,18 @@ procedure codes and 0 otherwise</p></li>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.medication_and_behavioral_health.</span></span><span class="sig-name descname"><span class="pre">flag_rx_benzos_opioids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_rx_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/medication_and_behavioral_health.html#flag_rx_benzos_opioids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_benzos_opioids" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of Benzodiazepines/ Opioids NDC
 codes in claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>rx_benzodiazepines: 0 or 1, 1 when claim has Benzodiazepines NDC
 codes and 0 otherwise</p></li>
 <li><p>rx_opioids: 0 or 1, 1 when claim has Opioids NDC codes and 0
 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -293,18 +322,16 @@ otherwise</p></li>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.medication_and_behavioral_health.</span></span><span class="sig-name descname"><span class="pre">flag_rx_buprenorphine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_rx_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/medication_and_behavioral_health.html#flag_rx_buprenorphine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_buprenorphine" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of buprenorphine NDC codes in
 claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>rx_buprenorphine: 0 or 1, 1 when claim has buprenorphine NDC codes
 and 0 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -315,18 +342,16 @@ and 0 otherwise</p></li>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.medication_and_behavioral_health.</span></span><span class="sig-name descname"><span class="pre">flag_rx_buprenorphine_naloxone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_rx_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/medication_and_behavioral_health.html#flag_rx_buprenorphine_naloxone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_buprenorphine_naloxone" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of Buprenorphine/ Naloxone NDC
 codes in claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>rx_buprenorphine_naloxone: 0 or 1, 1 when claim has buprenorphine
 NDC codes and 0 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -336,20 +361,18 @@ NDC codes and 0 otherwise</p></li>
 <dt class="sig sig-object py" id="medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_methadone">
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.medication_and_behavioral_health.</span></span><span class="sig-name descname"><span class="pre">flag_rx_methadone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_rx_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/medication_and_behavioral_health.html#flag_rx_methadone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_methadone" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of Methadone NDC codes in claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>rx_methadone_le_30mg: 0 or 1, 1 when claim has Methadone NDC codes
 with dosage less than or equal to 30 mg and 0 otherwise</p></li>
 <li><p>rx_methadone_gt_30mg: 0 or 1, 1 when claim has Methadone NDC codes
 with dosage greater than or equal to 30 mg and 0 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -360,18 +383,16 @@ with dosage greater than or equal to 30 mg and 0 otherwise</p></li>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.topics.oud.medication_and_behavioral_health.</span></span><span class="sig-name descname"><span class="pre">flag_rx_oral_naltrexone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_rx_claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/topics/oud/medication_and_behavioral_health.html#flag_rx_oral_naltrexone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_oral_naltrexone" title="Permalink to this definition"></a></dt>
 <dd><p>Adds indicator column denoting presence of Oral Naltrexone NDC
 codes in claims.</p>
-<dl class="simple">
-<dt>New Column(s):</dt><dd><ul class="simple">
+<p>New Column(s):</p>
+<ul class="simple">
 <li><p>rx_oral_naltrexone: 0 or 1, 1 when claim has Oral Naltrexone NDC
 codes and 0 otherwise</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or OT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>

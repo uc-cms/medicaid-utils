@@ -11,9 +11,6 @@
   <![endif]-->
   
         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../../_static/doctools.js"></script>
         <script src="../../../../_static/sphinx_highlight.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -57,9 +54,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.filters.patients.cohort_extraction</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>medicaid_utils.filters.patients.cohort_extraction</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -69,7 +66,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for medicaid_utils.filters.patients.cohort_extraction</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;This module has functions that extract cohorts for studies based on multiple filters&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;This module has functions that extract cohorts for studies based on</span>
+<span class="sd">multiple filters&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">gc</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
@@ -90,6 +88,7 @@
     <span class="n">taf_ps</span><span class="p">,</span>  <span class="c1"># pylint: disable=unused-import</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">medicaid_utils.filters.claims</span> <span class="kn">import</span> <span class="n">dx_and_proc</span>
+<span class="kn">from</span> <span class="nn">medicaid_utils.common_utils</span> <span class="kn">import</span> <span class="n">dataframe_utils</span>
 
 <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
 
@@ -112,8 +111,8 @@
 <span class="sd">    df : dd.DataFrame</span>
 <span class="sd">        Dataframe to be filtered</span>
 <span class="sd">    filter_name : str</span>
-<span class="sd">        Name of filter. Should be of the format range_[datatype]_[col_name]. date and numeric range type filters are</span>
-<span class="sd">        currently supported</span>
+<span class="sd">        Name of filter. Should be of the format range_[datatype]_[col_name].</span>
+<span class="sd">        date and numeric range type filters are currently supported</span>
 <span class="sd">    col_name : str</span>
 <span class="sd">        Name of column</span>
 <span class="sd">    data_type : str</span>
@@ -169,27 +168,49 @@
 <span class="sd">        Claim object</span>
 <span class="sd">    dct_claim_filters : dict</span>
 <span class="sd">        Filters to apply. Filter dictionary should be of the format:</span>
-<span class="sd">        {claim_type_1: {range_[datatype]_[col_name]: (start, end),</span>
-<span class="sd">                        excl_[col_name]: [0/1],</span>
-<span class="sd">                        [col_name]: value,</span>
-<span class="sd">                        ..}</span>
-<span class="sd">        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with</span>
-<span class="sd">        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter</span>
-<span class="sd">        names that are just column names will restrict the result to benes with the filter value for the corresponding</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {claim_type_1:</span>
+<span class="sd">                {range_[datatype]_[col_name]: (start, end),</span>
+<span class="sd">                 excl_[col_name]: [0/1],</span>
+<span class="sd">                 [col_name]: value,</span>
+<span class="sd">                 ..}</span>
+<span class="sd">             claim_type_2: ...}</span>
+<span class="sd">            }</span>
+
+<span class="sd">        date and numeric range type filters are currently supported. Filter</span>
+<span class="sd">        names beginning with `excl_` with values set to 1 will exclude benes</span>
+<span class="sd">        that have a positive value for that exclusion flag. Filter names</span>
+<span class="sd">        that are just column names will restrict the result to benes with</span>
+<span class="sd">        the filter value for the corresponding</span>
 <span class="sd">        column.</span>
-<span class="sd">        Eg: {&#39;ip&#39;: {&#39;range_numeric_age_prncpl_proc&#39;: (0, 18),</span>
-<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
-<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
-<span class="sd">                              &#39;ot&#39;: {&#39;range_numeric_age_srvc_bgn&#39;: (0, 18),</span>
-<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
-<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
-<span class="sd">                              }</span>
-<span class="sd">        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting</span>
-<span class="sd">        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of</span>
-<span class="sd">        prinicipal procedure data/ service begin date.</span>
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;ip&#39;:</span>
+<span class="sd">                {&#39;range_numeric_age_prncpl_proc&#39;: (0, 18),</span>
+<span class="sd">                 &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                 &#39;excl_female&#39;: 1}}</span>
+<span class="sd">             &#39;ot&#39;:</span>
+<span class="sd">                {&#39;range_numeric_age_srvc_bgn&#39;: (0, 18),</span>
+<span class="sd">                 &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                 &#39;excl_female&#39;: 1</span>
+<span class="sd">                 }</span>
+<span class="sd">            }</span>
+
+<span class="sd">        The example filter will exclude all IP claims of female benes and</span>
+<span class="sd">        also claims with missing DOB. The resulting set will also be</span>
+<span class="sd">        restricted to those of benes whose age is between 0-18 (inclusive of</span>
+<span class="sd">        both 0 and 18) as of principal procedure data/ service begin date.</span>
 <span class="sd">    tmp_folder : str</span>
-<span class="sd">        Temporary folder to cache results mid-processing. This is useful for large datasets, as the dask cluster can</span>
-<span class="sd">        crash if the task graph is too large for large datasets. This is handled by caching results at intermediate</span>
+<span class="sd">        Temporary folder to cache results mid-processing. This is useful for</span>
+<span class="sd">        large datasets, as the dask cluster can crash if the task graph is</span>
+<span class="sd">        too large for large datasets. This is handled by caching results at</span>
+<span class="sd">        intermediate</span>
 <span class="sd">        stages.</span>
 <span class="sd">    subtype : str, default=None</span>
 <span class="sd">        Claim subtype (required for TAF datasets)</span>
@@ -203,7 +224,8 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        When subtype is parameter is missing for a function with TAFFile claim type input</span>
+<span class="sd">        When subtype is parameter is missing for a function with TAFFile</span>
+<span class="sd">        claim type input</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
@@ -304,10 +326,12 @@
     <span class="n">clean_exports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">preprocess_exports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">export_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+    <span class="n">pq_engine</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
     <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="vm">__file__</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extracts and exports claim files corresponded cohort defined by the input filters</span>
+<span class="sd">    Extracts and exports claim files corresponded cohort defined by the</span>
+<span class="sd">    input filters</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -317,41 +341,92 @@
 <span class="sd">        List of years from which cohort should be created</span>
 <span class="sd">    dct_diag_proc_codes : dict</span>
 <span class="sd">        Dictionary of diagnosis and procedure codes. Should be in the format</span>
-<span class="sd">            {&#39;diag_codes&#39;: {condition_name: {[&#39;incl&#39; / &#39;excl&#39;]: {[9/ 10]: list of codes} },</span>
-<span class="sd">             &#39;proc_codes&#39;: {procedure_name: {procedure_system_code: list of codes} }}</span>
-<span class="sd">            Eg: {&#39;diag_codes&#39;: {&#39;oud_nqf&#39;: {&#39;incl&#39;: {9: [&#39;3040&#39;,&#39;3055&#39;]}}},</span>
-<span class="sd">                 &#39;proc_codes&#39;: {&#39;methadone_7&#39;: {7: &#39;HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,&#39;</span>
-<span class="sd">                                   &#39;HZ96ZZZ&#39;.split(&quot;,&quot;)}}}</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;diag_codes&#39;: {condition_name:</span>
+<span class="sd">                                {[&#39;incl&#39; / &#39;excl&#39;]: {[9/ 10]: list of codes}},</span>
+<span class="sd">             &#39;proc_codes&#39;: {procedure_name:</span>
+<span class="sd">                                {procedure_system_code: list of codes} }</span>
+<span class="sd">            }</span>
+
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;diag_codes&#39;:</span>
+<span class="sd">                {&#39;oud_nqf&#39;:</span>
+<span class="sd">                    {&#39;incl&#39;: {9: [&#39;3040&#39;,&#39;3055&#39;]}}},</span>
+<span class="sd">             &#39;proc_codes&#39;:</span>
+<span class="sd">                {&#39;methadone_7&#39;:</span>
+<span class="sd">                    {7: &#39;HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,</span>
+<span class="sd">                         HZ95ZZZ,HZ96ZZZ&#39;.split(&quot;,&quot;)}</span>
+<span class="sd">                }</span>
+<span class="sd">            }</span>
+
 <span class="sd">    dct_filters: dict</span>
-<span class="sd">        Filters to apply to the cohort, and the exported claim files. Filter dictionary should be of the format:</span>
-<span class="sd">        {&#39;cohort&#39;: {claim_type_1: {range_[datatype]_[col_name]: (start, end),</span>
-<span class="sd">                        excl_[col_name]: [0/1],</span>
-<span class="sd">                        [col_name]: value,</span>
-<span class="sd">                        ..},</span>
-<span class="sd">        &#39;export&#39;: {claim_type_1: {range_[datatype]_[col_name]: (start, end),</span>
-<span class="sd">                        excl_[col_name]: [0/1],</span>
-<span class="sd">                        [col_name]: value,</span>
-<span class="sd">                        ..}}</span>
-<span class="sd">        date and numeric range type filters are currently supported. Filter names beginning with</span>
-<span class="sd">        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter</span>
-<span class="sd">        names that are just column names will restrict the result to benes with the filter value for the</span>
-<span class="sd">        corresponding column.</span>
-<span class="sd">        Eg: {&#39;ip&#39;: {&#39;range_numeric_age_prncpl_proc&#39;: (0, 18),</span>
-<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
-<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
-<span class="sd">                              &#39;ot&#39;: {&#39;range_numeric_age_srvc_bgn&#39;: (0, 18),</span>
-<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
-<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
-<span class="sd">                              }</span>
-<span class="sd">        The example filter will exclude the cohort to all IP claims of female benes and also claims with missing</span>
-<span class="sd">        DOB. The resulting set will also be restricted to those of benes whose age is between 0-18 (inclusive of</span>
-<span class="sd">        both 0 and 18) as of principal procedure date/ service begin date.</span>
-<span class="sd">    lst_types_to_export : List[str]</span>
+<span class="sd">        Filters to apply to the cohort, and the exported claim files. Filter</span>
+<span class="sd">        dictionary should be of the format:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;cohort&#39;:</span>
+<span class="sd">                {claim_type_1:</span>
+<span class="sd">                    {range_[datatype]_[col_name]: (start, end),</span>
+<span class="sd">                     excl_[col_name]: [0/1],</span>
+<span class="sd">                     [col_name]: value,</span>
+<span class="sd">                     ..},</span>
+<span class="sd">             &#39;export&#39;:</span>
+<span class="sd">                {claim_type_1:</span>
+<span class="sd">                    {range_[datatype]_[col_name]: (start, end),</span>
+<span class="sd">                     excl_[col_name]: [0/1],</span>
+<span class="sd">                     [col_name]: value,</span>
+<span class="sd">                     ..}</span>
+<span class="sd">            }</span>
+
+<span class="sd">        date and numeric range type filters are currently supported. Filter</span>
+<span class="sd">        names beginning with `excl_` with values set to 1 will exclude benes</span>
+<span class="sd">        that have a positive value for that exclusion flag. Filter names</span>
+<span class="sd">        that are just column names will restrict the result to benes with</span>
+<span class="sd">        the filter value for the corresponding column.</span>
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;cohort&#39;:</span>
+<span class="sd">                {&#39;ip&#39;:</span>
+<span class="sd">                    {&#39;range_numeric_age_prncpl_proc&#39;: (0, 18),</span>
+<span class="sd">                     &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                     &#39;excl_female&#39;: 1</span>
+<span class="sd">                    }</span>
+<span class="sd">                 &#39;ot&#39;:</span>
+<span class="sd">                    {&#39;range_numeric_age_srvc_bgn&#39;: (0, 18),</span>
+<span class="sd">                     &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                     &#39;excl_female&#39;: 1</span>
+<span class="sd">                    }</span>
+<span class="sd">            }</span>
+
+<span class="sd">        The example filter will exclude the cohort to all IP claims of</span>
+<span class="sd">        female benes and also claims with missing DOB. The resulting set</span>
+<span class="sd">        will also be restricted to those of benes whose age is between 0-18</span>
+<span class="sd">        (inclusive of both 0 and 18) as of principal procedure date/ service</span>
+<span class="sd">        begin date.</span>
+<span class="sd">    lst_types_to_export : list of str</span>
 <span class="sd">        List of types to export. Currently supported types are ip, ot, rx, ps.</span>
 <span class="sd">    dct_data_paths : dict</span>
-<span class="sd">        Dictionary with information on raw claim files root folder and export folder. Should be of the format,</span>
-<span class="sd">        {&#39;source_root&#39;: /path/to/medicaid/folder,</span>
-<span class="sd">         &#39;export_folder&#39;: /path/to/export/data}</span>
+<span class="sd">        Dictionary with information on raw claim files root folder and</span>
+<span class="sd">        export folder. Should be of the format,</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;source_root&#39;: /path/to/medicaid/folder,</span>
+<span class="sd">             &#39;export_folder&#39;: /path/to/export/data}</span>
+
 <span class="sd">    cms_format : {&#39;MAX&#39;, &#39;TAF&#39;}</span>
 <span class="sd">        CMS file format.</span>
 <span class="sd">    clean_exports : bool, default=False</span>
@@ -366,7 +441,8 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    FileNotFoundError</span>
-<span class="sd">        Raised when any of file types requested to be imported does not exist for the state and year</span>
+<span class="sd">        Raised when any of file types requested to be imported does not</span>
+<span class="sd">        exist for the state and year</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
@@ -390,6 +466,7 @@
                             <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;source_root&quot;</span><span class="p">],</span>
                             <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                             <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                            <span class="n">pq_engine</span><span class="o">=</span><span class="n">pq_engine</span><span class="p">,</span>
                         <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">dct_claims</span><span class="p">[</span><span class="n">claim_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
@@ -400,6 +477,7 @@
                             <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;source_root&quot;</span><span class="p">],</span>
                             <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                             <span class="n">preprocess</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">pq_engine</span><span class="o">=</span><span class="n">pq_engine</span><span class="p">,</span>
                             <span class="o">**</span><span class="p">(</span>
                                 <span class="p">{}</span>
                                 <span class="k">if</span> <span class="n">claim_type</span> <span class="o">!=</span> <span class="s2">&quot;ip&quot;</span>
@@ -419,6 +497,7 @@
                             <span class="n">dct_data_paths</span><span class="p">[</span><span class="s2">&quot;source_root&quot;</span><span class="p">],</span>
                             <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                             <span class="n">preprocess</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">pq_engine</span><span class="o">=</span><span class="n">pq_engine</span><span class="p">,</span>
                             <span class="o">**</span><span class="p">(</span>
                                 <span class="p">{}</span>
                                 <span class="k">if</span> <span class="n">claim_type</span> <span class="o">!=</span> <span class="s2">&quot;ip&quot;</span>
@@ -676,7 +755,8 @@
                 <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">) has  </span><span class="si">%d</span><span class="s2"> benes  with specified conditions who also meet the cohort inclusion  criteria&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">) has  </span><span class="si">%d</span><span class="s2"> benes  with specified conditions who also meet &quot;</span>
+            <span class="s2">&quot;the cohort inclusion  criteria&quot;</span><span class="p">,</span>
             <span class="n">state</span><span class="p">,</span>
             <span class="n">year</span><span class="p">,</span>
             <span class="n">dct_cohort_filter_stats</span><span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
@@ -777,12 +857,14 @@
     <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="vm">__file__</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Exports MAX files corresponding to the cohort as defined by the filters input to this function</span>
+<span class="sd">    Exports MAX files corresponding to the cohort as defined by the filters</span>
+<span class="sd">    input to this function</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pdf_cohort : pd.DataFrame</span>
-<span class="sd">        Pandas dataframe with patient IDs (BENE_MSIS) and indicator flag denoting inclusion into the cohort (include=1)</span>
+<span class="sd">        Pandas dataframe with patient IDs (BENE_MSIS) and indicator flag</span>
+<span class="sd">        denoting inclusion into the cohort (include=1)</span>
 <span class="sd">    year : int</span>
 <span class="sd">        Year of the claim files</span>
 <span class="sd">    state : str</span>
@@ -790,30 +872,51 @@
 <span class="sd">    lst_types_to_export : list of str</span>
 <span class="sd">        List of file types to export. Supported types are [ip, ot, ps, rx]</span>
 <span class="sd">    dct_export_filters : dict</span>
-<span class="sd">        Additional filters that should be applied to the raw claims of the selected cohort while exporting. Filter</span>
-<span class="sd">        dictionary should be of the format:</span>
-<span class="sd">        {claim_type_1: {range_[datatype]_[col_name]: (start, end),</span>
-<span class="sd">                        excl_[col_name]: [0/1],</span>
-<span class="sd">                        [col_name]: value,</span>
-<span class="sd">                        ..}</span>
-<span class="sd">        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with</span>
-<span class="sd">        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter</span>
-<span class="sd">        names that are just column names will restrict the result to benes with the filter value for the corresponding</span>
-<span class="sd">        column.</span>
-<span class="sd">        Eg: {&#39;ip&#39;: {&#39;range_numeric_age_prncpl_proc&#39;: (0, 18),</span>
-<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
-<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
-<span class="sd">                              &#39;ot&#39;: {&#39;range_numeric_age_srvc_bgn&#39;: (0, 18),</span>
-<span class="sd">                                      &#39;missing_dob&#39;: 0,</span>
-<span class="sd">                                      &#39;excl_female&#39;: 1}}</span>
-<span class="sd">                              }</span>
-<span class="sd">        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting</span>
-<span class="sd">        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of</span>
-<span class="sd">        principal procedure date/ service begin date.</span>
+<span class="sd">        Additional filters that should be applied to the raw claims of the</span>
+<span class="sd">        selected cohort while exporting. Filter dictionary should be of the</span>
+<span class="sd">        format:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {claim_type_1: {range_[datatype]_[col_name]: (start, end),</span>
+<span class="sd">                            excl_[col_name]: [0/1],</span>
+<span class="sd">                            [col_name]: value,</span>
+<span class="sd">                            ..}</span>
+<span class="sd">            claim_type_2: ...}}</span>
+
+<span class="sd">        date and numeric range type filters are currently supported. Filter</span>
+<span class="sd">        names beginning with `excl_` with values set to 1 will exclude benes</span>
+<span class="sd">        that have a positive value for that exclusion flag. Filter names</span>
+<span class="sd">        that are just column names will restrict the result to benes with</span>
+<span class="sd">        the filter value for the corresponding column.</span>
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;ip&#39;: {&#39;range_numeric_age_prncpl_proc&#39;: (0, 18),</span>
+<span class="sd">                    &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                    &#39;excl_female&#39;: 1}}</span>
+<span class="sd">             &#39;ot&#39;: {&#39;range_numeric_age_srvc_bgn&#39;: (0, 18),</span>
+<span class="sd">                    &#39;missing_dob&#39;: 0,</span>
+<span class="sd">                    &#39;excl_female&#39;: 1}}</span>
+<span class="sd">            }</span>
+
+<span class="sd">        The example filter will exclude all IP claims of female benes and</span>
+<span class="sd">        also claims with missing DOB. The resulting set will also be</span>
+<span class="sd">        restricted to those of benes whose age is between 0-18 (inclusive of</span>
+<span class="sd">        both 0 and 18) as of principal procedure date/ service begin date.</span>
 <span class="sd">    dct_data_paths : dict</span>
-<span class="sd">        Dictionary with information on raw claim files root folder and export folder. Should be of the format,</span>
-<span class="sd">        {&#39;source_root&#39;: /path/to/medicaid/folder,</span>
-<span class="sd">         &#39;export_folder&#39;: /path/to/export/data}</span>
+<span class="sd">        Dictionary with information on raw claim files root folder and</span>
+<span class="sd">        export folder. Should be of the format,</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;source_root&#39;: /path/to/medicaid/folder,</span>
+<span class="sd">             &#39;export_folder&#39;: /path/to/export/data}</span>
+
 <span class="sd">    cms_format : {&#39;MAX&#39;, TAF&#39;}</span>
 <span class="sd">        CMS file format.</span>
 <span class="sd">    clean_exports : bool, default=False</span>
@@ -828,7 +931,8 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    FileNotFoundError</span>
-<span class="sd">        Raised when any of file types requested to be imported does not exist for the state and year</span>
+<span class="sd">        Raised when any of file types requested to be imported does not</span>
+<span class="sd">        exist for the state and year</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
@@ -884,6 +988,8 @@
 
     <span class="k">for</span> <span class="n">f_type</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lst_types_to_export</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exporting </span><span class="si">%s</span><span class="s2"> for </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">f_type</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">year</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pdf_cohort</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">index_col</span><span class="p">:</span>
+            <span class="n">pdf_cohort</span> <span class="o">=</span> <span class="n">pdf_cohort</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cms_format</span> <span class="o">==</span> <span class="s2">&quot;MAX&quot;</span><span class="p">:</span>
             <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
                 <span class="n">dct_claims</span><span class="p">[</span><span class="n">f_type</span><span class="p">]</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>

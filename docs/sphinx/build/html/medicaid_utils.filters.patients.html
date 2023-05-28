@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.filters.patients package &mdash; medicaid_utils 0.0.0 documentation</title>
@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -82,10 +79,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.filters.html">medicaid_utils.filters package</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.filters.patients package</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="medicaid_utils.html">medicaid_utils package</a> &raquo;</li>
+          <li><a href="medicaid_utils.filters.html">medicaid_utils.filters package</a> &raquo;</li>
+      <li>medicaid_utils.filters.patients package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.filters.patients.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -102,24 +99,25 @@
 </section>
 <section id="module-medicaid_utils.filters.patients.cohort_extraction">
 <span id="medicaid-utils-filters-patients-cohort-extraction-module"></span><h2>medicaid_utils.filters.patients.cohort_extraction module<a class="headerlink" href="#module-medicaid_utils.filters.patients.cohort_extraction" title="Permalink to this heading"></a></h2>
-<p>This module has functions that extract cohorts for studies based on multiple filters</p>
+<p>This module has functions that extract cohorts for studies based on
+multiple filters</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="medicaid_utils.filters.patients.cohort_extraction.apply_range_filter">
-<span class="sig-prename descclassname"><span class="pre">medicaid_utils.filters.patients.cohort_extraction.</span></span><span class="sig-name descname"><span class="pre">apply_range_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tpl_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/filters/patients/cohort_extraction.py'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/filters/patients/cohort_extraction.html#apply_range_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.filters.patients.cohort_extraction.apply_range_filter" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.filters.patients.cohort_extraction.</span></span><span class="sig-name descname"><span class="pre">apply_range_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tpl_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><span class="pre">tuple</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/Users/Manu_1/Documents/pyWorkspace/medicaid-utils/medicaid_utils/filters/patients/cohort_extraction.py'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/filters/patients/cohort_extraction.html#apply_range_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.filters.patients.cohort_extraction.apply_range_filter" title="Permalink to this definition"></a></dt>
 <dd><p>Applies data/ numeric range based filter on a dataframe</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>tpl_range</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a>) – Upper and lower bound tuple</p></li>
 <li><p><strong>df</strong> (<em>dd.DataFrame</em>) – Dataframe to be filtered</p></li>
-<li><p><strong>filter_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of filter. Should be of the format range_[datatype]_[col_name]. date and numeric range type filters are
-currently supported</p></li>
+<li><p><strong>filter_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of filter. Should be of the format range_[datatype]_[col_name].
+date and numeric range type filters are currently supported</p></li>
 <li><p><strong>col_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of column</p></li>
 <li><p><strong>data_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Datatype of column. Eg. date, int</p></li>
 <li><p><strong>logger_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default=__file__</em>) – Logger name</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -127,49 +125,53 @@ currently supported</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="medicaid_utils.filters.patients.cohort_extraction.export_cohort_datasets">
-<span class="sig-prename descclassname"><span class="pre">medicaid_utils.filters.patients.cohort_extraction.</span></span><span class="sig-name descname"><span class="pre">export_cohort_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_cohort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_types_to_export</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_export_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_data_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cms_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MAX'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_exports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess_exports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/filters/patients/cohort_extraction.py'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/filters/patients/cohort_extraction.html#export_cohort_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.filters.patients.cohort_extraction.export_cohort_datasets" title="Permalink to this definition"></a></dt>
-<dd><p>Exports MAX files corresponding to the cohort as defined by the filters input to this function</p>
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.filters.patients.cohort_extraction.</span></span><span class="sig-name descname"><span class="pre">export_cohort_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_cohort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_types_to_export</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_export_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_data_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cms_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MAX'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_exports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess_exports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/Users/Manu_1/Documents/pyWorkspace/medicaid-utils/medicaid_utils/filters/patients/cohort_extraction.py'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/filters/patients/cohort_extraction.html#export_cohort_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.filters.patients.cohort_extraction.export_cohort_datasets" title="Permalink to this definition"></a></dt>
+<dd><p>Exports MAX files corresponding to the cohort as defined by the filters
+input to this function</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pdf_cohort</strong> (<em>pd.DataFrame</em>) – Pandas dataframe with patient IDs (BENE_MSIS) and indicator flag denoting inclusion into the cohort (include=1)</p></li>
+<li><p><strong>pdf_cohort</strong> (<em>pd.DataFrame</em>) – Pandas dataframe with patient IDs (BENE_MSIS) and indicator flag
+denoting inclusion into the cohort (include=1)</p></li>
 <li><p><strong>year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Year of the claim files</p></li>
 <li><p><strong>state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – State</p></li>
 <li><p><strong>lst_types_to_export</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – List of file types to export. Supported types are [ip, ot, ps, rx]</p></li>
-<li><p><strong>dct_export_filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Additional filters that should be applied to the raw claims of the selected cohort while exporting. Filter
-dictionary should be of the format:
-{claim_type_1: {range_[datatype]_[col_name]: (start, end),</p>
-<blockquote>
-<div><p>excl_[col_name]: [0/1],
-[col_name]: value,
-..}</p>
-</div></blockquote>
-<p>claim_type_2: …}} date and numeric range type filters are currently supported. Filter names beginning with
-<cite>excl_</cite> with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
-names that are just column names will restrict the result to benes with the filter value for the corresponding
-column.
-Eg: {‘ip’: {‘range_numeric_age_prncpl_proc’: (0, 18),</p>
-<blockquote>
-<div><blockquote>
-<div><p>’missing_dob’: 0,
-‘excl_female’: 1}}</p>
-</div></blockquote>
-<dl class="simple">
-<dt>’ot’: {‘range_numeric_age_srvc_bgn’: (0, 18),</dt><dd><p>’missing_dob’: 0,
-‘excl_female’: 1}}</p>
-</dd>
-</dl>
-<p>}</p>
-</div></blockquote>
-<p>The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
-set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
-principal procedure date/ service begin date.</p>
+<li><p><strong>dct_export_filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Additional filters that should be applied to the raw claims of the
+selected cohort while exporting. Filter dictionary should be of the
+format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">claim_type_1</span><span class="p">:</span> <span class="p">{</span><span class="n">range_</span><span class="p">[</span><span class="n">datatype</span><span class="p">]</span><span class="n">_</span><span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">),</span>
+                <span class="n">excl_</span><span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="p">[</span><span class="mi">0</span><span class="o">/</span><span class="mi">1</span><span class="p">],</span>
+                <span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="n">value</span><span class="p">,</span>
+                <span class="o">..</span><span class="p">}</span>
+<span class="n">claim_type_2</span><span class="p">:</span> <span class="o">...</span><span class="p">}}</span>
+</pre></div>
+</div>
+<p>date and numeric range type filters are currently supported. Filter
+names beginning with <cite>excl_</cite> with values set to 1 will exclude benes
+that have a positive value for that exclusion flag. Filter names
+that are just column names will restrict the result to benes with
+the filter value for the corresponding column.
+Eg:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;ip&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;range_numeric_age_prncpl_proc&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span>
+        <span class="s1">&#39;missing_dob&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;excl_female&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}}</span>
+ <span class="s1">&#39;ot&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;range_numeric_age_srvc_bgn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span>
+        <span class="s1">&#39;missing_dob&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">&#39;excl_female&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The example filter will exclude all IP claims of female benes and
+also claims with missing DOB. The resulting set will also be
+restricted to those of benes whose age is between 0-18 (inclusive of
+both 0 and 18) as of principal procedure date/ service begin date.</p>
 </p></li>
-<li><p><strong>dct_data_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Dictionary with information on raw claim files root folder and export folder. Should be of the format,
-{‘source_root’: /path/to/medicaid/folder,</p>
-<blockquote>
-<div><p>’export_folder’: /path/to/export/data}</p>
-</div></blockquote>
+<li><p><strong>dct_data_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Dictionary with information on raw claim files root folder and
+export folder. Should be of the format,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;source_root&#39;</span><span class="p">:</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">medicaid</span><span class="o">/</span><span class="n">folder</span><span class="p">,</span>
+ <span class="s1">&#39;export_folder&#39;</span><span class="p">:</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">export</span><span class="o">/</span><span class="n">data</span><span class="p">}</span>
+</pre></div>
+</div>
 </p></li>
 <li><p><strong>cms_format</strong> (<em>{'MAX'</em><em>, </em><em>TAF'}</em>) – CMS file format.</p></li>
 <li><p><strong>clean_exports</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=False</em>) – Should the exported datasets be cleaned?</p></li>
@@ -178,74 +180,94 @@ principal procedure date/ service begin date.</p>
 <li><p><strong>logger_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default=__file__</em>) – Logger name</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError" title="(in Python v3.11)"><strong>FileNotFoundError</strong></a> – Raised when any of file types requested to be imported does not exist for the state and year</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError" title="(in Python v3.11)"><strong>FileNotFoundError</strong></a> – Raised when any of file types requested to be imported does not
+    exist for the state and year</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="medicaid_utils.filters.patients.cohort_extraction.extract_cohort">
-<span class="sig-prename descclassname"><span class="pre">medicaid_utils.filters.patients.cohort_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_cohort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_diag_proc_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_types_to_export</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_data_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cms_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MAX'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_exports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess_exports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/filters/patients/cohort_extraction.py'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/filters/patients/cohort_extraction.html#extract_cohort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.filters.patients.cohort_extraction.extract_cohort" title="Permalink to this definition"></a></dt>
-<dd><p>Extracts and exports claim files corresponded cohort defined by the input filters</p>
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.filters.patients.cohort_extraction.</span></span><span class="sig-name descname"><span class="pre">extract_cohort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_diag_proc_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_types_to_export</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_data_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cms_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'MAX'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_exports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess_exports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pyarrow'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/Users/Manu_1/Documents/pyWorkspace/medicaid-utils/medicaid_utils/filters/patients/cohort_extraction.py'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/filters/patients/cohort_extraction.html#extract_cohort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.filters.patients.cohort_extraction.extract_cohort" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts and exports claim files corresponded cohort defined by the
+input filters</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – State</p></li>
 <li><p><strong>lst_year</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – List of years from which cohort should be created</p></li>
-<li><p><strong>dct_diag_proc_codes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <dl class="simple">
-<dt>Dictionary of diagnosis and procedure codes. Should be in the format</dt><dd><dl class="simple">
-<dt>{‘diag_codes’: {condition_name: {[‘incl’ / ‘excl’]: {[9/ 10]: list of codes} },</dt><dd><p>’proc_codes’: {procedure_name: {procedure_system_code: list of codes} }}</p>
-</dd>
-<dt>Eg: {‘diag_codes’: {‘oud_nqf’: {‘incl’: {9: [‘3040’,’3055’]}}},</dt><dd><dl class="simple">
-<dt>’proc_codes’: {‘methadone_7’: {7: ‘HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,’</dt><dd><p>’HZ96ZZZ’.split(“,”)}}}</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
+<li><p><strong>dct_diag_proc_codes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Dictionary of diagnosis and procedure codes. Should be in the format</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;diag_codes&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">condition_name</span><span class="p">:</span>
+                    <span class="p">{[</span><span class="s1">&#39;incl&#39;</span> <span class="o">/</span> <span class="s1">&#39;excl&#39;</span><span class="p">]:</span> <span class="p">{[</span><span class="mi">9</span><span class="o">/</span> <span class="mi">10</span><span class="p">]:</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">codes</span><span class="p">}},</span>
+ <span class="s1">&#39;proc_codes&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">procedure_name</span><span class="p">:</span>
+                    <span class="p">{</span><span class="n">procedure_system_code</span><span class="p">:</span> <span class="nb">list</span> <span class="n">of</span> <span class="n">codes</span><span class="p">}</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Eg:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;diag_codes&#39;</span><span class="p">:</span>
+    <span class="p">{</span><span class="s1">&#39;oud_nqf&#39;</span><span class="p">:</span>
+        <span class="p">{</span><span class="s1">&#39;incl&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;3040&#39;</span><span class="p">,</span><span class="s1">&#39;3055&#39;</span><span class="p">]}}},</span>
+ <span class="s1">&#39;proc_codes&#39;</span><span class="p">:</span>
+    <span class="p">{</span><span class="s1">&#39;methadone_7&#39;</span><span class="p">:</span>
+        <span class="p">{</span><span class="mi">7</span><span class="p">:</span> <span class="s1">&#39;HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,</span>
+             <span class="n">HZ95ZZZ</span><span class="p">,</span><span class="n">HZ96ZZZ</span><span class="s1">&#39;.split(&quot;,&quot;)}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </p></li>
-<li><p><strong>dct_filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Filters to apply to the cohort, and the exported claim files. Filter dictionary should be of the format:
-{‘cohort’: {claim_type_1: {range_[datatype]_[col_name]: (start, end),</p>
-<blockquote>
-<div><p>excl_[col_name]: [0/1],
-[col_name]: value,
-..},</p>
-</div></blockquote>
-<dl class="simple">
-<dt>’export’: {claim_type_1: {range_[datatype]_[col_name]: (start, end),</dt><dd><p>excl_[col_name]: [0/1],
-[col_name]: value,
-..}}</p>
-</dd>
-</dl>
-<p>date and numeric range type filters are currently supported. Filter names beginning with
-<cite>excl_</cite> with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
-names that are just column names will restrict the result to benes with the filter value for the
-corresponding column.
-Eg: {‘ip’: {‘range_numeric_age_prncpl_proc’: (0, 18),</p>
-<blockquote>
-<div><blockquote>
-<div><p>’missing_dob’: 0,
-‘excl_female’: 1}}</p>
-</div></blockquote>
-<dl class="simple">
-<dt>’ot’: {‘range_numeric_age_srvc_bgn’: (0, 18),</dt><dd><p>’missing_dob’: 0,
-‘excl_female’: 1}}</p>
-</dd>
-</dl>
-<p>}</p>
-</div></blockquote>
-<p>The example filter will exclude the cohort to all IP claims of female benes and also claims with missing
-DOB. The resulting set will also be restricted to those of benes whose age is between 0-18 (inclusive of
-both 0 and 18) as of principal procedure date/ service begin date.</p>
+<li><p><strong>dct_filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Filters to apply to the cohort, and the exported claim files. Filter
+dictionary should be of the format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;cohort&#39;</span><span class="p">:</span>
+    <span class="p">{</span><span class="n">claim_type_1</span><span class="p">:</span>
+        <span class="p">{</span><span class="n">range_</span><span class="p">[</span><span class="n">datatype</span><span class="p">]</span><span class="n">_</span><span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">),</span>
+         <span class="n">excl_</span><span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="p">[</span><span class="mi">0</span><span class="o">/</span><span class="mi">1</span><span class="p">],</span>
+         <span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="n">value</span><span class="p">,</span>
+         <span class="o">..</span><span class="p">},</span>
+ <span class="s1">&#39;export&#39;</span><span class="p">:</span>
+    <span class="p">{</span><span class="n">claim_type_1</span><span class="p">:</span>
+        <span class="p">{</span><span class="n">range_</span><span class="p">[</span><span class="n">datatype</span><span class="p">]</span><span class="n">_</span><span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">),</span>
+         <span class="n">excl_</span><span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="p">[</span><span class="mi">0</span><span class="o">/</span><span class="mi">1</span><span class="p">],</span>
+         <span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="n">value</span><span class="p">,</span>
+         <span class="o">..</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>date and numeric range type filters are currently supported. Filter
+names beginning with <cite>excl_</cite> with values set to 1 will exclude benes
+that have a positive value for that exclusion flag. Filter names
+that are just column names will restrict the result to benes with
+the filter value for the corresponding column.
+Eg:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;cohort&#39;</span><span class="p">:</span>
+    <span class="p">{</span><span class="s1">&#39;ip&#39;</span><span class="p">:</span>
+        <span class="p">{</span><span class="s1">&#39;range_numeric_age_prncpl_proc&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span>
+         <span class="s1">&#39;missing_dob&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+         <span class="s1">&#39;excl_female&#39;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">}</span>
+     <span class="s1">&#39;ot&#39;</span><span class="p">:</span>
+        <span class="p">{</span><span class="s1">&#39;range_numeric_age_srvc_bgn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span>
+         <span class="s1">&#39;missing_dob&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+         <span class="s1">&#39;excl_female&#39;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The example filter will exclude the cohort to all IP claims of
+female benes and also claims with missing DOB. The resulting set
+will also be restricted to those of benes whose age is between 0-18
+(inclusive of both 0 and 18) as of principal procedure date/ service
+begin date.</p>
 </p></li>
-<li><p><strong>lst_types_to_export</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>]</em>) – List of types to export. Currently supported types are ip, ot, rx, ps.</p></li>
-<li><p><strong>dct_data_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Dictionary with information on raw claim files root folder and export folder. Should be of the format,
-{‘source_root’: /path/to/medicaid/folder,</p>
-<blockquote>
-<div><p>’export_folder’: /path/to/export/data}</p>
-</div></blockquote>
+<li><p><strong>lst_types_to_export</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – List of types to export. Currently supported types are ip, ot, rx, ps.</p></li>
+<li><p><strong>dct_data_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Dictionary with information on raw claim files root folder and
+export folder. Should be of the format,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;source_root&#39;</span><span class="p">:</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">medicaid</span><span class="o">/</span><span class="n">folder</span><span class="p">,</span>
+ <span class="s1">&#39;export_folder&#39;</span><span class="p">:</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">export</span><span class="o">/</span><span class="n">data</span><span class="p">}</span>
+</pre></div>
+</div>
 </p></li>
 <li><p><strong>cms_format</strong> (<em>{'MAX'</em><em>, </em><em>'TAF'}</em>) – CMS file format.</p></li>
 <li><p><strong>clean_exports</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>default=False</em>) – Should the exported datasets be cleaned?</p></li>
@@ -254,60 +276,70 @@ both 0 and 18) as of principal procedure date/ service begin date.</p>
 <li><p><strong>logger_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default=__file__</em>) – Logger name</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError" title="(in Python v3.11)"><strong>FileNotFoundError</strong></a> – Raised when any of file types requested to be imported does not exist for the state and year</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError" title="(in Python v3.11)"><strong>FileNotFoundError</strong></a> – Raised when any of file types requested to be imported does not
+    exist for the state and year</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="medicaid_utils.filters.patients.cohort_extraction.filter_claim_files">
-<span class="sig-prename descclassname"><span class="pre">medicaid_utils.filters.patients.cohort_extraction.</span></span><span class="sig-name descname"><span class="pre">filter_claim_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">claim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile" title="medicaid_utils.preprocessing.max_file.MAXFile"><span class="pre">MAXFile</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile"><span class="pre">TAFFile</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_claim_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/filters/patients/cohort_extraction.py'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile" title="medicaid_utils.preprocessing.max_file.MAXFile"><span class="pre">MAXFile</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile"><span class="pre">TAFFile</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/medicaid_utils/filters/patients/cohort_extraction.html#filter_claim_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.filters.patients.cohort_extraction.filter_claim_files" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.filters.patients.cohort_extraction.</span></span><span class="sig-name descname"><span class="pre">filter_claim_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">claim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile" title="medicaid_utils.preprocessing.max_file.MAXFile"><span class="pre">MAXFile</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile"><span class="pre">TAFFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_claim_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/Users/Manu_1/Documents/pyWorkspace/medicaid-utils/medicaid_utils/filters/patients/cohort_extraction.py'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile" title="medicaid_utils.preprocessing.max_file.MAXFile"><span class="pre">MAXFile</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile"><span class="pre">TAFFile</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/medicaid_utils/filters/patients/cohort_extraction.html#filter_claim_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.filters.patients.cohort_extraction.filter_claim_files" title="Permalink to this definition"></a></dt>
 <dd><p>Filters claim files</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>claim</strong> (<em>Union</em><em>[</em><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile" title="medicaid_utils.preprocessing.max_file.MAXFile"><em>max_file.MAXFile</em></a><em>, </em><a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile"><em>taf_file.TAFFile</em></a><em>]</em>) – Claim object</p></li>
-<li><p><strong>dct_claim_filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Filters to apply. Filter dictionary should be of the format:
-{claim_type_1: {range_[datatype]_[col_name]: (start, end),</p>
-<blockquote>
-<div><p>excl_[col_name]: [0/1],
-[col_name]: value,
-..}</p>
-</div></blockquote>
-<p>claim_type_2: …}} date and numeric range type filters are currently supported. Filter names beginning with
-<cite>excl_</cite> with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
-names that are just column names will restrict the result to benes with the filter value for the corresponding
+<li><p><strong>dct_claim_filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – <p>Filters to apply. Filter dictionary should be of the format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">claim_type_1</span><span class="p">:</span>
+    <span class="p">{</span><span class="n">range_</span><span class="p">[</span><span class="n">datatype</span><span class="p">]</span><span class="n">_</span><span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">),</span>
+     <span class="n">excl_</span><span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="p">[</span><span class="mi">0</span><span class="o">/</span><span class="mi">1</span><span class="p">],</span>
+     <span class="p">[</span><span class="n">col_name</span><span class="p">]:</span> <span class="n">value</span><span class="p">,</span>
+     <span class="o">..</span><span class="p">}</span>
+ <span class="n">claim_type_2</span><span class="p">:</span> <span class="o">...</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>date and numeric range type filters are currently supported. Filter
+names beginning with <cite>excl_</cite> with values set to 1 will exclude benes
+that have a positive value for that exclusion flag. Filter names
+that are just column names will restrict the result to benes with
+the filter value for the corresponding
 column.
-Eg: {‘ip’: {‘range_numeric_age_prncpl_proc’: (0, 18),</p>
-<blockquote>
-<div><blockquote>
-<div><p>’missing_dob’: 0,
-‘excl_female’: 1}}</p>
-</div></blockquote>
-<dl class="simple">
-<dt>’ot’: {‘range_numeric_age_srvc_bgn’: (0, 18),</dt><dd><p>’missing_dob’: 0,
-‘excl_female’: 1}}</p>
-</dd>
-</dl>
-<p>}</p>
-</div></blockquote>
-<p>The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
-set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
-prinicipal procedure data/ service begin date.</p>
+Eg:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;ip&#39;</span><span class="p">:</span>
+    <span class="p">{</span><span class="s1">&#39;range_numeric_age_prncpl_proc&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span>
+     <span class="s1">&#39;missing_dob&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="s1">&#39;excl_female&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}}</span>
+ <span class="s1">&#39;ot&#39;</span><span class="p">:</span>
+    <span class="p">{</span><span class="s1">&#39;range_numeric_age_srvc_bgn&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span>
+     <span class="s1">&#39;missing_dob&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+     <span class="s1">&#39;excl_female&#39;</span><span class="p">:</span> <span class="mi">1</span>
+     <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The example filter will exclude all IP claims of female benes and
+also claims with missing DOB. The resulting set will also be
+restricted to those of benes whose age is between 0-18 (inclusive of
+both 0 and 18) as of principal procedure data/ service begin date.</p>
 </p></li>
-<li><p><strong>tmp_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Temporary folder to cache results mid-processing. This is useful for large datasets, as the dask cluster can
-crash if the task graph is too large for large datasets. This is handled by caching results at intermediate
+<li><p><strong>tmp_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Temporary folder to cache results mid-processing. This is useful for
+large datasets, as the dask cluster can crash if the task graph is
+too large for large datasets. This is handled by caching results at
+intermediate
 stages.</p></li>
 <li><p><strong>subtype</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default=None</em>) – Claim subtype (required for TAF datasets)</p></li>
 <li><p><strong>logger_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default=None</em>) – Logger name</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Tuple[Union[<a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_file.MAXFile" title="medicaid_utils.preprocessing.max_file.MAXFile">max_file.MAXFile</a>, <a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile" title="medicaid_utils.preprocessing.taf_file.TAFFile">taf_file.TAFFile</a>], pd.DataFrame]</p>
 </dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.11)"><strong>ValueError</strong></a> – When subtype is parameter is missing for a function with TAFFile claim type input</p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.11)"><strong>ValueError</strong></a> – When subtype is parameter is missing for a function with TAFFile
+    claim type input</p>
 </dd>
 </dl>
 </dd></dl>

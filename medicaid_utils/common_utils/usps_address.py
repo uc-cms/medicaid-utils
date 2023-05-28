@@ -1,22 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-This script shows an example of using `requests` and the USPS Address
-Information API.
-In order to use this, you must first register so you can get your USERID.  Your
-ID must be in the environment variable `USPS_USERID`.
-For information on the API see here:
-    https://www.usps.com/business/web-tools-apis/address-information-api.htm
+"""This script shows an example of using `requests` and the USPS Address
+Information API. In order to use this, you must first register so you can
+get your USERID.  Your ID must be in the environment variable `USPS_USERID`.
+For information on the API see `here <https://www.usps.com/business/web-tools-apis/address-information-api.htm>_`
 """
 
 # Imports #####################################################################
 import os
 import xml.dom.minidom
 import xml.etree.ElementTree as xml_et
+from dotenv import load_dotenv
 
 import requests
 
-
+load_dotenv()
 # Globals #####################################################################
 USPS_USERID = os.environ["USPS_USERID"]
 

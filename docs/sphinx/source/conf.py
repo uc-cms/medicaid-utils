@@ -196,3 +196,6 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 todo_include_todos = True
 
 html_theme_options = {'navigation_depth': 6}
+
+napoleon_custom_sections = ['References' ]
+

@@ -15,9 +15,20 @@ def flag_prescriptions(
     ----------
     dct_ndc_codes : dict
         Dictionary of NDC. Should be in the format
+
+        .. highlight:: python
+        .. code-block:: python
+
             {condition_name: list of codes}
-            Eg: {'buprenorphine': ['00378451905', '00378451993',
-            '00378617005', '00378617077']}
+
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'buprenorphine': ['00378451905', '00378451993', '00378617005',
+                               '00378617077']}
+
     df_claims : dd.DataFrame
         Claims dataframe
     ignore_missing_days_supply : bool, default=False

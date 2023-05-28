@@ -11,9 +11,6 @@
   <![endif]-->
   
         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../../_static/doctools.js"></script>
         <script src="../../../../_static/sphinx_highlight.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -57,9 +54,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.filters.claims.rx</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>medicaid_utils.filters.claims.rx</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -86,9 +83,20 @@
 <span class="sd">    ----------</span>
 <span class="sd">    dct_ndc_codes : dict</span>
 <span class="sd">        Dictionary of NDC. Should be in the format</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
 <span class="sd">            {condition_name: list of codes}</span>
-<span class="sd">            Eg: {&#39;buprenorphine&#39;: [&#39;00378451905&#39;, &#39;00378451993&#39;,</span>
-<span class="sd">            &#39;00378617005&#39;, &#39;00378617077&#39;]}</span>
+
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;buprenorphine&#39;: [&#39;00378451905&#39;, &#39;00378451993&#39;, &#39;00378617005&#39;,</span>
+<span class="sd">                               &#39;00378617077&#39;]}</span>
+
 <span class="sd">    df_claims : dd.DataFrame</span>
 <span class="sd">        Claims dataframe</span>
 <span class="sd">    ignore_missing_days_supply : bool, default=False</span>

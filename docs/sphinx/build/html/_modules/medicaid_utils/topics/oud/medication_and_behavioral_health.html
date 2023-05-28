@@ -11,9 +11,6 @@
   <![endif]-->
   
         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../../_static/doctools.js"></script>
         <script src="../../../../_static/sphinx_highlight.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -57,9 +54,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.topics.oud.medication_and_behavioral_health</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>medicaid_utils.topics.oud.medication_and_behavioral_health</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -85,8 +82,9 @@
 <span class="sd">    procedure codes in claims.</span>
 
 <span class="sd">    New Column(s):</span>
-<span class="sd">        - proc_buprenorphine: 0 or 1, 1 when claim has Buprenorphine</span>
-<span class="sd">          treatment procedure codes and 0 otherwise</span>
+
+<span class="sd">    - proc_buprenorphine: 0 or 1, 1 when claim has Buprenorphine</span>
+<span class="sd">      treatment procedure codes and 0 otherwise</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -98,7 +96,7 @@
 <span class="sd">    dd.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;buprenorphine&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">7</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J0571&quot;</span><span class="p">]}}</span>
+    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;buprenorphine&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J0571&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J0571&quot;</span><span class="p">]}}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
         <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
     <span class="p">)</span>
@@ -111,8 +109,9 @@
 <span class="sd">    claims.</span>
 
 <span class="sd">    New Column(s):</span>
-<span class="sd">        - rx_buprenorphine: 0 or 1, 1 when claim has buprenorphine NDC codes</span>
-<span class="sd">          and 0 otherwise</span>
+
+<span class="sd">    - rx_buprenorphine: 0 or 1, 1 when claim has buprenorphine NDC codes</span>
+<span class="sd">      and 0 otherwise</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -124,17 +123,159 @@
 <span class="sd">    dd.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pdf_buprenorphine</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;rxmix_ndc_codes_cleaned_final.xlsx&quot;</span><span class="p">),</span>
-        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Buprenorphine&quot;</span><span class="p">,</span>
-        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
     <span class="n">dct_ndc_codes</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;buprenorphine&quot;</span><span class="p">:</span> <span class="n">pdf_buprenorphine</span><span class="p">[</span><span class="s2">&quot;ndc&quot;</span><span class="p">]</span>
-        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="s2">&quot;buprenorphine&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;000093360021&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093360040&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093360121&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093360140&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093360221&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093360240&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093360321&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093360340&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093365621&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093365640&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093365721&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093365740&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093365821&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093365840&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093365921&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093365940&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042858035340&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042858049340&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042858058640&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042858075040&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042858083940&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;055700056804&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;055700057904&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275988401&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275988402&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275988404&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275988405&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000054017613&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000054017713&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000074201201&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093537856&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093537956&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000228315303&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000228315603&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000378092393&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000378092493&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000409201203&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000409201232&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000517072501&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000517072505&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;021695051510&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;035356055530&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;035356055630&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088800&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088801&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088803&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088805&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088806&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088809&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;040042001001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042023017901&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042023017905&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042858050103&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042858050203&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043063066706&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043063075306&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452129201&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452129202&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452130403&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452825301&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452825302&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452825303&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452825304&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050090157100&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050090292400&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050383092493&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050383093093&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051552076501&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051552076506&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051552076509&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051927101200&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;053217024630&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054569657800&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;055390010010&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;055700030230&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;055700030330&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062756045964&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062756045983&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062756046064&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062756046083&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991158301&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991158302&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991158303&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991158304&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991158306&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991158307&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991158308&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275992201&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275992202&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275992203&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275992204&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275992205&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275992207&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275992208&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275992209&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063370090506&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063370090509&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063370090510&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063370090515&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712501&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712502&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712503&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712504&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712505&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712506&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712507&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712601&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712602&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712603&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712604&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712605&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712606&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712607&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629712608&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;064725093003&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;064725093004&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;064725192403&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;064725192404&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068258299103&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068308020230&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068308020830&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;071335035301&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;071335035302&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;071335035303&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;071335035304&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;071335035305&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;071335035306&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;071335035307&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;076519117000&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;076519117001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;076519117002&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;076519117003&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;076519117004&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;076519117005&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052440010014&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;058284010014&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496010001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496010002&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496010005&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496030001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496030002&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496030005&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496127802&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496131002&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049999063830&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049999063930&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629409201&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629409202&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063874117303&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063874117403&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
     <span class="p">}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
@@ -146,8 +287,9 @@
 <span class="sd">    treatment procedure codes in claims.</span>
 
 <span class="sd">    New Column(s):</span>
-<span class="sd">        - proc_buprenorphine_naloxone: 0 or 1, 1 when claim has</span>
-<span class="sd">          Buprenorphine/ Naloxone treatment procedure codes and 0 otherwise</span>
+
+<span class="sd">    - proc_buprenorphine_naloxone: 0 or 1, 1 when claim has</span>
+<span class="sd">      Buprenorphine/ Naloxone treatment procedure codes and 0 otherwise</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -160,7 +302,10 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;buprenorphine_naloxone&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">7</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J0572&quot;</span><span class="p">,</span> <span class="s2">&quot;J0573&quot;</span><span class="p">,</span> <span class="s2">&quot;J0574&quot;</span><span class="p">,</span> <span class="s2">&quot;J0575&quot;</span><span class="p">]}</span>
+        <span class="s2">&quot;buprenorphine_naloxone&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J0572&quot;</span><span class="p">,</span> <span class="s2">&quot;J0573&quot;</span><span class="p">,</span> <span class="s2">&quot;J0574&quot;</span><span class="p">,</span> <span class="s2">&quot;J0575&quot;</span><span class="p">],</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J0572&quot;</span><span class="p">,</span> <span class="s2">&quot;J0573&quot;</span><span class="p">,</span> <span class="s2">&quot;J0574&quot;</span><span class="p">,</span> <span class="s2">&quot;J0575&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
     <span class="p">}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
         <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
@@ -174,8 +319,9 @@
 <span class="sd">    codes in claims.</span>
 
 <span class="sd">    New Column(s):</span>
-<span class="sd">        - rx_buprenorphine_naloxone: 0 or 1, 1 when claim has buprenorphine</span>
-<span class="sd">          NDC codes and 0 otherwise</span>
+
+<span class="sd">    - rx_buprenorphine_naloxone: 0 or 1, 1 when claim has buprenorphine</span>
+<span class="sd">      NDC codes and 0 otherwise</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -187,24 +333,152 @@
 <span class="sd">    dd.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pdf_buprenorphine</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;rxmix_ndc_codes_cleaned_final.xlsx&quot;</span><span class="p">),</span>
-        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Buprenorphine&quot;</span><span class="p">,</span>
-        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">pdf_naloxone</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;rxmix_ndc_codes_cleaned_final.xlsx&quot;</span><span class="p">),</span>
-        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Naloxone&quot;</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span>
-        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
     <span class="n">dct_ndc_codes</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;buprenorphine_naloxone&quot;</span><span class="p">:</span> <span class="n">pdf_buprenorphine</span><span class="p">[</span><span class="s2">&quot;ndc&quot;</span><span class="p">]</span>
-        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="o">+</span> <span class="n">pdf_naloxone</span><span class="p">[</span><span class="s2">&quot;ndc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="s2">&quot;buprenorphine_naloxone&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;059385001201&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;059385001230&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;059385001401&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;059385001430&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;059385001601&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;059385001630&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000054018813&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000054018913&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093572056&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000093572156&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000228315403&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000228315473&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000228315503&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000228315567&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000228315573&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000378876716&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000378876793&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000378876816&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000378876893&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000406192303&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000406192403&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000406192409&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000406800503&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000406802003&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000781721664&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000781722764&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000781723806&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000781723864&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000781724964&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042291017430&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042291017530&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043598057901&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043598057930&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043598058001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043598058030&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043598058101&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043598058130&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043598058201&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043598058230&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;047781035503&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;047781035603&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;047781035703&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;047781035803&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;047781071203&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;047781071211&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050268014411&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050268014415&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050268014511&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050268014515&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050383028793&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050383029493&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052427069203&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052427069211&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052427069403&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052427069411&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052427069803&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052427069811&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;053217013830&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054569640800&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;055700018430&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;060429058630&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;060429058633&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;060429058730&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;060429058733&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;060846097003&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062175045232&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062175045832&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062756096964&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062756096983&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062756097064&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062756097083&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629507401&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629727001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629727002&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;065162041503&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;065162041509&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;065162041603&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;065162041609&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050268014411&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050268014415&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050268014515&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000490005100&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000490005130&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000490005160&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000490005190&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496120201&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496120203&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496120401&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496120403&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496120801&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496120803&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496121201&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496121203&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496128302&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;012496130602&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;016590066605&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;016590066630&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;016590066705&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;016590066730&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;016590066790&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;023490927003&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;023490927006&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;023490927009&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;035356000407&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;035356000430&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043063018407&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043063018430&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049999039507&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049999039515&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049999039530&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052959030430&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052959074930&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054569549600&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054569573900&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054569573901&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054569573902&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054569639900&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054868570700&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054868570701&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054868570702&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054868570703&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054868570704&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054868575000&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;055045378403&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;055700014730&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;055887031204&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;055887031215&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629403401&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629403402&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063629403403&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063874108403&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063874108503&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;066336001530&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;066336001630&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068071138003&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068071151003&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068258299903&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054123011430&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054123090730&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054123091430&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054123092930&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054123095730&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054123098630&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
     <span class="p">}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
@@ -216,8 +490,9 @@
 <span class="sd">    procedure codes in claims.</span>
 
 <span class="sd">    New Column(s):</span>
-<span class="sd">        - proc_injectable_naltrexone: 0 or 1, 1 when claim has Injectable</span>
-<span class="sd">          Naltrexone treatment procedure codes and 0 otherwise</span>
+
+<span class="sd">    - proc_injectable_naltrexone: 0 or 1, 1 when claim has Injectable</span>
+<span class="sd">      Naltrexone treatment procedure codes and 0 otherwise</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -229,7 +504,7 @@
 <span class="sd">    dd.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;injectable_naltrexone&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">7</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J2315&quot;</span><span class="p">]}}</span>
+    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;injectable_naltrexone&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J2315&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J2315&quot;</span><span class="p">]}}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
         <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
     <span class="p">)</span>
@@ -242,8 +517,9 @@
 <span class="sd">    codes in claims.</span>
 
 <span class="sd">    New Column(s):</span>
-<span class="sd">        - rx_oral_naltrexone: 0 or 1, 1 when claim has Oral Naltrexone NDC</span>
-<span class="sd">          codes and 0 otherwise</span>
+
+<span class="sd">    - rx_oral_naltrexone: 0 or 1, 1 when claim has Oral Naltrexone NDC</span>
+<span class="sd">      codes and 0 otherwise</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -255,18 +531,99 @@
 <span class="sd">    dd.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">pdf_naltrexone</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;rxmix_ndc_codes_cleaned_final.xlsx&quot;</span><span class="p">),</span>
-        <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Naltrexone&quot;</span><span class="p">,</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">,</span>
-        <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;openpyxl&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
     <span class="n">dct_ndc_codes</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;oral_naltrexone&quot;</span><span class="p">:</span> <span class="n">pdf_naltrexone</span><span class="p">[</span><span class="s2">&quot;ndc&quot;</span><span class="p">]</span>
-        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="s2">&quot;oral_naltrexone&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;010695004305&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;010695004310&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452483901&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051927354800&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052372075101&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052372075102&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052372075103&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054868557400&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991312501&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991312502&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991312503&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991312504&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;069364314306&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;070350782001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000185003901&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000185003930&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000395808319&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000395808335&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000395808362&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000406117001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000406117003&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000555090201&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000555090202&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;010695006014&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;010695006017&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;016729008101&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;016729008110&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088703&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088704&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088705&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088706&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;038779088708&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;042291063230&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;043063059115&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;047335032683&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;047335032688&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452483501&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452483502&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452483503&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;049452483505&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050090286600&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050090307600&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;050436010501&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051224020630&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051224020650&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051552073701&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051552073702&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051552073704&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051927275300&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051927360200&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051927437700&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052152010502&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052152010504&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;052152010530&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;053217026130&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054569672000&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;054569913900&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;058597840701&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;058597840702&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;058597840704&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;058597840706&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991124301&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991124302&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991124303&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;062991124304&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275990101&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275990102&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275990103&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275990104&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063275990105&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063370015810&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063370015815&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063370015825&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063370015835&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;065694010003&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;065694010010&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068084029111&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068084029121&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068094085359&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068094085362&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;068115068030&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;076519116005&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;063459030042&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;065757030001&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000056001122&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000056001130&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000056001170&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;000056007950&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051285027501&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;051285027502&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
     <span class="p">}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
@@ -278,8 +635,9 @@
 <span class="sd">    claims.</span>
 
 <span class="sd">    New Column(s):</span>
-<span class="sd">        - proc_methadone: 0 or 1, 1 when claim has Methadone treatment</span>
-<span class="sd">          procedure codes and 0 otherwise</span>
+
+<span class="sd">    - proc_methadone: 0 or 1, 1 when claim has Methadone treatment</span>
+<span class="sd">      procedure codes and 0 otherwise</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -291,7 +649,7 @@
 <span class="sd">    dd.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;methadone&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">7</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H0020&quot;</span><span class="p">]}}</span>
+    <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;methadone&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H0020&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H0020&quot;</span><span class="p">]}}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
         <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
     <span class="p">)</span>
@@ -303,10 +661,11 @@
 <span class="sd">    Adds indicator column denoting presence of Methadone NDC codes in claims.</span>
 
 <span class="sd">    New Column(s):</span>
-<span class="sd">        - rx_methadone_le_30mg: 0 or 1, 1 when claim has Methadone NDC codes</span>
-<span class="sd">          with dosage less than or equal to 30 mg and 0 otherwise</span>
-<span class="sd">        - rx_methadone_gt_30mg: 0 or 1, 1 when claim has Methadone NDC codes</span>
-<span class="sd">          with dosage greater than or equal to 30 mg and 0 otherwise</span>
+
+<span class="sd">    - rx_methadone_le_30mg: 0 or 1, 1 when claim has Methadone NDC codes</span>
+<span class="sd">      with dosage less than or equal to 30 mg and 0 otherwise</span>
+<span class="sd">    - rx_methadone_gt_30mg: 0 or 1, 1 when claim has Methadone NDC codes</span>
+<span class="sd">      with dosage greater than or equal to 30 mg and 0 otherwise</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -363,8 +722,9 @@
 <span class="sd">    procedure codes in claims.</span>
 
 <span class="sd">    New Column(s):</span>
-<span class="sd">        - proc_behavioral_health_trtmt: 0 or 1, 1 when claim has Behavioral</span>
-<span class="sd">          Health treatment procedure codes and 0 otherwise</span>
+
+<span class="sd">    - proc_behavioral_health_trtmt: 0 or 1, 1 when claim has Behavioral</span>
+<span class="sd">      Health treatment procedure codes and 0 otherwise</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -378,7 +738,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;behavioral_health_trtmt&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="mi">7</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="p">[</span>
                 <span class="s2">&quot;90785&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;90832&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;90834&quot;</span><span class="p">,</span>
@@ -414,7 +774,44 @@
                 <span class="s2">&quot;T1007&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;T1012&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;90875&quot;</span><span class="p">,</span>
-            <span class="p">]</span>
+            <span class="p">],</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;90785&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90832&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90834&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90837&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90846&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90847&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90849&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90853&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0001&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0004&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0005&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0006&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0007&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0008&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0010&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0012&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0013&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0014&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0015&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0022&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0028&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0038&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0047&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0049&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H0050&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2011&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2019&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2027&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2034&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2035&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;H2036&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;T1006&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;T1007&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;T1012&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;90875&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
         <span class="p">}</span>
     <span class="p">}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
@@ -429,10 +826,11 @@
 <span class="sd">    codes in claims.</span>
 
 <span class="sd">    New Column(s):</span>
-<span class="sd">        - rx_benzodiazepines: 0 or 1, 1 when claim has Benzodiazepines NDC</span>
-<span class="sd">          codes and 0 otherwise</span>
-<span class="sd">        - rx_opioids: 0 or 1, 1 when claim has Opioids NDC codes and 0</span>
-<span class="sd">          otherwise</span>
+
+<span class="sd">    - rx_benzodiazepines: 0 or 1, 1 when claim has Benzodiazepines NDC</span>
+<span class="sd">      codes and 0 otherwise</span>
+<span class="sd">    - rx_opioids: 0 or 1, 1 when claim has Opioids NDC codes and 0</span>
+<span class="sd">      otherwise</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

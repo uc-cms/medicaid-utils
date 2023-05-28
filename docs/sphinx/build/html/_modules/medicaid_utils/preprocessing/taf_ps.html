@@ -11,9 +11,6 @@
   <![endif]-->
   
         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
         <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -57,9 +54,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.preprocessing.taf_ps</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>medicaid_utils.preprocessing.taf_ps</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -73,21 +70,21 @@
 <span class="sd">routines specific for TAF PS files&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
 
-<span class="kn">from</span> <span class="nn">medicaid_utils.preprocessing</span> <span class="kn">import</span> <span class="n">taf_file</span>
+<span class="kn">from</span> <span class="nn">medicaid_utils.preprocessing</span> <span class="kn">import</span> <span class="n">taf_file</span><span class="p">,</span> <span class="n">taf_ip</span><span class="p">,</span> <span class="n">taf_ot</span><span class="p">,</span> <span class="n">taf_rx</span>
 <span class="kn">from</span> <span class="nn">medicaid_utils.common_utils</span> <span class="kn">import</span> <span class="n">dataframe_utils</span>
+<span class="kn">from</span> <span class="nn">medicaid_utils.adapted_algorithms.py_elixhauser</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">elixhauser_comorbidity</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
 <span class="n">other_data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;other_datasets&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span>
 <span class="p">)</span>
-
-<span class="c1"># MC - 1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 17</span>
-<span class="c1"># FFS - 2, 14, 15</span>
-<span class="c1"># unknown - 3, 4, 16, 18, 60, 70, 80</span>
 
 
 <div class="viewcode-block" id="TAFPS"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS">[docs]</a><span class="k">class</span> <span class="nc">TAFPS</span><span class="p">(</span><span class="n">taf_file</span><span class="o">.</span><span class="n">TAFFile</span><span class="p">):</span>
@@ -165,14 +162,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">flag_dual</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flag_restricted_benefits</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compute_enrollment_gaps</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_mas_boe</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_tanf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_medicaid_enrolled_months</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_managed_care_months</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_ffs_months</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_risk_adjustment_scores</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">(</span><span class="s2">&quot;base&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TAFPS.flag_common_exclusions"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_common_exclusions">[docs]</a>    <span class="k">def</span> <span class="nf">flag_common_exclusions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds commonly used exclusion flags</span>
+
 <span class="sd">        New Column(s):</span>
-<span class="sd">            - excl_duplicated_bene_id - 0 or 1, 1 when bene&#39;s index column</span>
-<span class="sd">            is repeated</span>
+
+<span class="sd">            - excl_duplicated_bene_id - 0 or 1, 1 when bene&#39;s index column is</span>
+<span class="sd">              repeated</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
         <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">df_base</span><span class="o">.</span><span class="n">index</span><span class="p">})</span>
@@ -197,45 +204,47 @@
 <span class="sd">        Adds columns denoting number of months in each Maintenance</span>
 <span class="sd">        Assistance Status (MAS) and Basis of Eligibility</span>
 <span class="sd">        (BOE) category. Columns added are,</span>
+
 <span class="sd">            - boe_chip_months : Number of months in Separate-CHIP BOE category</span>
 <span class="sd">            - boe_aged_months : Number of months in Aged BOE category</span>
-<span class="sd">            - boe_blind_disabled_months : Number of months in Blind/</span>
-<span class="sd">            Disabled BOE category</span>
+<span class="sd">            - boe_blind_disabled_months : Number of months in Blind/Disabled</span>
+<span class="sd">              BOE category</span>
 <span class="sd">            - boe_child_months : Number of months in Children BOE category</span>
 <span class="sd">            - boe_adults_months : Number of months in Adult BOE category</span>
 <span class="sd">            - boe_breast_and_cervical_cancer_months : Number of months in</span>
-<span class="sd">            Breast and Cervical Cancer Prevention and Treatment Act of 2000</span>
-<span class="sd">            BOE category</span>
+<span class="sd">              Breast and Cervical Cancer Prevention and Treatment Act of</span>
+<span class="sd">              2000 BOE category</span>
 <span class="sd">            - boe_child_of_unemployed_months : Number of months in Child of</span>
-<span class="sd">            Unemployed Adult BOE category</span>
+<span class="sd">              Unemployed Adult BOE category</span>
 <span class="sd">            - boe_unemployed_months : Number of months in Unemployed Adult</span>
-<span class="sd">            BOE category</span>
+<span class="sd">              BOE category</span>
 <span class="sd">            - boe_foster_care_children_months : Number of months in Foster</span>
-<span class="sd">            Care Children BOE category</span>
+<span class="sd">              Care Children BOE category</span>
 <span class="sd">            - boe_unknown_months : Number of months in Uknown BOE category</span>
 <span class="sd">            - mas_chip_months : Number of months in Separate-CHIP MAS category</span>
 <span class="sd">            - mas_cash_sec_1931_months : Number of months in Individuals</span>
-<span class="sd">            receiving cash assistance or eligible under section 1931 of the</span>
-<span class="sd">            Act MAS category</span>
+<span class="sd">              receiving cash assistance or eligible under section 1931 of</span>
+<span class="sd">              the Act MAS category</span>
 <span class="sd">            - mas_medically_needy_months : Number of months in Medically</span>
-<span class="sd">            Needy MAS category</span>
+<span class="sd">              Needy MAS category</span>
 <span class="sd">            - mas_poverty_months : Number of months in Poverty Related</span>
-<span class="sd">            Eligibles MAS category</span>
+<span class="sd">              Eligibles MAS category</span>
 <span class="sd">            - mas_other_months : Number of months in Other Eligibles MAS</span>
-<span class="sd">            category</span>
+<span class="sd">              category</span>
 <span class="sd">            - mas_demonstration_months : Number of months in Section 1115</span>
-<span class="sd">            Demonstration expansion eligible MAS category</span>
+<span class="sd">              Demonstration expansion eligible MAS category</span>
 <span class="sd">            - mas_unknown_months : Number of months in Unknown MAS category</span>
 <span class="sd">            - max_mas_type : Top MAS category for the bene</span>
 <span class="sd">            - max_boe_type : Top BOE category for the bene</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
         <span class="n">dct_boe_codes</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;chip&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
             <span class="s2">&quot;aged&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
             <span class="s2">&quot;blind_disabled&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="s2">&quot;child&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-            <span class="s2">&quot;adults&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;child&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;adults&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
             <span class="s2">&quot;breast_and_cervical_cancer&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
             <span class="s2">&quot;child_of_unemployed&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
             <span class="s2">&quot;unemployed&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
@@ -320,7 +329,61 @@
                 <span class="p">]</span>
                 <span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">],</span>
+                <span class="sa">f</span><span class="s2">&quot;boe_gt_6_mon&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">df</span><span class="p">[</span>
+                        <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;boe_</span><span class="si">{</span><span class="n">boe_type</span><span class="si">}</span><span class="s2">_months&quot;</span>
+                            <span class="k">for</span> <span class="n">boe_type</span> <span class="ow">in</span> <span class="n">dct_boe_codes</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                    <span class="o">&gt;</span> <span class="mi">6</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
                 <span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">df</span><span class="p">[</span>
+                            <span class="p">[</span>
+                                <span class="sa">f</span><span class="s2">&quot;boe_</span><span class="si">{</span><span class="n">boe_type</span><span class="si">}</span><span class="s2">_months&quot;</span>
+                                <span class="k">for</span> <span class="n">boe_type</span> <span class="ow">in</span> <span class="n">dct_boe_codes</span>
+                            <span class="p">]</span>
+                        <span class="p">]</span>
+                        <span class="o">&gt;</span> <span class="mi">6</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="sa">f</span><span class="s2">&quot;mas_gt_6_mon&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">df</span><span class="p">[</span>
+                        <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;mas_</span><span class="si">{</span><span class="n">mas_type</span><span class="si">}</span><span class="s2">_months&quot;</span>
+                            <span class="k">for</span> <span class="n">mas_type</span> <span class="ow">in</span> <span class="n">dct_mas_codes</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                    <span class="o">&gt;</span> <span class="mi">6</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+                <span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="o">-</span><span class="mi">7</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">df</span><span class="p">[</span>
+                            <span class="p">[</span>
+                                <span class="sa">f</span><span class="s2">&quot;mas_</span><span class="si">{</span><span class="n">mas_type</span><span class="si">}</span><span class="s2">_months&quot;</span>
+                                <span class="k">for</span> <span class="n">mas_type</span> <span class="ow">in</span> <span class="n">dct_mas_codes</span>
+                            <span class="p">]</span>
+                        <span class="p">]</span>
+                        <span class="o">&gt;</span> <span class="mi">6</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                <span class="p">),</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
@@ -352,22 +415,29 @@
 <span class="sd">        their resident ZIP/ FIPS codes</span>
 
 <span class="sd">        New Columns:</span>
-<span class="sd">            - resident_state_cd</span>
-<span class="sd">            - rural - 0/ 1/ np.nan, 1 when bene&#39;s residence is in a rural</span>
-<span class="sd">            location, 0 when not, -1 when zip code is missing</span>
-<span class="sd">            - pcsa - resident PCSA code</span>
-<span class="sd">            - {ruca_code/ rucc_code} - resident ruca_code</span>
+
+<span class="sd">        - resident_state_cd</span>
+<span class="sd">        - rural - 0/ 1/ np.nan, 1 when bene&#39;s residence is in a rural</span>
+<span class="sd">          location, 0 when not, -1 when zip code is missing</span>
+<span class="sd">        - pcsa - resident PCSA code</span>
+<span class="sd">        - {ruca_code/ rucc_code} - resident ruca_code</span>
 
 <span class="sd">        This function uses</span>
+
 <span class="sd">            - `RUCA 3.1 dataset</span>
-<span class="sd">            &lt;https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673&gt;`_. RUCA</span>
-<span class="sd">            codes &gt;= 4 denote rural and the rest denote urban as per</span>
-<span class="sd">            `Cole, Megan B et al &lt;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1&gt;`_</span>
-<span class="sd">            - `RUCC codes &lt;https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372&gt;`_.</span>
-<span class="sd">            RUCC codes &gt;= 8 denote rural and the rest denote urban.</span>
-<span class="sd">            - ZCTAs x zipcode crosswalk from `UDSMapper &lt;https://udsmapper.org/zip-code-to-zcta-crosswalk/&gt;`_.</span>
+<span class="sd">              &lt;https://www.ers.usda.gov/webdocs/DataFiles/53241</span>
+<span class="sd">              /RUCA2010zipcode.xlsx?v=8673&gt;`_. RUCA codes &gt;= 4 denote rural</span>
+<span class="sd">              and the rest denote urban as per `Cole, Megan B et al</span>
+<span class="sd">              &lt;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1&gt;`_</span>
+<span class="sd">            - `RUCC codes &lt;https://www.ers.usda.gov/webdocs/DataFiles/53251</span>
+<span class="sd">              /ruralurbancodes2013.xls?v=2372&gt;`_. RUCC codes &gt;= 8 denote</span>
+<span class="sd">              rural and the rest denote urban.</span>
+<span class="sd">            - ZCTAs x zipcode crosswalk from `UDSMapper</span>
+<span class="sd">              &lt;https://udsmapper.org/zip-code-to-zcta-crosswalk/&gt;`_.</span>
 <span class="sd">            - zipcodes from multiple sources</span>
-<span class="sd">            - Distance between centroids of zipcodes using `NBER data &lt;https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv&gt;`_</span>
+<span class="sd">            - Distance between centroids of zipcodes using</span>
+<span class="sd">              `NBER data &lt;https://nber.org/distance/2016/gaz/zcta5</span>
+<span class="sd">              /gaz2016zcta5centroid.csv&gt;`_</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -515,40 +585,45 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Flags benes with  DUAL_ELGBL_CD equal to 1 (full dual), 2 (partial</span>
 <span class="sd">        dual), or 3 (other dual) in any month are flagged as duals.</span>
-<span class="sd">        Reference: `Identifying beneficiaries with a substance use</span>
-<span class="sd">        disorder &lt;https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx&gt;`_</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        - `Identifying beneficiaries with a substance use disorder</span>
+<span class="sd">          &lt;https://www.medicaid.gov/medicaid/data-and-systems/downloads</span>
+<span class="sd">          /macbis/sud_techspecs.docx&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;dual_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;DUAL_ELGBL_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                <span class="n">dual</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
-                    <span class="p">[</span>
-                        <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
-                            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
-                        <span class="p">)</span>
-                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
-                            <span class="sa">f</span><span class="s2">&quot;DUAL_ELGBL_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
-                        <span class="p">]</span>
-                    <span class="p">]</span>
-                <span class="p">)</span>
+                <span class="n">any_dual_month</span><span class="o">=</span><span class="n">pdf</span><span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;dual_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]]</span>
                 <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-                <span class="n">dual_months</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
-                    <span class="p">[</span>
-                        <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
-                            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
-                        <span class="p">)</span>
-                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
-                            <span class="sa">f</span><span class="s2">&quot;DUAL_ELGBL_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
-                        <span class="p">]</span>
-                    <span class="p">]</span>
-                <span class="p">)</span>
+                <span class="n">dual_months</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;dual_mon_1&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+                    <span class="n">pdf</span><span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;dual_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                        <span class="nb">str</span>
+                    <span class="p">),</span>
+                    <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">total_dual_months</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;dual_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+                <span class="p">]</span>
                 <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;dual_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
 
 <div class="viewcode-block" id="TAFPS.flag_restricted_benefits"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_restricted_benefits">[docs]</a>    <span class="k">def</span> <span class="nf">flag_restricted_benefits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -557,54 +632,64 @@
 <span class="sd">        below values in their RSTRCTD_BNFTS_CD_XX columns are NOT assumed to</span>
 <span class="sd">        have restricted benefits:</span>
 
-<span class="sd">            1. Individual is eligible for Medicaid or CHIP and entitled to</span>
-<span class="sd">            the full scope of Medicaid or CHIP benefits.</span>
-<span class="sd">            4. Individual is eligible for Medicaid or CHIP but only entitled to</span>
-<span class="sd">            restricted benefits for pregnancy-related services.</span>
-<span class="sd">            5. Individual is eligible for Medicaid or Medicaid-Expansion</span>
-<span class="sd">            CHIP but, for reasons other than alien, dual-eligibility or</span>
-<span class="sd">            pregnancy-related status, is only entitled to restricted</span>
-<span class="sd">            benefits (e.g., restricted benefits based upon substance abuse,</span>
-<span class="sd">            medically needy or other criteria).</span>
-<span class="sd">            7. Individual is eligible for Medicaid and entitled to Medicaid</span>
-<span class="sd">            benefits under an alternative package of</span>
-<span class="sd">            benchmark-equivalent coverage, as enacted by the Deficit</span>
-<span class="sd">            Reduction Act of 2005.</span>
+<span class="sd">        - 1. Individual is eligible for Medicaid or CHIP and entitled to the</span>
+<span class="sd">          full scope of Medicaid or CHIP benefits.</span>
+<span class="sd">        - 4. Individual is eligible for Medicaid or CHIP but only entitled</span>
+<span class="sd">          to restricted benefits for pregnancy-related services.</span>
+<span class="sd">        - 5. Individual is eligible for Medicaid or Medicaid-Expansion CHIP</span>
+<span class="sd">          but, for reasons other than alien, dual-eligibility or</span>
+<span class="sd">          pregnancy-related status, is only entitled to restricted</span>
+<span class="sd">          benefits (e.g., restricted benefits based upon substance abuse,</span>
+<span class="sd">          medically needy or other criteria).</span>
+<span class="sd">        - 7. Individual is eligible for Medicaid and entitled to Medicaid</span>
+<span class="sd">          benefits under an alternative package of benchmark-equivalent</span>
+<span class="sd">          coverage, as enacted by the Deficit Reduction Act of 2005.</span>
 
-<span class="sd">        Reference: `Identifying beneficiaries with a substance use disorder &lt;https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx&gt;`_</span>
+<span class="sd">        Reference: `Identifying beneficiaries with a substance use disorder</span>
+<span class="sd">        &lt;https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis</span>
+<span class="sd">        /sud_techspecs.docx&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                <span class="n">any_restricted_benefit_month</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
-                    <span class="p">[</span>
-                        <span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
-                            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
-                        <span class="p">)</span>
-                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
-                            <span class="sa">f</span><span class="s2">&quot;RSTRCTD_BNFTS_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
-                        <span class="p">]</span>
-                    <span class="p">]</span>
-                <span class="p">)</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="sa">f</span><span class="s2">&quot;restricted_benefit_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                            <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;RSTRCTD_BNFTS_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+                            <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">any_restricted_benefit_month</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;restricted_benefit_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+                <span class="p">]</span>
                 <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-                <span class="n">restricted_benefit_months</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
-                    <span class="p">[</span>
-                        <span class="p">(</span>
-                            <span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
-                                <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
-                            <span class="p">)</span>
-                        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
-                            <span class="sa">f</span><span class="s2">&quot;RSTRCTD_BNFTS_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                <span class="n">restricted_benefit_months</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;restricted_benefit_mon_1&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+                    <span class="n">pdf</span><span class="p">[</span>
+                        <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;restricted_benefit_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
                         <span class="p">]</span>
-                    <span class="p">]</span>
-                <span class="p">)</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span>
+                    <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">total_restricted_benefit_months</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;restricted_benefit_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+                <span class="p">]</span>
                 <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
             <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;restricted_benefit_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
 
@@ -633,6 +718,18 @@
             <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
                 <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="s2">&quot;enrollment_start_date&quot;</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">enrollment_end_date</span><span class="o">=</span><span class="n">pdf_dates</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                    <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="s2">&quot;enrollment_start_date&quot;</span><span class="p">]</span>
+                <span class="p">)[</span><span class="s2">&quot;enrollment_end_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span>
+                    <span class="s2">&quot;enrollment_start_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;enrollment_end_date&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
             <span class="p">)</span>
             <span class="n">pdf_dates</span> <span class="o">=</span> <span class="n">pdf_dates</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
                 <span class="n">enrollment_end_date</span><span class="o">=</span><span class="n">pdf_dates</span><span class="p">[</span><span class="s2">&quot;enrollment_end_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
@@ -715,7 +812,403 @@
                     <span class="s2">&quot;total_gap_in_enrollment&quot;</span><span class="p">,</span>
                 <span class="p">]</span>
             <span class="p">}</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="TAFPS.flag_medicaid_enrolled_months"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_medicaid_enrolled_months">[docs]</a>    <span class="k">def</span> <span class="nf">flag_medicaid_enrolled_months</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates flags for medicaid enrollment for each and computes the</span>
+<span class="sd">        total number of months enroled in medicaid. Bene has to be enrolled</span>
+<span class="sd">        for all days of the month without missing eligibility information</span>
+<span class="sd">        for the month to be considered a medicaid enrolled month.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;enrollment_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="p">(</span>
+                            <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                                <span class="n">df_base</span><span class="p">[</span>
+                                    <span class="sa">f</span><span class="s2">&quot;MDCD_ENRLMT_DAYS_&quot;</span>
+                                    <span class="sa">f</span><span class="s2">&quot;&quot;</span>
+                                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                                <span class="p">],</span>
+                                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+                            <span class="p">)</span>
+                            <span class="o">&gt;=</span> <span class="p">(</span>
+                                <span class="mi">28</span>
+                                <span class="k">if</span> <span class="p">(</span><span class="n">mon</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+                                <span class="k">else</span> <span class="p">(</span>
+                                    <span class="mi">31</span>
+                                    <span class="k">if</span> <span class="p">(</span><span class="n">mon</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+                                    <span class="k">else</span> <span class="mi">30</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="o">|</span> <span class="p">(</span>
+                            <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                                <span class="n">df_base</span><span class="p">[</span>
+                                    <span class="sa">f</span><span class="s2">&quot;CHIP_ENRLMT_DAYS_&quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                                <span class="p">],</span>
+                                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+                            <span class="p">)</span>
+                            <span class="o">&gt;=</span> <span class="p">(</span>
+                                <span class="mi">28</span>
+                                <span class="k">if</span> <span class="p">(</span><span class="n">mon</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+                                <span class="k">else</span> <span class="p">(</span>
+                                    <span class="mi">31</span>
+                                    <span class="k">if</span> <span class="p">(</span><span class="n">mon</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+                                    <span class="k">else</span> <span class="mi">30</span>
+                                <span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="p">(</span>
+                        <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                            <span class="n">df_base</span><span class="p">[</span>
+                                <span class="sa">f</span><span class="s2">&quot;MISG_ENRLMT_TYPE_IND_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="p">],</span>
+                            <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="o">==</span> <span class="mi">0</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">total_enrolled_months</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;enrollment_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="n">enrolled_months</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;enrollment_mon_1&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+                    <span class="n">pdf</span><span class="p">[</span>
+                        <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;enrollment_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span>
+                    <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;enrollment_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_base</span></div>
+
+<div class="viewcode-block" id="TAFPS.flag_managed_care_months"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_managed_care_months">[docs]</a>    <span class="k">def</span> <span class="nf">flag_managed_care_months</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates flags for 3 categories of managed care plans for each month,</span>
+<span class="sd">        and adds columns denoting total number of months enrolled in these</span>
+<span class="sd">        plans and the enrollment sequence pattern.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df_mc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;managed_care&quot;</span><span class="p">]</span>
+        <span class="n">df_mc</span> <span class="o">=</span> <span class="n">df_mc</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;MC_PLAN_TYPE_CD_&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">_&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                    <span class="n">df_mc</span><span class="p">[</span>
+                        <span class="sa">f</span><span class="s2">&quot;MC_PLAN_TYPE_CD_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">],</span>
+                    <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">seq</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">df_mc</span> <span class="o">=</span> <span class="n">df_mc</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="sa">f</span><span class="s2">&quot;mc_comp_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">df_mc</span><span class="p">[</span>
+                        <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;MC_PLAN_TYPE_CD_&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">_&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                    <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">80</span><span class="p">])</span>
+                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                <span class="p">},</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="sa">f</span><span class="s2">&quot;mc_behav_health_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">df_mc</span><span class="p">[</span>
+                        <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;MC_PLAN_TYPE_CD_&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">_&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                    <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">])</span>
+                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                <span class="p">},</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="sa">f</span><span class="s2">&quot;mc_pccm_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">df_mc</span><span class="p">[</span>
+                        <span class="p">[</span>
+                            <span class="sa">f</span><span class="s2">&quot;MC_PLAN_TYPE_CD_&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">_&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">17</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">]</span>
+                    <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">70</span><span class="p">])</span>
+                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">df_mc</span> <span class="o">=</span> <span class="n">df_mc</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="sa">f</span><span class="s2">&quot;mc_</span><span class="si">{</span><span class="n">mc_type</span><span class="si">}</span><span class="s2">_months&quot;</span><span class="p">:</span> <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mc_</span><span class="si">{</span><span class="n">mc_type</span><span class="si">}</span><span class="s2">_mon_1&quot;</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+                            <span class="n">pdf</span><span class="p">[</span>
+                                <span class="p">[</span>
+                                    <span class="sa">f</span><span class="s2">&quot;mc_</span><span class="si">{</span><span class="n">mc_type</span><span class="si">}</span><span class="s2">_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span>
+                                    <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                                <span class="p">]</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span>
+                            <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">for</span> <span class="n">mc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;comp&quot;</span><span class="p">,</span> <span class="s2">&quot;behav_health&quot;</span><span class="p">,</span> <span class="s2">&quot;pccm&quot;</span><span class="p">]</span>
+                    <span class="p">},</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="sa">f</span><span class="s2">&quot;total_mc_</span><span class="si">{</span><span class="n">mc_type</span><span class="si">}</span><span class="s2">_months&quot;</span><span class="p">:</span> <span class="n">pdf</span><span class="p">[</span>
+                            <span class="p">[</span>
+                                <span class="sa">f</span><span class="s2">&quot;mc_</span><span class="si">{</span><span class="n">mc_type</span><span class="si">}</span><span class="s2">_mon_&quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span>
+                                <span class="k">for</span> <span class="n">mon</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                            <span class="p">]</span>
+                        <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">mc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;comp&quot;</span><span class="p">,</span> <span class="s2">&quot;behav_health&quot;</span><span class="p">,</span> <span class="s2">&quot;pccm&quot;</span><span class="p">]</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_mc</span> <span class="o">=</span> <span class="n">df_mc</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;mc_</span><span class="si">{</span><span class="n">mc_type</span><span class="si">}</span><span class="s2">_mon_</span><span class="si">{</span><span class="n">mon</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">for</span> <span class="n">mc_type</span><span class="p">,</span> <span class="n">mon</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span>
+                    <span class="p">[</span><span class="s2">&quot;comp&quot;</span><span class="p">,</span> <span class="s2">&quot;behav_health&quot;</span><span class="p">,</span> <span class="s2">&quot;pccm&quot;</span><span class="p">],</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;mc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_mc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">df_mc</span><span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">&quot;mc_</span><span class="si">{</span><span class="n">mc_type</span><span class="si">}</span><span class="s2">_months&quot;</span>
+                    <span class="k">for</span> <span class="n">mc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;comp&quot;</span><span class="p">,</span> <span class="s2">&quot;behav_health&quot;</span><span class="p">,</span> <span class="s2">&quot;pccm&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">&quot;total_mc_</span><span class="si">{</span><span class="n">mc_type</span><span class="si">}</span><span class="s2">_months&quot;</span>
+                    <span class="k">for</span> <span class="n">mc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;comp&quot;</span><span class="p">,</span> <span class="s2">&quot;behav_health&quot;</span><span class="p">,</span> <span class="s2">&quot;pccm&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">(),</span>
+            <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="TAFPS.flag_tanf"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_tanf">[docs]</a>    <span class="k">def</span> <span class="nf">flag_tanf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The Temporary Assistance for Needy Families (TANF) program provides</span>
+<span class="sd">        temporary financial assistance for pregnant women and families with</span>
+<span class="sd">        one or more dependent children. This provides financial assistance to</span>
+<span class="sd">        help pay for food, shelter, utilities, and expenses other than</span>
+<span class="sd">        medical. In TAF files this is identified via</span>
+
+<span class="sd">        `TANF_CASH_CD:`</span>
+<span class="sd">            - 1: INDIVIDUAL DID NOT RECEIVE TANF BENEFITS DURING THE YEAR;</span>
+<span class="sd">            - 2: INDIVIDUAL DID RECEIVE TANF BENEFITS DURING THE YEAR</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">tanf</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_base</span><span class="p">[</span><span class="s2">&quot;TANF_CASH_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_base</span></div>
+
+<div class="viewcode-block" id="TAFPS.gather_bene_level_diag_ndc_codes"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.gather_bene_level_diag_ndc_codes">[docs]</a>    <span class="k">def</span> <span class="nf">gather_bene_level_diag_ndc_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs patient level NDC and diagnosis code list columns and</span>
+<span class="sd">        saves them to individual file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lst_util_claim_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="s2">&quot;rx&quot;</span><span class="p">]</span>
+        <span class="n">dct_utilization_claims</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">claim_type</span><span class="p">:</span> <span class="n">taf_file</span><span class="o">.</span><span class="n">TAFFile</span><span class="o">.</span><span class="n">get_claim_instance</span><span class="p">(</span>
+                <span class="n">claim_type</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_root</span><span class="p">,</span>
+                <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">pq_engine</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pq_engine</span><span class="p">,</span>
+                <span class="n">tmp_folder</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_folder</span><span class="p">,</span> <span class="n">claim_type</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">claim_type</span> <span class="ow">in</span> <span class="n">lst_util_claim_types</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">claim_type</span> <span class="ow">in</span> <span class="n">lst_util_claim_types</span><span class="p">:</span>
+            <span class="n">claim_file</span> <span class="o">=</span> <span class="n">dct_utilization_claims</span><span class="p">[</span><span class="n">claim_type</span><span class="p">]</span>
+            <span class="n">claim_file</span><span class="o">.</span><span class="n">clean_codes</span><span class="p">()</span>
+            <span class="n">claim_file</span><span class="o">.</span><span class="n">gather_bene_level_diag_ndc_codes</span><span class="p">()</span>
+
+        <span class="n">df_diag</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">dct_utilization_claims</span><span class="p">[</span><span class="n">claim_type</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base_diag_codes&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">claim_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">]</span>
+            <span class="p">],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">interleave_partitions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df_ndc</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">dct_utilization_claims</span><span class="p">[</span><span class="n">claim_type</span><span class="p">]</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;line_ndc_codes&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">claim_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="s2">&quot;rx&quot;</span><span class="p">]</span>
+            <span class="p">],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">interleave_partitions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df_diag</span> <span class="o">=</span> <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span><span class="n">df_diag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">df_diag</span> <span class="o">=</span> <span class="n">df_diag</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">y</span><span class="p">)]))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;LST_DIAG_CD_RAW&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span>
+                    <span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_ndc</span> <span class="o">=</span> <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span><span class="n">df_ndc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">df_ndc</span> <span class="o">=</span> <span class="n">df_ndc</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;LST_NDC&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="nb">set</span><span class="p">((</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">y</span><span class="p">)]))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;LST_NDC_RAW&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span>
+                    <span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span><span class="n">df_diag</span><span class="p">,</span> <span class="n">index_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
+        <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span><span class="n">df_ndc</span><span class="p">,</span> <span class="n">index_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
+        <span class="n">df_diag</span> <span class="o">=</span> <span class="n">df_diag</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">df_ndc</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;LST_NDC&quot;</span><span class="p">,</span> <span class="s2">&quot;LST_NDC_RAW&quot;</span><span class="p">]}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;diag_and_ndc_codes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_diag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">(</span><span class="s2">&quot;diag_and_ndc_codes&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TAFPS.add_risk_adjustment_scores"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.add_risk_adjustment_scores">[docs]</a>    <span class="k">def</span> <span class="nf">add_risk_adjustment_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds bene level risk adjustment scores. Currently supports</span>
+<span class="sd">        Elixhauser scores.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;diag_and_ndc_codes&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gather_bene_level_diag_ndc_codes</span><span class="p">()</span>
+        <span class="n">df_diag_ndc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;diag_and_ndc_codes&quot;</span><span class="p">]</span>
+        <span class="n">df_diag_ndc</span> <span class="o">=</span> <span class="n">elixhauser_comorbidity</span><span class="o">.</span><span class="n">score</span><span class="p">(</span>
+            <span class="n">df_diag_ndc</span><span class="p">,</span> <span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span>
+        <span class="p">)</span>
+        <span class="n">dataframe_utils</span><span class="o">.</span><span class="n">fix_index</span><span class="p">(</span><span class="n">df_diag_ndc</span><span class="p">,</span> <span class="s2">&quot;BENE_MSIS&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;diag_ang_ndc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_diag_ndc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">(</span><span class="s2">&quot;diag_and_ndc&quot;</span><span class="p">)</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="n">col</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;diag_ang_ndc&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;elixhauser_score&quot;</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;ELX_GRP_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">)]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_base</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">(</span><span class="s2">&quot;base&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TAFPS.flag_ffs_months"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_ps.TAFPS.flag_ffs_months">[docs]</a>    <span class="k">def</span> <span class="nf">flag_ffs_months</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates flags for months enrolled in medicaid without</span>
+<span class="sd">        enrollment in managed care plans of 3 categories, and adds columns</span>
+<span class="sd">        denoting total number of months enrolled in these</span>
+<span class="sd">        plans and the enrollment sequence pattern.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="o">**</span><span class="p">{</span>
+                    <span class="s2">&quot;ffs_months&quot;</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">enrl</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">mc</span> <span class="o">==</span> <span class="s2">&quot;0&quot;</span><span class="p">)))</span>
+                                <span class="k">for</span> <span class="n">mc</span><span class="p">,</span> <span class="n">enrl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                                    <span class="n">x</span><span class="p">[</span><span class="s2">&quot;mc_comp_months&quot;</span><span class="p">]</span>
+                                    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;mc_comp_months&quot;</span><span class="p">])</span>
+                                    <span class="k">else</span> <span class="s2">&quot;0&quot;</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span>
+                                    <span class="n">x</span><span class="p">[</span><span class="s2">&quot;enrolled_months&quot;</span><span class="p">]</span>
+                                    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;enrolled_months&quot;</span><span class="p">])</span>
+                                    <span class="k">else</span> <span class="s2">&quot;0&quot;</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span>
+                                <span class="p">)</span>
+                            <span class="p">]</span>
+                        <span class="p">),</span>
+                        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;ffs_no_mc_behav_health_months&quot;</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">enrl</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">mc</span> <span class="o">==</span> <span class="s2">&quot;0&quot;</span><span class="p">)))</span>
+                                <span class="k">for</span> <span class="n">mc</span><span class="p">,</span> <span class="n">enrl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                                    <span class="n">x</span><span class="p">[</span><span class="s2">&quot;mc_behav_health_months&quot;</span><span class="p">]</span>
+                                    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;mc_behav_health_months&quot;</span><span class="p">])</span>
+                                    <span class="k">else</span> <span class="s2">&quot;0&quot;</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span>
+                                    <span class="n">x</span><span class="p">[</span><span class="s2">&quot;enrolled_months&quot;</span><span class="p">]</span>
+                                    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;enrolled_months&quot;</span><span class="p">])</span>
+                                    <span class="k">else</span> <span class="s2">&quot;0&quot;</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span>
+                                <span class="p">)</span>
+                            <span class="p">]</span>
+                        <span class="p">),</span>
+                        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;ffs_no_mc_pccm_months&quot;</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">enrl</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">mc</span> <span class="o">==</span> <span class="s2">&quot;0&quot;</span><span class="p">)))</span>
+                                <span class="k">for</span> <span class="n">mc</span><span class="p">,</span> <span class="n">enrl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                                    <span class="n">x</span><span class="p">[</span><span class="s2">&quot;mc_pccm_months&quot;</span><span class="p">]</span>
+                                    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;mc_pccm_months&quot;</span><span class="p">])</span>
+                                    <span class="k">else</span> <span class="s2">&quot;0&quot;</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span>
+                                    <span class="n">x</span><span class="p">[</span><span class="s2">&quot;enrolled_months&quot;</span><span class="p">]</span>
+                                    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;enrolled_months&quot;</span><span class="p">])</span>
+                                    <span class="k">else</span> <span class="s2">&quot;0&quot;</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span>
+                                <span class="p">)</span>
+                            <span class="p">]</span>
+                        <span class="p">),</span>
+                        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;total_ffs_</span><span class="si">{</span><span class="n">ffs_type</span><span class="si">}</span><span class="s2">months&quot;</span><span class="p">:</span> <span class="n">df_base</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;ffs_</span><span class="si">{</span><span class="n">ffs_type</span><span class="si">}</span><span class="s2">months&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">ffs_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;no_mc_behav_health_&quot;</span><span class="p">,</span> <span class="s2">&quot;no_mc_pccm_&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_base</span></div></div>
 </pre></div>
 
            </div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.adapted_algorithms.py_low_value_care package &mdash; medicaid_utils 0.0.0 documentation</title>
@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -88,10 +85,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_low_value_care package</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="medicaid_utils.html">medicaid_utils package</a> &raquo;</li>
+          <li><a href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a> &raquo;</li>
+      <li>medicaid_utils.adapted_algorithms.py_low_value_care package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.adapted_algorithms.py_low_value_care.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -122,7 +119,7 @@ Published online May 31, 2016. doi:10.1001/jamainternmed.2016.2086.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">construct_low_value_care_measures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_dates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_msr_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dct_denom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_low_value_care/low_value_care.html#LowValueCare.construct_low_value_care_measures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.construct_low_value_care_measures" title="Permalink to this definition"></a></dt>
 <dd><p>Constructs low value care measures</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pdf_dates</strong> (<em>pd.DataFrame</em>) – Dataframe with condition/ measure date lists and eligibility info</p></li>
 <li><p><strong>year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Year</p></li>
@@ -130,7 +127,7 @@ Published online May 31, 2016. doi:10.1001/jamainternmed.2016.2086.</p>
 <li><p><strong>dct_denom_spec</strong> – Denomination spec dictionary</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>pd.DataFrame</p>
 </dd>
 </dl>
@@ -138,7 +135,7 @@ Published online May 31, 2016. doi:10.1001/jamainternmed.2016.2086.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.data_folder">
-<span class="sig-name descname"><span class="pre">data_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_low_value_care/data'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.data_folder" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">data_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu_1/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_low_value_care/data'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.data_folder" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -151,7 +148,7 @@ Published online May 31, 2016. doi:10.1001/jamainternmed.2016.2086.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_condn_and_eligibility_indicators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdf_denom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdf_measure_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_bene_id_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BENE_MSIS'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_low_value_care/low_value_care.html#LowValueCare.generate_condn_and_eligibility_indicators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.generate_condn_and_eligibility_indicators" title="Permalink to this definition"></a></dt>
 <dd><p>Creates condition &amp; eligibility pattern indicators, and saves them as parquet files</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – State</p></li>
 <li><p><strong>year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Year</p></li>
@@ -172,7 +169,7 @@ Published online May 31, 2016. doi:10.1001/jamainternmed.2016.2086.</p>
 <dd><p>Aggregates dates at bene level for each denom/ measure condition. Three versions of date lists are returned
 based on the claim type the condition was present: ip, ed, ot, and all</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – State</p></li>
 <li><p><strong>year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Year</p></li>
@@ -181,10 +178,10 @@ based on the claim type the condition was present: ip, ed, ot, and all</p>
 <li><p><strong>claims_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Folder where claim files with condition flags are present</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>pdf_dates</strong> – Dataframe with denom/ measure condition date lists at bene level</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
@@ -195,7 +192,7 @@ based on the claim type the condition was present: ip, ed, ot, and all</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_dates_with_eligibility</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_condn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">claims_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_low_value_care/low_value_care.html#LowValueCare.get_dates_with_eligibility"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.get_dates_with_eligibility" title="Permalink to this definition"></a></dt>
 <dd><p>Returns eligibility info and dates for all conditions at bene level</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – State</p></li>
 <li><p><strong>year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Year</p></li>
@@ -204,7 +201,7 @@ based on the claim type the condition was present: ip, ed, ot, and all</p>
 <li><p><strong>claims_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Location of claims folder that contains flags for conditions</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>pd.DataFrame</p>
 </dd>
 </dl>
@@ -215,7 +212,7 @@ based on the claim type the condition was present: ip, ed, ot, and all</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_denom_measure_spec</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_low_value_care/low_value_care.html#LowValueCare.get_denom_measure_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.get_denom_measure_spec" title="Permalink to this definition"></a></dt>
 <dd><p>Returns denom measure specs</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><strong>dct_measures</strong> (<em>dict</em>) – Measures dictionary</p></li>
 <li><p><strong>dct_denom</strong> (<em>dict</em>) – Denominator dictionary</p></li>
@@ -233,13 +230,13 @@ based on the claim type the condition was present: ip, ed, ot, and all</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_diag_proc_codes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_denom_spec:</span> <span class="pre">~pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdf_measure_spec:</span> <span class="pre">~pandas.core.frame.DataFrame)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'dict'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'dict'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_low_value_care/low_value_care.html#LowValueCare.get_diag_proc_codes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.get_diag_proc_codes" title="Permalink to this definition"></a></dt>
 <dd><p>Returns dictionaries of diagnosis &amp; procedure codes</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pdf_denom_spec</strong> (<em>pd.DataFrame</em>) – Denom spec dataframe</p></li>
 <li><p><strong>pdf_measure_spec</strong> (<em>pd.DataFrame</em>) – Measure spec dataframe</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>dct_diag_codes</strong> (<em>dict</em>) – Dictionary of diagnostic codes</p></li>
 <li><p><strong>dct_proc_codes</strong> (<em>dict</em>) – Dictionary of procedure codes</p></li>
@@ -254,13 +251,13 @@ based on the claim type the condition was present: ip, ed, ot, and all</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_diag_proc_specs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_spec:</span> <span class="pre">~pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix:</span> <span class="pre">str)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'dict'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'dict'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'dict'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'dict'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_low_value_care/low_value_care.html#LowValueCare.get_diag_proc_specs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.get_diag_proc_specs" title="Permalink to this definition"></a></dt>
 <dd><p>Returns DX &amp; procedure code specs as dictionary</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pdf_spec</strong> (<em>pd.DataFrame</em>) – Diagnostic/ procedure code specifications dataframe</p></li>
 <li><p><strong>prefix</strong> (<em>{'denom'</em><em>, </em><em>'msr'}</em>) – Prefix to denote condition type</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>dct_diag_codes</strong> (<em>dict</em>) – Diagnosis codes dictionary</p></li>
 <li><p><strong>dct_excl_diag_codes</strong> (<em>dict</em>) – Excluded Diagnosis codes dictionary</p></li>
@@ -277,13 +274,13 @@ based on the claim type the condition was present: ip, ed, ot, and all</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normalize_condition_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_low_value_care/low_value_care.html#LowValueCare.normalize_condition_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.normalize_condition_names" title="Permalink to this definition"></a></dt>
 <dd><p>Normalizers condition names so they can be used as column names</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>pdf_spec</strong> (<em>pd.DataFrame</em>) – Diagnostic/ procedure code specifications dataframe</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dataframe with conditions names normalized</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>
@@ -291,7 +288,7 @@ based on the claim type the condition was present: ip, ed, ot, and all</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.package_folder">
-<span class="sig-name descname"><span class="pre">package_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_low_value_care'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.package_folder" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">package_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu_1/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_low_value_care'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.LowValueCare.package_folder" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -301,7 +298,7 @@ based on the claim type the condition was present: ip, ed, ot, and all</p>
 <span class="sig-prename descclassname"><span class="pre">medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.</span></span><span class="sig-name descname"><span class="pre">construct_low_value_care_measures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_bene_msis_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_data_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_low_value_care/low_value_care.html#construct_low_value_care_measures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care.construct_low_value_care_measures" title="Permalink to this definition"></a></dt>
 <dd><p>Constructs low value care measures for the given year and state</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – State</p></li>
 <li><p><strong>year</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Year</p></li>
@@ -311,10 +308,10 @@ based on the claim type the condition was present: ip, ed, ot, and all</p>
 <li><p><strong>out_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Location where temporary files will be saved</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>pdf_dates</strong> – Dataframe with low value care measures</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
 </dd>
 </dl>

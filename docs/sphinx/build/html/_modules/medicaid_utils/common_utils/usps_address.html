@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.common_utils.usps_address &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>medicaid_utils.common_utils.usps_address</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.common_utils.usps_address</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;This script shows an example of using `requests` and the USPS Address</span>
+<span class="sd">Information API. In order to use this, you must first register so you can</span>
+<span class="sd">get your USERID.  Your ID must be in the environment variable `USPS_USERID`.</span>
+<span class="sd">For information on the API see `here &lt;https://www.usps.com/business/web-tools-apis/address-information-api.htm&gt;_`</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Imports #####################################################################</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">xml.dom.minidom</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">xml_et</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">load_dotenv</span><span class="p">()</span>
+<span class="c1"># Globals #####################################################################</span>
+<span class="n">USPS_USERID</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;USPS_USERID&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="dump_xml"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.dump_xml">[docs]</a><span class="k">def</span> <span class="nf">dump_xml</span><span class="p">(</span><span class="n">raw_xml</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a string representation of XML with proper intendation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_xml</span><span class="p">,</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">):</span>
+        <span class="n">raw_xml</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">raw_xml</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xml</span><span class="o">.</span><span class="n">dom</span><span class="o">.</span><span class="n">minidom</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">raw_xml</span><span class="p">)</span><span class="o">.</span><span class="n">toprettyxml</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="get_text"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.get_text">[docs]</a><span class="k">def</span> <span class="nf">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">xpath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the text of the XPath element, or None if the element was not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">element</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">xpath</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">element</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">element</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="USPSAddress"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress">[docs]</a><span class="k">class</span> <span class="nc">USPSAddress</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representation of an United States Postal Service address.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">suite</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">street</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">zip5</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">zip4</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suite</span> <span class="o">=</span> <span class="n">suite</span>  <span class="c1"># or APT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">street</span> <span class="o">=</span> <span class="n">street</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city</span> <span class="o">=</span> <span class="n">city</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">else</span> <span class="n">state</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zip5</span> <span class="o">=</span> <span class="n">zip5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zip4</span> <span class="o">=</span> <span class="n">zip4</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+<div class="viewcode-block" id="USPSAddress.zipcode"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress.zipcode">[docs]</a>    <span class="k">def</span> <span class="nf">zipcode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the zipcode based on whether or not `zip4` is used.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">-</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zip5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip4</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip5</span></div>
+
+<div class="viewcode-block" id="USPSAddress.original"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress.original">[docs]</a>    <span class="k">def</span> <span class="nf">original</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the non-standardized address format&quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">street</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">, </span><span class="si">{1}</span><span class="s2">  </span><span class="si">{2}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipcode</span><span class="p">()),</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">if</span> <span class="n">x</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="USPSAddress.standardized"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress.standardized">[docs]</a>    <span class="k">def</span> <span class="nf">standardized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the standardized address format&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span>
+
+        <span class="n">api</span> <span class="o">=</span> <span class="n">AddressStandardizationWebTool</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">street</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zip5</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zip4</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">result</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">get_standardized_address</span><span class="p">()</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span>
+
+            <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;suite&quot;</span><span class="p">]:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;street&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;suite&quot;</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;street&quot;</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;zip4&quot;</span><span class="p">]:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">-</span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">],</span>
+                        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">],</span>
+                        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;zip5&quot;</span><span class="p">],</span>
+                        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;zip4&quot;</span><span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;zip5&quot;</span><span class="p">])</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">if</span> <span class="n">x</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warning</span> <span class="o">=</span> <span class="n">warning</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_error</span> <span class="o">=</span> <span class="n">error</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span></div></div>
+
+
+<div class="viewcode-block" id="USPSShippingAPI"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSShippingAPI">[docs]</a><span class="k">class</span> <span class="nc">USPSShippingAPI</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Representation of the USPS Shipping API</span>
+<span class="sd">    https://www.usps.com/business/web-tools-apis/address-information-api.htm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://production.shippingapis.com/ShippingAPI.dll&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">,</span> <span class="n">userid</span><span class="o">=</span><span class="n">USPS_USERID</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">userid</span> <span class="o">=</span> <span class="n">userid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">api</span>
+
+    <span class="k">def</span> <span class="nf">_xml_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Child classes should override this to return a string appropriate for</span>
+<span class="sd">        its API.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Must override this function!&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="USPSShippingAPI.send_request"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSShippingAPI.send_request">[docs]</a>    <span class="k">def</span> <span class="nf">send_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send the request and return the XML response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">USPSShippingAPI</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;API&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">,</span> <span class="s2">&quot;XML&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xml_payload</span><span class="p">()},</span>
+        <span class="p">)</span>
+
+        <span class="n">root</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//Error&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;./Address/Error/Description&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check for any returned messages.  There&#39;s shouldn&#39;t be any, so treat</span>
+        <span class="c1"># it as a warning.</span>
+        <span class="n">warning</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.//ReturnText&quot;</span><span class="p">)</span>
+        <span class="n">warning</span> <span class="o">=</span> <span class="n">warning</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">warning</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">root</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">error</span></div></div>
+
+
+<div class="viewcode-block" id="AddressStandardizationWebTool"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool">[docs]</a><span class="k">class</span> <span class="nc">AddressStandardizationWebTool</span><span class="p">(</span><span class="n">USPSShippingAPI</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object to get a standardized USPS Address.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">api</span> <span class="o">=</span> <span class="s2">&quot;Verify&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">street</span><span class="p">,</span>
+        <span class="n">city</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">suite</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">zip5</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">zip4</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">userid</span><span class="o">=</span><span class="n">USPS_USERID</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AddressStandardizationWebTool</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">userid</span><span class="o">=</span><span class="n">userid</span><span class="p">,</span> <span class="n">api</span><span class="o">=</span><span class="n">AddressStandardizationWebTool</span><span class="o">.</span><span class="n">api</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suite</span> <span class="o">=</span> <span class="n">suite</span>  <span class="c1"># or APT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">street</span> <span class="o">=</span> <span class="n">street</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city</span> <span class="o">=</span> <span class="n">city</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zip5</span> <span class="o">=</span> <span class="n">zip5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zip4</span> <span class="o">=</span> <span class="n">zip4</span>
+
+<div class="viewcode-block" id="AddressStandardizationWebTool.get_standardized_address"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool.get_standardized_address">[docs]</a>    <span class="k">def</span> <span class="nf">get_standardized_address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a standardized format of the object&#39;s address.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">()</span>
+        <span class="n">standardized</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+            <span class="n">standardized</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;./Address/FirmName&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;suite&quot;</span><span class="p">:</span> <span class="n">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;./Address/Address1&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;street&quot;</span><span class="p">:</span> <span class="n">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;./Address/Address2&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;city&quot;</span><span class="p">:</span> <span class="n">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;./Address/City&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;./Address/State&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;zip5&quot;</span><span class="p">:</span> <span class="n">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;./Address/Zip5&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;zip4&quot;</span><span class="p">:</span> <span class="n">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;./Address/Zip4&quot;</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="k">return</span> <span class="n">standardized</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">error</span></div>
+
+    <span class="k">def</span> <span class="nf">_xml_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the appropriate XML format for an &#39;Address Standardization Web</span>
+<span class="sd">        Tool&#39; request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;AddressValidateRequest&quot;</span><span class="p">)</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;USERID&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">userid</span><span class="p">)</span>
+
+        <span class="n">include_opt</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;IncludeOptionalElements&quot;</span><span class="p">)</span>
+        <span class="n">include_opt</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">include_opt</span><span class="p">)</span>
+
+        <span class="n">return_carrier_route</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;ReturnCarrierRoute&quot;</span><span class="p">)</span>
+        <span class="n">return_carrier_route</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
+        <span class="n">root</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">return_carrier_route</span><span class="p">)</span>
+
+        <span class="n">address</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Address&quot;</span><span class="p">)</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+
+        <span class="n">firm_element</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;FirmName&quot;</span><span class="p">)</span>
+        <span class="n">firm_element</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">firm_element</span><span class="p">)</span>
+
+        <span class="n">address1_element</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Address1&quot;</span><span class="p">)</span>
+        <span class="n">address1_element</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">suite</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address1_element</span><span class="p">)</span>
+
+        <span class="n">address2_element</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Address2&quot;</span><span class="p">)</span>
+        <span class="n">address2_element</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">street</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address2_element</span><span class="p">)</span>
+
+        <span class="n">city_element</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;City&quot;</span><span class="p">)</span>
+        <span class="n">city_element</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">city_element</span><span class="p">)</span>
+
+        <span class="n">state_element</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;State&quot;</span><span class="p">)</span>
+        <span class="n">state_element</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state_element</span><span class="p">)</span>
+
+        <span class="n">zip5_element</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Zip5&quot;</span><span class="p">)</span>
+        <span class="n">zip5_element</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip5</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zip5_element</span><span class="p">)</span>
+
+        <span class="n">zip4_element</span> <span class="o">=</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s2">&quot;Zip4&quot;</span><span class="p">)</span>
+        <span class="n">zip4_element</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip4</span>
+        <span class="n">address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zip4_element</span><span class="p">)</span>
+
+        <span class="n">root</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">root</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

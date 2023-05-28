@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>medicaid_utils.other_datasets.fqhc &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+          </a>
+              <div class="version">
+                0.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>medicaid_utils.other_datasets.fqhc</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for medicaid_utils.other_datasets.fqhc</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">usaddress</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">fuzzywuzzy</span> <span class="kn">import</span> <span class="n">process</span><span class="p">,</span> <span class="n">fuzz</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+
+<span class="kn">from</span> <span class="nn">medicaid_utils.common_utils.usps_address</span> <span class="kn">import</span> <span class="n">USPSAddress</span>
+
+
+<span class="n">constructed_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;constructed&quot;</span>
+<span class="p">)</span>
+<span class="n">nppes_lookup_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;lookups&quot;</span><span class="p">,</span> <span class="s2">&quot;nppes_taxonomy&quot;</span>
+<span class="p">)</span>
+<span class="n">fara_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;lookups&quot;</span><span class="p">,</span> <span class="s2">&quot;nppes_taxonomy&quot;</span>
+<span class="p">)</span>
+<span class="n">fqhc_lookup_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;lookups&quot;</span><span class="p">,</span> <span class="s2">&quot;fqhc&quot;</span>
+<span class="p">)</span>
+<span class="n">delivery_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;deliveries&quot;</span><span class="p">,</span> <span class="s2">&quot;adults&quot;</span>
+<span class="p">)</span>
+<span class="n">uds_delivery_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;deliveries&quot;</span><span class="p">,</span> <span class="s2">&quot;uds_factors&quot;</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="generate_oscar_fqhc_npis"><a class="viewcode-back" href="../../../medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.fqhc.generate_oscar_fqhc_npis">[docs]</a><span class="k">def</span> <span class="nf">generate_oscar_fqhc_npis</span><span class="p">(</span><span class="n">lst_year</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pq_engine</span><span class="o">=</span><span class="s2">&quot;fastparquet&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Saves list of NPIs with FQHC range oscar provider ids into a pickle file&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">lst_year</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lst_year</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2009</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">df_npi_provider</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">nppes_lookup_folder</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">yr</span><span class="p">),</span>
+                    <span class="s2">&quot;npi_provider_parquet_cleaned&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">engine</span><span class="o">=</span><span class="n">pq_engine</span><span class="p">,</span>
+                <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">yr</span> <span class="ow">in</span> <span class="n">lst_year</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">df_npi_provider</span><span class="p">[</span><span class="s2">&quot;ccn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df_npi_provider</span><span class="p">[</span><span class="s2">&quot;provider_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span>
+    <span class="p">)</span>
+    <span class="n">df_npi_provider</span> <span class="o">=</span> <span class="n">df_npi_provider</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ccn</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;ccn&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Oscar provider numbers for FQHCs end in the range 1800 - 1989 or 1000 - 1199</span>
+    <span class="n">pdf_fqhc_npi</span> <span class="o">=</span> <span class="n">df_npi_provider</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">df_npi_provider</span><span class="p">[</span><span class="s2">&quot;ccn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">1800</span><span class="p">,</span> <span class="mi">1989</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+        <span class="o">|</span> <span class="n">df_npi_provider</span><span class="p">[</span><span class="s2">&quot;ccn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1199</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+    <span class="n">pdf_fqhc_npi</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">pdf_fqhc_npi</span><span class="p">[</span><span class="s2">&quot;provider_id_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">6</span><span class="p">)]</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nppes_lookup_folder</span><span class="p">,</span> <span class="s2">&quot;nppes_fqhc_range_npis.pickle&quot;</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_file_name_dict"><a class="viewcode-back" href="../../../medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.fqhc.get_file_name_dict">[docs]</a><span class="k">def</span> <span class="nf">get_file_name_dict</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+    <span class="n">dct_files</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;uds&quot;</span><span class="p">:</span> <span class="s2">&quot;uds_all_years.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hcris&quot;</span><span class="p">:</span> <span class="s2">&quot;hcris_all_years.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nppes_matches&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_nppes_based_matches.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;api_matches&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_api_perfect_matches.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;api_and_nppes_matches&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_api_and_nppes_perfect_matches.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;api_nppes_state_relaxed_matches&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_api_and_nppes_perfect_matches_with_state_relaxed.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;text_merged&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;nppes_</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_text_merged.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;text_merged_with_match_purity&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;nppes_</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_text_merged_with_match_purity.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;text_matches&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_text_based_perfect_matches.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;perfect_matches&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_perfect_matches.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fuzzy_matches&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_fuzzy_matches.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;no_leading_zeros_matches&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">_nppes_based_matches_no_leading_zeros.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bhcmisid_perfect_matches&quot;</span><span class="p">:</span> <span class="s2">&quot;bhcmisid_npi_perfect_matches.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bhcmisid_fuzzy_matches&quot;</span><span class="p">:</span> <span class="s2">&quot;bhcmisid_npi_fuzzy_matches.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bhcmisid_x_npi&quot;</span><span class="p">:</span> <span class="s2">&quot;bhcmisid_x_npi.pickle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fqhc_x_npi&quot;</span><span class="p">:</span> <span class="s2">&quot;fqhc_x_npi.ftr&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">dct_files</span></div>
+
+
+<div class="viewcode-block" id="get_fqhc_crosswalk"><a class="viewcode-back" href="../../../medicaid_utils.other_datasets.html#medicaid_utils.other_datasets.fqhc.get_fqhc_crosswalk">[docs]</a><span class="k">def</span> <span class="nf">get_fqhc_crosswalk</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">data_folder</span><span class="o">=</span><span class="n">fqhc_lookup_folder</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns FQHC cross walk with FQHC NPI&#39;s seen in UDS datasets till the start_year&quot;&quot;&quot;</span>
+    <span class="n">pdf_fqhc_crosswalk</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_feather</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">get_file_name_dict</span><span class="p">(</span><span class="s2">&quot;uds&quot;</span><span class="p">)[</span><span class="s2">&quot;fqhc_x_npi&quot;</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">pdf_fqhc_crosswalk</span> <span class="o">=</span> <span class="n">pdf_fqhc_crosswalk</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;start_year&quot;</span><span class="p">])</span>
+    <span class="n">pdf_fqhc_crosswalk</span> <span class="o">=</span> <span class="n">pdf_fqhc_crosswalk</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">bhcmisid</span><span class="o">=</span><span class="n">pdf_fqhc_crosswalk</span><span class="p">[</span><span class="s2">&quot;bhcmisid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">pdf_fqhc_crosswalk</span> <span class="o">=</span> <span class="n">pdf_fqhc_crosswalk</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">bhcmisid</span><span class="o">=</span><span class="n">pdf_fqhc_crosswalk</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;npi&quot;</span><span class="p">])[</span><span class="s2">&quot;bhcmisid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">pdf_fqhc_crosswalk</span> <span class="o">=</span> <span class="n">pdf_fqhc_crosswalk</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">bhcmisid</span><span class="o">=</span><span class="n">pdf_fqhc_crosswalk</span><span class="p">[</span><span class="s2">&quot;bhcmisid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">pdf_fqhc_crosswalk</span> <span class="o">=</span> <span class="n">pdf_fqhc_crosswalk</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">([</span><span class="s2">&quot;npi&quot;</span><span class="p">])</span>
+    <span class="n">pdf_fqhc_crosswalk</span> <span class="o">=</span> <span class="n">pdf_fqhc_crosswalk</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;perfect_fqhc&quot;</span><span class="p">:</span> <span class="s2">&quot;taxonomy_perfect_fqhc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fuzzy_fqhc&quot;</span><span class="p">:</span> <span class="s2">&quot;taxonomy_fuzzy_fqhc&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pdf_fqhc_crosswalk</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">pdf_fqhc_crosswalk</span><span class="p">[</span><span class="s2">&quot;start_year&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">start_year</span>
+    <span class="p">]</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

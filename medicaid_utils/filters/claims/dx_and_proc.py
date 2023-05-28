@@ -1,4 +1,5 @@
-"""This module has functions to add diagnosis/ procedure code based indicator flags to claims"""
+"""This module has functions to add diagnosis/ procedure code based
+indicator flags to claims"""
 import logging
 from typing import List
 import itertools
@@ -15,21 +16,48 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
     logger_name: str = __file__,
     cms_format: str = "MAX",
     **dct_claims,
-) -> (pd.DataFrame(), dict):
+) -> (pd.DataFrame, dict):
     """
-    Gets patient ids with conditions denoted by provided diagnosis codes or procedure codes
+    Gets patient ids with conditions denoted by provided diagnosis codes or
+    procedure codes
 
     Parameters
     ----------
     dct_diag_codes : dict
         Dictionary of diagnosis codes. Should be in the format
-            {condition_name: {['incl' / 'excl']: {[9/ 10]: list of codes} }
-            Eg: {'oud_nqf': {'incl': {9: ['3040','3055']}}}
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {condition_name:
+                {['incl' / 'excl']: {[9/ 10]: list of codes} }
+
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'oud_nqf': {'incl': {9: ['3040','3055']}}}
+
     dct_proc_codes : dict
         Dictionary of procedure codes. Should be in the format
-            {procedure_name: {procedure_system_code: list of codes} }
-            Eg: {'methadone_7': {7: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,'
-                                   'HZ96ZZZ'.split(",")}}
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {procedure_name:
+                {procedure_system_code: list of codes} }
+
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'methadone':
+                {6: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ, HZ86ZZZ, HZ91ZZZ,HZ94ZZZ,
+                     HZ95ZZZ,HZ96ZZZ'.split(",")}
+            }
+
     logger_name : str
         Logger name
     cms_format : {'MAX', TAF'}
@@ -111,7 +139,8 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
                 "with_conditions_procedures"
             ] = df.shape[0].compute()
             logger.info(
-                "Restricting %s to condition diagnoses/ procedures reduces the claim count to %d",
+                "Restricting %s to condition diagnoses/ procedures reduces "
+                "the claim count to %d",
                 claim_type,
                 dct_filter_results[claim_type][
                     "with_conditions_procedures"
@@ -175,13 +204,37 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
     ----------
     dct_diag_codes : dict
         Dictionary of diagnosis codes. Should be in the format
+
+        .. highlight:: python
+        .. code-block:: python
+
             {condition_name: {['incl' / 'excl']: {[9/ 10]: list of codes} }
-            Eg: {'oud_nqf': {'incl': {9: ['3040','3055']}}}
+
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'oud_nqf': {'incl': {9: ['3040','3055']}}}
+
     dct_proc_codes : dict
         Dictionary of procedure codes. Should be in the format
+
+        .. highlight:: python
+        .. code-block:: python
+
             {procedure_name: {procedure_system_code: list of codes} }
-            Eg: {'methadone_7': {7: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,'
-                                   'HZ96ZZZ'.split(",")}}
+
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'methadone':
+                {6: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ, HZ86ZZZ,
+                     HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,'HZ96ZZZ'.split(",")}
+            }
+
     df_claims : dd.DataFrame
         Claims dataframe
     cms_format : {'MAX', TAF'}
@@ -196,8 +249,8 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
     Raises
     ------
     ValueError
-        If non-alphanumeric columns are present in ICD/ CPT procedure codes in dct_diag_codes/
-        dct_proc_codes
+        If non-alphanumeric columns are present in ICD/ CPT procedure codes
+        in dct_diag_codes/ dct_proc_codes
 
     """
     # Validate procedure codes

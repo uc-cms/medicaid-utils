@@ -11,9 +11,6 @@
   <![endif]-->
   
         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../../_static/doctools.js"></script>
         <script src="../../../../_static/sphinx_highlight.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
@@ -57,9 +54,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.filters.claims.dx_and_proc</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>medicaid_utils.filters.claims.dx_and_proc</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -69,7 +66,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for medicaid_utils.filters.claims.dx_and_proc</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;This module has functions to add diagnosis/ procedure code based indicator flags to claims&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;This module has functions to add diagnosis/ procedure code based</span>
+<span class="sd">indicator flags to claims&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
@@ -86,21 +84,48 @@
     <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="vm">__file__</span><span class="p">,</span>
     <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MAX&quot;</span><span class="p">,</span>
     <span class="o">**</span><span class="n">dct_claims</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Gets patient ids with conditions denoted by provided diagnosis codes or procedure codes</span>
+<span class="sd">    Gets patient ids with conditions denoted by provided diagnosis codes or</span>
+<span class="sd">    procedure codes</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    dct_diag_codes : dict</span>
 <span class="sd">        Dictionary of diagnosis codes. Should be in the format</span>
-<span class="sd">            {condition_name: {[&#39;incl&#39; / &#39;excl&#39;]: {[9/ 10]: list of codes} }</span>
-<span class="sd">            Eg: {&#39;oud_nqf&#39;: {&#39;incl&#39;: {9: [&#39;3040&#39;,&#39;3055&#39;]}}}</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {condition_name:</span>
+<span class="sd">                {[&#39;incl&#39; / &#39;excl&#39;]: {[9/ 10]: list of codes} }</span>
+
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;oud_nqf&#39;: {&#39;incl&#39;: {9: [&#39;3040&#39;,&#39;3055&#39;]}}}</span>
+
 <span class="sd">    dct_proc_codes : dict</span>
 <span class="sd">        Dictionary of procedure codes. Should be in the format</span>
-<span class="sd">            {procedure_name: {procedure_system_code: list of codes} }</span>
-<span class="sd">            Eg: {&#39;methadone_7&#39;: {7: &#39;HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,&#39;</span>
-<span class="sd">                                   &#39;HZ96ZZZ&#39;.split(&quot;,&quot;)}}</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {procedure_name:</span>
+<span class="sd">                {procedure_system_code: list of codes} }</span>
+
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;methadone&#39;:</span>
+<span class="sd">                {6: &#39;HZ81ZZZ,HZ84ZZZ,HZ85ZZZ, HZ86ZZZ, HZ91ZZZ,HZ94ZZZ,</span>
+<span class="sd">                     HZ95ZZZ,HZ96ZZZ&#39;.split(&quot;,&quot;)}</span>
+<span class="sd">            }</span>
+
 <span class="sd">    logger_name : str</span>
 <span class="sd">        Logger name</span>
 <span class="sd">    cms_format : {&#39;MAX&#39;, TAF&#39;}</span>
@@ -182,7 +207,8 @@
                 <span class="s2">&quot;with_conditions_procedures&quot;</span>
             <span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Restricting </span><span class="si">%s</span><span class="s2"> to condition diagnoses/ procedures reduces the claim count to </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Restricting </span><span class="si">%s</span><span class="s2"> to condition diagnoses/ procedures reduces &quot;</span>
+                <span class="s2">&quot;the claim count to </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">claim_type</span><span class="p">,</span>
                 <span class="n">dct_filter_results</span><span class="p">[</span><span class="n">claim_type</span><span class="p">][</span>
                     <span class="s2">&quot;with_conditions_procedures&quot;</span>
@@ -246,13 +272,37 @@
 <span class="sd">    ----------</span>
 <span class="sd">    dct_diag_codes : dict</span>
 <span class="sd">        Dictionary of diagnosis codes. Should be in the format</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
 <span class="sd">            {condition_name: {[&#39;incl&#39; / &#39;excl&#39;]: {[9/ 10]: list of codes} }</span>
-<span class="sd">            Eg: {&#39;oud_nqf&#39;: {&#39;incl&#39;: {9: [&#39;3040&#39;,&#39;3055&#39;]}}}</span>
+
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;oud_nqf&#39;: {&#39;incl&#39;: {9: [&#39;3040&#39;,&#39;3055&#39;]}}}</span>
+
 <span class="sd">    dct_proc_codes : dict</span>
 <span class="sd">        Dictionary of procedure codes. Should be in the format</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
 <span class="sd">            {procedure_name: {procedure_system_code: list of codes} }</span>
-<span class="sd">            Eg: {&#39;methadone_7&#39;: {7: &#39;HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,&#39;</span>
-<span class="sd">                                   &#39;HZ96ZZZ&#39;.split(&quot;,&quot;)}}</span>
+
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;methadone&#39;:</span>
+<span class="sd">                {6: &#39;HZ81ZZZ,HZ84ZZZ,HZ85ZZZ, HZ86ZZZ,</span>
+<span class="sd">                     HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,&#39;HZ96ZZZ&#39;.split(&quot;,&quot;)}</span>
+<span class="sd">            }</span>
+
 <span class="sd">    df_claims : dd.DataFrame</span>
 <span class="sd">        Claims dataframe</span>
 <span class="sd">    cms_format : {&#39;MAX&#39;, TAF&#39;}</span>
@@ -267,8 +317,8 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If non-alphanumeric columns are present in ICD/ CPT procedure codes in dct_diag_codes/</span>
-<span class="sd">        dct_proc_codes</span>
+<span class="sd">        If non-alphanumeric columns are present in ICD/ CPT procedure codes</span>
+<span class="sd">        in dct_diag_codes/ dct_proc_codes</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Validate procedure codes</span>

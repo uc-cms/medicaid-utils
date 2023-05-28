@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.topics.obgyn package &mdash; medicaid_utils 0.0.0 documentation</title>
@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -84,10 +81,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.topics.html">medicaid_utils.topics package</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.topics.obgyn package</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="medicaid_utils.html">medicaid_utils package</a> &raquo;</li>
+          <li><a href="medicaid_utils.topics.html">medicaid_utils.topics package</a> &raquo;</li>
+      <li>medicaid_utils.topics.obgyn package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.topics.obgyn.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -126,10 +123,10 @@ rural location</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – Claims dataframe</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -141,10 +138,10 @@ rural location</p></li>
 <dd><p>Adds indicator columns denoting whether the claim has a discharge status
 indicating a transfer. Currently only supports MAX files.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – IP or LT claim file</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -171,10 +168,10 @@ indicating a transfer. Currently only supports MAX files.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>cc_file</strong> (<a class="reference internal" href="medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.max_cc.MAXCC" title="medicaid_utils.preprocessing.max_cc.MAXCC"><em>max_cc.MAXCC</em></a>) – </p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -201,12 +198,12 @@ indicating a transfer. Currently only supports MAX files.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – Claims dataframe that has indicator columns for type of deliveries,
 viz., hosp_abnormal_pregnancy, hosp_birth, hosp_preterm,
 and hosp_prenatal</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -226,10 +223,10 @@ abortion and 0 otherwise</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – Claims dataframe</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -247,10 +244,10 @@ birth and 0 otherwise</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_ip_claims</strong> (<em>dd.DataFrame</em>) – IP claims dataframe</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -268,10 +265,10 @@ birth and 0 otherwise</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – Claims dataframe</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -289,10 +286,10 @@ multiple birt hdelivery</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – Claims dataframe</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -309,10 +306,10 @@ multiple birt hdelivery</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – Claims dataframe</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -330,10 +327,10 @@ preterm birth and 0 otherwise</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>df_claims</strong> (<em>dd.DataFrame</em>) – Claims dataframe</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>
@@ -373,13 +370,13 @@ with transfusion not as the sole cause</p></li>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df_ip_claims</strong> (<em>dd.DataFrame</em>) – IP claims dataframe</p></li>
 <li><p><strong>index_admsn_date_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='index_admsn_date'</em>) – Name of column containing delivery date</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dd.DataFrame</p>
 </dd>
 </dl>

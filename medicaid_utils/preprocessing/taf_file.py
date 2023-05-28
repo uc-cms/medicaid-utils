@@ -345,16 +345,15 @@ class TAFFile:
 
     def flag_duplicates(self):
         """
-        Removes duplicated rows.
+        Removes duplicated rows. TAF claims have multiple versions for each
+        month. This function keeps the most recent file version date for
+        each month using the variables IP_VRSN, LT_VRSN, OT_VRSN,
+        and RX_VRSN. Retains only the claims with maximum value of
+        production data run ID (DA_RUN_ID) for each claim ID (CLM_ID).
 
-        Things to note:
-            - All TAF claims are monthly files. This function keeps the most recent file version date for each month
-            using the variables IP_VRSN, LT_VRSN, OT_VRSN, and RX_VRSN.
-            - Retains only the claims with maximum value of production data run ID (DA_RUN_ID) for each claim ID
-            (CLM_ID).
-
-        (Identifying beneficiaries with a substance use disorder
-        (https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx)
+        References
+        ----------
+        - `Identifying beneficiaries with a substance use disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
 
         """
         for ftype in self.dct_files:
@@ -467,13 +466,15 @@ class TAFFile:
     def flag_ffs_and_encounter_claims(self):
         """
         Flags claims where CLM_TYPE_CD is equal to one of the following values:
-            1: A FFS Medicaid or Medicaid-expansion claim
-            3: Medicaid or Medicaid-expanding managed care encounter record
-            A: Separate CHIP (Title XXI) FFS claim
-            C: Separate CHIP (Title XXI) encounter record
 
-        (Identifying beneficiaries with a substance use disorder
-        (https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx)
+        - 1: A FFS Medicaid or Medicaid-expansion claim
+        - 3: Medicaid or Medicaid-expanding managed care encounter record
+        - A: Separate CHIP (Title XXI) FFS claim
+        - C: Separate CHIP (Title XXI) encounter record
+
+        References
+        ----------
+        - `Identifying beneficiaries with a substance use disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
 
         """
         df = self.dct_files["base"]
@@ -487,7 +488,8 @@ class TAFFile:
 
     def process_date_cols(self):
         """
-        Convert datetime columns to datetime type and add basic date based constructed variables
+        Convert datetime columns to datetime type and add basic date based
+        constructed variables
 
         New columns:
 
@@ -502,6 +504,7 @@ class TAFFile:
 
         If ftype == 'ip':
             Clean/ impute admsn_date and add ip duration related columns
+
             New column(s):
 
                 - admsn_date - Admission date (ADMSN_DT)
@@ -519,6 +522,7 @@ class TAFFile:
 
         if ftype == 'ot':
             Adds duration column, provided service end and begin dates are clean
+
             New Column(s):
 
                 - srvc_bgn_date - Service begin date (SRVC_BGN_DT)

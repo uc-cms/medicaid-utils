@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.other_datasets package &mdash; medicaid_utils 0.0.0 documentation</title>
@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -51,8 +48,31 @@
 <li class="toctree-l3"><a class="reference internal" href="medicaid_utils.filters.html">medicaid_utils.filters package</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">medicaid_utils.other_datasets package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#medicaid-utils-other-datasets-fqhc-module">medicaid_utils.other_datasets.fqhc module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#medicaid-utils-other-datasets-hcris-module">medicaid_utils.other_datasets.hcris module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.other_datasets.fqhc">medicaid_utils.other_datasets.fqhc module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.fqhc.generate_oscar_fqhc_npis"><code class="docutils literal notranslate"><span class="pre">generate_oscar_fqhc_npis()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.fqhc.get_file_name_dict"><code class="docutils literal notranslate"><span class="pre">get_file_name_dict()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.fqhc.get_fqhc_crosswalk"><code class="docutils literal notranslate"><span class="pre">get_fqhc_crosswalk()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.other_datasets.hcris">medicaid_utils.other_datasets.hcris module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.clean_address"><code class="docutils literal notranslate"><span class="pre">clean_address()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.clean_hclinic_name"><code class="docutils literal notranslate"><span class="pre">clean_hclinic_name()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.clean_zip"><code class="docutils literal notranslate"><span class="pre">clean_zip()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.combine_and_clean_hcris_files"><code class="docutils literal notranslate"><span class="pre">combine_and_clean_hcris_files()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.compute_basic_match_purity"><code class="docutils literal notranslate"><span class="pre">compute_basic_match_purity()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.compute_door_no_info"><code class="docutils literal notranslate"><span class="pre">compute_door_no_info()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.compute_match_purity"><code class="docutils literal notranslate"><span class="pre">compute_match_purity()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.create_npi_fqhc_crosswalk"><code class="docutils literal notranslate"><span class="pre">create_npi_fqhc_crosswalk()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.filter_partial_matches"><code class="docutils literal notranslate"><span class="pre">filter_partial_matches()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.flatten_nppes_query_result"><code class="docutils literal notranslate"><span class="pre">flatten_nppes_query_result()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.fuzzy_match"><code class="docutils literal notranslate"><span class="pre">fuzzy_match()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.get_taxonomies"><code class="docutils literal notranslate"><span class="pre">get_taxonomies()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.nppes_api_requests"><code class="docutils literal notranslate"><span class="pre">nppes_api_requests()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.process_address_columns"><code class="docutils literal notranslate"><span class="pre">process_address_columns()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.standardize_addresses"><code class="docutils literal notranslate"><span class="pre">standardize_addresses()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.hcris.street_address"><code class="docutils literal notranslate"><span class="pre">street_address()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.other_datasets.npi">medicaid_utils.other_datasets.npi module</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.npi.cleanup_raw_npi_files"><code class="docutils literal notranslate"><span class="pre">cleanup_raw_npi_files()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.npi.generate_npi_taxonomy_mappings"><code class="docutils literal notranslate"><span class="pre">generate_npi_taxonomy_mappings()</span></code></a></li>
@@ -60,7 +80,30 @@
 <li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.npi.wide_to_long_nppes_taxonomy_file"><code class="docutils literal notranslate"><span class="pre">wide_to_long_nppes_taxonomy_file()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l4"><a class="reference internal" href="#medicaid-utils-other-datasets-uds-module">medicaid_utils.other_datasets.uds module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.other_datasets.uds">medicaid_utils.other_datasets.uds module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.clean_address"><code class="docutils literal notranslate"><span class="pre">clean_address()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.clean_hclinic_name"><code class="docutils literal notranslate"><span class="pre">clean_hclinic_name()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.clean_zip"><code class="docutils literal notranslate"><span class="pre">clean_zip()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.combine_and_clean_uds_files"><code class="docutils literal notranslate"><span class="pre">combine_and_clean_uds_files()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.combine_uds_fqhc_npi_crosswalks"><code class="docutils literal notranslate"><span class="pre">combine_uds_fqhc_npi_crosswalks()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.compute_basic_match_purity"><code class="docutils literal notranslate"><span class="pre">compute_basic_match_purity()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.compute_door_no_info"><code class="docutils literal notranslate"><span class="pre">compute_door_no_info()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.compute_match_purity"><code class="docutils literal notranslate"><span class="pre">compute_match_purity()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.create_npi_fqhc_crosswalk"><code class="docutils literal notranslate"><span class="pre">create_npi_fqhc_crosswalk()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.filter_partial_matches"><code class="docutils literal notranslate"><span class="pre">filter_partial_matches()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.flatten_nppes_query_result"><code class="docutils literal notranslate"><span class="pre">flatten_nppes_query_result()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.fuzzy_match"><code class="docutils literal notranslate"><span class="pre">fuzzy_match()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.generate_and_combine_fqhc_npi_crosswalks"><code class="docutils literal notranslate"><span class="pre">generate_and_combine_fqhc_npi_crosswalks()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.generate_bhcmisid_fqhc_crosswalk"><code class="docutils literal notranslate"><span class="pre">generate_bhcmisid_fqhc_crosswalk()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.generate_oscar_fqhc_npis"><code class="docutils literal notranslate"><span class="pre">generate_oscar_fqhc_npis()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.get_file_name_dict"><code class="docutils literal notranslate"><span class="pre">get_file_name_dict()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.get_taxonomies"><code class="docutils literal notranslate"><span class="pre">get_taxonomies()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.nppes_api_requests"><code class="docutils literal notranslate"><span class="pre">nppes_api_requests()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.process_address_columns"><code class="docutils literal notranslate"><span class="pre">process_address_columns()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.standardize_addresses"><code class="docutils literal notranslate"><span class="pre">standardize_addresses()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.uds.street_address"><code class="docutils literal notranslate"><span class="pre">street_address()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="#module-medicaid_utils.other_datasets.zip">medicaid_utils.other_datasets.zip module</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.zip.generate_zip_pcsa_ruca_crosswalk"><code class="docutils literal notranslate"><span class="pre">generate_zip_pcsa_ruca_crosswalk()</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="#medicaid_utils.other_datasets.zip.pool_zipcode_pcsa_datasets"><code class="docutils literal notranslate"><span class="pre">pool_zipcode_pcsa_datasets()</span></code></a></li>
@@ -89,9 +132,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.other_datasets package</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="medicaid_utils.html">medicaid_utils package</a> &raquo;</li>
+      <li>medicaid_utils.other_datasets package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.other_datasets.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -106,11 +149,132 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="medicaid-utils-other-datasets-fqhc-module">
-<h2>medicaid_utils.other_datasets.fqhc module<a class="headerlink" href="#medicaid-utils-other-datasets-fqhc-module" title="Permalink to this heading"></a></h2>
+<section id="module-medicaid_utils.other_datasets.fqhc">
+<span id="medicaid-utils-other-datasets-fqhc-module"></span><h2>medicaid_utils.other_datasets.fqhc module<a class="headerlink" href="#module-medicaid_utils.other_datasets.fqhc" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.fqhc.generate_oscar_fqhc_npis">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.fqhc.</span></span><span class="sig-name descname"><span class="pre">generate_oscar_fqhc_npis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst_year</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fastparquet'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/fqhc.html#generate_oscar_fqhc_npis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.fqhc.generate_oscar_fqhc_npis" title="Permalink to this definition"></a></dt>
+<dd><p>Saves list of NPIs with FQHC range oscar provider ids into a pickle file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.fqhc.get_file_name_dict">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.fqhc.</span></span><span class="sig-name descname"><span class="pre">get_file_name_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/fqhc.html#get_file_name_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.fqhc.get_file_name_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.fqhc.get_fqhc_crosswalk">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.fqhc.</span></span><span class="sig-name descname"><span class="pre">get_fqhc_crosswalk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/Users/Manu_1/Documents/pyWorkspace/medicaid-utils/medicaid_utils/other_datasets/data/lookups/fqhc'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/fqhc.html#get_fqhc_crosswalk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.fqhc.get_fqhc_crosswalk" title="Permalink to this definition"></a></dt>
+<dd><p>Returns FQHC cross walk with FQHC NPI’s seen in UDS datasets till the start_year</p>
+</dd></dl>
+
 </section>
-<section id="medicaid-utils-other-datasets-hcris-module">
-<h2>medicaid_utils.other_datasets.hcris module<a class="headerlink" href="#medicaid-utils-other-datasets-hcris-module" title="Permalink to this heading"></a></h2>
+<section id="module-medicaid_utils.other_datasets.hcris">
+<span id="medicaid-utils-other-datasets-hcris-module"></span><h2>medicaid_utils.other_datasets.hcris module<a class="headerlink" href="#module-medicaid_utils.other_datasets.hcris" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.clean_address">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">clean_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#clean_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.clean_address" title="Permalink to this definition"></a></dt>
+<dd><p>Cleaning address columns by removing placenames in street address lines and ”
+“concatenating multiple occupancy identifier/ street numbers</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.clean_hclinic_name">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">clean_hclinic_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hclinic_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#clean_hclinic_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.clean_hclinic_name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.clean_zip">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">clean_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zipcode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#clean_zip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.clean_zip" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.combine_and_clean_hcris_files">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">combine_and_clean_hcris_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#combine_and_clean_hcris_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.combine_and_clean_hcris_files" title="Permalink to this definition"></a></dt>
+<dd><p>Combines HCRIS provider info files and standardizes column names
+Provider id is cleaned by removing non-alphanumeric columns.
+Additional version of provider id without leading zeroes is created.
+Files are downloaded from multiple years, starting from 2014 when archives are available.
+2014: <a class="reference external" href="https://web.archive.org/web/20141120072219/http://downloads.cms.gov/Files/hcris/HCLINIC-REPORTS.zip">https://web.archive.org/web/20141120072219/http://downloads.cms.gov/Files/hcris/HCLINIC-REPORTS.zip</a>
+2015: <a class="reference external" href="https://web.archive.org/web/20151230005431/http://downloads.cms.gov/Files/hcris/HCLINIC-REPORTS.zip">https://web.archive.org/web/20151230005431/http://downloads.cms.gov/Files/hcris/HCLINIC-REPORTS.zip</a>
+2016: <a class="reference external" href="https://web.archive.org/web/20161228145429/http://downloads.cms.gov/Files/hcris/HCLINIC-REPORTS.zip">https://web.archive.org/web/20161228145429/http://downloads.cms.gov/Files/hcris/HCLINIC-REPORTS.zip</a>
+2017: <a class="reference external" href="https://web.archive.org/web/20171220152135/http://downloads.cms.gov/Files/hcris/HCLINIC-REPORTS.zip">https://web.archive.org/web/20171220152135/http://downloads.cms.gov/Files/hcris/HCLINIC-REPORTS.zip</a>
+2018: <a class="reference external" href="https://web.archive.org/web/20181226170727/http://downloads.cms.gov/Files/hcris/HCLINIC-REPORTS.zip">https://web.archive.org/web/20181226170727/http://downloads.cms.gov/Files/hcris/HCLINIC-REPORTS.zip</a>
+2019: <a class="reference external" href="https://web.archive.org/web/20191226132614/http://downloads.cms.gov/Files/hcris/FQHC14-REPORTS.zip">https://web.archive.org/web/20191226132614/http://downloads.cms.gov/Files/hcris/FQHC14-REPORTS.zip</a>
+2020: <a class="reference external" href="https://web.archive.org/web/20201225141117/https://downloads.cms.gov/Files/hcris/FQHC14-REPORTS.zip">https://web.archive.org/web/20201225141117/https://downloads.cms.gov/Files/hcris/FQHC14-REPORTS.zip</a>
+2021: <a class="reference external" href="https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable-Public-Use-Files/Cost-Reports/FQHC-224-2014-form">https://www.cms.gov/Research-Statistics-Data-and-Systems/Downloadable-Public-Use-Files/Cost-Reports/FQHC-224-2014-form</a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.compute_basic_match_purity">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">compute_basic_match_purity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#compute_basic_match_purity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.compute_basic_match_purity" title="Permalink to this definition"></a></dt>
+<dd><p>Computes levenshtein distance based similarity scores for address, name &amp; city, and equality match for state</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.compute_door_no_info">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">compute_door_no_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#compute_door_no_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.compute_door_no_info" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.compute_match_purity">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">compute_match_purity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#compute_match_purity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.compute_match_purity" title="Permalink to this definition"></a></dt>
+<dd><p>Computes levenshtein distance based similarity scores for address &amp; name columns</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.create_npi_fqhc_crosswalk">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">create_npi_fqhc_crosswalk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hcris'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fqhc_crosswalk'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#create_npi_fqhc_crosswalk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.create_npi_fqhc_crosswalk" title="Permalink to this definition"></a></dt>
+<dd><p>Merge HCRIS, UDS and NPPES and datasets to create FQHC NPI list</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.filter_partial_matches">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">filter_partial_matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#filter_partial_matches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.filter_partial_matches" title="Permalink to this definition"></a></dt>
+<dd><p>Filter source x nppes matches that have some similarity between their names and address, with a distance score
+of at least 60</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.flatten_nppes_query_result">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">flatten_nppes_query_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#flatten_nppes_query_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.flatten_nppes_query_result" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.fuzzy_match">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">fuzzy_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_npi_provider</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hcris'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fuzzy_match'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#fuzzy_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.fuzzy_match" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.get_taxonomies">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">get_taxonomies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lstdct_tax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#get_taxonomies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.get_taxonomies" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.nppes_api_requests">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">nppes_api_requests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">dct_request_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#nppes_api_requests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.nppes_api_requests" title="Permalink to this definition"></a></dt>
+<dd><p>Make NPPES API calls using hclinic name, city, state &amp; zipcode in the request</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.process_address_columns">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">process_address_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hcris'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#process_address_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.process_address_columns" title="Permalink to this definition"></a></dt>
+<dd><p>Combines street level components; concatenates multiple values belonging to the same address component type,
+such as multiple street or occupancy identifier numbers</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.standardize_addresses">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">standardize_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#standardize_addresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.standardize_addresses" title="Permalink to this definition"></a></dt>
+<dd><p>Standardize address using USPS API</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.hcris.street_address">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.hcris.</span></span><span class="sig-name descname"><span class="pre">street_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/hcris.html#street_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.hcris.street_address" title="Permalink to this definition"></a></dt>
+<dd><p>Strips placenames, state and city names and returns street address component</p>
+</dd></dl>
+
 </section>
 <section id="module-medicaid_utils.other_datasets.npi">
 <span id="medicaid-utils-other-datasets-npi-module"></span><h2>medicaid_utils.other_datasets.npi module<a class="headerlink" href="#module-medicaid_utils.other_datasets.npi" title="Permalink to this heading"></a></h2>
@@ -151,8 +315,138 @@ mapping files are created, one of which has the provider ids cleaned by removing
 </dd></dl>
 
 </section>
-<section id="medicaid-utils-other-datasets-uds-module">
-<h2>medicaid_utils.other_datasets.uds module<a class="headerlink" href="#medicaid-utils-other-datasets-uds-module" title="Permalink to this heading"></a></h2>
+<section id="module-medicaid_utils.other_datasets.uds">
+<span id="medicaid-utils-other-datasets-uds-module"></span><h2>medicaid_utils.other_datasets.uds module<a class="headerlink" href="#module-medicaid_utils.other_datasets.uds" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.clean_address">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">clean_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#clean_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.clean_address" title="Permalink to this definition"></a></dt>
+<dd><p>Cleaning address columns by removing placenames in street address lines and ”
+“concatenating multiple occupancy identifier/ street numbers</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.clean_hclinic_name">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">clean_hclinic_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hclinic_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#clean_hclinic_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.clean_hclinic_name" title="Permalink to this definition"></a></dt>
+<dd><p>Clean HCLINIC names by removing special characters and extra spaces</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.clean_zip">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">clean_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zipcode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#clean_zip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.clean_zip" title="Permalink to this definition"></a></dt>
+<dd><p>Remove hyphens in zipcodes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.combine_and_clean_uds_files">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">combine_and_clean_uds_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst_year</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uds'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#combine_and_clean_uds_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.combine_and_clean_uds_files" title="Permalink to this definition"></a></dt>
+<dd><p>Standardize UDS column names and flatten files</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.combine_uds_fqhc_npi_crosswalks">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">combine_uds_fqhc_npi_crosswalks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst_year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uds'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#combine_uds_fqhc_npi_crosswalks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.combine_uds_fqhc_npi_crosswalks" title="Permalink to this definition"></a></dt>
+<dd><p>Combine UDS x NPPES matches from all years</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.compute_basic_match_purity">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">compute_basic_match_purity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#compute_basic_match_purity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.compute_basic_match_purity" title="Permalink to this definition"></a></dt>
+<dd><p>Computes levenshtein distance based similarity scores for address, name &amp; city, and equality match for state</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.compute_door_no_info">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">compute_door_no_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#compute_door_no_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.compute_door_no_info" title="Permalink to this definition"></a></dt>
+<dd><p>Parse address components and get door number info</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.compute_match_purity">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">compute_match_purity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#compute_match_purity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.compute_match_purity" title="Permalink to this definition"></a></dt>
+<dd><p>Computes levenshtein distance based similarity scores for address &amp; name columns</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.create_npi_fqhc_crosswalk">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">create_npi_fqhc_crosswalk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hcris'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fqhc_crosswalk'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#create_npi_fqhc_crosswalk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.create_npi_fqhc_crosswalk" title="Permalink to this definition"></a></dt>
+<dd><p>Merge HCRIS, UDS and NPPES and datasets to create FQHC NPI list</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.filter_partial_matches">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">filter_partial_matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">less_constrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#filter_partial_matches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.filter_partial_matches" title="Permalink to this definition"></a></dt>
+<dd><p>Filter source x nppes matches that have some similarity between their names and address, with a distance score
+of at least 60</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.flatten_nppes_query_result">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">flatten_nppes_query_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#flatten_nppes_query_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.flatten_nppes_query_result" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.fuzzy_match">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">fuzzy_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_npi_provider</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hcris'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fuzzy_match'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/Users/Manu_1/Documents/pyWorkspace/medicaid-utils/medicaid_utils/other_datasets/data/fqhc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">less_constrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#fuzzy_match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.fuzzy_match" title="Permalink to this definition"></a></dt>
+<dd><p>Perform string distance based matches between HCRIS, UDS and NPPES datasets.
+Create two sets of matches: perfect matches that meet strict criteria with respect to name &amp; address similarity,
+and less perfect matches with more relaxed criteria.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.generate_and_combine_fqhc_npi_crosswalks">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">generate_and_combine_fqhc_npi_crosswalks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#generate_and_combine_fqhc_npi_crosswalks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.generate_and_combine_fqhc_npi_crosswalks" title="Permalink to this definition"></a></dt>
+<dd><p>Get NPIs for FQHCs in HCRIS, UDS datasets. Combine this with NPIs with FQHC taxonomy/ FQHC range CCN
+in NPPES dataset. Merge UDS with all the identified NPIs to generate BHMISID x FQHC crosswalk</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.generate_bhcmisid_fqhc_crosswalk">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">generate_bhcmisid_fqhc_crosswalk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst_perfect_npi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lst_fuzzy_npi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#generate_bhcmisid_fqhc_crosswalk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.generate_bhcmisid_fqhc_crosswalk" title="Permalink to this definition"></a></dt>
+<dd><p>Map all identified NPIs to BHCMISID to filter FQHCs by years they were in FQHC status</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.generate_oscar_fqhc_npis">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">generate_oscar_fqhc_npis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst_year</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pq_engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fastparquet'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#generate_oscar_fqhc_npis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.generate_oscar_fqhc_npis" title="Permalink to this definition"></a></dt>
+<dd><p>Saves list of NPIs with FQHC range oscar provider ids into a pickle file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.get_file_name_dict">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">get_file_name_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#get_file_name_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.get_file_name_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.get_taxonomies">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">get_taxonomies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lstdct_tax</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#get_taxonomies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.get_taxonomies" title="Permalink to this definition"></a></dt>
+<dd><p>Concat taxonomies</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.nppes_api_requests">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">nppes_api_requests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">dct_request_params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#nppes_api_requests"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.nppes_api_requests" title="Permalink to this definition"></a></dt>
+<dd><p>Make NPPES API calls using hclinic name, city, state &amp; zipcode in the request</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.process_address_columns">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">process_address_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hcris'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#process_address_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.process_address_columns" title="Permalink to this definition"></a></dt>
+<dd><p>Combines street level components; concatenates multiple values belonging to the same address component type,
+such as multiple street or occupancy identifier numbers</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.standardize_addresses">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">standardize_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#standardize_addresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.standardize_addresses" title="Permalink to this definition"></a></dt>
+<dd><p>Standardize address using USPS API</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="medicaid_utils.other_datasets.uds.street_address">
+<span class="sig-prename descclassname"><span class="pre">medicaid_utils.other_datasets.uds.</span></span><span class="sig-name descname"><span class="pre">street_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/medicaid_utils/other_datasets/uds.html#street_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.other_datasets.uds.street_address" title="Permalink to this definition"></a></dt>
+<dd><p>Strips placenames, state and city names and returns street address component</p>
+</dd></dl>
+
 </section>
 <section id="module-medicaid_utils.other_datasets.zip">
 <span id="medicaid-utils-other-datasets-zip-module"></span><h2>medicaid_utils.other_datasets.zip module<a class="headerlink" href="#module-medicaid_utils.other_datasets.zip" title="Permalink to this heading"></a></h2>

@@ -1,4 +1,5 @@
-"""This module has functions that extract cohorts for studies based on multiple filters"""
+"""This module has functions that extract cohorts for studies based on
+multiple filters"""
 import gc
 import os
 import shutil
@@ -42,8 +43,8 @@ def apply_range_filter(  # pylint: disable=missing-param-doc
     df : dd.DataFrame
         Dataframe to be filtered
     filter_name : str
-        Name of filter. Should be of the format range_[datatype]_[col_name]. date and numeric range type filters are
-        currently supported
+        Name of filter. Should be of the format range_[datatype]_[col_name].
+        date and numeric range type filters are currently supported
     col_name : str
         Name of column
     data_type : str
@@ -99,27 +100,49 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
         Claim object
     dct_claim_filters : dict
         Filters to apply. Filter dictionary should be of the format:
-        {claim_type_1: {range_[datatype]_[col_name]: (start, end),
-                        excl_[col_name]: [0/1],
-                        [col_name]: value,
-                        ..}
-        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with
-        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
-        names that are just column names will restrict the result to benes with the filter value for the corresponding
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {claim_type_1:
+                {range_[datatype]_[col_name]: (start, end),
+                 excl_[col_name]: [0/1],
+                 [col_name]: value,
+                 ..}
+             claim_type_2: ...}
+            }
+
+        date and numeric range type filters are currently supported. Filter
+        names beginning with `excl_` with values set to 1 will exclude benes
+        that have a positive value for that exclusion flag. Filter names
+        that are just column names will restrict the result to benes with
+        the filter value for the corresponding
         column.
-        Eg: {'ip': {'range_numeric_age_prncpl_proc': (0, 18),
-                                      'missing_dob': 0,
-                                      'excl_female': 1}}
-                              'ot': {'range_numeric_age_srvc_bgn': (0, 18),
-                                      'missing_dob': 0,
-                                      'excl_female': 1}}
-                              }
-        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
-        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
-        prinicipal procedure data/ service begin date.
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'ip':
+                {'range_numeric_age_prncpl_proc': (0, 18),
+                 'missing_dob': 0,
+                 'excl_female': 1}}
+             'ot':
+                {'range_numeric_age_srvc_bgn': (0, 18),
+                 'missing_dob': 0,
+                 'excl_female': 1
+                 }
+            }
+
+        The example filter will exclude all IP claims of female benes and
+        also claims with missing DOB. The resulting set will also be
+        restricted to those of benes whose age is between 0-18 (inclusive of
+        both 0 and 18) as of principal procedure data/ service begin date.
     tmp_folder : str
-        Temporary folder to cache results mid-processing. This is useful for large datasets, as the dask cluster can
-        crash if the task graph is too large for large datasets. This is handled by caching results at intermediate
+        Temporary folder to cache results mid-processing. This is useful for
+        large datasets, as the dask cluster can crash if the task graph is
+        too large for large datasets. This is handled by caching results at
+        intermediate
         stages.
     subtype : str, default=None
         Claim subtype (required for TAF datasets)
@@ -133,7 +156,8 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
     Raises
     ------
     ValueError
-        When subtype is parameter is missing for a function with TAFFile claim type input
+        When subtype is parameter is missing for a function with TAFFile
+        claim type input
 
     """
     logger = logging.getLogger(logger_name)
@@ -238,7 +262,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     logger_name: str = __file__,
 ):
     """
-    Extracts and exports claim files corresponded cohort defined by the input filters
+    Extracts and exports claim files corresponded cohort defined by the
+    input filters
 
     Parameters
     ----------
@@ -248,41 +273,92 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
         List of years from which cohort should be created
     dct_diag_proc_codes : dict
         Dictionary of diagnosis and procedure codes. Should be in the format
-            {'diag_codes': {condition_name: {['incl' / 'excl']: {[9/ 10]: list of codes} },
-             'proc_codes': {procedure_name: {procedure_system_code: list of codes} }}
-            Eg: {'diag_codes': {'oud_nqf': {'incl': {9: ['3040','3055']}}},
-                 'proc_codes': {'methadone_7': {7: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,HZ95ZZZ,'
-                                   'HZ96ZZZ'.split(",")}}}
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'diag_codes': {condition_name:
+                                {['incl' / 'excl']: {[9/ 10]: list of codes}},
+             'proc_codes': {procedure_name:
+                                {procedure_system_code: list of codes} }
+            }
+
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'diag_codes':
+                {'oud_nqf':
+                    {'incl': {9: ['3040','3055']}}},
+             'proc_codes':
+                {'methadone_7':
+                    {7: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,
+                         HZ95ZZZ,HZ96ZZZ'.split(",")}
+                }
+            }
+
     dct_filters: dict
-        Filters to apply to the cohort, and the exported claim files. Filter dictionary should be of the format:
-        {'cohort': {claim_type_1: {range_[datatype]_[col_name]: (start, end),
-                        excl_[col_name]: [0/1],
-                        [col_name]: value,
-                        ..},
-        'export': {claim_type_1: {range_[datatype]_[col_name]: (start, end),
-                        excl_[col_name]: [0/1],
-                        [col_name]: value,
-                        ..}}
-        date and numeric range type filters are currently supported. Filter names beginning with
-        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
-        names that are just column names will restrict the result to benes with the filter value for the
-        corresponding column.
-        Eg: {'ip': {'range_numeric_age_prncpl_proc': (0, 18),
-                                      'missing_dob': 0,
-                                      'excl_female': 1}}
-                              'ot': {'range_numeric_age_srvc_bgn': (0, 18),
-                                      'missing_dob': 0,
-                                      'excl_female': 1}}
-                              }
-        The example filter will exclude the cohort to all IP claims of female benes and also claims with missing
-        DOB. The resulting set will also be restricted to those of benes whose age is between 0-18 (inclusive of
-        both 0 and 18) as of principal procedure date/ service begin date.
-    lst_types_to_export : List[str]
+        Filters to apply to the cohort, and the exported claim files. Filter
+        dictionary should be of the format:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'cohort':
+                {claim_type_1:
+                    {range_[datatype]_[col_name]: (start, end),
+                     excl_[col_name]: [0/1],
+                     [col_name]: value,
+                     ..},
+             'export':
+                {claim_type_1:
+                    {range_[datatype]_[col_name]: (start, end),
+                     excl_[col_name]: [0/1],
+                     [col_name]: value,
+                     ..}
+            }
+
+        date and numeric range type filters are currently supported. Filter
+        names beginning with `excl_` with values set to 1 will exclude benes
+        that have a positive value for that exclusion flag. Filter names
+        that are just column names will restrict the result to benes with
+        the filter value for the corresponding column.
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'cohort':
+                {'ip':
+                    {'range_numeric_age_prncpl_proc': (0, 18),
+                     'missing_dob': 0,
+                     'excl_female': 1
+                    }
+                 'ot':
+                    {'range_numeric_age_srvc_bgn': (0, 18),
+                     'missing_dob': 0,
+                     'excl_female': 1
+                    }
+            }
+
+        The example filter will exclude the cohort to all IP claims of
+        female benes and also claims with missing DOB. The resulting set
+        will also be restricted to those of benes whose age is between 0-18
+        (inclusive of both 0 and 18) as of principal procedure date/ service
+        begin date.
+    lst_types_to_export : list of str
         List of types to export. Currently supported types are ip, ot, rx, ps.
     dct_data_paths : dict
-        Dictionary with information on raw claim files root folder and export folder. Should be of the format,
-        {'source_root': /path/to/medicaid/folder,
-         'export_folder': /path/to/export/data}
+        Dictionary with information on raw claim files root folder and
+        export folder. Should be of the format,
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'source_root': /path/to/medicaid/folder,
+             'export_folder': /path/to/export/data}
+
     cms_format : {'MAX', 'TAF'}
         CMS file format.
     clean_exports : bool, default=False
@@ -297,7 +373,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     Raises
     ------
     FileNotFoundError
-        Raised when any of file types requested to be imported does not exist for the state and year
+        Raised when any of file types requested to be imported does not
+        exist for the state and year
 
     """
     logger = logging.getLogger(logger_name)
@@ -610,7 +687,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                 axis=1,
             )
         logger.info(
-            "%s (%d) has  %d benes  with specified conditions who also meet the cohort inclusion  criteria",
+            "%s (%d) has  %d benes  with specified conditions who also meet "
+            "the cohort inclusion  criteria",
             state,
             year,
             dct_cohort_filter_stats["ps"].iloc[0, -1],
@@ -711,12 +789,14 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
     logger_name: str = __file__,
 ) -> None:
     """
-    Exports MAX files corresponding to the cohort as defined by the filters input to this function
+    Exports MAX files corresponding to the cohort as defined by the filters
+    input to this function
 
     Parameters
     ----------
     pdf_cohort : pd.DataFrame
-        Pandas dataframe with patient IDs (BENE_MSIS) and indicator flag denoting inclusion into the cohort (include=1)
+        Pandas dataframe with patient IDs (BENE_MSIS) and indicator flag
+        denoting inclusion into the cohort (include=1)
     year : int
         Year of the claim files
     state : str
@@ -724,30 +804,51 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
     lst_types_to_export : list of str
         List of file types to export. Supported types are [ip, ot, ps, rx]
     dct_export_filters : dict
-        Additional filters that should be applied to the raw claims of the selected cohort while exporting. Filter
-        dictionary should be of the format:
-        {claim_type_1: {range_[datatype]_[col_name]: (start, end),
-                        excl_[col_name]: [0/1],
-                        [col_name]: value,
-                        ..}
-        claim_type_2: ...}} date and numeric range type filters are currently supported. Filter names beginning with
-        `excl_` with values set to 1 will exclude benes that have a positive value for that exclusion flag. Filter
-        names that are just column names will restrict the result to benes with the filter value for the corresponding
-        column.
-        Eg: {'ip': {'range_numeric_age_prncpl_proc': (0, 18),
-                                      'missing_dob': 0,
-                                      'excl_female': 1}}
-                              'ot': {'range_numeric_age_srvc_bgn': (0, 18),
-                                      'missing_dob': 0,
-                                      'excl_female': 1}}
-                              }
-        The example filter will exclude all IP claims of female benes and also claims with missing DOB. The resulting
-        set will also be restricted to those of benes whose age is between 0-18 (inclusive of both 0 and 18) as of
-        principal procedure date/ service begin date.
+        Additional filters that should be applied to the raw claims of the
+        selected cohort while exporting. Filter dictionary should be of the
+        format:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {claim_type_1: {range_[datatype]_[col_name]: (start, end),
+                            excl_[col_name]: [0/1],
+                            [col_name]: value,
+                            ..}
+            claim_type_2: ...}}
+
+        date and numeric range type filters are currently supported. Filter
+        names beginning with `excl_` with values set to 1 will exclude benes
+        that have a positive value for that exclusion flag. Filter names
+        that are just column names will restrict the result to benes with
+        the filter value for the corresponding column.
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'ip': {'range_numeric_age_prncpl_proc': (0, 18),
+                    'missing_dob': 0,
+                    'excl_female': 1}}
+             'ot': {'range_numeric_age_srvc_bgn': (0, 18),
+                    'missing_dob': 0,
+                    'excl_female': 1}}
+            }
+
+        The example filter will exclude all IP claims of female benes and
+        also claims with missing DOB. The resulting set will also be
+        restricted to those of benes whose age is between 0-18 (inclusive of
+        both 0 and 18) as of principal procedure date/ service begin date.
     dct_data_paths : dict
-        Dictionary with information on raw claim files root folder and export folder. Should be of the format,
-        {'source_root': /path/to/medicaid/folder,
-         'export_folder': /path/to/export/data}
+        Dictionary with information on raw claim files root folder and
+        export folder. Should be of the format,
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'source_root': /path/to/medicaid/folder,
+             'export_folder': /path/to/export/data}
+
     cms_format : {'MAX', TAF'}
         CMS file format.
     clean_exports : bool, default=False
@@ -762,7 +863,8 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
     Raises
     ------
     FileNotFoundError
-        Raised when any of file types requested to be imported does not exist for the state and year
+        Raised when any of file types requested to be imported does not
+        exist for the state and year
 
     """
     logger = logging.getLogger(logger_name)

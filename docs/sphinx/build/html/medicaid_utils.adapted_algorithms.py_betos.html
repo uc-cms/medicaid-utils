@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.adapted_algorithms.py_betos package &mdash; medicaid_utils 0.0.0 documentation</title>
@@ -12,9 +12,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -88,10 +85,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.html">medicaid_utils package</a></li>
-          <li class="breadcrumb-item"><a href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a></li>
-      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_betos package</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="medicaid_utils.html">medicaid_utils package</a> &raquo;</li>
+          <li><a href="medicaid_utils.adapted_algorithms.html">medicaid_utils.adapted_algorithms package</a> &raquo;</li>
+      <li>medicaid_utils.adapted_algorithms.py_betos package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/medicaid_utils.adapted_algorithms.py_betos.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -115,7 +112,7 @@
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.data_folder">
-<span class="sig-name descname"><span class="pre">data_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_betos/data'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.data_folder" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">data_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu_1/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_betos/data'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.data_folder" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -128,7 +125,7 @@
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_betos_cat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdf_crosswalk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">claim_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'medicaid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proc_code_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'PRCDR_CD'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/medicaid_utils/adapted_algorithms/py_betos/betos_proc_codes.html#BetosProcCodes.get_betos_cat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.get_betos_cat" title="Permalink to this definition"></a></dt>
 <dd><p>Get claimwise Betos codes &amp; categories related to CPT procedure codes in claim</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>dask.DataFrame</em>) – Claim dask dataframe</p></li>
 <li><p><strong>pdf_crosswalk</strong> (<em>pandas.DataFrame</em>) – CPT x Betos code crosswalk, with betos code and betos category information</p></li>
@@ -136,7 +133,7 @@
 <li><p><strong>proc_code_prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='PRCDR_CD'</em>) – Column name prefix for procedure code columns</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dask.DataFrame</p>
 </dd>
 </dl>
@@ -166,10 +163,10 @@ The returned CPT x Betos code crosswalk dataframe  has the below columns:</p>
 </li>
 </ul>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.11)"><em>type</em></a>) – Public use file year</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>pandas.DataFrame</p>
 </dd>
 </dl>
@@ -177,7 +174,7 @@ The returned CPT x Betos code crosswalk dataframe  has the below columns:</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.package_folder">
-<span class="sig-name descname"><span class="pre">package_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_betos'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.package_folder" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">package_folder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/Users/Manu_1/Documents/pyWorkspace/medicaid-utils/medicaid_utils/adapted_algorithms/py_betos'</span></em><a class="headerlink" href="#medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes.BetosProcCodes.package_folder" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -204,7 +201,7 @@ The returned CPT x Betos code crosswalk dataframe  has the below columns:</p>
 </li>
 </ul>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>dask.DataFrame</em>) – Claim dask dataframe</p></li>
 <li><p><strong>year</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Public use file year</p></li>
@@ -212,7 +209,7 @@ The returned CPT x Betos code crosswalk dataframe  has the below columns:</p>
 <li><p><strong>proc_code_prefix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>default='PRCDR_CD'</em>) – Column name prefix for procedure code columns</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dask.DataFrame</p>
 </dd>
 </dl>
