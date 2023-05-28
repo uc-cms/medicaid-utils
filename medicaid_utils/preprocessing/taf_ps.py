@@ -1033,7 +1033,7 @@ class TAFPS(taf_file.TAFFile):
         """
         df_base = self.dct_files["base"]
         df_base = df_base.map_partitions(
-            lambda pdf: pdf.pdf.assign(
+            lambda pdf: pdf.assign(
                 **{
                     "ffs_months": pdf.apply(
                         lambda x: "".join(
