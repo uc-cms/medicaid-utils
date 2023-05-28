@@ -1075,7 +1075,7 @@ class TAFPS(taf_file.TAFFile):
                 f"total_ffs_{ffs_type}months": df_base[f"ffs_{ffs_type}months"]
                 .str.replace("0", "")
                 .str.len()
-                for ffs_type in ["", "no_mc_behav_health", "no_mc_pccm"]
+                for ffs_type in ["", "no_mc_behav_health_", "no_mc_pccm_"]
             }
         )
         self.dct_files["base"] = df_base
