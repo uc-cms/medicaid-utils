@@ -1032,43 +1032,48 @@ class TAFPS(taf_file.TAFFile):
         plans and the enrollment sequence pattern.
         """
         df_base = self.dct_files["base"]
-        df_base = df_base.assign(
-            **{
-                "ffs_months": df_base.apply(
-                    lambda x: "".join(
-                        [
-                            str(int((enrl == 1) and (mc == 0)))
-                            for mc, enrl in zip(
-                                x["mc_comp_months"], x["enrolled_months"]
-                            )
-                        ]
+        df_base = df_base.map_partitions(
+            lambda pdf: pdf.assign(
+                **{
+                    "ffs_months": pdf.apply(
+                        lambda x: "".join(
+                            [
+                                str(int((enrl == 1) and (mc == 0)))
+                                for mc, enrl in zip(
+                                    x["mc_comp_months"] or "0".zfill(12),
+                                    x["enrolled_months"] or "0".zfill(12),
+                                )
+                            ]
+                        ),
+                        axis=1,
                     ),
-                    axis=1,
-                ),
-                "ffs_no_mc_behav_health_months": df_base.apply(
-                    lambda x: "".join(
-                        [
-                            str(int((enrl == 1) and (mc == 0)))
-                            for mc, enrl in zip(
-                                x["mc_behav_health_months"],
-                                x["enrolled_months"],
-                            )
-                        ]
+                    "ffs_no_mc_behav_health_months": pdf.apply(
+                        lambda x: "".join(
+                            [
+                                str(int((enrl == 1) and (mc == 0)))
+                                for mc, enrl in zip(
+                                    x["mc_behav_health_months"]
+                                    or "0".zfill(12),
+                                    x["enrolled_months"] or "0".zfill(12),
+                                )
+                            ]
+                        ),
+                        axis=1,
                     ),
-                    axis=1,
-                ),
-                "ffs_no_mc_pccm_months": df_base.apply(
-                    lambda x: "".join(
-                        [
-                            str(int((enrl == 1) and (mc == 0)))
-                            for mc, enrl in zip(
-                                x["mc_pccm_months"], x["enrolled_months"]
-                            )
-                        ]
+                    "ffs_no_mc_pccm_months": pdf.apply(
+                        lambda x: "".join(
+                            [
+                                str(int((enrl == 1) and (mc == 0)))
+                                for mc, enrl in zip(
+                                    x["mc_pccm_months"] or "0".zfill(12),
+                                    x["enrolled_months"] or "0".zfill(12),
+                                )
+                            ]
+                        ),
+                        axis=1,
                     ),
-                    axis=1,
-                ),
-            }
+                }
+            )
         )
         df_base = df_base.assign(
             **{
