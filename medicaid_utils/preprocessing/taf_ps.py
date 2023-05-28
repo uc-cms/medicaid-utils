@@ -896,7 +896,7 @@ class TAFPS(taf_file.TAFFile):
                         for mc_type in ["comp", "behav_health", "pccm"]
                     },
                     **{
-                        f"tot_mc_{mc_type}_months": pdf[
+                        f"total_mc_{mc_type}_months": pdf[
                             [
                                 f"mc_{mc_type}_mon_" f"{mon}"
                                 for mon in range(1, 13)
