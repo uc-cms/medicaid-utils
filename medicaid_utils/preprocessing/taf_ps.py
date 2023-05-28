@@ -967,7 +967,7 @@ class TAFPS(taf_file.TAFFile):
                 clean=False,
                 preprocess=False,
                 pq_engine=self.pq_engine,
-                tmp_folder=self.tmp_folder,
+                tmp_folder=os.path.join(self.tmp_folder, claim_type),
             )
             for claim_type in lst_util_claim_types
         }
@@ -978,20 +978,37 @@ class TAFPS(taf_file.TAFFile):
 
         df_diag = dd.concat(
             [
-                dct_utilization_claims[claim_type]["base_diag_codes"]
+                dct_utilization_claims[claim_type].dct_files["base_diag_codes"]
                 for claim_type in ["ip", "ot"]
             ],
             axis=0,
+            ignore_index=False,
             interleave_partitions=True,
         )
         df_ndc = dd.concat(
             [
-                dct_utilization_claims[claim_type]["line_ndc_codes"]
-                for claim_type in ["ip", "ot", "ndc"]
+                dct_utilization_claims[claim_type].dct_files["line_ndc_codes"]
+                for claim_type in ["ip", "ot", "rx"]
             ],
             axis=0,
             interleave_partitions=True,
+            ignore_index=False
         )
+        df_diag = dataframe_utils.fix_index(df_diag, self.index_col, True)
+        df_diag = df_diag.map_partitions(lambda pdf: pdf.groupby(
+            pdf.index).agg(
+            {'LST_DIAG_CD': lambda x: ",".join(
+                set((','.join([y for y in x if bool(y)])).split(","))),
+             'LST_DIAG_CD_RAW': lambda x: ','.join([y for y in x if bool(
+                 y)])}))
+        df_ndc = dataframe_utils.fix_index(df_ndc, self.index_col, True)
+        df_ndc = df_ndc.map_partitions(lambda pdf: pdf.groupby(
+            pdf.index).agg(
+            {'LST_NDC': lambda x: ",".join(
+                set((','.join([y for y in x if bool(y)])).split(","))),
+             'LST_NDC_RAW': lambda x: ','.join([y for y in x if bool(
+                 y)])}
+        ))
 
         dataframe_utils.fix_index(df_diag, index_name=self.index_col)
         dataframe_utils.fix_index(df_ndc, index_name=self.index_col)
