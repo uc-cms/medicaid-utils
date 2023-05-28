@@ -19,6 +19,7 @@ from medicaid_utils.preprocessing import (
     taf_ps,  # pylint: disable=unused-import
 )
 from medicaid_utils.filters.claims import dx_and_proc
+from medicaid_utils.common_utils import dataframe_utils
 
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 
@@ -817,6 +818,8 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
 
     for f_type in sorted(lst_types_to_export):
         logger.info("Exporting %s for %s (%d)", f_type, state, year)
+        if pdf_cohort.index.name != dct_claims[f_type].index_col:
+            pdf_cohort = pdf_cohort.set_index(dct_claims[f_type].index_col)
         if cms_format == "MAX":
             dct_claims[f_type].df = dct_claims[f_type].df.loc[
                 dct_claims[f_type].df.index.isin(

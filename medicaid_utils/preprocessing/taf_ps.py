@@ -1044,7 +1044,7 @@ class TAFPS(taf_file.TAFFile):
         df_base = self.dct_files["base"]
         df_base = df_base.assign(
             **{
-                col: df_diag_ndc[col]
+                col: self.dct_files["diag_ang_ndc"][col]
                 for col in ["elixhauser_score"]
                 + ["ELX_GRP_" + str(i) for i in range(1, 32)]
             }
