@@ -218,6 +218,7 @@ class TAFFile:
         """Cleaning routines to processes date and gender columns, and add
         duplicate check flags."""
         self.process_date_cols()
+        self.cache_results()
         self.flag_duplicates()
 
     def preprocess(self):
@@ -357,56 +358,58 @@ class TAFFile:
 
         """
         for ftype in self.dct_files:
-            logging.info("Flagging duplicates for %s", ftype)
-            df = self.dct_files[ftype]
-            df = dataframe_utils.fix_index(df, self.index_col, True)
-            df = df.assign(
-                **{
-                    col: dd.to_numeric(df[col], errors="coerce")
-                    .fillna(-1)
-                    .astype(int)
-                    for col in ["DA_RUN_ID", f"{self.ftype.upper()}_VRSN"]
-                    if col in df.columns
-                }
-            )
-            df = dataframe_utils.fix_index(df, self.index_col, True)
-            df = df.map_partitions(
-                lambda pdf: pdf.assign(
-                    excl_duplicated=pdf.assign(_index_col=pdf.index)[
-                        [
-                            col
-                            for col in pdf.columns
-                            if col != "excl_duplicated"
+            if ftype in ["base", "line"]:
+                logging.info("Flagging duplicates for %s", ftype)
+                df = self.dct_files[ftype]
+                df = dataframe_utils.fix_index(df, self.index_col, True)
+                df = df.assign(
+                    **{
+                        col: dd.to_numeric(df[col], errors="coerce")
+                        .fillna(-1)
+                        .astype(int)
+                        for col in ["DA_RUN_ID", f"{self.ftype.upper()}_VRSN"]
+                        if col in df.columns
+                    }
+                )
+                df = dataframe_utils.fix_index(df, self.index_col, True)
+                df = df.map_partitions(
+                    lambda pdf: pdf.assign(
+                        excl_duplicated=pdf.assign(_index_col=pdf.index)[
+                            [
+                                col
+                                for col in pdf.columns
+                                if col != "excl_duplicated"
+                            ]
                         ]
-                    ]
-                    .duplicated(keep="first")
-                    .astype(int)
-                )
-            )
-            df = df.loc[df["excl_duplicated"] == 0]
-            if ("DA_RUN_ID" in df.columns) and ("CLM_ID" in df.columns):
-                df = df.map_partitions(
-                    lambda pdf: pdf.assign(
-                        max_run_id=pdf.groupby("CLM_ID")[
-                            "DA_RUN_ID"
-                        ].transform("max")
+                        .duplicated(keep="first")
+                        .astype(int)
                     )
                 )
-                df = df.loc[df["DA_RUN_ID"] == df["max_run_id"]].drop(
-                    "max_run_id", axis=1
-                )
-            if "filing_period" in df.columns:
-                df = df.map_partitions(
-                    lambda pdf: pdf.assign(
-                        max_version=pdf.groupby("filing_period")[
-                            f"{self.ftype.lower()}_version"
-                        ].transform("max")
+                df = df.loc[df["excl_duplicated"] == 0]
+                if ("DA_RUN_ID" in df.columns) and ("CLM_ID" in df.columns):
+                    df = df.map_partitions(
+                        lambda pdf: pdf.assign(
+                            max_run_id=pdf.groupby("CLM_ID")[
+                                "DA_RUN_ID"
+                            ].transform("max")
+                        )
                     )
-                )
-                df = df.loc[
-                    df[f"{self.ftype.lower()}_version"] == df["max_version"]
-                ].drop("max_version", axis=1)
-            self.dct_files[ftype] = df
+                    df = df.loc[df["DA_RUN_ID"] == df["max_run_id"]].drop(
+                        "max_run_id", axis=1
+                    )
+                if "filing_period" in df.columns:
+                    df = df.map_partitions(
+                        lambda pdf: pdf.assign(
+                            max_version=pdf.groupby("filing_period")[
+                                f"{self.ftype.lower()}_version"
+                            ].transform("max")
+                        )
+                    )
+                    df = df.loc[
+                        df[f"{self.ftype.lower()}_version"]
+                        == df["max_version"]
+                    ].drop("max_version", axis=1)
+                self.dct_files[ftype] = df
 
     def gather_bene_level_diag_ndc_codes(self):
         """
