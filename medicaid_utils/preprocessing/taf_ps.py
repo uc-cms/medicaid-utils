@@ -94,7 +94,14 @@ class TAFPS(taf_file.TAFFile):
         self.flag_dual()
         self.flag_restricted_benefits()
         self.compute_enrollment_gaps()
+        self.add_mas_boe()
+        self.flag_tanf()
+        self.flag_medicaid_enrolled_months()
+        self.flag_managed_care_months()
+        self.flag_ffs_months()
         self.cache_results()
+        self.add_risk_adjustment_scores()
+        self.cache_results("base")
 
     def flag_common_exclusions(self):
         """
@@ -294,7 +301,7 @@ class TAFPS(taf_file.TAFFile):
                     (
                         df[
                             [
-                                f"mas" f"_" f"" f"" f"{mas_type}_months"
+                                f"mas_{mas_type}_months"
                                 for mas_type in dct_mas_codes
                             ]
                         ]
@@ -502,36 +509,37 @@ class TAFPS(taf_file.TAFFile):
         disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
         """
         df = self.dct_files["base"]
+        df = df.assign(
+            **{
+                f"dual_mon_{mon}": dd.to_numeric(
+                    df[f"DUAL_ELGBL_CD_{str(mon).zfill(2)}"], errors="coerce"
+                )
+                .isin([1, 2, 3])
+                .astype(int)
+                for mon in range(1, 13)
+            }
+        )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
-                dual=np.column_stack(
-                    [
-                        pd.to_numeric(pdf[col], errors="coerce").isin(
-                            [1, 2, 3]
-                        )
-                        for col in [
-                            f"DUAL_ELGBL_CD_{str(mon).zfill(2)}"
-                            for mon in range(1, 13)
-                        ]
-                    ]
-                )
+                any_dual_month=pdf[[f"dual_mon_{mon}" for mon in range(1, 13)]]
                 .any(axis=1)
                 .astype(int),
-                dual_months=np.column_stack(
-                    [
-                        pd.to_numeric(pdf[col], errors="coerce").isin(
-                            [1, 2, 3]
-                        )
-                        for col in [
-                            f"DUAL_ELGBL_CD_{str(mon).zfill(2)}"
-                            for mon in range(1, 13)
-                        ]
-                    ]
-                )
+                dual_months=pdf[f"dual_mon_1"]
+                .astype(str)
+                .str.cat(
+                    pdf[[f"dual_mon_{mon}" for mon in range(2, 13)]].astype(
+                        str
+                    ),
+                    sep="",
+                ),
+                total_dual_months=pdf[
+                    [f"dual_mon_{mon}" for mon in range(1, 13)]
+                ]
                 .sum(axis=1)
                 .astype(int),
             )
         )
+        df = df.drop(columns=[f"dual_mon_{mon}" for mon in range(1, 13)])
         self.dct_files["base"] = df
 
     def flag_restricted_benefits(self):
@@ -573,10 +581,7 @@ class TAFPS(taf_file.TAFFile):
         df = df.map_partitions(
             lambda pdf: pdf.assign(
                 any_restricted_benefit_month=pdf[
-                    [
-                        f"restricted_benefit_mon" f"_{mon}"
-                        for mon in range(1, 13)
-                    ]
+                    [f"restricted_benefit_mon_{mon}" for mon in range(1, 13)]
                 ]
                 .any(axis=1)
                 .astype(int),
@@ -585,17 +590,14 @@ class TAFPS(taf_file.TAFFile):
                 .str.cat(
                     pdf[
                         [
-                            f"restricted_benefit_mon" f"_{mon}"
+                            f"restricted_benefit_mon_{mon}"
                             for mon in range(2, 13)
                         ]
                     ].astype(str),
                     sep="",
                 ),
                 total_restricted_benefit_months=pdf[
-                    [
-                        f"restricted_benefit_mon" f"_{mon}"
-                        for mon in range(1, 13)
-                    ]
+                    [f"restricted_benefit_mon_{mon}" for mon in range(1, 13)]
                 ]
                 .sum(axis=1)
                 .astype(int),
@@ -1001,3 +1003,59 @@ class TAFPS(taf_file.TAFFile):
         )
         self.dct_files["base"] = df_base
         self.cache_results("base")
+
+    def flag_ffs_months(self):
+        """
+        Creates flags for months enrolled in medicaid without
+        enrollment in managed care plans of 3 categories, and adds columns
+        denoting total number of months enrolled in these
+        plans and the enrollment sequence pattern.
+        """
+        df_base = self.dct_files["base"]
+        df_base = df_base.assign(
+            **{
+                "ffs_months": df_base.apply(
+                    lambda x: "".join(
+                        [
+                            str(int((enrl == 1) and (mc == 0)))
+                            for mc, enrl in zip(
+                                x["mc_comp_months"], x["enrolled_months"]
+                            )
+                        ]
+                    ),
+                    axis=1,
+                ),
+                "ffs_no_mc_behav_health_months": df_base.apply(
+                    lambda x: "".join(
+                        [
+                            str(int((enrl == 1) and (mc == 0)))
+                            for mc, enrl in zip(
+                                x["mc_behav_health_months"],
+                                x["enrolled_months"],
+                            )
+                        ]
+                    ),
+                    axis=1,
+                ),
+                "ffs_no_mc_pccm_months": df_base.apply(
+                    lambda x: "".join(
+                        [
+                            str(int((enrl == 1) and (mc == 0)))
+                            for mc, enrl in zip(
+                                x["mc_pccm_months"], x["enrolled_months"]
+                            )
+                        ]
+                    ),
+                    axis=1,
+                ),
+            }
+        )
+        df_base = df_base.assign(
+            **{
+                f"total_ffs_{ffs_type}months": df_base[f"ffs_{ffs_type}months"]
+                .str.replace("0", "")
+                .str.len()
+                for ffs_type in ["", "no_mc_behav_health", "no_mc_pccm"]
+            }
+        )
+        self.dct_files["base"] = df_base
