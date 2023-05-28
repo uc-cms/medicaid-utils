@@ -1033,15 +1033,19 @@ class TAFPS(taf_file.TAFFile):
         """
         df_base = self.dct_files["base"]
         df_base = df_base.map_partitions(
-            lambda pdf: pdf.assign(
+            lambda pdf: pdf.pdf.assign(
                 **{
                     "ffs_months": pdf.apply(
                         lambda x: "".join(
                             [
                                 str(int((enrl == 1) and (mc == 0)))
                                 for mc, enrl in zip(
-                                    x["mc_comp_months"] or "0".zfill(12),
-                                    x["enrolled_months"] or "0".zfill(12),
+                                    x["mc_comp_months"]
+                                    if pd.notna(x["mc_comp_months"])
+                                    else "0".zfill(12),
+                                    x["enrolled_months"]
+                                    if pd.notna(x["enrolled_months"])
+                                    else "0".zfill(12),
                                 )
                             ]
                         ),
@@ -1053,8 +1057,11 @@ class TAFPS(taf_file.TAFFile):
                                 str(int((enrl == 1) and (mc == 0)))
                                 for mc, enrl in zip(
                                     x["mc_behav_health_months"]
-                                    or "0".zfill(12),
-                                    x["enrolled_months"] or "0".zfill(12),
+                                    if pd.notna(x["mc_behav_health_months"])
+                                    else "0".zfill(12),
+                                    x["enrolled_months"]
+                                    if pd.notna(x["enrolled_months"])
+                                    else "0".zfill(12),
                                 )
                             ]
                         ),
@@ -1065,8 +1072,12 @@ class TAFPS(taf_file.TAFFile):
                             [
                                 str(int((enrl == 1) and (mc == 0)))
                                 for mc, enrl in zip(
-                                    x["mc_pccm_months"] or "0".zfill(12),
-                                    x["enrolled_months"] or "0".zfill(12),
+                                    x["mc_pccm_months"]
+                                    if pd.notna(x["mc_pccm_months"])
+                                    else "0".zfill(12),
+                                    x["enrolled_months"]
+                                    if pd.notna(x["enrolled_months"])
+                                    else "0".zfill(12),
                                 )
                             ]
                         ),
