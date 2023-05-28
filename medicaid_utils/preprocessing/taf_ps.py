@@ -1038,7 +1038,7 @@ class TAFPS(taf_file.TAFFile):
                     "ffs_months": pdf.apply(
                         lambda x: "".join(
                             [
-                                str(int((enrl == 1) and (mc == 0)))
+                                str(int((enrl == "1") and (mc == "0")))
                                 for mc, enrl in zip(
                                     x["mc_comp_months"]
                                     if pd.notna(x["mc_comp_months"])
@@ -1054,7 +1054,7 @@ class TAFPS(taf_file.TAFFile):
                     "ffs_no_mc_behav_health_months": pdf.apply(
                         lambda x: "".join(
                             [
-                                str(int((enrl == 1) and (mc == 0)))
+                                str(int((enrl == "1") and (mc == "0")))
                                 for mc, enrl in zip(
                                     x["mc_behav_health_months"]
                                     if pd.notna(x["mc_behav_health_months"])
@@ -1070,7 +1070,7 @@ class TAFPS(taf_file.TAFFile):
                     "ffs_no_mc_pccm_months": pdf.apply(
                         lambda x: "".join(
                             [
-                                str(int((enrl == 1) and (mc == 0)))
+                                str(int((enrl == "1") and (mc == "0")))
                                 for mc, enrl in zip(
                                     x["mc_pccm_months"]
                                     if pd.notna(x["mc_pccm_months"])
