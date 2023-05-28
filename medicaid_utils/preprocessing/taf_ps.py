@@ -836,119 +836,133 @@ class TAFPS(taf_file.TAFFile):
         and adds columns denoting total number of months enrolled in these
         plans and the enrollment sequence pattern.
         """
-        df_mc = self.dct_files["managed_care"]
-        df_mc = df_mc.assign(
-            **{
-                f"MC_PLAN_TYPE_CD_"
-                f"{str(seq).zfill(2)}_": dd.to_numeric(
-                    df_mc[
-                        f"MC_PLAN_TYPE_CD_{str(seq).zfill(2)}_{str(mon).zfill(2)}"
-                    ],
-                    errors="coerce",
-                )
-                for seq, mon in product(range(1, 17), range(1, 13))
-            }
-        )
-        df_mc = df_mc.assign(
-            **{
+        if "managed_care" in self.dct_files:
+            df_mc = self.dct_files["managed_care"]
+            df_mc = df_mc.assign(
                 **{
-                    f"mc_comp_mon_{mon}": df_mc[
-                        [
-                            f"MC_PLAN_TYPE_CD_"
-                            f"{str(seq).zfill(2)}_"
-                            f"{str(mon).zfill(2)}"
-                            for seq in range(1, 17)
-                        ]
-                    ]
-                    .isin([1, 4, 80])
-                    .any(axis=1)
-                    .astype(int)
-                    for mon in range(1, 13)
-                },
-                **{
-                    f"mc_behav_health_mon_{mon}": df_mc[
-                        [
-                            f"MC_PLAN_TYPE_CD_"
-                            f"{str(seq).zfill(2)}_"
-                            f"{str(mon).zfill(2)}"
-                            for seq in range(1, 17)
-                        ]
-                    ]
-                    .isin([8, 9, 10, 11, 12, 13])
-                    .any(axis=1)
-                    .astype(int)
-                    for mon in range(1, 13)
-                },
-                **{
-                    f"mc_pccm_mon_{mon}": df_mc[
-                        [
-                            f"MC_PLAN_TYPE_CD_"
-                            f"{str(seq).zfill(2)}_"
-                            f"{str(mon).zfill(2)}"
-                            for seq in range(1, 17)
-                        ]
-                    ]
-                    .isin([2, 3, 70])
-                    .any(axis=1)
-                    .astype(int)
-                    for mon in range(1, 13)
-                },
-            }
-        )
-        df_mc = df_mc.map_partitions(
-            lambda pdf: pdf.assign(
+                    f"MC_PLAN_TYPE_CD_"
+                    f"{str(seq).zfill(2)}_": dd.to_numeric(
+                        df_mc[
+                            f"MC_PLAN_TYPE_CD_{str(seq).zfill(2)}_{str(mon).zfill(2)}"
+                        ],
+                        errors="coerce",
+                    )
+                    for seq, mon in product(range(1, 17), range(1, 13))
+                }
+            )
+            df_mc = df_mc.assign(
                 **{
                     **{
-                        f"mc_{mc_type}_months": pdf[f"mc_{mc_type}_mon_1"]
-                        .astype(str)
-                        .str.cat(
-                            pdf[
+                        f"mc_comp_mon_{mon}": df_mc[
+                            [
+                                f"MC_PLAN_TYPE_CD_"
+                                f"{str(seq).zfill(2)}_"
+                                f"{str(mon).zfill(2)}"
+                                for seq in range(1, 17)
+                            ]
+                        ]
+                        .isin([1, 4, 80])
+                        .any(axis=1)
+                        .astype(int)
+                        for mon in range(1, 13)
+                    },
+                    **{
+                        f"mc_behav_health_mon_{mon}": df_mc[
+                            [
+                                f"MC_PLAN_TYPE_CD_"
+                                f"{str(seq).zfill(2)}_"
+                                f"{str(mon).zfill(2)}"
+                                for seq in range(1, 17)
+                            ]
+                        ]
+                        .isin([8, 9, 10, 11, 12, 13])
+                        .any(axis=1)
+                        .astype(int)
+                        for mon in range(1, 13)
+                    },
+                    **{
+                        f"mc_pccm_mon_{mon}": df_mc[
+                            [
+                                f"MC_PLAN_TYPE_CD_"
+                                f"{str(seq).zfill(2)}_"
+                                f"{str(mon).zfill(2)}"
+                                for seq in range(1, 17)
+                            ]
+                        ]
+                        .isin([2, 3, 70])
+                        .any(axis=1)
+                        .astype(int)
+                        for mon in range(1, 13)
+                    },
+                }
+            )
+            df_mc = df_mc.map_partitions(
+                lambda pdf: pdf.assign(
+                    **{
+                        **{
+                            f"mc_{mc_type}_months": pdf[f"mc_{mc_type}_mon_1"]
+                            .astype(str)
+                            .str.cat(
+                                pdf[
+                                    [
+                                        f"mc_{mc_type}_mon_{mon}"
+                                        for mon in range(2, 13)
+                                    ]
+                                ].astype(str),
+                                sep="",
+                            )
+                            for mc_type in ["comp", "behav_health", "pccm"]
+                        },
+                        **{
+                            f"total_mc_{mc_type}_months": pdf[
                                 [
-                                    f"mc_{mc_type}_mon_{mon}"
-                                    for mon in range(2, 13)
+                                    f"mc_{mc_type}_mon_" f"{mon}"
+                                    for mon in range(1, 13)
                                 ]
-                            ].astype(str),
-                            sep="",
-                        )
+                            ].sum(axis=1)
+                            for mc_type in ["comp", "behav_health", "pccm"]
+                        },
+                    }
+                )
+            )
+            df_mc = df_mc.drop(
+                columns=[
+                    f"mc_{mc_type}_mon_{mon}"
+                    for mc_type, mon in product(
+                        ["comp", "behav_health", "pccm"], range(1, 13)
+                    )
+                ]
+            )
+
+            self.dct_files["managed_care"] = df_mc
+            self.dct_files["base"] = self.dct_files["base"].merge(
+                df_mc[
+                    [
+                        f"mc_{mc_type}_months"
+                        for mc_type in ["comp", "behav_health", "pccm"]
+                    ]
+                    + [
+                        f"total_mc_{mc_type}_months"
+                        for mc_type in ["comp", "behav_health", "pccm"]
+                    ]
+                ].compute(),
+                left_index=True,
+                right_index=True,
+                how="left",
+            )
+        else:
+            self.dct_files["base"] = self.dct_files["base"].assign(
+                **{
+                    **{
+                        f"mc_{mc_type}_months": "0".zfill(12)
                         for mc_type in ["comp", "behav_health", "pccm"]
                     },
                     **{
-                        f"total_mc_{mc_type}_months": pdf[
-                            [
-                                f"mc_{mc_type}_mon_" f"{mon}"
-                                for mon in range(1, 13)
-                            ]
-                        ].sum(axis=1)
+                        f"total_mc_{mc_type}_months": np.nan
                         for mc_type in ["comp", "behav_health", "pccm"]
                     },
                 }
             )
-        )
-        df_mc = df_mc.drop(
-            columns=[
-                f"mc_{mc_type}_mon_{mon}"
-                for mc_type, mon in product(
-                    ["comp", "behav_health", "pccm"], range(1, 13)
-                )
-            ]
-        )
-
-        self.dct_files["managed_care"] = df_mc
-        self.dct_files["base"] = self.dct_files["base"].merge(
-            df_mc[
-                [
-                    f"mc_{mc_type}_months"
-                    for mc_type in ["comp", "behav_health", "pccm"]
-                ]
-                + [
-                    f"total_mc_{mc_type}_months"
-                    for mc_type in ["comp", "behav_health", "pccm"]
-                ]
-            ].compute(),
-            left_index=True,
-            right_index=True,
-            how="left",
-        )
 
     def flag_tanf(self):
         """
