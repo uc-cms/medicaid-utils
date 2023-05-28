@@ -992,23 +992,34 @@ class TAFPS(taf_file.TAFFile):
             ],
             axis=0,
             interleave_partitions=True,
-            ignore_index=False
+            ignore_index=False,
         )
         df_diag = dataframe_utils.fix_index(df_diag, self.index_col, True)
-        df_diag = df_diag.map_partitions(lambda pdf: pdf.groupby(
-            pdf.index).agg(
-            {'LST_DIAG_CD': lambda x: ",".join(
-                set((','.join([y for y in x if bool(y)])).split(","))),
-             'LST_DIAG_CD_RAW': lambda x: ','.join([y for y in x if bool(
-                 y)])}))
+        df_diag = df_diag.map_partitions(
+            lambda pdf: pdf.groupby(pdf.index).agg(
+                {
+                    "LST_DIAG_CD": lambda x: ",".join(
+                        set((",".join([y for y in x if bool(y)])).split(","))
+                    ),
+                    "LST_DIAG_CD_RAW": lambda x: ",".join(
+                        [y for y in x if bool(y)]
+                    ),
+                }
+            )
+        )
         df_ndc = dataframe_utils.fix_index(df_ndc, self.index_col, True)
-        df_ndc = df_ndc.map_partitions(lambda pdf: pdf.groupby(
-            pdf.index).agg(
-            {'LST_NDC': lambda x: ",".join(
-                set((','.join([y for y in x if bool(y)])).split(","))),
-             'LST_NDC_RAW': lambda x: ','.join([y for y in x if bool(
-                 y)])}
-        ))
+        df_ndc = df_ndc.map_partitions(
+            lambda pdf: pdf.groupby(pdf.index).agg(
+                {
+                    "LST_NDC": lambda x: ",".join(
+                        set((",".join([y for y in x if bool(y)])).split(","))
+                    ),
+                    "LST_NDC_RAW": lambda x: ",".join(
+                        [y for y in x if bool(y)]
+                    ),
+                }
+            )
+        )
 
         dataframe_utils.fix_index(df_diag, index_name=self.index_col)
         dataframe_utils.fix_index(df_ndc, index_name=self.index_col)
