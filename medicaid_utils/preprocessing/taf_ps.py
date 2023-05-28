@@ -933,7 +933,7 @@ class TAFPS(taf_file.TAFFile):
             ]
         )
 
-        self.dct_files["mc"] = df_mc
+        self.dct_files["managed_care"] = df_mc
         self.dct_files["base"] = self.dct_files["base"].merge(
             df_mc[
                 [
