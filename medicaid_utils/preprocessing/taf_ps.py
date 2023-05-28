@@ -1057,12 +1057,12 @@ class TAFPS(taf_file.TAFFile):
             df_diag_ndc, "LST_DIAG_CD", cms_format="TAF"
         )
         dataframe_utils.fix_index(df_diag_ndc, "BENE_MSIS")
-        self.dct_files["diag_ang_ndc"] = df_diag_ndc
-        self.cache_results("diag_and_ndc")
+        self.dct_files["diag_and_ndc_codes"] = df_diag_ndc
+        self.cache_results("diag_and_ndc_codes")
         df_base = self.dct_files["base"]
         df_base = df_base.assign(
             **{
-                col: self.dct_files["diag_ang_ndc"][col]
+                col: self.dct_files["diag_and_ndc_codes"][col]
                 for col in ["elixhauser_score"]
                 + ["ELX_GRP_" + str(i) for i in range(1, 32)]
             }
