@@ -635,6 +635,18 @@ class TAFPS(taf_file.TAFFile):
                 [self.index_col, "enrollment_start_date"], ascending=True
             )
             pdf_dates = pdf_dates.assign(
+                enrollment_end_date=pdf_dates.groupby(
+                    [self.index_col, "enrollment_start_date"]
+                )["enrollment_end_date"].transform("max")
+            )
+            pdf_dates = pdf_dates.drop_duplicates(
+                [
+                    self.index_col,
+                    "enrollment_start_date",
+                    "enrollment_end_date",
+                ]
+            )
+            pdf_dates = pdf_dates.assign(
                 enrollment_end_date=pdf_dates["enrollment_end_date"].fillna(
                     pd.to_datetime(
                         pdf_dates["enrollment_start_date"]
