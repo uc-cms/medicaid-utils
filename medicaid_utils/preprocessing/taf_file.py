@@ -467,7 +467,9 @@ class TAFFile:
         df_line = df_line.map_partitions(
             lambda pdf: pdf.groupby(pdf.index)["NDC"]
             .apply(list)
+            .reset_index(drop=False)
             .rename(columns={"NDC": "LST_NDC"})
+            .set_index(self.index_col)
         )
         df_line = df_line.map_partitions(
             lambda pdf: pdf.assign(
