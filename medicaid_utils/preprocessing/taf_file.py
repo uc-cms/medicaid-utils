@@ -603,7 +603,7 @@ class TAFFile:
                         }
                     )
 
-                    if self.ftype in ["ip", "ot"]:
+                    if self.ftype in ["ip", "ot", "rx"]:
                         if f"{self.ftype.upper()}_FIL_DT" in df.columns:
                             if self.ftype == "ip":
                                 df = df.assign(
