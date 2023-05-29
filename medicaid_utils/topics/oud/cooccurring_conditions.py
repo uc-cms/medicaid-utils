@@ -5,7 +5,7 @@ from ...filters.claims import dx_and_proc
 
 
 def flag_cooccurring_mental_health_claims(
-    df_claims: dd.DataFrame,
+    df_claims: dd.DataFrame, cms_format: str = "TAF"
 ) -> dd.DataFrame:
     """
     Adds indicator column denoting presence of mental health diagnosis codes in
@@ -24,7 +24,9 @@ def flag_cooccurring_mental_health_claims(
     Parameters
     ----------
     df_claims : dd.DataFrame
-            IP or OT claim file
+        IP or OT claim file
+    cms_format : {'MAX', TAF'}
+        CMS file format.
 
     Returns
     -------
@@ -48,12 +50,14 @@ def flag_cooccurring_mental_health_claims(
         }
     }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_diag_codes, {}, df_claims
+        dct_diag_codes, {}, df_claims, cms_format=cms_format
     )
     return df_claims
 
 
-def flag_cooccurring_sud_claims(df_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_cooccurring_sud_claims(
+    df_claims: dd.DataFrame, cms_format: str = "TAF"
+) -> dd.DataFrame:
     """
     Adds indicator column denoting presence of SUD diagnosis codes in claims.
 
@@ -71,7 +75,9 @@ def flag_cooccurring_sud_claims(df_claims: dd.DataFrame) -> dd.DataFrame:
     Parameters
     ----------
     df_claims : dd.DataFrame
-            IP or OT claim file
+        IP or OT claim file
+    cms_format : {'MAX', TAF'}
+        CMS file format.
 
     Returns
     -------
@@ -98,6 +104,6 @@ def flag_cooccurring_sud_claims(df_claims: dd.DataFrame) -> dd.DataFrame:
         }
     }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_diag_codes, {}, df_claims
+        dct_diag_codes, {}, df_claims, cms_format=cms_format
     )
     return df_claims

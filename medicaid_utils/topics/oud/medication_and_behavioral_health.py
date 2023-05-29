@@ -8,7 +8,10 @@ from ...filters.claims import dx_and_proc, rx
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 
 
-def flag_proc_buprenorphine(df_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_proc_buprenorphine(
+    df_claims: dd.DataFrame,
+    cms_format: str = "TAF",
+) -> dd.DataFrame:
     """
     Adds indicator column denoting presence of buprenorphine treatment
     procedure codes in claims.
@@ -22,6 +25,8 @@ def flag_proc_buprenorphine(df_claims: dd.DataFrame) -> dd.DataFrame:
     ----------
     df_claims : dd.DataFrame
             IP or OT claim file
+    cms_format : {'MAX', TAF'}
+        CMS file format.
 
     Returns
     -------
@@ -30,7 +35,7 @@ def flag_proc_buprenorphine(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     dct_proc_codes = {"buprenorphine": {6: ["J0571"], 1: ["J0571"]}}
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_proc_codes, {}, df_claims
+        {}, dct_proc_codes, df_claims, cms_format=cms_format
     )
     return df_claims
 
@@ -213,7 +218,9 @@ def flag_rx_buprenorphine(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
     return df_claims
 
 
-def flag_proc_buprenorphine_naloxone(df_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_proc_buprenorphine_naloxone(
+    df_claims: dd.DataFrame, cms_format: str = "TAF"
+) -> dd.DataFrame:
     """
     Adds indicator column denoting presence of Buprenorphine/ Naloxone
     treatment procedure codes in claims.
@@ -227,6 +234,8 @@ def flag_proc_buprenorphine_naloxone(df_claims: dd.DataFrame) -> dd.DataFrame:
     ----------
     df_claims : dd.DataFrame
             IP or OT claim file
+    cms_format : {'MAX', TAF'}
+        CMS file format.
 
     Returns
     -------
@@ -240,7 +249,7 @@ def flag_proc_buprenorphine_naloxone(df_claims: dd.DataFrame) -> dd.DataFrame:
         }
     }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_proc_codes, {}, df_claims
+        {}, dct_proc_codes, df_claims, cms_format=cms_format
     )
     return df_claims
 
@@ -416,7 +425,9 @@ def flag_rx_buprenorphine_naloxone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
     return df_claims
 
 
-def flag_proc_injectable_naltrexone(df_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_proc_injectable_naltrexone(
+    df_claims: dd.DataFrame, cms_format: str = "TAF"
+) -> dd.DataFrame:
     """
     Adds indicator column denoting presence of Injectable Naltrexone
     procedure codes in claims.
@@ -430,6 +441,8 @@ def flag_proc_injectable_naltrexone(df_claims: dd.DataFrame) -> dd.DataFrame:
     ----------
     df_claims : dd.DataFrame
             IP or OT claim file
+    cms_format : {'MAX', TAF'}
+        CMS file format.
 
     Returns
     -------
@@ -438,7 +451,7 @@ def flag_proc_injectable_naltrexone(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     dct_proc_codes = {"injectable_naltrexone": {6: ["J2315"], 1: ["J2315"]}}
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_proc_codes, {}, df_claims
+        {}, dct_proc_codes, df_claims, cms_format=cms_format
     )
     return df_claims
 
@@ -561,7 +574,9 @@ def flag_rx_oral_naltrexone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
     return df_claims
 
 
-def flag_proc_methadone(df_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_proc_methadone(
+    df_claims: dd.DataFrame, cms_format: str = "TAF"
+) -> dd.DataFrame:
     """
     Adds indicator column denoting presence of Methadone procedure codes in
     claims.
@@ -575,6 +590,8 @@ def flag_proc_methadone(df_claims: dd.DataFrame) -> dd.DataFrame:
     ----------
     df_claims : dd.DataFrame
             IP or OT claim file
+    cms_format : {'MAX', TAF'}
+        CMS file format.
 
     Returns
     -------
@@ -583,7 +600,7 @@ def flag_proc_methadone(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     dct_proc_codes = {"methadone": {6: ["H0020"], 1: ["H0020"]}}
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_proc_codes, {}, df_claims
+        {}, dct_proc_codes, df_claims, cms_format=cms_format
     )
     return df_claims
 
@@ -648,7 +665,9 @@ def flag_rx_methadone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
     return df_claims
 
 
-def flag_proc_behavioral_health_trtmt(df_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_proc_behavioral_health_trtmt(
+    df_claims: dd.DataFrame, cms_format: str = "TAF"
+) -> dd.DataFrame:
     """
     Adds indicator column denoting presence of Behavioral Health treatment
     procedure codes in claims.
@@ -661,7 +680,9 @@ def flag_proc_behavioral_health_trtmt(df_claims: dd.DataFrame) -> dd.DataFrame:
     Parameters
     ----------
     df_claims : dd.DataFrame
-            IP or OT claim file
+        IP or OT claim file
+    cms_format : {'MAX', TAF'}
+        CMS file format.
 
     Returns
     -------
@@ -747,7 +768,7 @@ def flag_proc_behavioral_health_trtmt(df_claims: dd.DataFrame) -> dd.DataFrame:
         }
     }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_proc_codes, {}, df_claims
+        {}, dct_proc_codes, df_claims, cms_format=cms_format
     )
     return df_claims
 
