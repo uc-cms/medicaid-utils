@@ -4,6 +4,7 @@ from functools import reduce
 import scipy.stats as st
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 from holoviews import opts
 
 
@@ -88,11 +89,17 @@ def get_contingency_table(
                 **{col: (pdf_temp[col] > 0).astype(int)}
             )
         pdf_temp = pdf_temp.sort_values(by=[pop_col_name, col])
-        phi = pdf_temp[[pop_col_name] + [col]].corr()
         phi = (
             np.nan
-            if ((phi.shape[1] < 2) or (len(lst_pop_val) > 2))
-            else phi.iloc[0, 1]
+            if (
+                (len(lst_pop_val) > 2) or (not is_numeric_dtype(pdf_temp[col]))
+            )
+            else pdf_temp[[pop_col_name] + [col]].corr()
+        )
+        phi = (
+            phi.iloc[0, 1]
+            if ((pd.notna(phi)) and ((phi.shape[1] > 2)))
+            else np.nan
         )
         pdf_crosstab = None
         if pdf_temp[col].nunique() > 1:
