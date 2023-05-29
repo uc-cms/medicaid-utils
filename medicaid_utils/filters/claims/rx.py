@@ -46,19 +46,27 @@ def flag_prescriptions(
         ]
         for condn in dct_ndc_codes
     }
-    df_claims = df_claims.map_partitions(
-        lambda pdf: pdf.assign(
+    df_claims = df_claims.assign(
+        **{
+            f"rx_{condn}": (
+                df_claims["NDC"].isin(dct_ndc_codes[condn])
+            ).astype(int)
+            for condn in dct_ndc_codes
+        }
+    )
+    if (not ignore_missing_days_supply) and (
+        "DAYS_SUPPLY" in df_claims.columns
+    ):
+        df_claims = df_claims.assign(
             **{
-                f"rx_{condn}": (
-                    pdf["NDC"].isin(dct_ndc_codes[condn])
-                    & (
-                        (ignore_missing_days_supply is False)
-                        | pd.to_numeric(pdf["DAYS_SUPPLY"], errors="coerce")
-                        > 0
-                    )
-                ).astype(int)
+                f"rx_{condn}": df_claims[f"rx_{condn}"]
+                .where(
+                    dd.to_numeric(df_claims["DAYS_SUPPLY"], errors="coerce")
+                    > 0,
+                    0,
+                )
+                .astype(int)
                 for condn in dct_ndc_codes
             }
         )
-    )
     return df_claims
