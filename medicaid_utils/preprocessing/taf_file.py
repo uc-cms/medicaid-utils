@@ -466,7 +466,7 @@ class TAFFile:
         df_line = self.dct_files["line"]
         df_line = df_line.map_partitions(
             lambda pdf: pdf.groupby(pdf.index)["NDC"]
-            .apply("list")
+            .apply(list)
             .rename(columns={"NDC": "LST_NDC"})
         )
         df_line = df_line.map_partitions(
