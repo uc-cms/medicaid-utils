@@ -163,18 +163,13 @@ class TAFFile:
             if (subtype is not None) and (f_subtype != subtype):
                 continue
             if self.tmp_folder is not None:
-                if repartition:
-                    self.dct_files[f_subtype] = (
-                        self.dct_files[f_subtype]
-                        .repartition(partition_size="20MB")
-                        .persist()
-                    )  # Patch, currently to_parquet results
-                    # in error when any of the partitions is empty
                 self.pq_export(
-                    f_subtype, os.path.join(self.tmp_folder, f_subtype)
+                    f_subtype,
+                    os.path.join(self.tmp_folder, f_subtype),
+                    repartition=repartition,
                 )
 
-    def pq_export(self, f_subtype, dest_path_and_fname):
+    def pq_export(self, f_subtype, dest_path_and_fname, repartition=False):
         """
         Export parquet files (overwrite safe)
 
@@ -184,8 +179,14 @@ class TAFFile:
             File type. Eg. 'header'
         dest_path_and_fname : str
             Destination path
+        repartition : bool, default=False
+            Repartition the dask dataframe
 
         """
+        if repartition:
+            self.dct_files[f_subtype] = self.dct_files[f_subtype].repartition(
+                partition_size="20MB"
+            )
         os.makedirs(dest_path_and_fname, exist_ok=True)
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
         try:
@@ -201,11 +202,6 @@ class TAFFile:
                 .difference([self.pq_engine])
                 .pop(),
                 write_index=True,
-                # **(
-                #     {"schema": "infer"}
-                #     if (self.pq_engine == "pyarrow")
-                #     else {}
-                # ),
             )
         del self.dct_files[f_subtype]
         shutil.rmtree(dest_path_and_fname, ignore_errors=True)
@@ -235,7 +231,7 @@ class TAFFile:
         """Add basic constructed variables"""
 
     def export(
-        self, dest_folder, output_format="csv"
+        self, dest_folder, output_format="csv", repartition=False
     ):  # pylint: disable=missing-param-doc
         """
         Exports the files.
@@ -246,6 +242,8 @@ class TAFFile:
             Destination folder
         output_format : str, default='csv'
             Export format. Csv is the currently supported format
+        repartition : bool, default=False
+            Repartition the dask dataframe
 
         """
         lst_subtype = list(self.dct_files.keys())
@@ -273,6 +271,7 @@ class TAFFile:
                             )
                         )[1],
                     ),
+                    repartition=repartition,
                 )
 
     def clean_codes(self) -> None:
