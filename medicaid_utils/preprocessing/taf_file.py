@@ -449,30 +449,34 @@ class TAFFile:
             )
             df_base = df_base.map_partitions(
                 lambda pdf: pdf.assign(
-                    LST_DIAG_CD_RAW=pdf["LST_DIAG_CD"].apply(
+                    LST_DIAG_CD_RAW=pdf["LST_DIAG_CD"]
+                    .apply(
                         lambda lst: ",".join([cd for cd in lst if bool(cd)])
-                    ),
-                    LST_DIAG_CD=pdf["LST_DIAG_CD"].apply(
+                    )
+                    .fillna(""),
+                    LST_DIAG_CD=pdf["LST_DIAG_CD"]
+                    .apply(
                         lambda lst: ",".join(set(cd for cd in lst if bool(cd)))
-                    ),
+                    )
+                    .fillna(""),
                 )
             )
             self.add_custom_subtype("base_diag_codes", df_base)
             self.cache_results("base_diag_codes")
         df_line = self.dct_files["line"]
         df_line = df_line.map_partitions(
-            lambda pdf: pdf.assign(
-                LST_NDC=pdf.groupby(pdf.index)["NDC"].apply(list)
-            )
+            lambda pdf: pdf.groupby(pdf.index)["NDC"]
+            .apply("list")
+            .rename(columns={"NDC": "LST_NDC"})
         )
         df_line = df_line.map_partitions(
             lambda pdf: pdf.assign(
-                LST_NDC_RAW=pdf["LST_NDC"].apply(
-                    lambda lst: ",".join([cd for cd in lst if bool(cd)])
-                ),
-                LST_NDC=pdf["LST_NDC"].apply(
-                    lambda lst: ",".join(set(cd for cd in lst if bool(cd)))
-                ),
+                LST_NDC_RAW=pdf["LST_NDC"]
+                .apply(lambda lst: ",".join([cd for cd in lst if bool(cd)]))
+                .fillna(""),
+                LST_NDC=pdf["LST_NDC"]
+                .apply(lambda lst: ",".join(set(cd for cd in lst if bool(cd))))
+                .fillna(""),
             )
         )
         self.add_custom_subtype("line_ndc_codes", df_line)
