@@ -728,7 +728,7 @@ def flag_proc_behavioral_health_trtmt(
                 "T1012",
                 "90875",
             ],
-            1: [
+            6: [
                 "90785",
                 "90832",
                 "90834",
