@@ -1021,6 +1021,11 @@ class TAFPS(taf_file.TAFFile):
             [
                 dct_utilization_claims[claim_type].dct_files["line_ndc_codes"]
                 for claim_type in ["ip", "ot", "rx"]
+                if pd.notna(
+                    dct_utilization_claims[claim_type]
+                    .dct_files["line_ndc_codes"]
+                    .divisions[0]
+                )
             ],
             axis=0,
             interleave_partitions=True,
