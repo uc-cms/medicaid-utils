@@ -412,7 +412,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             pq_engine=pq_engine,
                             **(
                                 {}
-                                if claim_type != "ip"
+                                if claim_type == "ip"
                                 else {
                                     "tmp_folder": os.path.join(
                                         dct_data_paths["tmp_folder"],
@@ -432,7 +432,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             pq_engine=pq_engine,
                             **(
                                 {}
-                                if claim_type != "ip"
+                                if claim_type == "ip"
                                 else {
                                     "tmp_folder": os.path.join(
                                         dct_data_paths["tmp_folder"],
@@ -886,7 +886,7 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
                     preprocess=False,
                     **(
                         {}
-                        if claim_type not in ["ip", "rx", "lt"]
+                        if claim_type in ["ip", "rx", "lt"]
                         else {
                             "tmp_folder": os.path.join(
                                 dct_data_paths["tmp_folder"], claim_type
@@ -904,7 +904,7 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
                     preprocess=False,
                     **(
                         {}
-                        if claim_type not in ["ip", "rx", "lt"]
+                        if claim_type in ["ip", "rx", "lt"]
                         else {
                             "tmp_folder": os.path.join(
                                 dct_data_paths["tmp_folder"], claim_type

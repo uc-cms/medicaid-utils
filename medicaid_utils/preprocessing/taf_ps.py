@@ -88,8 +88,9 @@ class TAFPS(taf_file.TAFFile):
         self.flag_common_exclusions()
         self.cache_results()
 
-    def preprocess(self, rural_method="ruca",
-                   add_risk_adjustment_scores=False):
+    def preprocess(
+        self, rural_method="ruca", add_risk_adjustment_scores=False
+    ):
         """Adds rural and eligibility criteria indicator variables"""
         self.flag_rural(rural_method)
         self.flag_dual()
