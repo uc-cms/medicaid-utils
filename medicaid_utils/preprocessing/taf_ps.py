@@ -88,7 +88,8 @@ class TAFPS(taf_file.TAFFile):
         self.flag_common_exclusions()
         self.cache_results()
 
-    def preprocess(self, rural_method="ruca"):
+    def preprocess(self, rural_method="ruca",
+                   add_risk_adjustment_scores=False):
         """Adds rural and eligibility criteria indicator variables"""
         self.flag_rural(rural_method)
         self.flag_dual()
@@ -100,8 +101,9 @@ class TAFPS(taf_file.TAFFile):
         self.flag_managed_care_months()
         self.flag_ffs_months()
         self.cache_results()
-        self.add_risk_adjustment_scores()
-        self.cache_results("base")
+        if add_risk_adjustment_scores:
+            self.add_risk_adjustment_scores()
+            self.cache_results("base")
 
     def flag_common_exclusions(self):
         """
