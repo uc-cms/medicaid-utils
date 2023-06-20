@@ -974,7 +974,9 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
                     index=False,
                 )
         dct_claims[f_type].export(
-            dct_data_paths["export_folder"], output_format=export_format
+            dct_data_paths["export_folder"],
+            output_format=export_format,
+            repartition=True,
         )
 
     shutil.rmtree(dct_data_paths["tmp_folder"])

@@ -807,7 +807,9 @@ class TAFPS(taf_file.TAFFile):
                         )
                         == 0
                     )
-                ).astype(int)
+                )
+                .fillna(False)
+                .astype(int)
                 for mon in range(1, 13)
             }
         )

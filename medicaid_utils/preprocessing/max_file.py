@@ -76,7 +76,8 @@ class MAXFile:
         )
         self.lst_raw_col = list(self.df.columns)
 
-        # This dictionary variable can be used to filter out data that will not met minimum quality expections
+        # This dictionary variable can be used to filter out data that will
+        # not met minimum quality expections
         self.dct_default_filters = {}
         if clean:
             self.clean()
@@ -126,7 +127,7 @@ class MAXFile:
                 # in error when any of the partitions is empty
             self.pq_export(self.tmp_folder)
 
-    def pq_export(self, dest_path_and_fname):
+    def pq_export(self, dest_path_and_fname, repartition=False):
         """
         Export parquet files (overwrite safe)
 
@@ -134,10 +135,14 @@ class MAXFile:
         ----------
         dest_path_and_fname : str
             Destination path
+        repartition : bool, default=False
+            Repartition the dask dataframe
 
         """
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
         os.makedirs(os.path.dirname(dest_path_and_fname), exist_ok=True)
+        if repartition:
+            self.df = self.df.repartition(partition_size="20MB")
         try:
             self.df.to_parquet(
                 dest_path_and_fname + "_tmp",
@@ -167,7 +172,8 @@ class MAXFile:
 
     def clean(self):
         """Cleaning routines to processes date and gender columns"""
-        # Date columns will be cleaned and all commonly used date based variables are constructed
+        # Date columns will be cleaned and all commonly used date based
+        # variables are constructed
         # in this step
         self.process_date_cols()
         self.add_gender()
@@ -176,7 +182,7 @@ class MAXFile:
         """Add basic constructed variables"""
 
     def export(
-        self, dest_folder, output_format="csv"
+        self, dest_folder, output_format="csv", repartition=False
     ):  # pylint: disable=missing-param-doc
         """
         Exports the files.
@@ -187,6 +193,8 @@ class MAXFile:
             Destination folder
         output_format : str, default='csv'
             Export format. Csv is the currently supported format
+        repartition : bool, default=False
+            Repartition the dask dataframe
 
         """
         if output_format == "csv":
@@ -198,7 +206,10 @@ class MAXFile:
                 single_file=True,
             )
         else:
-            self.pq_export(self.fileloc.split(self.data_root + os.path.sep)[1])
+            self.pq_export(
+                self.fileloc.split(self.data_root + os.path.sep)[1],
+                repartition=repartition,
+            )
 
     def add_gender(self) -> None:
         """Adds integer 'female' column based on 'EL_SEX_CD' column. Undefined values ('U') in EL_SEX_CD column will
