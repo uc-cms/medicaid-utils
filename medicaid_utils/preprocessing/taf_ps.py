@@ -846,9 +846,12 @@ class TAFPS(taf_file.TAFFile):
             df_mc = df_mc.assign(
                 **{
                     f"MC_PLAN_TYPE_CD_"
-                    f"{str(seq).zfill(2)}_": dd.to_numeric(
+                    f"{str(seq).zfill(2)}_"
+                    f"{str(mon).zfill(2)}": dd.to_numeric(
                         df_mc[
-                            f"MC_PLAN_TYPE_CD_{str(seq).zfill(2)}_{str(mon).zfill(2)}"
+                            f"MC_PLAN_TYPE_CD_"
+                            f"{str(seq).zfill(2)}_"
+                            f"{str(mon).zfill(2)}"
                         ],
                         errors="coerce",
                     )
