@@ -42,6 +42,14 @@ def flag_care_settings(df_ot: dd.DataFrame):
                 "fqhc": (
                     (dd.to_numeric(df_ot["POS_CD"], errors="coerce") == 50)
                     | (df_ot["BLG_PRVDR_TXNMY_CD"].str.strip() == "261QF0400X")
+                    | (df_ot["BILL_TYPE_CD"])
+                    .astype(str)
+                    .str[1:3]
+                    .isin(["73", "77"])
+                    | (
+                        dd.to_numeric(df_ot["PGM_TYPE_CD"], errors="coerce")
+                        == 4
+                    )
                 ).astype(int),
                 "outpatient_hospital": dd.to_numeric(
                     df_ot["POS_CD"], errors="coerce"
@@ -94,6 +102,18 @@ def flag_care_settings(df_ot: dd.DataFrame):
                 )
                 .isin([8, 12, 36, 37])
                 .astype(int),
+                "fqhc": (
+                    (
+                        dd.to_numeric(df_ot["BNFT_TYPE_CD"], errors="coerce")
+                        == 4
+                    )
+                    | (
+                        dd.to_numeric(
+                            df_ot["XIX_SRVC_CTGRY_CD"], errors="coerce"
+                        )
+                        == 28
+                    )
+                ).astype(int),
             }
         )
 
