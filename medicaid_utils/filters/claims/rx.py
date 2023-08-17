@@ -47,25 +47,29 @@ def flag_prescriptions(
         for condn in dct_ndc_codes
     }
     df_claims = df_claims.assign(
-        **{
-            f"rx_{condn}": (
-                df_claims["NDC"].isin(dct_ndc_codes[condn])
-            ).astype(int)
-            for condn in dct_ndc_codes
-        }
+        **{f"rx_{condn}": 0 for condn in dct_ndc_codes}
     )
-    if (not ignore_missing_days_supply) and (
-        "DAYS_SUPPLY" in df_claims.columns
-    ):
+    if ignore_missing_days_supply:
         df_claims = df_claims.assign(
             **{
-                f"rx_{condn}": df_claims[f"rx_{condn}"]
-                .where(
-                    dd.to_numeric(df_claims["DAYS_SUPPLY"], errors="coerce")
-                    > 0,
-                    0,
-                )
-                .astype(int)
+                f"rx_{condn}": (
+                    df_claims["NDC"].isin(dct_ndc_codes[condn])
+                ).astype(int)
+                for condn in dct_ndc_codes
+            }
+        )
+    elif "DAYS_SUPPLY" in df_claims.columns:
+        df_claims = df_claims.assign(
+            **{
+                f"rx_{condn}": (
+                    df_claims["NDC"].isin(dct_ndc_codes[condn])
+                    & (
+                        dd.to_numeric(
+                            df_claims["DAYS_SUPPLY"], errors="coerce"
+                        )
+                        > 0
+                    )
+                ).astype(int)
                 for condn in dct_ndc_codes
             }
         )

@@ -214,7 +214,7 @@ def flag_rx_buprenorphine(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
             "063874117403",
         ]
     }
-    df_claims = rx.flag_prescriptions(dct_ndc_codes, df_rx_claims, True)
+    df_claims = rx.flag_prescriptions(dct_ndc_codes, df_rx_claims, False)
     return df_claims
 
 
@@ -421,7 +421,7 @@ def flag_rx_buprenorphine_naloxone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
             "054123098630",
         ],
     }
-    df_claims = rx.flag_prescriptions(dct_ndc_codes, df_rx_claims, True)
+    df_claims = rx.flag_prescriptions(dct_ndc_codes, df_rx_claims, False)
     return df_claims
 
 
@@ -570,7 +570,7 @@ def flag_rx_oral_naltrexone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
             "051285027502",
         ]
     }
-    df_claims = rx.flag_prescriptions(dct_ndc_codes, df_rx_claims, True)
+    df_claims = rx.flag_prescriptions(dct_ndc_codes, df_rx_claims, False)
     return df_claims
 
 
@@ -661,7 +661,7 @@ def flag_rx_methadone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
         .tolist(),
     }
 
-    df_claims = rx.flag_prescriptions(dct_ndc_codes, df_rx_claims, True)
+    df_claims = rx.flag_prescriptions(dct_ndc_codes, df_rx_claims, False)
     return df_claims
 
 
@@ -824,5 +824,12 @@ def flag_rx_benzos_opioids(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
         .tolist(),
     }
 
-    df_claims = rx.flag_prescriptions(dct_ndc_codes, df_rx_claims, True)
+    df_claims = rx.flag_prescriptions(dct_ndc_codes, df_rx_claims, False)
+    df_claims = df_claims.assign(
+        rx_benzo_and_opioid=df_claims[
+            [f"rx_{drug}" for drug in ["opioids", "benzodiazepines"]]
+        ]
+        .all(1)
+        .astype(int)
+    )
     return df_claims

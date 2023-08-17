@@ -574,6 +574,8 @@ class TAFFile:
                     "IMGRTN_STUS_5YR_BAR_END_DT": "immigration_status_5yr_bar_end_date",
                     "ENRLMT_START_DT": "enrollment_start_date",
                     "ENRLMT_END_DT": "enrollment_end_date",
+                    "RX_FILL_DT": "rx_fill_date",
+                    "PRSCRBD_DT": "prescribed_date",
                 }
                 dct_date_col = {
                     col: new_col_name
