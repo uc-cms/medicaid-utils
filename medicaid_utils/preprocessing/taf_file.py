@@ -83,9 +83,15 @@ class TAFFile:
             "base_diag_codes",
             "diag_and_ndc_codes",
         ]
+        self.non_core_ftypes = [
+            "line_ndc_codes",
+            "base_diag_codes",
+            "diag_and_ndc_codes",
+        ]
         for subtype in list(self.dct_fileloc.keys()):
             if not os.path.exists(self.dct_fileloc[subtype]):
-                print(f"{subtype} does not exist for {state}")
+                if subtype not in self.non_core_ftypes:
+                    logging.info(f"{subtype} does not exist for {state}")
                 if subtype not in self.allowed_missing_ftypes:
                     raise FileNotFoundError(
                         errno.ENOENT,

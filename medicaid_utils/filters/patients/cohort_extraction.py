@@ -507,6 +507,13 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                 if (cms_format == "MAX")
                 else dct_claims["ip"]
                 .dct_files["base"]
+                .assign(
+                    prncpl_proc_date=dct_claims["ip"]
+                    .dct_files["base"]["prncpl_proc_date"]
+                    .fillna(
+                        dct_claims["ip"].dct_files["base"]["srvc_bgn_date"]
+                    )
+                )
                 .rename(columns={"prncpl_proc_date": "service_date"})[
                     [
                         col
@@ -565,7 +572,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                                 )
                             ]
                             + ["service_date"]
-                        ]
+                        ],
                     }
                     if cms_format == "TAF"
                     else {}

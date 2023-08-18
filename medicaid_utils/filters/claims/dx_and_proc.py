@@ -96,6 +96,13 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
             claim_type,
             dct_filter_results[claim_type].N.values[0],
         )
+        df = df.map_partitions(
+            lambda pdf: pdf.assign(
+                service_date=pdf["service_date"].fillna(
+                    pdf.groupby(pdf.index)["service_date"].min()
+                )
+            )
+        )
         if df is not None:
             df["diag_condn"] = 0
             df["proc_condn"] = 0
@@ -115,9 +122,7 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
                     df = df.assign(
                         diag_condn=df[lst_diag_col].any(axis=1).astype(int)
                     )
-                    lst_col.extend(
-                        [f"diag_{condn}" for condn in dct_diag_codes]
-                    )
+                    lst_col.extend(lst_diag_col)
             if bool(dct_proc_codes):
                 df = df.assign(proc_condn=0)
                 lst_proc_col = [
@@ -133,7 +138,7 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
                         .any(axis=1)
                         .astype(int)
                     )
-                    lst_col.extend([f"proc_{proc}" for proc in dct_proc_codes])
+                    lst_col.extend(lst_proc_col)
             df = df.loc[df[lst_col].any(axis=1)][lst_col + ["service_date"]]
             dct_filter_results[claim_type][
                 "with_conditions_procedures"
