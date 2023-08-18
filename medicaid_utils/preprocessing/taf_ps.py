@@ -1001,7 +1001,8 @@ class TAFPS(taf_file.TAFFile):
             )
 
             self.dct_files["managed_care"] = df_mc
-            self.dct_files["base"] = self.dct_files["base"].merge(
+            df_base = self.dct_files["base"]
+            df_base = df_base.merge(
                 df_mc[
                     [
                         f"mc_{mc_type}_months"
@@ -1030,6 +1031,39 @@ class TAFPS(taf_file.TAFFile):
                 right_index=True,
                 how="left",
             )
+            df_base = df_base.assign(
+                **{
+                    **{
+                        col: df_base[col].fillna(0).astype(int)
+                        for col in [
+                            f"total_mc_{mc_type}_months"
+                            for mc_type in [
+                                "comp",
+                                "behav_health",
+                                "pccm",
+                                "comp_or_pccm",
+                            ]
+                        ]
+                        + [
+                            f"max_continuous_mc_{mc_type}_enrollment"
+                            for mc_type in ["comp", "comp_or_pccm"]
+                        ]
+                    },
+                    **{
+                        col: df_base[col].fillna("0".zfill(12))
+                        for col in [
+                            f"mc_{mc_type}_months"
+                            for mc_type in [
+                                "comp",
+                                "behav_health",
+                                "pccm",
+                                "comp_or_pccm",
+                            ]
+                        ]
+                    },
+                }
+            )
+            self.dct_files["base"] = df_base
 
         else:
             self.dct_files["base"] = self.dct_files["base"].assign(
