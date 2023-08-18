@@ -984,7 +984,7 @@ class TAFPS(taf_file.TAFFile):
                 lambda pdf: pdf.assign(
                     **{
                         f"max_continuous_mc_{mc_type}_enrollment": pdf[
-                            f"mc" f"_{mc_type}_months"
+                            f"mc_{mc_type}_months"
                         ].apply(lambda x: max(map(len, x.split("0"))))
                         for mc_type in ["comp", "comp_or_pccm"]
                     }
@@ -1005,11 +1005,25 @@ class TAFPS(taf_file.TAFFile):
                 df_mc[
                     [
                         f"mc_{mc_type}_months"
-                        for mc_type in ["comp", "behav_health", "pccm"]
+                        for mc_type in [
+                            "comp",
+                            "behav_health",
+                            "pccm",
+                            "comp_or_pccm",
+                        ]
                     ]
                     + [
                         f"total_mc_{mc_type}_months"
-                        for mc_type in ["comp", "behav_health", "pccm"]
+                        for mc_type in [
+                            "comp",
+                            "behav_health",
+                            "pccm",
+                            "comp_or_pccm",
+                        ]
+                    ]
+                    + [
+                        f"max_continuous_mc_{mc_type}_enrollment"
+                        for mc_type in ["comp", "comp_or_pccm"]
                     ]
                 ].compute(),
                 left_index=True,
