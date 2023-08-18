@@ -830,10 +830,8 @@ class TAFFile:
                         df = df.map_partitions(
                             lambda pdf: pdf.assign(
                                 srvc_bgn_date=pdf.groupby(
-                                    [pdf.index, "CLM_ID"][
-                                        "srvc_bgn_date"
-                                    ].transform("min")
-                                )
+                                    [pdf.index, "CLM_ID"]
+                                )["srvc_bgn_date"].transform("min")
                             )
                         )
                         df = df.assign(
