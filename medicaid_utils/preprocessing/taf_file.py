@@ -808,10 +808,34 @@ class TAFFile:
                                 df["age_day_admsn"].fillna(0) / 365.25
                             ).astype(int),
                         )
+                    if (self.ftype == "ip") and (
+                        "prncpl_proc_date" in df.columns
+                    ):
+                        df = df.assign(
+                            prncpl_proc_date=df["prncpl_proc_date"].fillna(
+                                df["admsn_date"]
+                            )
+                        )
+                        df = df.map_partitions(
+                            lambda pdf: pdf.assign(
+                                prncpl_proc_date=pdf.groupby(
+                                    [pdf.index, "CLM_ID"]
+                                )["prncpl_proc_date"].transform("min")
+                            )
+                        )
 
                     if (self.ftype == "ot") and (
                         "srvc_bgn_date" in df.columns
                     ):
+                        df = df.map_partitions(
+                            lambda pdf: pdf.assign(
+                                srvc_bgn_date=pdf.groupby(
+                                    [pdf.index, "CLM_ID"][
+                                        "srvc_bgn_date"
+                                    ].transform("min")
+                                )
+                            )
+                        )
                         df = df.assign(
                             duration=(
                                 df["srvc_end_date"] - df["srvc_bgn_date"]

@@ -96,15 +96,6 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
             claim_type,
             dct_filter_results[claim_type].N.values[0],
         )
-        df = df.map_partitions(
-            lambda pdf: pdf.assign(
-                service_date=pdf["service_date"].fillna(
-                    pdf.groupby([pdf.index, "CLM_ID"])[
-                        "service_date"
-                    ].transform("min")
-                )
-            )
-        )
         if df is not None:
             df["diag_condn"] = 0
             df["proc_condn"] = 0
