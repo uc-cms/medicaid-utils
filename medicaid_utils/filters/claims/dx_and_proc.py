@@ -99,7 +99,9 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
         df = df.map_partitions(
             lambda pdf: pdf.assign(
                 service_date=pdf["service_date"].fillna(
-                    pdf.groupby(pdf.index)["service_date"].min()
+                    pdf.groupby([pdf.index, "CLM_ID"])[
+                        "service_date"
+                    ].transform("min")
                 )
             )
         )
