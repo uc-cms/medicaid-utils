@@ -537,7 +537,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             )
                         )
                     ]
-                    + ["service_date"]
+                    + ["service_date", "CLM_ID"]
                 ]
                 if (cms_format == "MAX")
                 else dct_claims["ot"]
@@ -550,7 +550,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             ("DGNS", "ADMTG_DGNS", "PRCDR_CD", "LINE_PRCDR_CD")
                         )
                     ]
-                    + ["service_date"]
+                    + ["service_date", "CLM_ID"]
                 ],
                 **(
                     {
@@ -571,7 +571,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                                     )
                                 )
                             ]
-                            + ["service_date"]
+                            + ["service_date", "CLM_ID"]
                         ],
                     }
                     if cms_format == "TAF"
