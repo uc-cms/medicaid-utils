@@ -771,6 +771,10 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             export_format,
             logger_name,
         )
+    pdf_patients_all_years.to_csv(
+        os.path.join(dct_data_paths["export_folder"], f"cohort_{state}.csv"),
+        index=True,
+    )
 
     shutil.rmtree(dct_data_paths["tmp_folder"], ignore_errors=True)
 
