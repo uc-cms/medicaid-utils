@@ -632,6 +632,12 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             pdf_patients.shape[0],
         )
 
+        pdf_dob = (
+            dct_claims["ps"].df[["birth_date"]].compute()
+            if (cms_format == "MAX")
+            else dct_claims["ps"].dct_files["base"][["birth_date"]].compute()
+        )
+
         if ("cohort" not in dct_filters) or (
             "ps" not in dct_filters["cohort"]
         ):
@@ -711,11 +717,6 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             pdf_patients.loc[pdf_patients["include"] == 1].shape[0],
         )
 
-        pdf_dob = (
-            dct_claims["ps"].df[["birth_date"]].compute()
-            if (cms_format == "MAX")
-            else dct_claims["ps"].dct_files["base"][["birth_date"]].compute()
-        )
         for f_type, cohort_filter_stats in dct_cohort_filter_stats.items():
             if isinstance(cohort_filter_stats, dict):
                 for (
@@ -773,7 +774,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
         )
     pdf_patients_all_years.to_csv(
         os.path.join(dct_data_paths["export_folder"], f"cohort_{state}.csv"),
-        index=True,
+        index=False,
     )
 
     shutil.rmtree(dct_data_paths["tmp_folder"], ignore_errors=True)
