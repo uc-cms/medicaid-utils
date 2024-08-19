@@ -282,7 +282,6 @@ class MAXFile:
             - birth_date - birth date (EL_DOB)
             - death - 0 or 1, if EL_DOD or MDCR_DOD is not empty and falls in the claim year or before
             - age - age in years, integer format
-            - age_decimal - age in years, with decimals
             - age_day - age in days
             - adult - 0 or 1, 1 when patient's age is in [18,115]
             - child - 0 or 1, 1 when patient's age is in [0,17]
@@ -378,14 +377,7 @@ class MAXFile:
                         df.year.astype(str) + "1231", format="%Y%m%d"
                     )
                     - df.birth_date
-                ).dt.days,
-                age_decimal=(
-                    dd.to_datetime(
-                        df.year.astype(str) + "1231", format="%Y%m%d"
-                    )
-                    - df.birth_date
-                )
-                / np.timedelta64(1, "Y"),
+                ).dt.days
             )
             df = df.assign(
                 adult=df["age"]
@@ -406,10 +398,7 @@ class MAXFile:
                         age=pdf.groupby(pdf.index)["age"].transform(max),
                         age_day=pdf.groupby(pdf.index)["age_day"].transform(
                             max
-                        ),
-                        age_decimal=pdf.groupby(pdf.index)[
-                            "age_decimal"
-                        ].transform(max),
+                        )
                     )
                 )
             if "date_of_death" in df.columns:

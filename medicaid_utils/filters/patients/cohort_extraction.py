@@ -254,6 +254,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     dct_filters: dict,
     lst_types_to_export: List[str],
     dct_data_paths: dict,
+    restrict_dx_proc_to_ip: bool = False,
     cms_format: str = "MAX",
     clean_exports: bool = True,
     preprocess_exports: bool = True,
@@ -359,6 +360,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             {'source_root': /path/to/medicaid/folder,
              'export_folder': /path/to/export/data}
 
+    restrict_dx_proc_to_ip: bool, default=False
+        Apply dx proc filter to IP file only
     cms_format : {'MAX', 'TAF'}
         CMS file format.
     clean_exports : bool, default=False
@@ -401,47 +404,48 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             pq_engine=pq_engine,
                         )
                 else:
-                    dct_claims[claim_type] = (
-                        max_file.MAXFile.get_claim_instance(
-                            claim_type,
-                            year,
-                            state,
-                            dct_data_paths["source_root"],
-                            clean=True,
-                            preprocess=True,
-                            pq_engine=pq_engine,
-                            **(
-                                {}
-                                if claim_type == "ip"
-                                else {
-                                    "tmp_folder": os.path.join(
-                                        dct_data_paths["tmp_folder"],
-                                        claim_type,
-                                    )
-                                }
-                            ),
+                    if (claim_type != "ot") or ("ot" in dct_filters):
+                        dct_claims[claim_type] = (
+                            max_file.MAXFile.get_claim_instance(
+                                claim_type,
+                                year,
+                                state,
+                                dct_data_paths["source_root"],
+                                clean=True,
+                                preprocess=True,
+                                pq_engine=pq_engine,
+                                **(
+                                    {}
+                                    if claim_type == "ip"
+                                    else {
+                                        "tmp_folder": os.path.join(
+                                            dct_data_paths["tmp_folder"],
+                                            claim_type,
+                                        )
+                                    }
+                                ),
+                            )
+                            if cms_format == "MAX"
+                            else taf_file.TAFFile.get_claim_instance(
+                                claim_type,
+                                year,
+                                state,
+                                dct_data_paths["source_root"],
+                                clean=True,
+                                preprocess=True,
+                                pq_engine=pq_engine,
+                                **(
+                                    {}
+                                    if claim_type == "ip"
+                                    else {
+                                        "tmp_folder": os.path.join(
+                                            dct_data_paths["tmp_folder"],
+                                            claim_type,
+                                        )
+                                    }
+                                ),
+                            )
                         )
-                        if cms_format == "MAX"
-                        else taf_file.TAFFile.get_claim_instance(
-                            claim_type,
-                            year,
-                            state,
-                            dct_data_paths["source_root"],
-                            clean=True,
-                            preprocess=True,
-                            pq_engine=pq_engine,
-                            **(
-                                {}
-                                if claim_type == "ip"
-                                else {
-                                    "tmp_folder": os.path.join(
-                                        dct_data_paths["tmp_folder"],
-                                        claim_type,
-                                    )
-                                }
-                            ),
-                        )
-                    )
         except FileNotFoundError as ex:
             logger.warning("%d data is missing for %s", year, state)
             logger.exception(ex)
@@ -449,6 +453,12 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
         except Exception as ex:
             logging.critical(ex, exc_info=True)
             continue
+
+        pdf_dob = (
+            dct_claims["ps"].df[["birth_date"]].compute()
+            if (cms_format == "MAX")
+            else dct_claims["ps"].dct_files["base"][["birth_date"]].compute()
+        )
 
         os.makedirs(dct_data_paths["export_folder"], exist_ok=True)
         os.makedirs(dct_data_paths["tmp_folder"], exist_ok=True)
@@ -470,14 +480,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                         subtype=subtype,
                         logger_name=logger_name,
                     )
-                    dct_cohort_filter_stats[f_type] = (
-                        filter_stats_df.copy()
-                        # if (not bool(subtype))
-                        # else {
-                        #     **dct_cohort_filter_stats[f_type],
-                        #     **{subtype: filter_stats_df.copy()},
-                        # }
-                    )
+                    dct_cohort_filter_stats[f_type] = filter_stats_df.copy()
 
         pdf_patients = None
         if bool(dct_diag_proc_codes) and (
@@ -517,43 +520,31 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                     ]
                     + ["service_date"]
                 ],
-                ot=dct_claims["ot"].df.rename(
-                    columns={"srvc_bgn_date": "service_date"}
-                )[
-                    [
-                        col
-                        for col in dct_claims["ot"].df.columns
-                        if col.startswith(
-                            (
-                                "PRCDR",
-                                "DIAG",
-                            )
-                        )
-                    ]
-                    + ["service_date", "CLM_ID"]
-                ]
-                if (cms_format == "MAX")
-                else dct_claims["ot"]
-                .dct_files["base"]
-                .rename(columns={"srvc_bgn_date": "service_date"})[
-                    [
-                        col
-                        for col in dct_claims["ot"].dct_files["base"].columns
-                        if col.startswith(
-                            ("DGNS", "ADMTG_DGNS", "PRCDR_CD", "LINE_PRCDR_CD")
-                        )
-                    ]
-                    + ["service_date"]
-                ],
                 **(
                     {
-                        "ot_line": dct_claims["ot"]
-                        .dct_files["line"]
+                        "ot": dct_claims["ot"].df.rename(
+                            columns={"srvc_bgn_date": "service_date"}
+                        )[
+                            [
+                                col
+                                for col in dct_claims["ot"].df.columns
+                                if col.startswith(
+                                    (
+                                        "PRCDR",
+                                        "DIAG",
+                                    )
+                                )
+                            ]
+                            + ["service_date", "CLM_ID"]
+                        ]
+                        if (cms_format == "MAX")
+                        else dct_claims["ot"]
+                        .dct_files["base"]
                         .rename(columns={"srvc_bgn_date": "service_date"})[
                             [
                                 col
                                 for col in dct_claims["ot"]
-                                .dct_files["line"]
+                                .dct_files["base"]
                                 .columns
                                 if col.startswith(
                                     (
@@ -566,8 +557,35 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             ]
                             + ["service_date"]
                         ],
+                        **(
+                            {
+                                "ot_line": dct_claims["ot"]
+                                .dct_files["line"]
+                                .rename(
+                                    columns={"srvc_bgn_date": "service_date"}
+                                )[
+                                    [
+                                        col
+                                        for col in dct_claims["ot"]
+                                        .dct_files["line"]
+                                        .columns
+                                        if col.startswith(
+                                            (
+                                                "DGNS",
+                                                "ADMTG_DGNS",
+                                                "PRCDR_CD",
+                                                "LINE_PRCDR_CD",
+                                            )
+                                        )
+                                    ]
+                                    + ["service_date"]
+                                ],
+                            }
+                            if cms_format == "TAF"
+                            else {}
+                        ),
                     }
-                    if cms_format == "TAF"
+                    if not restrict_dx_proc_to_ip
                     else {}
                 ),
             )
@@ -630,12 +648,6 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             state,
             year,
             pdf_patients.shape[0],
-        )
-
-        pdf_dob = (
-            dct_claims["ps"].df[["birth_date"]].compute()
-            if (cms_format == "MAX")
-            else dct_claims["ps"].dct_files["base"][["birth_date"]].compute()
         )
 
         if ("cohort" not in dct_filters) or (
