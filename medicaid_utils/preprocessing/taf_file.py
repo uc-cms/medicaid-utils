@@ -102,7 +102,7 @@ class TAFFile:
         self.dct_files = {
             ftype: dd.read_parquet(
                 file_loc, index=False, engine=self.pq_engine
-            ).set_index(index_col, sorted=True)
+            ).set_index(index_col, sorted=False)
             for ftype, file_loc in self.dct_fileloc.items()
         }
 
