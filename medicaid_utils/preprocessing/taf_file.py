@@ -287,7 +287,7 @@ class TAFFile:
         codes are of length 12"""
         self.clean_diag_codes()
         self.clean_ndc_codes()
-        self.clean_diag_codes()
+        self.clean_codes()
 
     def clean_diag_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric
@@ -719,15 +719,15 @@ class TAFFile:
                     df = df.map_partitions(
                         lambda pdf: pdf.assign(
                             adult=pdf.groupby(pdf.index)["adult"].transform(
-                                max
+                                "max"
                             ),
                             child=pdf.groupby(pdf.index)["child"].transform(
-                                max
+                                "max"
                             ),
-                            age=pdf.groupby(pdf.index)["age"].transform(max),
+                            age=pdf.groupby(pdf.index)["age"].transform("max"),
                             age_day=pdf.groupby(pdf.index)[
                                 "age_day"
-                            ].transform(max),
+                            ].transform("max"),
                         )
                     )
                 if "death_date" in df.columns:
