@@ -60,6 +60,7 @@ class TAFIP(taf_file.TAFFile):
         """Cleaning routines to clean diagnosis & procedure code columns, processes date and gender columns,
         and add duplicate check flags."""
         super().clean()
+        self.cache_results()
         self.clean_codes()
         self.flag_common_exclusions()
 
