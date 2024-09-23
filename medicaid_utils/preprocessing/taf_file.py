@@ -286,11 +286,8 @@ class TAFFile:
         by removing white space characters and padding 0s to the left so the
         codes are of length 12"""
         self.clean_diag_codes()
-        self.cache_results()
         self.clean_ndc_codes()
-        self.cache_results()
-        self.clean_codes()
-        self.cache_results()
+        self.clean_proc_codes()
 
     def clean_diag_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric
