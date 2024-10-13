@@ -627,16 +627,15 @@ class TAFFile:
                             df = df.assign(
                                 year=df.filing_period.str[:4].astype(int)
                             )
-                            df = df.map_partitions(
-                                lambda pdf: pdf.assign(
+                            df = df.assign(
                                     **{
-                                        f"{self.ftype.lower()}_version": pd.to_numeric(
-                                            pdf[f"{self.ftype.upper()}_VRSN"],
+                                        f"{self.ftype.lower()}_version":
+                                            dd.to_numeric(
+                                            df[f"{self.ftype.upper()}_VRSN"],
                                             errors="coerce",
                                         )
                                     }
                                 )
-                            )
 
                     else:
                         df = df.assign(
@@ -799,6 +798,18 @@ class TAFFile:
                             )["prncpl_proc_date"].transform("min")
                         )
                     )
+                    if "birth_date" in df.columns:
+                        df = df.assign(
+                            age_day_prncpl_proc=(
+                                df["prncpl_proc_date"] - df["birth_date"]
+                            ).dt.days
+                        )
+
+                        df = df.assign(
+                            age_prncpl_proc=(
+                                    df["age_day_prncpl_proc"].fillna(0) / 365.25
+                            ).astype(int),
+                        )
 
                 if (self.ftype == "ot") and ("srvc_bgn_date" in df.columns):
                     df = df.map_partitions(
