@@ -385,7 +385,12 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
         dct_data_paths["export_folder"], "tmp_files"
     )
     lst_year = sorted(lst_year)
-    pdf_patients_all_years = pd.DataFrame()
+    pdf_patients_all_years = pd.read_csv(
+        os.path.join(dct_data_paths["export_folder"], f"cohort_{state}.csv"),
+        index=False,
+    ) if os.path.isfile(os.path.join(dct_data_paths["export_folder"],
+                                     f"cohort_{state}.csv")) else \
+        pd.DataFrame()
     for year in lst_year:
         dct_claims = {}
 
@@ -488,8 +493,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             or ("proc_codes" in dct_diag_proc_codes)
         ):
             pdf_patients, _ = dx_and_proc.get_patient_ids_with_conditions(
-                dct_diag_proc_codes["diag_codes"],
-                dct_diag_proc_codes["proc_codes"],
+                dct_diag_proc_codes.get("diag_codes", {}),
+                dct_diag_proc_codes.get("proc_codes", {}),
                 logger_name=logger_name,
                 cms_format=cms_format,
                 ip=dct_claims["ip"].df.rename(
