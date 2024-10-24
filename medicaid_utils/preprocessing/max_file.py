@@ -71,6 +71,10 @@ class MAXFile:
         self.df = dd.read_parquet(
             self.fileloc, index=False, engine=self.pq_engine
         )
+        if 'BENE_MSIS' not in self.df.columns:
+            self.index_col = 'MSIS_ID'
+            self.df = self.df.set_index(self.index_col, sorted=False)
+            self.cache_results()
         self.df = self.df.assign(
             HAS_BENE=(self.df["BENE_ID"].fillna("").str.len() > 0).astype(int)
         )
@@ -83,9 +87,13 @@ class MAXFile:
                         pdf['MSIS_ID'].astype(str)
                     )
                 )
-            ).persist()
+            )
+            self.cache_results()
+            self.index_col = index_col
+            self.df = self.df.set_index(index_col, sorted=False)
+            self.cache_results()
 
-        self.df = self.df.set_index(index_col, sorted=(self.year != 2015))
+        self.df = self.df.set_index(index_col, sorted=True)
 
         self.lst_raw_col = list(self.df.columns)
 
