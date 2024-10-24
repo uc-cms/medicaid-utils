@@ -891,116 +891,118 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
         exist for the state and year
 
     """
-    logger = logging.getLogger(logger_name)
-    dct_data_paths["tmp_folder"] = os.path.join(
-        dct_data_paths["export_folder"], "tmp_files"
-    )
-    os.makedirs(dct_data_paths["export_folder"], exist_ok=True)
-    os.makedirs(dct_data_paths["tmp_folder"], exist_ok=True)
-    dct_claims = {}
-    try:
-        for claim_type in sorted(lst_types_to_export):
-            dct_claims[claim_type] = (
-                max_file.MAXFile.get_claim_instance(
-                    claim_type,
-                    year,
-                    state,
-                    dct_data_paths["source_root"],
-                    clean=False,
-                    preprocess=False,
-                    **(
-                        {}
-                        if claim_type in ["ip", "rx", "lt"]
-                        else {
-                            "tmp_folder": os.path.join(
-                                dct_data_paths["tmp_folder"], claim_type
-                            )
-                        }
-                    ),
+    if bool(lst_types_to_export):
+        logger = logging.getLogger(logger_name)
+        dct_data_paths["tmp_folder"] = os.path.join(
+            dct_data_paths["export_folder"], "tmp_files"
+        ) if ('tmp_folder' not in dct_data_paths) else dct_data_paths[
+            'tmp_folder']
+        os.makedirs(dct_data_paths["export_folder"], exist_ok=True)
+        os.makedirs(dct_data_paths["tmp_folder"], exist_ok=True)
+        dct_claims = {}
+        try:
+            for claim_type in sorted(lst_types_to_export):
+                dct_claims[claim_type] = (
+                    max_file.MAXFile.get_claim_instance(
+                        claim_type,
+                        year,
+                        state,
+                        dct_data_paths["source_root"],
+                        clean=False,
+                        preprocess=False,
+                        **(
+                            {}
+                            if claim_type in ["ip", "rx", "lt"]
+                            else {
+                                "tmp_folder": os.path.join(
+                                    dct_data_paths["tmp_folder"], claim_type
+                                )
+                            }
+                        ),
+                    )
+                    if cms_format == "MAX"
+                    else taf_file.TAFFile.get_claim_instance(
+                        claim_type,
+                        year,
+                        state,
+                        dct_data_paths["source_root"],
+                        clean=False,
+                        preprocess=False,
+                        **(
+                            {}
+                            if claim_type in ["ip", "rx", "lt"]
+                            else {
+                                "tmp_folder": os.path.join(
+                                    dct_data_paths["tmp_folder"], claim_type
+                                )
+                            }
+                        ),
+                    )
                 )
-                if cms_format == "MAX"
-                else taf_file.TAFFile.get_claim_instance(
-                    claim_type,
-                    year,
-                    state,
-                    dct_data_paths["source_root"],
-                    clean=False,
-                    preprocess=False,
-                    **(
-                        {}
-                        if claim_type in ["ip", "rx", "lt"]
-                        else {
-                            "tmp_folder": os.path.join(
-                                dct_data_paths["tmp_folder"], claim_type
-                            )
-                        }
-                    ),
-                )
-            )
-    except FileNotFoundError as ex:
-        logger.warning("%d data is missing for %s", year, state)
-        logger.exception(ex)
-        raise FileNotFoundError from ex
+        except FileNotFoundError as ex:
+            logger.warning("%d data is missing for %s", year, state)
+            logger.exception(ex)
+            raise FileNotFoundError from ex
 
-    for f_type in sorted(lst_types_to_export):
-        logger.info("Exporting %s for %s (%d)", f_type, state, year)
-        if pdf_cohort.index.name != dct_claims[f_type].index_col:
-            pdf_cohort = pdf_cohort.set_index(dct_claims[f_type].index_col)
-        if cms_format == "MAX":
-            dct_claims[f_type].df = dct_claims[f_type].df.loc[
-                dct_claims[f_type].df.index.isin(
-                    pdf_cohort.loc[pdf_cohort["include"] == 1].index.tolist()
-                )
-            ]
-        else:
-            lst_taf_sub_file_types = list(dct_claims[f_type].dct_files.keys())
-            for subtype in lst_taf_sub_file_types:
-                claim_object = dct_claims[f_type]
-                claim_object.dct_files[subtype] = claim_object.dct_files[
-                    subtype
-                ].loc[
-                    claim_object.dct_files[subtype].index.isin(
-                        pdf_cohort.loc[
-                            pdf_cohort["include"] == 1
-                        ].index.tolist()
+        for f_type in sorted(lst_types_to_export):
+            logger.info("Exporting %s for %s (%d)", f_type, state, year)
+            if pdf_cohort.index.name != dct_claims[f_type].index_col:
+                pdf_cohort = pdf_cohort.set_index(dct_claims[f_type].index_col)
+            if cms_format == "MAX":
+                dct_claims[f_type].df = dct_claims[f_type].df.loc[
+                    dct_claims[f_type].df.index.isin(
+                        pdf_cohort.loc[pdf_cohort["include"] == 1].index.tolist()
                     )
                 ]
-                dct_claims[f_type] = claim_object
+            else:
+                lst_taf_sub_file_types = list(dct_claims[f_type].dct_files.keys())
+                for subtype in lst_taf_sub_file_types:
+                    claim_object = dct_claims[f_type]
+                    claim_object.dct_files[subtype] = claim_object.dct_files[
+                        subtype
+                    ].loc[
+                        claim_object.dct_files[subtype].index.isin(
+                            pdf_cohort.loc[
+                                pdf_cohort["include"] == 1
+                            ].index.tolist()
+                        )
+                    ]
+                    dct_claims[f_type] = claim_object
 
-        dct_claims[f_type].cache_results()
-        if clean_exports or preprocess_exports:
-            if clean_exports:
-                dct_claims[f_type].clean()
-            if preprocess_exports:
-                dct_claims[f_type].preprocess()
             dct_claims[f_type].cache_results()
-        if bool(dct_export_filters):
-            lst_subtypes = (
-                [None]
-                if (cms_format == "MAX")
-                else list(dct_claims[f_type].dct_files.keys())
+            if clean_exports or preprocess_exports:
+                if clean_exports:
+                    dct_claims[f_type].clean()
+                if preprocess_exports:
+                    dct_claims[f_type].preprocess()
+                dct_claims[f_type].cache_results()
+            if bool(dct_export_filters):
+                lst_subtypes = (
+                    [None]
+                    if (cms_format == "MAX")
+                    else list(dct_claims[f_type].dct_files.keys())
+                )
+                for subtype in lst_subtypes:
+                    (dct_claims[f_type], filter_stats) = filter_claim_files(
+                        dct_claims[f_type],
+                        dct_export_filters,
+                        os.path.join(dct_data_paths["tmp_folder"], f_type),
+                        subtype=subtype,
+                        logger_name=logger_name,
+                    )
+                    filter_stats.to_parquet(
+                        os.path.join(
+                            dct_data_paths["export_folder"],
+                            f"export_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}"
+                            + f"{'_' + subtype if bool(subtype) else ''}.parquet",
+                        ),
+                        engine=dct_claims[f_type].pq_engine,
+                        index=False,
+                    )
+            dct_claims[f_type].export(
+                dct_data_paths["export_folder"],
+                output_format=export_format,
+                repartition=True,
             )
-            for subtype in lst_subtypes:
-                (dct_claims[f_type], filter_stats) = filter_claim_files(
-                    dct_claims[f_type],
-                    dct_export_filters,
-                    os.path.join(dct_data_paths["tmp_folder"], f_type),
-                    subtype=subtype,
-                    logger_name=logger_name,
-                )
-                filter_stats.to_parquet(
-                    os.path.join(
-                        dct_data_paths["export_folder"],
-                        f"export_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}"
-                        + f"{'_' + subtype if bool(subtype) else ''}.parquet",
-                    ),
-                    engine=dct_claims[f_type].pq_engine,
-                    index=False,
-                )
-        dct_claims[f_type].export(
-            dct_data_paths["export_folder"],
-            output_format=export_format,
-            repartition=True,
-        )
 
-    shutil.rmtree(dct_data_paths["tmp_folder"])
+        shutil.rmtree(dct_data_paths["tmp_folder"])
