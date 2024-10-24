@@ -73,7 +73,11 @@ class MAXFile:
         )
         if 'BENE_MSIS' not in self.df.columns:
             self.index_col = 'MSIS_ID'
+            self.df = self.df.assign(
+                duplicate_msis_id=self.df['MSIS_ID']
+            )
             self.df = self.df.set_index(self.index_col, sorted=False)
+
             self.cache_results()
         self.df = self.df.assign(
             HAS_BENE=(self.df["BENE_ID"].fillna("").str.len() > 0).astype(int)
@@ -84,10 +88,11 @@ class MAXFile:
                     BENE_MSIS=pdf['STATE_CD'] + "-" +
                               pdf['HAS_BENE'].astype(str) +
                               "-" + pdf['BENE_ID'].combine_first(
-                        pdf.index.astype(str)
+                        pdf['duplicate_msis_id'].astype(str)
                     )
                 )
             )
+            self.df = self.df.drop(columns=['duplicate_msis_id'])
             self.cache_results()
             self.index_col = index_col
             self.df = self.df.set_index(index_col, sorted=False)
