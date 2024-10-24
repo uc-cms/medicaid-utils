@@ -84,7 +84,7 @@ class MAXFile:
                     BENE_MSIS=pdf['STATE_CD'] + "-" +
                               pdf['HAS_BENE'].astype(str) +
                               "-" + pdf['BENE_ID'].combine_first(
-                        pdf['MSIS_ID'].astype(str)
+                        pdf.index.astype(str)
                     )
                 )
             )
