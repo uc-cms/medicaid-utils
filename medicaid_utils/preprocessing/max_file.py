@@ -75,13 +75,16 @@ class MAXFile:
             HAS_BENE=(self.df["BENE_ID"].fillna("").str.len() > 0).astype(int)
         )
         if 'BENE_MSIS' not in self.df.columns:
-            self.df = self.df.assign(
-                BENE_MSIS=self.df['STATE_CD'] + "-" +
-                          self.df['HAS_BENE'].astype(str) +
-                          "-" + self.df['BENE_ID'].combine_first(
-                    self.df['MSIS_ID'].astype(str)
+            self.df = self.df.map_partitions(
+                lambda pdf: pdf.assign(
+                    BENE_MSIS=pdf['STATE_CD'] + "-" +
+                              pdf['HAS_BENE'].astype(str) +
+                              "-" + pdf['BENE_ID'].combine_first(
+                        pdf['MSIS_ID'].astype(str)
+                    )
                 )
-            )
+            ).persist()
+
         self.df = self.df.set_index(index_col, sorted=(self.year != 2015))
 
         self.lst_raw_col = list(self.df.columns)
