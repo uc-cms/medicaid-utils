@@ -70,7 +70,7 @@ class MAXFile:
         self.pq_engine = pq_engine
         self.df = dd.read_parquet(
             self.fileloc, index=False, engine=self.pq_engine
-        ).set_index(index_col, sorted=True)
+        )
         self.df = self.df.assign(
             HAS_BENE=(self.df["BENE_ID"].fillna("").str.len() > 0).astype(int)
         )
