@@ -387,7 +387,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     lst_year = sorted(lst_year)
     pdf_patients_all_years = pd.read_csv(
         os.path.join(dct_data_paths["export_folder"], f"cohort_{state}.csv"),
-        index=False,
+        index_col=False,
     ) if os.path.isfile(os.path.join(dct_data_paths["export_folder"],
                                      f"cohort_{state}.csv")) else \
         pd.DataFrame()
