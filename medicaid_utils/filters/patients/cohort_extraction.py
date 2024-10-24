@@ -383,7 +383,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     logger = logging.getLogger(logger_name)
     dct_data_paths["tmp_folder"] = os.path.join(
         dct_data_paths["export_folder"], "tmp_files"
-    )
+    ) if ('tmp_folder' not in dct_data_paths) else dct_data_paths['tmp_folder']
+    lst_year = sorted(lst_year)
     lst_year = sorted(lst_year)
     pdf_patients_all_years = pd.read_csv(
         os.path.join(dct_data_paths["export_folder"], f"cohort_{state}.csv"),
@@ -789,10 +790,11 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             export_format,
             logger_name,
         )
-    pdf_patients_all_years.to_csv(
-        os.path.join(dct_data_paths["export_folder"], f"cohort_{state}.csv"),
-        index=False,
-    )
+    if pdf_patients_all_years.shape[0] > 0:
+        pdf_patients_all_years.to_csv(
+            os.path.join(dct_data_paths["export_folder"], f"cohort_{state}.csv"),
+            index=False,
+        )
 
     shutil.rmtree(dct_data_paths["tmp_folder"], ignore_errors=True)
 
