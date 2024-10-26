@@ -408,6 +408,16 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             clean=False,
                             preprocess=False,
                             pq_engine=pq_engine,
+                            **(
+                                {}
+                                if (year == 2015)
+                                else {
+                                    "tmp_folder": os.path.join(
+                                        dct_data_paths["tmp_folder"],
+                                        claim_type,
+                                    )
+                                }
+                            ),
                         )
                 else:
                     if (claim_type != "ot") or ("ot" in dct_filters):
