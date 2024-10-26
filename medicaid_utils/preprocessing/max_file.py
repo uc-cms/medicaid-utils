@@ -77,6 +77,8 @@ class MAXFile:
         )
         sorted_index = True
         if ('BENE_MSIS' not in self.df.columns):
+            self.index_col = self.df.index.name
+            self.cache_results()
             sorted_index = False
             self.df = self.df.map_partitions(
                 lambda pdf: pdf.assign(
@@ -87,10 +89,13 @@ class MAXFile:
                                   np.nan).fillna(pdf['MSIS_ID'])
                 )
             )
-        self.df = self.df.set_index(index_col,
+            self.cache_results()
+            self.index_col = index_col
+        self.df = self.df.set_index(self.index_col,
                                     sorted=(self.year != 2015) and sorted_index
                                     )
-
+        if (year == 2015) and (state == 'CA'):
+            self.cache_results()
         self.lst_raw_col = list(self.df.columns)
 
         # This dictionary variable can be used to filter out data that will
