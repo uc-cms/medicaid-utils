@@ -75,7 +75,7 @@ class MAXFile:
         self.df = self.df.assign(
             HAS_BENE=(self.df["BENE_ID"].fillna("").str.len() > 0).astype(int)
         )
-        if 'BENE_MSIS' not in self.df.columns:
+        if ('BENE_MSIS' not in self.df.columns) or (self.year == 2015):
             self.df = self.df.map_partitions(
                 lambda pdf: pdf.assign(
                     BENE_MSIS=pdf['STATE_CD'] + "-" +
@@ -86,7 +86,17 @@ class MAXFile:
                 )
             )
 
-        self.df = self.df.set_index(index_col, sorted=(self.year != 2015))
+            self.export(self.tmp_folder, output_format="csv")
+            self.df = dd.read_csv(os.path.join(
+                self.tmp_folder, f"{self.ftype}_{self.year}_"
+                                 f"{self.state}.csv"),
+                blocksize='5MB',
+                dtype='str'
+            )
+            self.df = self.df.set_index(index_col, sorted=False)
+            self.cache_results()
+        else:
+            self.df = self.df.set_index(index_col, sorted=True)
 
         self.lst_raw_col = list(self.df.columns)
 
@@ -216,7 +226,7 @@ class MAXFile:
                 os.path.join(
                     dest_folder, f"{self.ftype}_{self.year}_{self.state}.csv"
                 ),
-                index=True,
+                index=(self.df.index.name == self.index_col),
                 single_file=True,
             )
         else:
