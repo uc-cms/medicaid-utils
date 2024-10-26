@@ -422,7 +422,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                                 pq_engine=pq_engine,
                                 **(
                                     {}
-                                    if claim_type == "ip"
+                                    if ((claim_type == "ip") or (year == 2015))
                                     else {
                                         "tmp_folder": os.path.join(
                                             dct_data_paths["tmp_folder"],
