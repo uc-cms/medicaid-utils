@@ -76,23 +76,20 @@ class MAXFile:
             HAS_BENE=(self.df["BENE_ID"].fillna("").str.len() > 0).astype(int)
         )
         if ('BENE_MSIS' not in self.df.columns) or (self.year == 2015):
-            self.df = self.df.map_partitions(
-                lambda pdf: pdf.assign(
-                    BENE_MSIS=pdf['STATE_CD'] + "-" +
-                              pdf['HAS_BENE'].astype(str) +
-                              "-" + pdf['BENE_ID'].combine_first(
-                        pdf['MSIS_ID'].astype(str)
-                    )
+            self.df = self.df.assign(
+                    BENE_MSIS=self.df['STATE_CD'] + "-" +
+                              self.df['HAS_BENE'].astype(str) +
+                              "-" + self.df['BENE_ID'].fillna(
+                        self.df['MSIS_ID'])
+            )
+            if self.state == 'CA':
+                self.export(self.tmp_folder, output_format="csv")
+                self.df = dd.read_csv(os.path.join(
+                    self.tmp_folder, f"{self.ftype}_{self.year}_"
+                                     f"{self.state}.csv"),
+                    blocksize='5MB',
+                    dtype='str'
                 )
-            )
-
-            self.export(self.tmp_folder, output_format="csv")
-            self.df = dd.read_csv(os.path.join(
-                self.tmp_folder, f"{self.ftype}_{self.year}_"
-                                 f"{self.state}.csv"),
-                blocksize='5MB',
-                dtype='str'
-            )
             self.df = self.df.set_index(index_col, sorted=False)
             self.cache_results()
         else:
