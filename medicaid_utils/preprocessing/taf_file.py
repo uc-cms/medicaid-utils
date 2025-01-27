@@ -99,12 +99,41 @@ class TAFFile:
                         self.dct_fileloc[subtype],
                     )
                 self.dct_fileloc.pop(subtype)
-        self.dct_files = {
-            ftype: dd.read_parquet(
+        self.dct_files = {}
+        has_bene = True
+        sorted_index = True if (year not in [2015, 2016]) else False
+        for ftype, file_loc in self.dct_fileloc.items():
+            df = dd.read_parquet(
                 file_loc, index=False, engine=self.pq_engine
-            ).set_index(index_col, sorted=False)
-            for ftype, file_loc in self.dct_fileloc.items()
+            )
+            if ('BENE_MSIS' not in df.columns):
+                df = df.assign(
+                    HAS_BENE=(df["BENE_ID"].fillna(
+                        "").str.len() > 0).astype(int)
+                )
+                self.index_col = df.index.name
+                has_bene = False
+                sorted_index = False
+                df = df.map_partitions(
+                    lambda pdf: pdf.assign(
+                        BENE_MSIS=pdf['STATE_CD'] + "-" +
+                                  pdf['HAS_BENE'].astype(str) + "-" +
+                                  pdf['BENE_ID'].where(
+                                      pdf['BENE_ID'].fillna("").str.len() > 0,
+                                      np.nan).fillna(pdf['MSIS_ID'])
+                    )
+                )
+            self.dct_files[ftype] = df
+        if not has_bene:
+            self.cache_results()
+            self.index_col = index_col
+        self.dct_files = {
+            ftype: self.dct_files[ftype].set_index(self.index_col,
+                                                   sorted=sorted_index)
+            for ftype, _ in self.dct_fileloc.items()
         }
+        if not sorted_index:
+            self.cache_results()
 
         self.dct_collist = {
             ftype: list(claim_df.columns)
@@ -612,21 +641,31 @@ class TAFFile:
 
                     if self.ftype in ["ip", "ot", "rx"]:
                         if f"{self.ftype.upper()}_FIL_DT" in df.columns:
-                            if self.ftype == "ip":
+                            if self.year in [2018]:
                                 df = df.assign(
                                     filing_period=df[
                                         f"{self.ftype.upper()}_FIL_DT"
-                                    ].str[1:7],
+                                    ].fillna("01JAN1000").str.upper()
+                                )
+                                df = df.assign(
+                                    year=df.filing_period.str[-4:].astype(int)
                                 )
                             else:
+                                if self.ftype == "ip":
+                                    df = df.assign(
+                                        filing_period=df[
+                                            f"{self.ftype.upper()}_FIL_DT"
+                                        ].str[1:7],
+                                    )
+                                else:
+                                    df = df.assign(
+                                        filing_period=df[
+                                            f"{self.ftype.upper()}_FIL_DT"
+                                        ].str[0:6],
+                                    )
                                 df = df.assign(
-                                    filing_period=df[
-                                        f"{self.ftype.upper()}_FIL_DT"
-                                    ].str[0:6],
+                                    year=df.filing_period.str[:4].astype(int)
                                 )
-                            df = df.assign(
-                                year=df.filing_period.str[:4].astype(int)
-                            )
                             df = df.assign(
                                     **{
                                         f"{self.ftype.lower()}_version":

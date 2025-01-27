@@ -75,7 +75,7 @@ class MAXFile:
         self.df = self.df.assign(
             HAS_BENE=(self.df["BENE_ID"].fillna("").str.len() > 0).astype(int)
         )
-        sorted_index = True
+        sorted_index = True if (year == 2012) else False
         if ('BENE_MSIS' not in self.df.columns):
             self.index_col = self.df.index.name
             self.cache_results()
@@ -92,9 +92,9 @@ class MAXFile:
             self.cache_results()
             self.index_col = index_col
         self.df = self.df.set_index(self.index_col,
-                                    sorted=(self.year != 2015) and sorted_index
+                                    sorted=sorted_index
                                     )
-        if (year == 2015) and (state == 'CA'):
+        if (not sorted_index) and (self.state in ['FL', 'NY', 'TX', 'CA']):
             self.cache_results()
         self.lst_raw_col = list(self.df.columns)
 
