@@ -644,7 +644,9 @@ class TAFFile:
 
                     if self.ftype in ["ip", "ot", "rx"]:
                         if f"{self.ftype.upper()}_FIL_DT" in df.columns:
-                            if self.year in [2018]:
+                            if (self.year in [2018]) or (
+                                (self.year == 2017) & (self.ftype == "ot")
+                            ):
                                 df = df.assign(
                                     filing_period=df[
                                         f"{self.ftype.upper()}_FIL_DT"
