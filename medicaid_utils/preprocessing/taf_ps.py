@@ -86,7 +86,6 @@ class TAFPS(taf_file.TAFFile):
         super().clean()
         self.add_gender()
         self.flag_common_exclusions()
-        self.cache_results()
 
     def preprocess(
         self, rural_method="ruca", add_risk_adjustment_scores=False
@@ -101,10 +100,8 @@ class TAFPS(taf_file.TAFFile):
         self.flag_medicaid_enrolled_months()
         self.flag_managed_care_months()
         self.flag_ffs_months()
-        self.cache_results()
         if add_risk_adjustment_scores:
             self.add_risk_adjustment_scores()
-            self.cache_results("base")
 
     def flag_common_exclusions(self):
         """
@@ -133,6 +130,7 @@ class TAFPS(taf_file.TAFFile):
         )
         df_base = df_base.drop([f"_{self.index_col}"], axis=1)
         self.dct_files["base"] = df_base
+        self.cache_results("base")
 
     def add_mas_boe(self):
         """
@@ -322,6 +320,7 @@ class TAFPS(taf_file.TAFFile):
             }
         )
         self.dct_files["base"] = df
+        self.cache_results("base")
 
     def add_gender(self):
         """Adds integer 'female' column based on 'SEX_CD' column. Undefined
@@ -341,6 +340,7 @@ class TAFPS(taf_file.TAFFile):
             )
         )
         self.dct_files["base"] = df
+        self.cache_results("base")
 
     def flag_rural(
         self, method: str = "ruca"
@@ -531,6 +531,7 @@ class TAFPS(taf_file.TAFFile):
         if df.index.name != index_col:
             df = df.set_index(index_col, sorted=True)
         self.dct_files["base"] = df
+        self.cache_results("base")
 
     def flag_dual(self):
         """
@@ -576,6 +577,7 @@ class TAFPS(taf_file.TAFFile):
         )
         df = df.drop(columns=[f"dual_mon_{mon}" for mon in range(1, 13)])
         self.dct_files["base"] = df
+        self.cache_results("base")
 
     def flag_restricted_benefits(self):
         """
@@ -643,6 +645,7 @@ class TAFPS(taf_file.TAFFile):
             columns=[f"restricted_benefit_mon_{mon}" for mon in range(1, 13)]
         )
         self.dct_files["base"] = df
+        self.cache_results("base")
 
     def compute_enrollment_gaps(self):
         """Computes enrollment gaps using dates file. Adds number of
@@ -739,6 +742,7 @@ class TAFPS(taf_file.TAFFile):
 
         df = df.map_partitions(fill_enrollment_gaps)
         self.dct_files["dates"] = df
+        self.cache_results("dates")
         df_gaps = df.loc[df["enrollment_gap"] != 0]
         df_gaps = df_gaps.map_partitions(
             lambda pdf: pdf.assign(enrollment_gap=pdf["enrollment_gap"].abs())
@@ -764,6 +768,7 @@ class TAFPS(taf_file.TAFFile):
                 ]
             }
         )
+        self.cache_results("base")
 
     def flag_medicaid_enrolled_months(self):
         """
@@ -857,6 +862,7 @@ class TAFPS(taf_file.TAFFile):
             columns=[f"enrollment_mon_{mon}" for mon in range(1, 13)]
         )
         self.dct_files["base"] = df_base
+        self.cache_results("base")
 
     def flag_managed_care_months(self):
         """
@@ -1001,6 +1007,7 @@ class TAFPS(taf_file.TAFFile):
             )
 
             self.dct_files["managed_care"] = df_mc
+            self.cache_results("managed_care")
             df_base = self.dct_files["base"]
             df_base = df_base.merge(
                 df_mc[
@@ -1064,6 +1071,7 @@ class TAFPS(taf_file.TAFFile):
                 }
             )
             self.dct_files["base"] = df_base
+            self.cache_results("base")
 
         else:
             self.dct_files["base"] = self.dct_files["base"].assign(
@@ -1092,6 +1100,7 @@ class TAFPS(taf_file.TAFFile):
                     },
                 }
             )
+            self.cache_results("base")
 
     def flag_tanf(self):
         """
@@ -1113,6 +1122,7 @@ class TAFPS(taf_file.TAFFile):
             ).astype(int)
         )
         self.dct_files["base"] = df_base
+        self.cache_results("base")
 
     def gather_bene_level_diag_ndc_codes(self):
         """Constructs patient level NDC and diagnosis code list columns and
@@ -1320,3 +1330,4 @@ class TAFPS(taf_file.TAFFile):
             )
         )
         self.dct_files["base"] = df_base
+        self.cache_results("base")

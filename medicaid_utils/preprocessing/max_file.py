@@ -76,25 +76,25 @@ class MAXFile:
             HAS_BENE=(self.df["BENE_ID"].fillna("").str.len() > 0).astype(int)
         )
         sorted_index = True if (year == 2012) else False
-        if ('BENE_MSIS' not in self.df.columns):
+        if "BENE_MSIS" not in self.df.columns:
             self.index_col = self.df.index.name
             self.cache_results()
             sorted_index = False
             self.df = self.df.map_partitions(
                 lambda pdf: pdf.assign(
-                    BENE_MSIS=pdf['STATE_CD'] + "-" +
-                              pdf['HAS_BENE'].astype(str) + "-" +
-                              pdf['BENE_ID'].where(
-                                  pdf['BENE_ID'].fillna("").str.len() > 0,
-                                  np.nan).fillna(pdf['MSIS_ID'])
+                    BENE_MSIS=pdf["STATE_CD"]
+                    + "-"
+                    + pdf["HAS_BENE"].astype(str)
+                    + "-"
+                    + pdf["BENE_ID"]
+                    .where(pdf["BENE_ID"].fillna("").str.len() > 0, np.nan)
+                    .fillna(pdf["MSIS_ID"])
                 )
             )
             self.cache_results()
             self.index_col = index_col
-        self.df = self.df.set_index(self.index_col,
-                                    sorted=sorted_index
-                                    )
-        if (not sorted_index) and (self.state in ['FL', 'NY', 'TX', 'CA']):
+        self.df = self.df.set_index(self.index_col, sorted=sorted_index)
+        if (not sorted_index) and (self.state in ["FL", "NY", "TX", "CA"]):
             self.cache_results()
         self.lst_raw_col = list(self.df.columns)
 
@@ -420,7 +420,7 @@ class MAXFile:
                         age=pdf.groupby(pdf.index)["age"].transform(max),
                         age_day=pdf.groupby(pdf.index)["age_day"].transform(
                             max
-                        )
+                        ),
                     )
                 )
             if "date_of_death" in df.columns:
