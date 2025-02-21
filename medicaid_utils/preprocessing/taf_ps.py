@@ -123,9 +123,10 @@ class TAFPS(taf_file.TAFFile):
         # (https://rcg.bsd.uchicago.edu/gitlab/mmurugesan/hrsa_max_feature_extraction/issues/29)
         df_base = df_base.map_partitions(
             lambda pdf: pdf.assign(
+                excl_missing_dob=pdf["birth_date"].isnull().astype(int),
                 excl_duplicated_bene_id=pdf.duplicated(
                     [f"_{self.index_col}"], keep=False
-                ).astype(int)
+                ).astype(int),
             )
         )
         df_base = df_base.drop([f"_{self.index_col}"], axis=1)
