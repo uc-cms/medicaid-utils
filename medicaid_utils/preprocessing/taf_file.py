@@ -101,7 +101,7 @@ class TAFFile:
                 self.dct_fileloc.pop(subtype)
         self.dct_files = {}
         has_bene = True
-        sorted_index = True if (year not in [2015, 2016]) else False
+        sorted_index = True  # if (year not in [2015, 2016]) else False
         for ftype, file_loc in self.dct_fileloc.items():
             df = dd.read_parquet(file_loc, index=False, engine=self.pq_engine)
             if "BENE_MSIS" not in df.columns:
