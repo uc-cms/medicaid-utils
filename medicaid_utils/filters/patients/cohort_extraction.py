@@ -381,17 +381,27 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
 
     """
     logger = logging.getLogger(logger_name)
-    dct_data_paths["tmp_folder"] = os.path.join(
-        dct_data_paths["export_folder"], "tmp_files"
-    ) if ('tmp_folder' not in dct_data_paths) else dct_data_paths['tmp_folder']
+    dct_data_paths["tmp_folder"] = (
+        os.path.join(dct_data_paths["export_folder"], "tmp_files")
+        if ("tmp_folder" not in dct_data_paths)
+        else dct_data_paths["tmp_folder"]
+    )
     lst_year = sorted(lst_year)
     lst_year = sorted(lst_year)
-    pdf_patients_all_years = pd.read_csv(
-        os.path.join(dct_data_paths["export_folder"], f"cohort_{state}.csv"),
-        index_col=False,
-    ) if os.path.isfile(os.path.join(dct_data_paths["export_folder"],
-                                     f"cohort_{state}.csv")) else \
-        pd.DataFrame()
+    pdf_patients_all_years = (
+        pd.read_csv(
+            os.path.join(
+                dct_data_paths["export_folder"], f"cohort_{state}.csv"
+            ),
+            index_col=False,
+        )
+        if os.path.isfile(
+            os.path.join(
+                dct_data_paths["export_folder"], f"cohort_{state}.csv"
+            )
+        )
+        else pd.DataFrame()
+    )
     for year in lst_year:
         dct_claims = {}
 
@@ -792,7 +802,9 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
         )
     if pdf_patients_all_years.shape[0] > 0:
         pdf_patients_all_years.to_csv(
-            os.path.join(dct_data_paths["export_folder"], f"cohort_{state}.csv"),
+            os.path.join(
+                dct_data_paths["export_folder"], f"cohort_{state}.csv"
+            ),
             index=False,
         )
 
@@ -893,10 +905,11 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
     """
     if bool(lst_types_to_export):
         logger = logging.getLogger(logger_name)
-        dct_data_paths["tmp_folder"] = os.path.join(
-            dct_data_paths["export_folder"], "tmp_files"
-        ) if ('tmp_folder' not in dct_data_paths) else dct_data_paths[
-            'tmp_folder']
+        dct_data_paths["tmp_folder"] = (
+            os.path.join(dct_data_paths["export_folder"], "tmp_files")
+            if ("tmp_folder" not in dct_data_paths)
+            else dct_data_paths["tmp_folder"]
+        )
         os.makedirs(dct_data_paths["export_folder"], exist_ok=True)
         os.makedirs(dct_data_paths["tmp_folder"], exist_ok=True)
         dct_claims = {}
@@ -951,11 +964,15 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
             if cms_format == "MAX":
                 dct_claims[f_type].df = dct_claims[f_type].df.loc[
                     dct_claims[f_type].df.index.isin(
-                        pdf_cohort.loc[pdf_cohort["include"] == 1].index.tolist()
+                        pdf_cohort.loc[
+                            pdf_cohort["include"] == 1
+                        ].index.tolist()
                     )
                 ]
             else:
-                lst_taf_sub_file_types = list(dct_claims[f_type].dct_files.keys())
+                lst_taf_sub_file_types = list(
+                    dct_claims[f_type].dct_files.keys()
+                )
                 for subtype in lst_taf_sub_file_types:
                     claim_object = dct_claims[f_type]
                     claim_object.dct_files[subtype] = claim_object.dct_files[

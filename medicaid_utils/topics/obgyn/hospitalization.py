@@ -110,7 +110,10 @@ def flag_delivery_mode(df_claims: dd.DataFrame) -> dd.DataFrame:
     return df_claims
 
 
-def flag_delivery(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_delivery(
+    df_ip_claims: dd.DataFrame,
+    cms_format: str = "MAX",
+) -> dd.DataFrame:
     """
     Detects normal and stillbirths related hospitalization in claims
 
@@ -122,6 +125,8 @@ def flag_delivery(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
     ----------
     df_ip_claims: dd.DataFrame
         IP claims dataframe
+    cms_format : {'MAX', TAF'}
+        CMS file format.
 
     Returns
     -------
@@ -954,7 +959,7 @@ def flag_delivery(df_ip_claims: dd.DataFrame) -> dd.DataFrame:
         }
     }
     df_ip_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_diag_codes, {}, df_ip_claims
+        dct_diag_codes, {}, df_ip_claims, cms_format=cms_format
     )
     df_ip_claims = df_ip_claims.rename(
         columns={"diag_delivery": "hosp_delivery"}
@@ -1017,43 +1022,25 @@ def flag_prenatal(df_claims: dd.DataFrame) -> dd.DataFrame:
 
 
 def flag_smm_events(
-    df_ip_claims: dd.DataFrame, index_admsn_date_col="index_admsn_date"
+    df_ip_claims: dd.DataFrame, cms_format: str = "MAX"
 ) -> dd.DataFrame:
     """
-    Adds flags for SMM related hospitaliztions
+    Adds flags for SMM events within 90 days of delivery
 
     New Columns:
-        - hosp_smm_myo
-        - hosp_smm_aneurysm
-        - hosp_smm_renal
-        - hosp_smm_respiratory
-        - hosp_smm_embolism
-        - hosp_smm_cardiac
-        - hosp_smm_coagulation
-        - hosp_smm_eclampsia
-        - hosp_smm_heart
-        - hosp_smm_cerebrovascular
-        - hosp_smm_edema
-        - hosp_smm_anesthesia
-        - hosp_smm_sepsis
-        - hosp_smm_shock
-        - hosp_smm_sickle
-        - hosp_smm_thrombotic
-        - hosp_smm_cardiac_rhythm
-        - hosp_smm_transfusion
-        - hosp_smm_hysterectomy
-        - hosp_smm_tracheostomy
-        - hosp_smm_ventilation
-        - hosp_smm: Any SMM related hospitalization
-        - hosp_smm_no_blood: Any SMM related hospitalization,
-          with transfusion not as the sole cause
+        - delivery_date (Delivery date)
+        - smm_within_90_days_of_delivery (integer column, indicating an SSM
+        related hospitalization within 90 days of delivery)
+        - smm_no_blood_within_90_days_of_delivery (integer column, indicating an SSM
+        related hospitalization excluding those related to blood
+        transfusion within 90 days of delivery)
 
     Parameters
     ----------
     df_ip_claims: dd.DataFrame
         IP claims dataframe
-    index_admsn_date_col: str, default='index_admsn_date'
-        Name of column containing delivery date
+    cms_format : {'MAX', TAF'}
+        CMS file format.
 
     Returns
     -------
@@ -1476,7 +1463,7 @@ def flag_smm_events(
         "smm_ventilation": {2: ["9670", "9671", "9672"]},
     }
     df_ip_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_diag_codes, dct_proc_codes, df_ip_claims
+        dct_diag_codes, dct_proc_codes, df_ip_claims, cms_format=cms_format
     )
     df_ip_claims = df_ip_claims.rename(
         columns=dict(
@@ -1501,97 +1488,79 @@ def flag_smm_events(
             ]
         ].max(axis=1),
     )
-
-    if index_admsn_date_col in df_ip_claims.columns:
-        admsn_col_name = (
-            "admsn_date"
-            if "admsn_date" in df_ip_claims.columns
-            else "srvc_bgn_date"
-        )
-        lst_smm_col = [
-            col for col in df_ip_claims.columns if col.startswith("hosp_smm")
+    admsn_col_name = (
+        "admsn_date"
+        if "admsn_date" in df_ip_claims.columns
+        else "srvc_bgn_date"
+    )
+    df_ip_claims = flag_delivery(df_ip_claims, cms_format=cms_format)
+    index_col = df_ip_claims.index.name
+    pdf_benes = pd.concat(
+        [
+            df_ip_claims.loc[df_ip_claims["hosp_smm"] == 1][[admsn_col_name]]
+            .compute()
+            .groupby(df_ip_claims.index.name)[admsn_col_name]
+            .apply(list)
+            .to_frame()
+            .rename(columns={admsn_col_name: "smm_dates"}),
+            df_ip_claims.loc[df_ip_claims["hosp_smm_no_blood"] == 1][
+                [admsn_col_name]
+            ]
+            .compute()
+            .groupby(df_ip_claims.index.name)[admsn_col_name]
+            .apply(list)
+            .to_frame()
+            .rename(columns={admsn_col_name: "smm_no_blood_dates"}),
+            df_ip_claims.loc[df_ip_claims["hosp_delivery"] == 1][
+                [admsn_col_name]
+            ]
+            .compute()
+            .groupby(df_ip_claims.index.name)[admsn_col_name]
+            .apply(list)
+            .to_frame()
+            .rename(columns={admsn_col_name: "delivery_date"}),
+        ],
+        axis=1,
+    )
+    pdf_benes = pdf_benes.explode("delivery_date")
+    pdf_benes = pdf_benes.assign(
+        smm_within_90_days_of_delivery=pdf_benes.apply(
+            lambda x: int(
+                any(
+                    [
+                        (y <= x["delivery_date"] + pd.Timedelta(days=90))
+                        & (y >= x["delivery_date"])
+                        for y in x["smm_dates"]
+                    ]
+                )
+                if (type(x["smm_dates"]) == list)
+                else False
+            ),
+            axis=1,
+        ),
+        smm_no_blood_within_90_days_of_delivery=pdf_benes.apply(
+            lambda x: int(
+                any(
+                    [
+                        (y <= x["delivery_date"] + pd.Timedelta(days=90))
+                        & (y >= x["delivery_date"])
+                        for y in x["smm_no_blood_dates"]
+                    ]
+                )
+                if (type(x["smm_no_blood_dates"]) == list)
+                else False
+            ),
+            axis=1,
+        ),
+    )
+    pdf_benes = pdf_benes[
+        [
+            "delivery_date",
+            "smm_within_90_days_of_delivery",
+            "smm_no_blood_within_90_days_of_delivery",
         ]
-        df_ip_claims = df_ip_claims.assign(
-            **dict(
-                [
-                    (
-                        col + "_on_index_hosp",
-                        (
-                            (df_ip_claims[col] == 1)
-                            & (
-                                df_ip_claims[admsn_col_name]
-                                == df_ip_claims[index_admsn_date_col]
-                            )
-                        ).astype(int),
-                    )
-                    for col in lst_smm_col
-                ]
-            )
-        )
-        df_ip_claims = df_ip_claims.map_partitions(
-            lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            col + "_12weeks_after_index_hosp",
-                            (
-                                (pdf[col] == 1)
-                                & pdf[admsn_col_name].between(
-                                    pdf[index_admsn_date_col],
-                                    pdf[index_admsn_date_col]
-                                    + pd.Timedelta(days=83),
-                                    inclusive=True,
-                                )
-                            ).astype(int),
-                        )
-                        for col in lst_smm_col
-                    ]
-                )
-            )
-        )
-        df_ip_claims = df_ip_claims.map_partitions(
-            lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            col + "_6weeks_after_index_hosp",
-                            (
-                                (pdf[col] == 1)
-                                & pdf[admsn_col_name].between(
-                                    pdf[index_admsn_date_col],
-                                    pdf[index_admsn_date_col]
-                                    + pd.Timedelta(days=41),
-                                    inclusive=True,
-                                )
-                            ).astype(int),
-                        )
-                        for col in lst_smm_col
-                    ]
-                )
-            )
-        )
-        df_ip_claims = df_ip_claims.map_partitions(
-            lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            col + "_90days_after_index_hosp",
-                            (
-                                (pdf[col] == 1)
-                                & pdf[admsn_col_name].between(
-                                    pdf[index_admsn_date_col],
-                                    pdf[index_admsn_date_col]
-                                    + pd.Timedelta(days=90),
-                                    inclusive=True,
-                                )
-                            ).astype(int),
-                        )
-                        for col in lst_smm_col
-                    ]
-                )
-            )
-        )
-    return df_ip_claims
+    ]
+    return pdf_benes
 
 
 def calculate_conception(

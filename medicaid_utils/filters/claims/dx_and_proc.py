@@ -693,32 +693,32 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                     for proc in dct_proc_codes.keys()
                 }
             )
-            df_claims = df_claims[
-                [
+        df_claims = df_claims[
+            [
+                col
+                for col in df_claims.columns
+                if col
+                not in [
+                    item
+                    for subitem in [
+                        [
+                            col
+                            for col in df_claims.columns
+                            if col.startswith(f"proc_{proc}_")
+                        ]
+                        for proc in dct_proc_codes.keys()
+                    ]
+                    for item in subitem
+                ]
+                + [
                     col
                     for col in df_claims.columns
-                    if col
-                    not in [
-                        item
-                        for subitem in [
-                            [
-                                col
-                                for col in df_claims.columns
-                                if col.startswith(f"proc_{proc}_")
-                            ]
-                            for proc in dct_proc_codes.keys()
-                        ]
-                        for item in subitem
-                    ]
-                    + [
-                        col
-                        for col in df_claims.columns
-                        if col.startswith("VALID_PRCDR_SYS_")
-                    ]
-                    + [
-                        f"valid_icd_{ver}_{col}"
-                        for ver, col in product([9, 10], lst_diag_col)
-                    ]
+                    if col.startswith("VALID_PRCDR_SYS_")
+                ]
+                + [
+                    f"valid_icd_{ver}_{col}"
+                    for ver, col in product([9, 10], lst_diag_col)
                 ]
             ]
+        ]
     return df_claims
