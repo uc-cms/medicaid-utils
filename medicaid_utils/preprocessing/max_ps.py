@@ -516,11 +516,13 @@ class MAXPS(max_file.MAXFile):
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
                 **{
-                    f"elg_mon_{mon}": ~(
-                        pdf[f"MAX_ELG_CD_MO_{mon}"]
-                        .str.strip()
-                        .isin(["00", "99", "", "."])
-                        | pdf[f"MAX_ELG_CD_MO_{mon}"].isna()
+                    f"elg_mon_{mon}": (
+                        ~(
+                            pdf[f"MAX_ELG_CD_MO_{mon}"]
+                            .str.strip()
+                            .isin(["00", "99", "", "."])
+                            | pdf[f"MAX_ELG_CD_MO_{mon}"].isna()
+                        )
                     ).astype(int)
                     for mon in range(1, 13)
                 }

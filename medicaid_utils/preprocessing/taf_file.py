@@ -224,6 +224,12 @@ class TAFFile:
             self.dct_files[f_subtype] = self.dct_files[f_subtype].repartition(
                 partition_size="20MB"
             )
+            if not self.dct_files[f_subtype].known_divisions:
+                self.dct_files[f_subtype] = (
+                    self.dct_files[f_subtype]
+                    .reset_index()
+                    .set_index(self.index_col, sorted=True)
+                )
         os.makedirs(dest_path_and_fname, exist_ok=True)
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
         try:
