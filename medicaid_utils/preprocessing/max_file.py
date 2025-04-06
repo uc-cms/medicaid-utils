@@ -144,9 +144,11 @@ class MAXFile:
         if self.tmp_folder is not None:
             if repartition:
                 self.df = self.df.repartition(
-                    partition_size="20MB"
-                ).persist()  # Patch, currently to_parquet results
+                    partition_size="100MB"
+                )  # Patch, currently to_parquet results
                 # in error when any of the partitions is empty
+                if not self.df.known_divisions:
+                    self.df = self.df.reset_index().set_index(self.index_col)
             self.pq_export(self.tmp_folder)
 
     def pq_export(self, dest_path_and_fname, repartition=False):
