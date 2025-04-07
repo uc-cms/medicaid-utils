@@ -1028,6 +1028,7 @@ def flag_smm_events(
     Adds flags for SMM events within 90 days of delivery
 
     New Columns:
+        - age_on_delivery (Age as on delivery admission date)
         - delivery_date (Delivery date)
         - smm_within_90_days_of_delivery (integer column, indicating an SSM
         related hospitalization within 90 days of delivery)
@@ -1494,6 +1495,11 @@ def flag_smm_events(
         else "srvc_bgn_date"
     )
     df_ip_claims = flag_delivery(df_ip_claims, cms_format=cms_format)
+    pdf_dobs = (
+        df_ip_claims.groupby(df_ip_claims.index.name)[["birth_date"]]
+        .max()
+        .compute()
+    )
     index_col = df_ip_claims.index.name
     pdf_benes = pd.concat(
         [
@@ -1523,6 +1529,15 @@ def flag_smm_events(
         axis=1,
     )
     pdf_benes = pdf_benes.explode("delivery_date")
+    pdf_benes = pdf_benes.merge(
+        pdf_dobs, left_index=True, right_index=True, how="left"
+    )
+    pdf_benes = pdf_benes.assign(
+        age_on_delivery=(
+            pdf_benes["delivery_date"] - pdf_benes["birth_date"]
+        ).dt.days.fillna(0)
+        / 365.25
+    )
     pdf_benes = pdf_benes.assign(
         smm_within_90_days_of_delivery=pdf_benes.apply(
             lambda x: int(
@@ -1555,6 +1570,7 @@ def flag_smm_events(
     )
     pdf_benes = pdf_benes[
         [
+            "age_on_delivery",
             "delivery_date",
             "smm_within_90_days_of_delivery",
             "smm_no_blood_within_90_days_of_delivery",
