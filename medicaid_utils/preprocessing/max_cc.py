@@ -18,6 +18,7 @@ class MAXCC(max_file.MAXFile):
         index_col: str = "BENE_MSIS",
         clean: bool = True,
         preprocess: bool = True,
+        tmp_folder: str = None,
         pq_engine: str = "pyarrow",
     ):
         """
@@ -40,12 +41,13 @@ class MAXCC(max_file.MAXFile):
             Should the associated files be cleaned?
         preprocess : bool, default=True
             Should the associated files be preprocessed?
+        tmp_folder : str, default=None
+            Folder location to use for caching intermediate results. Can be turned off by not passing this argument.
         pq_engine : str, default='pyarrow'
             Parquet engine to use
 
         """
 
-        # CC files are not separated by state. So load the single CC file for the year and filter to the specific state
         super().__init__(
             "cc",
             year=year,
@@ -54,9 +56,9 @@ class MAXCC(max_file.MAXFile):
             index_col=index_col,
             clean=False,
             preprocess=False,
+            tmp_folder=tmp_folder,
             pq_engine=pq_engine,
         )
-        self.df = self.df.loc[self.df["STATE_CD"] == state]
 
         if clean:
             pass
