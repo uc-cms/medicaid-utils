@@ -51,7 +51,7 @@ class MAXCC(max_file.MAXFile):
         super().__init__(
             "cc",
             year=year,
-            state="",
+            state=state,
             data_root=data_root,
             index_col=index_col,
             clean=False,
