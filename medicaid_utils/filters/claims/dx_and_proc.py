@@ -15,6 +15,7 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
     dct_proc_codes: dict,
     logger_name: str = __file__,
     cms_format: str = "MAX",
+    dct_column_values: dict = {},
     **dct_claims,
 ) -> (pd.DataFrame, dict):
     """
@@ -62,6 +63,25 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
         Logger name
     cms_format : {'MAX', TAF'}
         CMS file format.
+    dct_column_values : dict
+        Dictionary of column names and value that should be used to flag
+        conditions and procedures. Should be in the format
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {condn_procedure_name:
+                {column_name: list of values} }
+
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'dx_delivery':
+                {'RCPNT_DLVRY_CD': [1]}
+            }
+
     **dct_claims : dict
         Keyword arguments of claim dataframes. Should be in the format:
             {file_type: dask.dataframe}
@@ -87,6 +107,7 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
             dct_proc_codes,
             df_claim.copy(),
             cms_format,
+            dct_column_values=dct_column_values,
         )
         dct_filter_results[claim_type] = pd.DataFrame(
             {"N": df.shape[0].compute()}, index=[0]
@@ -109,6 +130,11 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
                 lst_diag_col = [
                     col
                     for col in [f"diag_{condn}" for condn in dct_diag_codes]
+                    + [
+                        col
+                        for col in dct_column_values
+                        if col.startswith("diag")
+                    ]
                     if col in df.columns
                 ]
                 if bool(lst_diag_col):
@@ -121,6 +147,11 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
                 lst_proc_col = [
                     col
                     for col in [f"proc_{proc}" for proc in dct_proc_codes]
+                    + [
+                        col
+                        for col in dct_column_values
+                        if col.startswith("proc")
+                    ]
                     if col in df.columns
                 ]
                 if bool(lst_proc_col):
@@ -194,6 +225,7 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
     df_claims: dd.DataFrame,
     cms_format: str = "MAX",
     lst_claim_diag_col: List[str] = None,
+    dct_column_values: dict = {},
 ) -> dd.DataFrame:
     """
     Flags claims based on diagnosis/ procedure codes
@@ -239,6 +271,24 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
         CMS file format.
     lst_claim_diag_col : List[str], optional
         List of diagnosis column names
+    dct_column_values : dict
+        Dictionary of column names and numerical values that should be used to
+        flag conditions and procedures. Should be in the format
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {condn_procedure_name:
+                {column_name: list of numerical values} }
+
+        Eg:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            {'dx_delivery':
+                {'RCPNT_DLVRY_CD': [1]}
+            }
 
     Returns
     -------
@@ -721,4 +771,19 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
                 ]
             ]
         ]
+    if bool(dct_column_values):
+        for condn_or_proc in dct_column_values:
+            if condn_or_proc not in df_claims.columns:
+                df_claims[condn_or_proc] = 0
+            dct_col = dct_column_values[condn_or_proc]
+            col_name = next(iter(dct_col))
+            if col_name in df_claims.columns:
+                df_claims = df_claims.assign(
+                    condn_or_proc=(
+                        (df_claims[condn_or_proc] == 1)
+                        | dd.to_numeric(
+                            df_claims[col_name], errors="coerce"
+                        ).isin(dct_col[col_name])
+                    ).astype(int)
+                )
     return df_claims

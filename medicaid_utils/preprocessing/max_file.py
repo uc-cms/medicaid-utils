@@ -142,14 +142,14 @@ class MAXFile:
             Repartition the dask dataframe
         """
         if self.tmp_folder is not None:
-            if repartition:
-                self.df = self.df.repartition(
-                    partition_size="100MB"
-                )  # Patch, currently to_parquet results
-                # in error when any of the partitions is empty
-                if not self.df.known_divisions:
-                    self.df = self.df.reset_index().set_index(self.index_col)
-            self.pq_export(self.tmp_folder)
+            # if repartition:
+            #     self.df = self.df.repartition(
+            #         partition_size="100MB"
+            #     )  # Patch, currently to_parquet results
+            #     # in error when any of the partitions is empty
+            #     if not self.df.known_divisions:
+            #         self.df = self.df.reset_index().set_index(self.index_col)
+            self.pq_export(self.tmp_folder, repartition)
 
     def pq_export(self, dest_path_and_fname, repartition=False):
         """
@@ -166,7 +166,9 @@ class MAXFile:
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
         os.makedirs(os.path.dirname(dest_path_and_fname), exist_ok=True)
         if repartition:
-            self.df = self.df.repartition(partition_size="20MB")
+            self.df = self.df.repartition(partition_size="100MB")
+            if not self.df.known_divisions:
+                self.df = self.df.reset_index().set_index(self.index_col)
         try:
             self.df.to_parquet(
                 dest_path_and_fname + "_tmp",

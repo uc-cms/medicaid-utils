@@ -282,6 +282,9 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                                 {['incl' / 'excl']: {[9/ 10]: list of codes}},
              'proc_codes': {procedure_name:
                                 {procedure_system_code: list of codes} }
+             'column_values': {condition_or_procedure_name:
+                                {column_name: list of numerical values}
+                             }
             }
 
         Eg:
@@ -296,7 +299,10 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                 {'methadone_7':
                     {7: 'HZ81ZZZ,HZ84ZZZ,HZ85ZZZ,HZ86ZZZ,HZ91ZZZ,HZ94ZZZ,
                          HZ95ZZZ,HZ96ZZZ'.split(",")}
-                }
+                },
+             'column_values':
+               {'diag_delivery':
+                   {'RCPNT_DLVRY_CD': [1]}
             }
 
     dct_filters: dict
@@ -506,6 +512,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             pdf_patients, _ = dx_and_proc.get_patient_ids_with_conditions(
                 dct_diag_proc_codes.get("diag_codes", {}),
                 dct_diag_proc_codes.get("proc_codes", {}),
+                dct_column_values=dct_diag_proc_codes.get("column_values", {}),
                 logger_name=logger_name,
                 cms_format=cms_format,
                 ip=dct_claims["ip"].df.rename(

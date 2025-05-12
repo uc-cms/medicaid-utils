@@ -220,7 +220,7 @@ class TAFFile:
             Repartition the dask dataframe
 
         """
-        if repartition and (f_subtype != "dates"):  # patch for dates files
+        if repartition:  # and (f_subtype != "dates"):  # patch for dates files
             self.dct_files[f_subtype] = self.dct_files[f_subtype].repartition(
                 partition_size="100MB"
             )

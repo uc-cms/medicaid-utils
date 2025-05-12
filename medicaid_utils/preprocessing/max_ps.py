@@ -649,13 +649,15 @@ class MAXPS(max_file.MAXFile):
                         ]
                     ]
                 )
-                .sum(axis=1)
-                .astype(int),
+                .agg("".join, axis=1)
+                .astype(str),
             )
         )
         self.df = self.df.assign(
             restricted_benefits=(
                 self.df["restricted_benefit_months"]
+                .str.replace("0", "")
+                .str.len()
                 > (12 - self.df["total_elg_mon"])
             ).astype(int)
         )

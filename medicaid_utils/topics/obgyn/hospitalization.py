@@ -1,3 +1,5 @@
+import logging
+
 import dask.dataframe as dd
 import pandas as pd
 import numpy as np
@@ -958,9 +960,20 @@ def flag_delivery(
             }
         }
     }
+    dct_column_values = {"diag_delivery": {"RCPNT_DLVRY_CD": [1]}}
     df_ip_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_diag_codes, {}, df_ip_claims, cms_format=cms_format
+        dct_diag_codes,
+        {},
+        df_ip_claims,
+        dct_column_values=dct_column_values,
+        cms_format=cms_format,
     )
+    # if cms_format == 'MAX':
+    #     df_ip_claims = df_ip_claims.assign(
+    #         diag_delivery=((dd.to_numeric(df_ip_claims['RCPNT_DLVRY_CD'],
+    #                                       errors='coerce') == 1) |
+    #                        (df_ip_claims['diag_delivery'] == 1)).astype(int)
+    #     )
     df_ip_claims = df_ip_claims.rename(
         columns={"diag_delivery": "hosp_delivery"}
     )
@@ -992,6 +1005,236 @@ def flag_abnormal_pregnancy(df_claims: dd.DataFrame) -> dd.DataFrame:
     )
     df_claims = df_claims.rename(
         columns={"diag_abnormal_pregnancy": "hosp_abnormal_pregnancy"}
+    )
+    return df_claims
+
+
+def flag_preconception_care(
+    df_claims: dd.DataFrame, cms_format: str = "MAX"
+) -> dd.DataFrame:
+    """
+    Adds flag columns denoting presence of codes indicating pre-conception care
+
+    New Columns:
+        - hosp_preconception_care: 0 or 1, 1 when claim has codes indicating
+        pre-conception care
+        - hosp_preconception_care_contraceptive_services: 0 or 1, 1 when claim
+        has codes indicating contraceptive services related pre-conception care
+        - hosp_preconception_care_pregnancy_testing_and_counseling: 0 or 1,
+        1 when claim has codes indicating pregnancy testing and counseling
+        related pre-conception care
+        - hosp_preconception_care_achieving_pregnancy: 0 or 1, 1 when claim has
+        codes indicating achieving pregnancy related pre-conception care
+        - hosp_preconception_care_basic_infertility_services: 0 or 1, 1 when
+        claim has codes indicating basic infertility services
+        related pre-conception care
+        - hosp_preconception_care_preconception_health_services: 0 or 1, 1 when
+        claim has codes indicating preconception health services related
+        pre-conception care
+        - hosp_preconception_care_std_services: 0 or 1, 1 when claim has codes
+        indicating STD services related pre-conception care
+        - hosp_preconception_care_related_preventive_health_services: 0 or 1,
+        1 when claim has codes indicating preventive health services related
+        pre-conception care
+
+    Parameters
+    ----------
+    df_claims: dd.DataFrame
+        Claims dataframe
+    cms_format : {'MAX', TAF'}
+        CMS file format.
+
+    Returns
+    -------
+    dd.DataFrame
+
+    """
+    dct_diag_codes = {
+        "preconception_care_contraceptive_services": {
+            "incl": {
+                9: [
+                    "V2501",
+                    "V2541",
+                    "V259",
+                    "V2540",
+                    "V255",
+                    "V2543",
+                    "V2511",
+                    "V2512",
+                    "V2513",
+                    "V2542",
+                    "V2502",
+                    "V2549",
+                    "V2503",
+                    "V2504",
+                    "V252",
+                    "V258",
+                    "V2509",
+                ],
+                10: [
+                    "Z30011",
+                    "Z3041",
+                    "Z309",
+                    "Z3040",
+                    "Z3049",
+                    "Z30430",
+                    "Z30432",
+                    "Z30433",
+                    "Z30431",
+                    "Z30013",
+                    "Z30014",
+                    "Z30018",
+                    "Z30019",
+                    "Z3042",
+                    "Z3049",
+                    "Z30012",
+                    "Z3002",
+                    "Z302",
+                    "Z308",
+                    "Z3009",
+                ],
+            }
+        },
+        "preconception_care_pregnancy_testing_and_counseling": {
+            "incl": {
+                9: ["V7240", "V7241", "V7242"],
+                10: ["Z3200", "Z3202", "Z3201"],
+            }
+        },
+        "preconception_care_achieving_pregnancy": {
+            "incl": {9: ["V2641"], 10: ["Z3161"]}
+        },
+        "preconception_care_basic_infertility_services": {
+            "incl": {
+                9: [
+                    "6280",
+                    "6281",
+                    "6282",
+                    "6283",
+                    "6284",
+                    "6289",
+                    "6069",
+                    "V2621",
+                ],
+                10: [
+                    "N970",
+                    "E230",
+                    "N971",
+                    "N972",
+                    "N978",
+                    "N979",
+                    "N469",
+                    "Z3141",
+                ],
+            }
+        },
+        "preconception_care_preconception_health_services": {
+            "incl": {
+                9: [
+                    "V2649",
+                    "V791",
+                    "V1582",
+                    "V778",
+                    "V653",
+                    "V6541",
+                    "V811",
+                    "V771",
+                    "V790",
+                    "V6542",
+                ],
+                10: [
+                    "Z3169",
+                    "Z1389",
+                    "Z87891",
+                    "Z1389",
+                    "Z713",
+                    "Z7189",
+                    "Z136",
+                    "Z131",
+                    "Z1389",
+                    "Z7141",
+                    "Z7142",
+                    "Z7151",
+                    "Z7152",
+                    "Z716",
+                ],
+            }
+        },
+        "preconception_care_std_services": {
+            "incl": {
+                9: [
+                    "V016",
+                    "V028",
+                    "V1209",
+                    "V6540",
+                    "V6544",
+                    "V6545",
+                    "V655",
+                    "V692",
+                    "V7381",
+                    "V7388",
+                    "V7389",
+                    "V745",
+                    "V6544",
+                    "V6545",
+                ],
+                10: [
+                    "Z202",
+                    "Z224",
+                    "Z8619",
+                    "Z719",
+                    "Z717",
+                    "Z7189",
+                    "Z711",
+                    "Z7251",
+                    "Z7252",
+                    "Z7253",
+                    "Z1151",
+                    "Z118",
+                    "Z114",
+                    "Z1159",
+                    "Z113",
+                    "Z717",
+                    "Z7189",
+                ],
+            }
+        },
+        "preconception_care_related_preventive_health_services": {
+            "incl": {
+                9: ["V762", "V700", "V7231", "V7619"],
+                10: ["Z124", "Z0000", "Z0001", "Z01411", "Z01419", "Z1239"],
+            }
+        },
+    }
+
+    dct_diag_codes["preconception_care"] = {
+        "incl": {
+            9: [
+                code
+                for codeset in [
+                    dct_diag_codes[service]["incl"][9]
+                    for service in dct_diag_codes
+                ]
+                for code in codeset
+            ],
+            10: [
+                code
+                for codeset in [
+                    dct_diag_codes[service]["incl"][10]
+                    for service in dct_diag_codes
+                ]
+                for code in codeset
+            ],
+        }
+    }
+
+    df_claims = dx_and_proc.flag_diagnoses_and_procedures(
+        dct_diag_codes, {}, df_claims, cms_format=cms_format
+    )
+    df_claims = df_claims.rename(
+        columns={
+            f"diag_{service}": f"hosp_{service}" for service in dct_diag_codes
+        }
     )
     return df_claims
 
