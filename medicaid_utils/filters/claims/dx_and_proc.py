@@ -779,11 +779,13 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
             col_name = next(iter(dct_col))
             if col_name in df_claims.columns:
                 df_claims = df_claims.assign(
-                    condn_or_proc=(
-                        (df_claims[condn_or_proc] == 1)
-                        | dd.to_numeric(
-                            df_claims[col_name], errors="coerce"
-                        ).isin(dct_col[col_name])
-                    ).astype(int)
+                    **{
+                        condn_or_proc: (
+                            (df_claims[condn_or_proc] == 1)
+                            | dd.to_numeric(
+                                df_claims[col_name], errors="coerce"
+                            ).isin(dct_col[col_name])
+                        ).astype(int)
+                    }
                 )
     return df_claims
