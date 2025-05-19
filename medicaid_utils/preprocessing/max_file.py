@@ -11,7 +11,8 @@ from medicaid_utils.common_utils import dataframe_utils, links
 
 
 class MAXFile:
-    """Parent class for all MAX file classes, each of which will have clean and preprocess functions"""
+    """Parent class for all MAX file classes, each of which will have clean
+    and preprocess functions"""
 
     def __init__(
         self,
@@ -26,7 +27,8 @@ class MAXFile:
         pq_engine: str = "pyarrow",
     ):
         """
-        Initializes MAX file object by preloading and preprocessing(if opted in) the file
+        Initializes MAX file object by preloading and preprocessing(if opted
+        in) the file
 
         Parameters
         ----------
@@ -39,14 +41,16 @@ class MAXFile:
         data_root : str
             Root folder of raw claim files
         index_col : str, default='BENE_MSIS'
-            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is expected to be already
+            Index column name. Eg. BENE_MSIS or MSIS_ID. The raw file is
+            expected to be already
         sorted with index column
         clean : bool, default=True
             Should the associated files be cleaned?
         preprocess : bool, default=True
             Should the associated files be preprocessed?
         tmp_folder : str, default=None
-            Folder location to use for caching intermediate results. Can be turned off by not passing this argument.
+            Folder location to use for caching intermediate results. Can be
+            turned off by not passing this argument.
         pq_engine : str, default='pyarrow'
             Parquet engine to use
 
@@ -75,7 +79,7 @@ class MAXFile:
         self.df = self.df.assign(
             HAS_BENE=(self.df["BENE_ID"].fillna("").str.len() > 0).astype(int)
         )
-        sorted_index = True if (year == 2012) else False
+        sorted_index = True
         if "BENE_MSIS" not in self.df.columns:
             self.index_col = self.df.index.name
             self.cache_results()
