@@ -527,7 +527,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             )
                         )
                     ]
-                    + ["service_date"]
+                    + ["service_date", "RCPNT_DLVRY_CD"]
                 ]
                 if (cms_format == "MAX")
                 else dct_claims["ip"]
