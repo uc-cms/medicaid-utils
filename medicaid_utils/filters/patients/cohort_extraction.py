@@ -557,7 +557,10 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                                     )
                                 )
                             ]
-                            + ["service_date", "CLM_ID"]
+                            + [
+                                "service_date",
+                                # "CLM_ID"
+                            ]
                         ]
                         if (cms_format == "MAX")
                         else dct_claims["ot"]
