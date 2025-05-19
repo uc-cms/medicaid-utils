@@ -628,7 +628,7 @@ class MAXPS(max_file.MAXFile):
                         pdf[col]
                         .fillna("0")
                         .str.strip()
-                        .isin([lst_excluded_restricted_benefit_code])
+                        .isin(lst_excluded_restricted_benefit_code)
                         for col in [
                             f"EL_RSTRCT_BNFT_FLG_{str(mon)}"
                             for mon in range(1, 13)
@@ -637,17 +637,21 @@ class MAXPS(max_file.MAXFile):
                 )
                 .any(axis=1)
                 .astype(int),
-                restricted_benefit_months=np.column_stack(
-                    [
-                        pdf[col]
-                        .fillna("0")
-                        .str.strip()
-                        .isin([lst_excluded_restricted_benefit_code])
-                        for col in [
-                            f"EL_RSTRCT_BNFT_FLG_{str(mon)}"
-                            for mon in range(1, 13)
+                restricted_benefit_months=pd.DataFrame(
+                    np.column_stack(
+                        [
+                            pdf[col]
+                            .fillna("0")
+                            .str.strip()
+                            .isin(lst_excluded_restricted_benefit_code)
+                            .astype(int)
+                            .astype(str)
+                            for col in [
+                                f"EL_RSTRCT_BNFT_FLG_{str(mon)}"
+                                for mon in range(1, 13)
+                            ]
                         ]
-                    ]
+                    )
                 )
                 .agg("".join, axis=1)
                 .astype(str),
