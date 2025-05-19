@@ -426,48 +426,47 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                             pq_engine=pq_engine,
                         )
                 else:
-                    if (claim_type != "ot") or ("ot" in dct_filters):
-                        dct_claims[claim_type] = (
-                            max_file.MAXFile.get_claim_instance(
-                                claim_type,
-                                year,
-                                state,
-                                dct_data_paths["source_root"],
-                                clean=True,
-                                preprocess=True,
-                                pq_engine=pq_engine,
-                                **(
-                                    {}
-                                    if claim_type == "ip"
-                                    else {
-                                        "tmp_folder": os.path.join(
-                                            dct_data_paths["tmp_folder"],
-                                            claim_type,
-                                        )
-                                    }
-                                ),
-                            )
-                            if cms_format == "MAX"
-                            else taf_file.TAFFile.get_claim_instance(
-                                claim_type,
-                                year,
-                                state,
-                                dct_data_paths["source_root"],
-                                clean=True,
-                                preprocess=True,
-                                pq_engine=pq_engine,
-                                **(
-                                    {}
-                                    if claim_type == "ip"
-                                    else {
-                                        "tmp_folder": os.path.join(
-                                            dct_data_paths["tmp_folder"],
-                                            claim_type,
-                                        )
-                                    }
-                                ),
-                            )
+                    dct_claims[claim_type] = (
+                        max_file.MAXFile.get_claim_instance(
+                            claim_type,
+                            year,
+                            state,
+                            dct_data_paths["source_root"],
+                            clean=True,
+                            preprocess=True,
+                            pq_engine=pq_engine,
+                            **(
+                                {}
+                                if claim_type == "ip"
+                                else {
+                                    "tmp_folder": os.path.join(
+                                        dct_data_paths["tmp_folder"],
+                                        claim_type,
+                                    )
+                                }
+                            ),
                         )
+                        if cms_format == "MAX"
+                        else taf_file.TAFFile.get_claim_instance(
+                            claim_type,
+                            year,
+                            state,
+                            dct_data_paths["source_root"],
+                            clean=True,
+                            preprocess=True,
+                            pq_engine=pq_engine,
+                            **(
+                                {}
+                                if claim_type == "ip"
+                                else {
+                                    "tmp_folder": os.path.join(
+                                        dct_data_paths["tmp_folder"],
+                                        claim_type,
+                                    )
+                                }
+                            ),
+                        )
+                    )
         except FileNotFoundError as ex:
             logger.warning("%d data is missing for %s", year, state)
             logger.exception(ex)
