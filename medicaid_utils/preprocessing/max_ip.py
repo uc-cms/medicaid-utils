@@ -181,9 +181,7 @@ class MAXIP(max_file.MAXFile):
                 pd.to_numeric(pdf_partition["los"], errors="coerce") > 0
             ) & (pdf_partition["flag_ip_dup_drop"] != 1)
             pdf_partition.loc[overlap_mask, "admsntime"] = (
-                pdf_partition.loc[
-                    overlap_mask,
-                ]
+                pdf_partition.loc[overlap_mask,]
                 .groupby(self.index_col)["admsn_date"]
                 .rank(method="dense")
             )
@@ -191,44 +189,32 @@ class MAXIP(max_file.MAXFile):
                 by=[self.index_col, "admsntime"]
             )
             pdf_partition.loc[overlap_mask, "next_admsn_date"] = (
-                pdf_partition.loc[
-                    overlap_mask,
-                ]
+                pdf_partition.loc[overlap_mask,]
                 .groupby(self.index_col)["admsn_date"]
                 .shift(-1)
             )
             pdf_partition.loc[overlap_mask, "next_pymt_amt"] = (
-                pdf_partition.loc[
-                    overlap_mask,
-                ]
+                pdf_partition.loc[overlap_mask,]
                 .groupby(self.index_col)["pymt_amt"]
                 .shift(-1)
             )
             pdf_partition.loc[overlap_mask, "next_srvc_end_date"] = (
-                pdf_partition.loc[
-                    overlap_mask,
-                ]
+                pdf_partition.loc[overlap_mask,]
                 .groupby(self.index_col)["srvc_end_date"]
                 .shift(-1)
             )
             pdf_partition.loc[overlap_mask, "last_admsn_date"] = (
-                pdf_partition.loc[
-                    overlap_mask,
-                ]
+                pdf_partition.loc[overlap_mask,]
                 .groupby(self.index_col)["admsn_date"]
                 .shift(1)
             )
             pdf_partition.loc[overlap_mask, "last_pymt_amt"] = (
-                pdf_partition.loc[
-                    overlap_mask,
-                ]
+                pdf_partition.loc[overlap_mask,]
                 .groupby(self.index_col)["pymt_amt"]
                 .shift(1)
             )
             pdf_partition.loc[overlap_mask, "last_srvc_end_date"] = (
-                pdf_partition.loc[
-                    overlap_mask,
-                ]
+                pdf_partition.loc[overlap_mask,]
                 .groupby(self.index_col)["srvc_end_date"]
                 .shift(1)
             )
