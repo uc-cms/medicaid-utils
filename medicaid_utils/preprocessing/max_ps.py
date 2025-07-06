@@ -495,6 +495,7 @@ class MAXPS(max_file.MAXFile):
                     [f"BOE_ELG_MON_{mon}" for mon in range(1, 13)]
                 ]
                 .replace(6, np.nan)
+                .assign(empty_boe_elg=6)  # For rows that are completely empty
                 .mode(axis=1, dropna=True)[0]
                 .fillna(6)
                 .astype(int),
