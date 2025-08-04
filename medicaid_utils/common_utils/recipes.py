@@ -78,7 +78,9 @@ def remove_ignore_if_not_exists(filename: str):
         os.remove(filename) if not os.path.isdir(filename) else shutil.rmtree(
             filename
         )
-    except OSError as e:  # this would be "except OSError, e:" before Python 2.6
+    except (
+        OSError
+    ) as e:  # this would be "except OSError, e:" before Python 2.6
         if e.errno != errno.ENOENT:  # errno.ENOENT = no such file or data
             raise  # re-raise exception if a different error occurred
 

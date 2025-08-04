@@ -237,7 +237,17 @@ class MAXFile:
             )
         else:
             self.pq_export(
-                self.fileloc.split(self.data_root + os.path.sep)[1],
+                os.path.join(
+                    dest_folder,
+                    self.fileloc.split(
+                        self.data_root
+                        + (
+                            os.path.sep
+                            if not self.data_root.endswith(os.path.sep)
+                            else ""
+                        )
+                    )[1],
+                ),
                 repartition=repartition,
             )
 

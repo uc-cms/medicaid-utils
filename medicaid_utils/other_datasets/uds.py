@@ -4221,7 +4221,8 @@ def generate_bhcmisid_fqhc_crosswalk(
 
 def generate_and_combine_fqhc_npi_crosswalks(logger_name):
     """Get NPIs for FQHCs in HCRIS, UDS datasets. Combine this with NPIs with FQHC taxonomy/ FQHC range CCN
-    in NPPES dataset. Merge UDS with all the identified NPIs to generate BHMISID x FQHC crosswalk"""
+    in NPPES dataset. Merge UDS with all the identified NPIs to generate BHMISID x FQHC crosswalk
+    """
     logger = logging.getLogger(logger_name)
     logger.info("Generate list of NPIs with FQHC range CCN in NPPES dataset")
     generate_oscar_fqhc_npis()

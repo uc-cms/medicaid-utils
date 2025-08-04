@@ -247,7 +247,6 @@ class EDPreventionQualityIndicators:
         fix_index(df_ed, "MSIS_ID")
 
         def mptn_categorise_ed_visits(pdf, dct_edvst_cat, dct_conditions):
-
             ### Adding indicator and cost columns for each of PQI ED covered disease conditions
             pdf = pdf.assign(
                 **dict(

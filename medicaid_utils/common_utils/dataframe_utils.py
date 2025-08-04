@@ -271,7 +271,6 @@ def export(
             if not rewrite:
                 recipes.remove_ignore_if_not_exists(pq_location)
             if pq_engine == "pyarrow":
-
                 logger.info("NROWS: {0}({1})".format(str(n_rows), pq_location))
                 df_sample = df.sample(
                     frac=min(1, 250000 / max(n_rows, 250000)),

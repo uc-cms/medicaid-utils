@@ -17,7 +17,8 @@ import numpy as np
 class PediatricMedicalComplexity:
     """This class packages functions to create indicator variables for conditions of interest based on their chronic
     nature identified by Seattle Children's Research Institute subset from conditions defined by diagnostic codes
-    outlined in the Chronic Illness and Disability Payment System (CDPS) version 5.3"""
+    outlined in the Chronic Illness and Disability Payment System (CDPS) version 5.3
+    """
 
     package_folder, filename = os.path.split(__file__)
     data_folder = os.path.join(package_folder, "data")
