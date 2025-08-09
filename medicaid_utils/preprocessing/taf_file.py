@@ -222,14 +222,23 @@ class TAFFile:
         """
         if repartition:  # and (f_subtype != "dates"):  # patch for dates files
             self.dct_files[f_subtype] = self.dct_files[f_subtype].repartition(
-                partition_size="100MB"
+                partition_size="100MB", force=True
             )
             if not self.dct_files[f_subtype].known_divisions:
                 self.dct_files[f_subtype] = (
                     self.dct_files[f_subtype]
-                    .reset_index()
-                    .set_index(self.index_col)
+                    .assign(
+                        **{
+                            f"new_{self.index_col}": self.dct_files[
+                                f_subtype
+                            ].index
+                        }
+                    )
+                    .set_index(f"new_{self.index_col}", sorted=True)
                 )
+                self.dct_files[f_subtype].index = self.dct_files[
+                    f_subtype
+                ].index.rename(self.index_col)
         os.makedirs(dest_path_and_fname, exist_ok=True)
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
         try:

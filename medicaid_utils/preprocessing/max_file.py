@@ -170,9 +170,12 @@ class MAXFile:
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
         os.makedirs(os.path.dirname(dest_path_and_fname), exist_ok=True)
         if repartition:
-            self.df = self.df.repartition(partition_size="400MB", force=True)
+            self.df = self.df.repartition(partition_size="100MB", force=True)
             if not self.df.known_divisions:
-                self.df = self.df.reset_index().set_index(self.index_col)
+                self.df = self.df.assign(
+                    **{f"new_{self.index_col}": self.df.index}
+                ).set_index(f"new_{self.index_col}", sorted=True)
+                self.df.index = self.df.index.rename(self.index_col)
         try:
             self.df.to_parquet(
                 dest_path_and_fname + "_tmp",
