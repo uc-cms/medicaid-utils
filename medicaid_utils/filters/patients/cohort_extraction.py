@@ -952,7 +952,7 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
                         preprocess=False,
                         **(
                             {}
-                            if claim_type in ["ip", "rx", "lt"]
+                            if claim_type in ["lt"]
                             else {
                                 "tmp_folder": os.path.join(
                                     dct_data_paths["tmp_folder"], claim_type
