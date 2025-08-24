@@ -325,7 +325,9 @@ class TAFFile:
                             )
                         )[1],
                     ),
-                    repartition=repartition,
+                    repartition=repartition and (self.dct_fileloc[
+                                                     subtype].npartitions >
+                                                 100),
                 )
 
     def clean_codes(self) -> None:
