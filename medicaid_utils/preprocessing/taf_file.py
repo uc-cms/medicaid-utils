@@ -325,7 +325,7 @@ class TAFFile:
                             )
                         )[1],
                     ),
-                    repartition=repartition and (self.dct_fileloc[
+                    repartition=repartition and (self.dct_files[
                                                      subtype].npartitions >
                                                  100),
                 )
