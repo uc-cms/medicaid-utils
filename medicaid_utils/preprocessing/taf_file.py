@@ -224,6 +224,7 @@ class TAFFile:
             self.dct_files[f_subtype] = self.dct_files[f_subtype].repartition(
                 partition_size="100MB", force=True
             )
+            self.cache_results(f_subtype)
             if not self.dct_files[f_subtype].known_divisions:
                 self.dct_files[f_subtype] = (
                     self.dct_files[f_subtype]
