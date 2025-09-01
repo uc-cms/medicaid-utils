@@ -325,9 +325,8 @@ class TAFFile:
                             )
                         )[1],
                     ),
-                    repartition=repartition and (self.dct_files[
-                                                     subtype].npartitions >
-                                                 100),
+                    repartition=repartition
+                    and (self.dct_files[subtype].npartitions > 100),
                 )
 
     def clean_codes(self) -> None:
@@ -347,7 +346,7 @@ class TAFFile:
             lst_diag_cd_col = [
                 col
                 for col in df.columns
-                if col.startswith("DGNS_CD_") or (col == ["ADMTG_DGNS_CD"])
+                if col.startswith("DGNS_CD_") or (col == "ADMTG_DGNS_CD")
             ]
             if len(lst_diag_cd_col) > 0:
                 df = df.map_partitions(
@@ -494,7 +493,7 @@ class TAFFile:
                             col
                             for col in pdf.columns
                             if col.startswith("DGNS_CD_")
-                            or (col == ["ADMTG_DGNS_CD"])
+                            or (col == "ADMTG_DGNS_CD")
                         ]
                     ].values.tolist()
                 )
