@@ -7,6 +7,7 @@ import logging
 from typing import List, Union, Tuple
 
 import pandas as pd
+import dask.dataframe as dd
 
 from medicaid_utils.preprocessing import (
     max_file,
@@ -797,7 +798,12 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
         )
 
         export_cohort_datasets(
-            pdf_patients_all_years,
+            dd.from_pandas(
+                pdf_patients_all_years.loc[
+                    pdf_patients_all_years["include"] == 1
+                ],
+                npartitions=int(pdf_patients_all_years.shape[0] / 100000),
+            ),
             year,
             state,
             lst_types_to_export,
@@ -821,7 +827,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
 
 
 def export_cohort_datasets(  # pylint: disable=missing-param-doc
-    pdf_cohort: pd.DataFrame,
+    df_cohort: dd.DataFrame,
     year: int,
     state: str,
     lst_types_to_export: List[str],
@@ -968,31 +974,38 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
 
         for f_type in sorted(lst_types_to_export):
             logger.info("Exporting %s for %s (%d)", f_type, state, year)
-            if pdf_cohort.index.name != dct_claims[f_type].index_col:
-                pdf_cohort = pdf_cohort.set_index(dct_claims[f_type].index_col)
+            if df_cohort.index.name != dct_claims[f_type].index_col:
+                raise IOError(
+                    f"Cohort file index should be"
+                    f" {dct_claims[f_type].index_col}"
+                )
             if cms_format == "MAX":
-                dct_claims[f_type].df = dct_claims[f_type].df.loc[
-                    dct_claims[f_type].df.index.isin(
-                        pdf_cohort.loc[
-                            pdf_cohort["include"] == 1
-                        ].index.tolist()
+                dct_claims[f_type].df = (
+                    dct_claims[f_type]
+                    .df.merge(
+                        df_cohort,
+                        left_index=True,
+                        right_index=True,
+                        how="inner",
                     )
-                ]
+                    .drop(columns=["include"])
+                )
             else:
                 lst_taf_sub_file_types = list(
                     dct_claims[f_type].dct_files.keys()
                 )
                 for subtype in lst_taf_sub_file_types:
                     claim_object = dct_claims[f_type]
-                    claim_object.dct_files[subtype] = claim_object.dct_files[
-                        subtype
-                    ].loc[
-                        claim_object.dct_files[subtype].index.isin(
-                            pdf_cohort.loc[
-                                pdf_cohort["include"] == 1
-                            ].index.tolist()
+                    claim_object.dct_files[subtype] = (
+                        claim_object.dct_files[subtype]
+                        .merge(
+                            df_cohort,
+                            left_index=True,
+                            right_index=True,
+                            how="inner",
                         )
-                    ]
+                        .drop(columns=["include"])
+                    )
                     dct_claims[f_type] = claim_object
 
             dct_claims[f_type].cache_results()
