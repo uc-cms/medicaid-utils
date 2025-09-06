@@ -26,7 +26,10 @@ def flag_preterm(df_claims: dd.DataFrame) -> dd.DataFrame:
     """
     dct_diag_codes = {
         "preterm": {
-            "incl": {9: ["6440", "6442", "7651", "7650", "7652"]},
+            "incl": {
+                9: ["6440", "6442", "7651", "7650", "7652"],
+                10: ["O600", "O601", "P07"],
+            },
             "excl": {9: ["76520", "76529"]},
         }
     }
@@ -999,7 +1002,24 @@ def flag_abnormal_pregnancy(df_claims: dd.DataFrame) -> dd.DataFrame:
     -------
     dd.DataFrame
     """
-    dct_diag_codes = {"abnormal_pregnancy": {"incl": {9: ["63"]}}}
+    dct_diag_codes = {
+        "abnormal_pregnancy": {
+            "incl": {
+                9: ["63"],
+                10: [
+                    "O00",
+                    "O01",
+                    "O02",
+                    "O03",
+                    "O04",
+                    "O07",
+                    "O08",
+                    "A34",
+                    "Z332",
+                ],
+            }
+        }
+    }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
         dct_diag_codes, {}, df_claims
     )
@@ -1256,7 +1276,14 @@ def flag_prenatal(df_claims: dd.DataFrame) -> dd.DataFrame:
     dd.DataFrame
 
     """
-    dct_diag_codes = {"prenatal": {"incl": {9: ["V22", "V23"]}}}
+    dct_diag_codes = {
+        "prenatal": {
+            "incl": {
+                9: ["V22", "V23"],
+                10: ["O09", "O3680", "Z331", "Z333", "Z34"],
+            }
+        }
+    }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
         dct_diag_codes, {}, df_claims
     )
