@@ -6,7 +6,9 @@ import numpy as np
 from ...filters.claims import dx_and_proc
 
 
-def flag_preterm(df_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_preterm(
+    df_claims: dd.DataFrame, cms_format: str = "MAX"
+) -> dd.DataFrame:
     """
     Detects preterm birth related hospitalization in claims
 
@@ -34,7 +36,7 @@ def flag_preterm(df_claims: dd.DataFrame) -> dd.DataFrame:
         }
     }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_diag_codes, {}, df_claims
+        dct_diag_codes, {}, df_claims, cms_format=cms_format
     )
     df_claims = df_claims.rename(columns={"diag_preterm": "hosp_preterm"})
     return df_claims
@@ -983,7 +985,9 @@ def flag_delivery(
     return df_ip_claims
 
 
-def flag_abnormal_pregnancy(df_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_abnormal_pregnancy(
+    df_claims: dd.DataFrame, cms_format: str = "MAX"
+) -> dd.DataFrame:
     """
     Detects ectopic, molar, or abnormal pregnancy, spontaneous or induced
     abortion related hospitalization
@@ -1021,7 +1025,7 @@ def flag_abnormal_pregnancy(df_claims: dd.DataFrame) -> dd.DataFrame:
         }
     }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_diag_codes, {}, df_claims
+        dct_diag_codes, {}, df_claims, cms_format=cms_format
     )
     df_claims = df_claims.rename(
         columns={"diag_abnormal_pregnancy": "hosp_abnormal_pregnancy"}
@@ -1259,7 +1263,9 @@ def flag_preconception_care(
     return df_claims
 
 
-def flag_prenatal(df_claims: dd.DataFrame) -> dd.DataFrame:
+def flag_prenatal(
+    df_claims: dd.DataFrame, cms_format: str = "MAX"
+) -> dd.DataFrame:
     """
     Adds flag columns denoting presence of codes indicating pre-natal care
 
@@ -1285,7 +1291,7 @@ def flag_prenatal(df_claims: dd.DataFrame) -> dd.DataFrame:
         }
     }
     df_claims = dx_and_proc.flag_diagnoses_and_procedures(
-        dct_diag_codes, {}, df_claims
+        dct_diag_codes, {}, df_claims, cms_format=cms_format
     )
     df_claims = df_claims.rename(columns={"diag_prenatal": "hosp_prenatal"})
     return df_claims
