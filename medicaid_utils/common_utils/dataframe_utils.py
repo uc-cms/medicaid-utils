@@ -3,10 +3,9 @@
 import pandas as pd
 import numpy as np
 import dask.dataframe as dd
-import sys
 import os
 import csv
-from typing import Any, List, Optional, Union
+from typing import List, Optional
 import logging
 import pyarrow as pa
 
@@ -258,7 +257,7 @@ def export(
     # df = df.persist()
     logger = logging.getLogger(logger_name)
     if n_rows < 0:
-        n_rows = df.map_partitions(lambda pdf: pdf.shape[0]).compute().sum()
+        n_rows = len(df)
     if df.head().shape[0] < 1:
         df = df.repartition(
             npartitions=min(
@@ -308,7 +307,7 @@ def export(
                     df_sample.reset_index(drop=True)
                 )
                 df.to_parquet(
-                    pq_location + ("_temp" if (rewrite == True) else ""),
+                    pq_location + ("_temp" if (rewrite) else ""),
                     # compression='xz',
                     engine=pq_engine,
                     write_index=False,

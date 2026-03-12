@@ -1,9 +1,7 @@
 """Tests for the BETOS procedure code categorization algorithm."""
 
-import pytest
 import pandas as pd
 import dask.dataframe as dd
-import numpy as np
 
 from medicaid_utils.adapted_algorithms.py_betos.betos_proc_codes import (
     BetosProcCodes,
@@ -35,7 +33,6 @@ class TestGetBetosCptCrosswalk:
         assert "betos_code_name" in pdf.columns
         assert len(pdf) > 0
 
-    @pytest.mark.skip(reason="betpuf20.txt has inconsistent field counts with space separator")
     def test_crosswalk_2020(self):
         """Verify crosswalk loads correctly for year 2020 (BETOS v2)."""
         pdf = BetosProcCodes.get_betos_cpt_crosswalk(2020)

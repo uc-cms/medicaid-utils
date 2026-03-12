@@ -1,11 +1,8 @@
 """This a python package for computing Elixhauser comorbidity score"""
-import sys
 import os
 
-import numpy as np
 import pandas as pd
 import dask.dataframe as dd
-from typing import List
 
 
 class ElixhauserScoring:

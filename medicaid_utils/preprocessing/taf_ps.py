@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import dask.dataframe as dd
 
-from medicaid_utils.preprocessing import taf_file, taf_ip, taf_ot, taf_rx
+from medicaid_utils.preprocessing import taf_file
 from medicaid_utils.common_utils import dataframe_utils
 from medicaid_utils.adapted_algorithms.py_elixhauser import (
     elixhauser_comorbidity,
@@ -288,7 +288,7 @@ class TAFPS(taf_file.TAFFile):
         )
         df = df.assign(
             **{
-                f"max_mas_type": df[
+                "max_mas_type": df[
                     [f"mas_{mas_type}_months" for mas_type in dct_mas_codes]
                 ]
                 .idxmax(axis=1)
@@ -298,13 +298,13 @@ class TAFPS(taf_file.TAFFile):
         )
         df = df.assign(
             **{
-                f"max_boe_type": df[
+                "max_boe_type": df[
                     [f"boe_{boe_type}_months" for boe_type in dct_boe_codes]
                 ]
                 .idxmax(axis=1)
                 .str[4:]
                 .str[:-7],
-                f"boe_gt_6_mon": (
+                "boe_gt_6_mon": (
                     df[
                         [
                             f"boe_{boe_type}_months"
@@ -331,7 +331,7 @@ class TAFPS(taf_file.TAFFile):
                     .any(axis=1),
                     np.nan,
                 ),
-                f"mas_gt_6_mon": (
+                "mas_gt_6_mon": (
                     df[
                         [
                             f"mas_{mas_type}_months"
@@ -394,7 +394,7 @@ class TAFPS(taf_file.TAFFile):
 
     def flag_rural(
         self, method: str = "ruca"
-    ) -> None:  # pylint: disable=missing-param-doc
+    ) -> None:
         """
         Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of
         their resident ZIP/ FIPS codes
@@ -623,7 +623,7 @@ class TAFPS(taf_file.TAFFile):
                 any_dual_month=pdf[[f"dual_mon_{mon}" for mon in range(1, 13)]]
                 .any(axis=1)
                 .astype(int),
-                dual_months=pdf[f"dual_mon_1"]
+                dual_months=pdf["dual_mon_1"]
                 .astype(str)
                 .str.cat(
                     pdf[[f"dual_mon_{mon}" for mon in range(2, 13)]].astype(
@@ -693,7 +693,7 @@ class TAFPS(taf_file.TAFFile):
                 ]
                 .any(axis=1)
                 .astype(int),
-                restricted_benefit_months=pdf[f"restricted_benefit_mon_1"]
+                restricted_benefit_months=pdf["restricted_benefit_mon_1"]
                 .astype(str)
                 .str.cat(
                     pdf[
@@ -872,9 +872,7 @@ class TAFPS(taf_file.TAFFile):
                         (
                             dd.to_numeric(
                                 df_base[
-                                    f"MDCD_ENRLMT_DAYS_"
-                                    f""
-                                    f"{str(mon).zfill(2)}"
+                                    f"MDCD_ENRLMT_DAYS_{str(mon).zfill(2)}"
                                 ],
                                 errors="coerce",
                             )
@@ -891,7 +889,7 @@ class TAFPS(taf_file.TAFFile):
                         | (
                             dd.to_numeric(
                                 df_base[
-                                    f"CHIP_ENRLMT_DAYS_" f"{str(mon).zfill(2)}"
+                                    f"CHIP_ENRLMT_DAYS_{str(mon).zfill(2)}"
                                 ],
                                 errors="coerce",
                             )
@@ -928,7 +926,7 @@ class TAFPS(taf_file.TAFFile):
                 ]
                 .sum(axis=1)
                 .astype(int),
-                enrolled_months=pdf[f"enrollment_mon_1"]
+                enrolled_months=pdf["enrollment_mon_1"]
                 .astype(str)
                 .str.cat(
                     pdf[
@@ -941,7 +939,7 @@ class TAFPS(taf_file.TAFFile):
         df_base = df_base.map_partitions(
             lambda pdf: pdf.assign(
                 max_continuous_enrolment=pdf["enrolled_months"].apply(
-                    lambda x: max(map(len, x.split("0")))
+                    lambda x: max(len(s) for s in x.split("0"))
                 )
             )
         )
@@ -967,11 +965,11 @@ class TAFPS(taf_file.TAFFile):
             df_mc = self.dct_files["managed_care"]
             df_mc = df_mc.assign(
                 **{
-                    f"MC_PLAN_TYPE_CD_"
+                    "MC_PLAN_TYPE_CD_"
                     f"{str(seq).zfill(2)}_"
                     f"{str(mon).zfill(2)}": dd.to_numeric(
                         df_mc[
-                            f"MC_PLAN_TYPE_CD_"
+                            "MC_PLAN_TYPE_CD_"
                             f"{str(seq).zfill(2)}_"
                             f"{str(mon).zfill(2)}"
                         ],
@@ -985,7 +983,7 @@ class TAFPS(taf_file.TAFFile):
                     **{
                         f"mc_comp_mon_{mon}": df_mc[
                             [
-                                f"MC_PLAN_TYPE_CD_"
+                                "MC_PLAN_TYPE_CD_"
                                 f"{str(seq).zfill(2)}_"
                                 f"{str(mon).zfill(2)}"
                                 for seq in range(1, 17)
@@ -999,7 +997,7 @@ class TAFPS(taf_file.TAFFile):
                     **{
                         f"mc_behav_health_mon_{mon}": df_mc[
                             [
-                                f"MC_PLAN_TYPE_CD_"
+                                "MC_PLAN_TYPE_CD_"
                                 f"{str(seq).zfill(2)}_"
                                 f"{str(mon).zfill(2)}"
                                 for seq in range(1, 17)
@@ -1013,7 +1011,7 @@ class TAFPS(taf_file.TAFFile):
                     **{
                         f"mc_pccm_mon_{mon}": df_mc[
                             [
-                                f"MC_PLAN_TYPE_CD_"
+                                "MC_PLAN_TYPE_CD_"
                                 f"{str(seq).zfill(2)}_"
                                 f"{str(mon).zfill(2)}"
                                 for seq in range(1, 17)
@@ -1027,7 +1025,7 @@ class TAFPS(taf_file.TAFFile):
                     **{
                         f"mc_comp_or_pccm_mon_{mon}": df_mc[
                             [
-                                f"MC_PLAN_TYPE_CD_"
+                                "MC_PLAN_TYPE_CD_"
                                 f"{str(seq).zfill(2)}_"
                                 f"{str(mon).zfill(2)}"
                                 for seq in range(1, 17)
@@ -1084,7 +1082,7 @@ class TAFPS(taf_file.TAFFile):
                     **{
                         f"max_continuous_mc_{mc_type}_enrollment": pdf[
                             f"mc_{mc_type}_months"
-                        ].apply(lambda x: max(map(len, x.split("0"))))
+                        ].apply(lambda x: max(len(s) for s in x.split("0")))
                         for mc_type in ["comp", "comp_or_pccm"]
                     }
                 )
@@ -1440,11 +1438,11 @@ class TAFPS(taf_file.TAFFile):
         df_base = df_base.map_partitions(
             lambda pdf: pdf.assign(
                 max_continuous_ffs_enrollment=pdf["ffs_months"].apply(
-                    lambda x: max(map(len, x.split("0")))
+                    lambda x: max(len(s) for s in x.split("0"))
                 ),
                 max_continuous_ffs_no_mc_comp_or_pccm_enrollment=pdf[
                     "ffs_no_mc_comp_or_pccm_months"
-                ].apply(lambda x: max(map(len, x.split("0")))),
+                ].apply(lambda x: max(len(s) for s in x.split("0"))),
             )
         )
         self.dct_files["base"] = df_base

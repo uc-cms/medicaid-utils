@@ -97,7 +97,7 @@ class TAFFile:
         for subtype in list(self.dct_fileloc.keys()):
             if not os.path.exists(self.dct_fileloc[subtype]):
                 if subtype not in self.non_core_ftypes:
-                    logging.info(f"{subtype} does not exist for {state}")
+                    logging.info("%s does not exist for %s", subtype, state)
                 if subtype not in self.allowed_missing_ftypes:
                     raise FileNotFoundError(
                         errno.ENOENT,
@@ -159,7 +159,7 @@ class TAFFile:
     @classmethod
     def get_claim_instance(
         cls, claim_type: str, *args: Any, **kwargs: Any
-    ) -> "TAFFile":  # pylint: disable=missing-param-doc
+    ) -> "TAFFile":
         """
         Returns an instance of the requested claim type
 
@@ -203,7 +203,7 @@ class TAFFile:
 
     def cache_results(
         self, subtype: Optional[str] = None, repartition: bool = False
-    ) -> None:  # pylint: disable=missing-param-doc
+    ) -> None:
         """
         Save results in intermediate steps of some lengthy processing.
         Saving intermediate results speeds up processing, and avoid dask
@@ -333,7 +333,7 @@ class TAFFile:
 
     def export(
         self, dest_folder: str, output_format: str = "csv", repartition: bool = False
-    ) -> None:  # pylint: disable=missing-param-doc
+    ) -> None:
         """
         Exports the files.
 
@@ -426,12 +426,12 @@ class TAFFile:
             ]
             if len(lst_diag_cd_col) > 0:
                 df = df.map_partitions(
-                    lambda pdf: pdf.assign(
+                    lambda pdf, _cols=lst_diag_cd_col: pdf.assign(
                         **{
                             col: pdf[col]
                             .str.replace("[^a-zA-Z0-9]+", "", regex=True)
                             .str.upper()
-                            for col in lst_diag_cd_col  # pylint: disable=cell-var-from-loop
+                            for col in _cols
                         }
                     )
                 )
@@ -510,12 +510,12 @@ class TAFFile:
             ]
             if len(lst_prcdr_cd_col) > 0:
                 df = df.map_partitions(
-                    lambda pdf: pdf.assign(
+                    lambda pdf, _cols=lst_prcdr_cd_col: pdf.assign(
                         **{
                             col: pdf[col]
                             .str.replace("[^a-zA-Z0-9]+", "", regex=True)
                             .str.upper()
-                            for col in lst_prcdr_cd_col  # pylint: disable=cell-var-from-loop
+                            for col in _cols
                         }
                     )
                 )
@@ -531,7 +531,9 @@ class TAFFile:
 
         References
         ----------
-        - `Identifying beneficiaries with a substance use disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
+        - `Identifying beneficiaries with a substance use disorder
+          <https://www.medicaid.gov/medicaid/data-and-systems/downloads/
+          macbis/sud_techspecs.docx>`_
 
         Examples
         --------
@@ -670,7 +672,9 @@ class TAFFile:
 
         References
         ----------
-        - `Identifying beneficiaries with a substance use disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
+        - `Identifying beneficiaries with a substance use disorder
+          <https://www.medicaid.gov/medicaid/data-and-systems/downloads/
+          macbis/sud_techspecs.docx>`_
 
         Examples
         --------

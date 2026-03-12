@@ -1,6 +1,5 @@
 """Tests for medicaid_utils.common_utils.links."""
 import os
-import pytest
 
 from medicaid_utils.common_utils import links
 

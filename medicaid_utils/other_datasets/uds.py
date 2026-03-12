@@ -4,14 +4,11 @@ import pandas as pd
 import dask.dataframe as dd
 import requests
 import re
-from dask import delayed
 import numpy as np
 from datetime import datetime
 from math import ceil
-from fuzzywuzzy import process, fuzz
-import usaddress
-import shutil
-from typing import List
+from fuzzywuzzy import process, fuzz  # pylint: disable=import-error
+import usaddress  # pylint: disable=import-error
 
 from medicaid_utils.common_utils.usps_address import USPSAddress
 
@@ -132,7 +129,7 @@ def combine_and_clean_uds_files(lst_year=None, logger_name="uds"):
     if lst_year is None:
         lst_year = list(range(2008, 2019))
     for year in lst_year:
-        logger.info(f"Processing {year} UDS dataset")
+        logger.info("Processing %s UDS dataset", year)
         df = pd.read_excel(
             os.path.join(uds_data_folder, dct_filename[year]),
             sheet_name=dct_sheet_name[year],
@@ -247,8 +244,10 @@ def combine_and_clean_uds_files(lst_year=None, logger_name="uds"):
         uds_lookup_folder, f"uds_{lst_year[0]}_{lst_year[-1]}.csv"
     )
     logger.info(
-        f"{','.join([str(yr) for yr in lst_year])} UDS datasets were merged and cleaned, and is saved at "
-        f"{fname_pickle} & {fname_csv}"
+        "%s UDS datasets were merged and cleaned, and is saved at %s & %s",
+        ",".join([str(yr) for yr in lst_year]),
+        fname_pickle,
+        fname_csv,
     )
     pdf_uds.to_csv(fname_csv, index=False)
     pdf_uds.to_pickle(fname_pickle)
@@ -421,6 +420,11 @@ def nppes_api_requests(pdf, source, logger_name, **dct_request_params):
     """Make NPPES API calls using hclinic name, city, state & zipcode in the request"""
 
     logger = logging.getLogger(logger_name)
+    _id_col = (
+        'hclinic_provider_id_cleaned'
+        if source == 'hcris'
+        else 'bhcmisid'
+    )
     # NPI Lookup params
     npi_api = "https://npiregistry.cms.hhs.gov/api/?"
     dct_params = {"enumeration_type": "NPI-2", "version": 2.1, "limit": 100}
@@ -487,9 +491,12 @@ def nppes_api_requests(pdf, source, logger_name, **dct_request_params):
     ]
     df_api_based_matched = df_api_based.loc[df_api_based["result_count"] >= 1]
     logger.info(
-        f"{df_api_based_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-        f"HCLINIC providers were matched using NPPES API calls with {dct_request_params['organization_name']}, "
-        f"{dct_request_params['city']},  {dct_request_params['state']} and {dct_request_params['postal_code']} "
+        "%s HCLINIC providers were matched using NPPES API calls with %s, %s, %s and %s",
+        df_api_based_matched[_id_col].nunique(),
+        dct_request_params['organization_name'],
+        dct_request_params['city'],
+        dct_request_params['state'],
+        dct_request_params['postal_code'],
     )
 
     # Using hclinic name, state and zipcode in the API call
@@ -516,6 +523,7 @@ def nppes_api_requests(pdf, source, logger_name, **dct_request_params):
                                         ],
                                     },
                                 },
+                                timeout=30,
                             ).json()
                             if (
                                 bool(row["cleaned_param_org_name"])
@@ -551,9 +559,11 @@ def nppes_api_requests(pdf, source, logger_name, **dct_request_params):
         df_api_based_relaxed_city["result_count"] >= 1
     ]
     logger.info(
-        f"{df_api_based_relaxed_city['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-        f"HCLINIC providers were matched using NPPES API calls with {dct_request_params['organization_name']}, "
-        f"{dct_request_params['state']} and {dct_request_params['postal_code']} "
+        "%s HCLINIC providers were matched using NPPES API calls with %s, %s and %s",
+        df_api_based_relaxed_city[_id_col].nunique(),
+        dct_request_params['organization_name'],
+        dct_request_params['state'],
+        dct_request_params['postal_code'],
     )
     df_api_based_matched = pd.concat(
         [df_api_based_matched, df_api_based_relaxed_city], ignore_index=True
@@ -584,6 +594,7 @@ def nppes_api_requests(pdf, source, logger_name, **dct_request_params):
                                         ],
                                     },
                                 },
+                                timeout=30,
                             ).json()
                             if (
                                 bool(row["cleaned_param_org_name"])
@@ -612,16 +623,15 @@ def nppes_api_requests(pdf, source, logger_name, **dct_request_params):
         right_index=True,
     )
 
-    df_api_based_relaxed_more_relaxed_name = df_api_based_relaxed_name.loc[
-        df_api_based_relaxed_name["result_count"] < 1
-    ]
     df_api_based_relaxed_name = df_api_based_relaxed_name.loc[
         df_api_based_relaxed_name["result_count"] >= 1
     ]
     logger.info(
-        f"{df_api_based_relaxed_name['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-        f"HCLINIC providers were matched using NPPES API calls with {dct_request_params['organization_name']} "
-        f"(starting with), {dct_request_params['state']} and {dct_request_params['postal_code']}"
+        "%s HCLINIC providers were matched using NPPES API calls with %s (starting with), %s and %s",
+        df_api_based_relaxed_name[_id_col].nunique(),
+        dct_request_params['organization_name'],
+        dct_request_params['state'],
+        dct_request_params['postal_code'],
     )
     df_api_based_matched = pd.concat(
         [df_api_based_matched, df_api_based_relaxed_name], ignore_index=True
@@ -663,7 +673,7 @@ def standardize_addresses(pdf):
             standardized_address = usps_address.standardized()
             standardized_street_address = street_address(standardized_address)
             address_error = usps_address._error
-        except Exception as ex:
+        except Exception:  # pylint: disable=broad-exception-caught
             address_error = "API call error"
         standardized = int(bool(standardized_address))
         # sleep(sleep_time)
@@ -711,9 +721,8 @@ def flatten_nppes_query_result(pdf):
         target_address,
         target_city,
         target_state,
-        lst_priority_taxonomies=["261QF0400X", "261QR1300X"],
+        _lst_priority_taxonomies=None,
     ):
-        lst_res = []
         lst_res = [
             expand_query_result(
                 dct_res,
@@ -1480,7 +1489,8 @@ def process_address_columns(pdf, logger_name, source="hcris"):
             ~pdf_addresses["standardized"].isin([0, 1])
         ][lst_address_col]
         logger.info(
-            f"{pdf_matched.shape[0]} addresses standardized using existing standardized addresses list"
+            "%s addresses standardized using existing standardized addresses list",
+            pdf_matched.shape[0],
         )
 
     logger.info("Standardize address using USPS API")
@@ -1489,14 +1499,13 @@ def process_address_columns(pdf, logger_name, source="hcris"):
             dd.from_pandas(
                 pdf_addresses, npartitions=ceil(pdf_addresses.shape[0] / 10000)
             )
-            .map_partitions(
-                lambda pdf_partition: standardize_addresses(pdf_partition)
-            )
+            .map_partitions(standardize_addresses)
             .compute()
         )
 
         logger.info(
-            f"{pdf_addresses.shape[0]} addresses standardized using USPS API"
+            "%s addresses standardized using USPS API",
+            pdf_addresses.shape[0],
         )
         if pdf_matched.shape[0] > 0:
             pdf_addresses = pd.concat(
@@ -1515,7 +1524,8 @@ def process_address_columns(pdf, logger_name, source="hcris"):
             fname_standardized_address
         )
         logger.info(
-            f"Standardized address list is saved at {fname_standardized_address}"
+            "Standardized address list is saved at %s",
+            fname_standardized_address,
         )
     else:
         pdf_addresses = pdf_matched
@@ -2454,17 +2464,21 @@ def fuzzy_match(
     Create two sets of matches: perfect matches that meet strict criteria with respect to name & address similarity,
     and less perfect matches with more relaxed criteria."""
     logger = logging.getLogger(logger_name)
+    _id_col = (
+        'hclinic_provider_id_cleaned'
+        if source == 'hcris'
+        else 'bhcmisid'
+    )
     logger.info(
-        f"Attempting fuzzy text matching. Merging {source} dataset with NPPES using state columns"
+        "Attempting fuzzy text matching. Merging %s dataset with NPPES using state columns",
+        source,
     )
     dct_filenames = get_file_name_dict(source)
-    df = df.sort_values(
-        ["hclinic_provider_id_cleaned" if (source == "hcris") else "bhcmisid"]
-    )
+    df = df.sort_values([_id_col])
     df = df.reset_index(drop=True)
 
     list_df = [
-        df[i : i + chunk_size] for i in range(0, df.shape[0], chunk_size)
+        df[i:i + chunk_size] for i in range(0, df.shape[0], chunk_size)
     ]
 
     fname_fuzzy_source_nppes_merge = os.path.join(
@@ -2473,7 +2487,7 @@ def fuzzy_match(
     if os.path.isfile(fname_fuzzy_source_nppes_merge):
         os.remove(fname_fuzzy_source_nppes_merge)
     for chunk_id, df_source in enumerate(list_df):
-        logger.info(f"Processing chunk {chunk_id + 1} of {len(list_df)}")
+        logger.info("Processing chunk %s of %s", chunk_id + 1, len(list_df))
 
         df_source_with_state = df_source.loc[
             df_source["hclinic_state"].str.strip().str.len() > 0
@@ -2793,9 +2807,10 @@ def fuzzy_match(
 
         if (chunk_id + 1) == len(list_df):
             logger.info(
-                f"HCLINIC providers were matched on the basis of text (name & address) columns with organization "
-                f"NPIs from NPPES dataset, resulting in {pd.read_pickle(fname_fuzzy_source_nppes_merge).shape[0]} "
-                f"potential matches. This dataset is saved at {fname_fuzzy_source_nppes_merge}"
+                "HCLINIC providers were matched on the basis of text (name & address) columns with organization "
+                "NPIs from NPPES dataset, resulting in %s potential matches. This dataset is saved at %s",
+                pd.read_pickle(fname_fuzzy_source_nppes_merge).shape[0],
+                fname_fuzzy_source_nppes_merge,
             )
 
             df_nppes_source_fuzzy_matched = pd.read_pickle(
@@ -2805,7 +2820,8 @@ def fuzzy_match(
                 df_nppes_source_fuzzy_matched, logger_name, source
             )
             logger.info(
-                f"Processing address columns for the {df_nppes_source_fuzzy_matched.shape[0]} text based matches"
+                "Processing address columns for the %s text based matches",
+                df_nppes_source_fuzzy_matched.shape[0],
             )
 
             df_nppes_source_fuzzy_matched = compute_match_purity(
@@ -2834,8 +2850,9 @@ def fuzzy_match(
                 export_folder, dct_filenames["text_merged_with_match_purity"]
             )
             logger.info(
-                f"Computing match purity for the {df_nppes_source_fuzzy_matched.shape[0]} text-based matches. This is "
-                f"saved at  {fname_fuzzy_source_nppes_merge_with_match_purity}"
+                "Computing match purity for the %s text-based matches. This is saved at  %s",
+                df_nppes_source_fuzzy_matched.shape[0],
+                fname_fuzzy_source_nppes_merge_with_match_purity,
             )
             df_nppes_source_fuzzy_matched.to_pickle(
                 fname_fuzzy_source_nppes_merge_with_match_purity
@@ -2862,17 +2879,16 @@ def fuzzy_match(
                     ]
                 )
                 logger.info(
-                    f"Perfect address matches were arrived at by filtering matches with >= 70 as the string distance "
-                    f"score for street addresses and >=50 as the string distance score for names. "
-                    f"{df_nppes_source_address_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                    f"were matched this way."
+                    "Perfect address matches were arrived at by filtering matches with >= 70 as the string distance "
+                    "score for street addresses and >=50 as the string distance score for names. "
+                    "%s were matched this way.",
+                    df_nppes_source_address_matched[_id_col].nunique(),
                 )
 
                 logger.info(
-                    f"Perfect name matches were arrived at by filtering matches with >= 70 as the string distance "
-                    f"score for names. "
-                    f"{df_nppes_source_name_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                    f"were matched this way."
+                    "Perfect name matches were arrived at by filtering matches with >= 70 as the string distance "
+                    "score for names. %s were matched this way.",
+                    df_nppes_source_name_matched[_id_col].nunique(),
                 )
             else:
                 df_nppes_source_address_matched = (
@@ -2899,18 +2915,18 @@ def fuzzy_match(
                 )
 
                 logger.info(
-                    f"Perfect address matches were arrived at by filtering matches with >= 70 as the string distance "
-                    f"score for street addresses, 100% matching door & street numbers, >=50 as the string distance "
-                    f"score for names and >= 80 as the string distance score for cities. "
-                    f"{df_nppes_source_address_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                    f"were matched this way."
+                    "Perfect address matches were arrived at by filtering matches with >= 70 as the string distance "
+                    "score for street addresses, 100%% matching door & street numbers, >=50 as the string distance "
+                    "score for names and >= 80 as the string distance score for cities. "
+                    "%s were matched this way.",
+                    df_nppes_source_address_matched[_id_col].nunique(),
                 )
 
                 logger.info(
-                    f"Perfect name matches were arrived at by filtering matches with >= 80 as the string distance "
-                    f"score for names and >= 80 as the string distance score for cities."
-                    f"{df_nppes_source_name_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                    f"were matched this way."
+                    "Perfect name matches were arrived at by filtering matches with >= 80 as the string distance "
+                    "score for names and >= 80 as the string distance score for cities."
+                    "%s were matched this way.",
+                    df_nppes_source_name_matched[_id_col].nunique(),
                 )
 
             df_text_based_perfect_matches = (
@@ -2977,6 +2993,11 @@ def create_npi_fqhc_crosswalk(
     """Merge HCRIS, UDS and NPPES and datasets to create FQHC NPI list"""
 
     logger = logging.getLogger(logger_name)
+    _id_col = (
+        'hclinic_provider_id_cleaned'
+        if source == 'hcris'
+        else 'bhcmisid'
+    )
     export_folder = fqhc_lookup_folder
     dct_filenames = get_file_name_dict(source)
     # Load all available years of hcris datasets
@@ -3016,7 +3037,6 @@ def create_npi_fqhc_crosswalk(
     )
 
     # Additional filters for UDS data
-    df_source_with_site = pd.DataFrame()
     df_source_with_address = pd.DataFrame()
     df_source_with_mail_address = pd.DataFrame()
     df_source_with_business_address = pd.DataFrame()
@@ -3025,16 +3045,13 @@ def create_npi_fqhc_crosswalk(
     df_source_with_site_and_business_address = pd.DataFrame()
     if source == "uds":
         if year is not None:
-            logger.info(f"Fetching NPIs for FQHCs in {year} {source} file")
+            logger.info("Fetching NPIs for FQHCs in %s %s file", year, source)
             df_source = df_source.loc[
                 df_source["reporting_year"].astype(int) == year
             ]
             export_folder = os.path.join(fqhc_lookup_folder, str(year))
         df_source = df_source.loc[df_source["fqhc"].astype(int) == 1]
         df_source = df_source.assign(hclinic_po_box="")
-        df_source_with_site = df_source.loc[
-            (df_source["hclinic_site_name"].str.len() > 0)
-        ]
         df_source_with_address = df_source.loc[
             (df_source["hclinic_name"].str.len() > 0)
             & (df_source["hclinic_city"].str.len() > 0)
@@ -3118,9 +3135,9 @@ def create_npi_fqhc_crosswalk(
 
         if source == "uds":
             logger.info(
-                f"{df_source_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using hclinic_state, and nppes provider_id and provider_id_state "
-                f"columns"
+                "%s HCLINIC providers were matched using hclinic_state, and nppes provider_id and "
+                "provider_id_state columns",
+                df_source_matched[_id_col].nunique(),
             )
             df_source_matched_business_state = df_npi_provider.merge(
                 df_source.loc[
@@ -3138,12 +3155,16 @@ def create_npi_fqhc_crosswalk(
                 ],
                 how="inner",
             ).compute()
+            _n_biz = df_source_matched_business_state.loc[
+                ~df_source_matched_business_state[_id_col].isin(
+                    df_source_matched[_id_col]
+                )
+            ][_id_col].nunique()
             logger.info(
-                f"{df_source_matched_business_state['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using hclinic_business_state, and nppes provider_id and "
-                f"provider_id_state columns,"
-                f"{df_source_matched_business_state.loc[~df_source_matched_business_state['hclinic_provider_id_cleaned' if (source=='hcris') else 'bhcmisid'].isin(df_source_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'])]['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()}"
-                f"of which were not previously matched"
+                "%s HCLINIC providers were matched using hclinic_business_state, and nppes provider_id and "
+                "provider_id_state columns,%sof which were not previously matched",
+                df_source_matched_business_state[_id_col].nunique(),
+                _n_biz,
             )
             df_source_matched_mail_state = df_npi_provider.merge(
                 df_source.loc[
@@ -3162,12 +3183,16 @@ def create_npi_fqhc_crosswalk(
                 right_on=["hclinic_provider_id_cleaned", "hclinic_mail_state"],
                 how="inner",
             ).compute()
+            _n_mail = df_source_matched_mail_state.loc[
+                ~df_source_matched_mail_state[_id_col].isin(
+                    df_source_matched[_id_col]
+                )
+            ][_id_col].nunique()
             logger.info(
-                f"{df_source_matched_mail_state['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and provider_id_state "
-                f"columns, "
-                f"{df_source_matched_mail_state.loc[~df_source_matched_mail_state['hclinic_provider_id_cleaned' if (source=='hcris') else 'bhcmisid'].isin(df_source_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'])]['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()}"
-                f"of which were not previously matched"
+                "%s HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and "
+                "provider_id_state columns, %sof which were not previously matched",
+                df_source_matched_mail_state[_id_col].nunique(),
+                _n_mail,
             )
             df_source_matched = (
                 pd.concat(
@@ -3184,8 +3209,8 @@ def create_npi_fqhc_crosswalk(
             )
 
         logger.info(
-            f"{df_source_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using provider_id and provider_id_state columns"
+            "%s HCLINIC providers were matched using provider_id and provider_id_state columns",
+            df_source_matched[_id_col].nunique(),
         )
         df_source_matched_ploc = df_npi_provider.merge(
             df_source.loc[
@@ -3198,8 +3223,9 @@ def create_npi_fqhc_crosswalk(
         ).compute()
         if source == "uds":
             logger.info(
-                f"{df_source_matched_ploc['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using hclinic_state, and nppes provider_id and p_loc_state columns"
+                "%s HCLINIC providers were matched using hclinic_state, and nppes provider_id and "
+                "p_loc_state columns",
+                df_source_matched_ploc[_id_col].nunique(),
             )
             df_source_matched_business_state = df_npi_provider.merge(
                 df_source.loc[
@@ -3217,12 +3243,16 @@ def create_npi_fqhc_crosswalk(
                 ],
                 how="inner",
             ).compute()
+            _n_biz_ploc = df_source_matched_business_state.loc[
+                ~df_source_matched_business_state[_id_col].isin(
+                    df_source_matched_ploc[_id_col]
+                )
+            ][_id_col].nunique()
             logger.info(
-                f"{df_source_matched_business_state['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using hclinic_business_state, and nppes provider_id and p_loc_state "
-                f"columns, "
-                f"{df_source_matched_business_state.loc[~df_source_matched_business_state['hclinic_provider_id_cleaned' if (source=='hcris') else 'bhcmisid'].isin(df_source_matched_ploc['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'])]['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()}"
-                f"of which were not previously matched"
+                "%s HCLINIC providers were matched using hclinic_business_state, and nppes provider_id "
+                "and p_loc_state columns, %sof which were not previously matched",
+                df_source_matched_business_state[_id_col].nunique(),
+                _n_biz_ploc,
             )
             df_source_matched_mail_state = df_npi_provider.merge(
                 df_source.loc[
@@ -3241,12 +3271,16 @@ def create_npi_fqhc_crosswalk(
                 right_on=["hclinic_provider_id_cleaned", "hclinic_mail_state"],
                 how="inner",
             ).compute()
+            _n_mail_ploc = df_source_matched_mail_state.loc[
+                ~df_source_matched_mail_state[_id_col].isin(
+                    df_source_matched_ploc[_id_col]
+                )
+            ][_id_col].nunique()
             logger.info(
-                f"{df_source_matched_mail_state['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and "
-                f"p_loc_state columns, "
-                f"{df_source_matched_mail_state.loc[~df_source_matched_mail_state['hclinic_provider_id_cleaned' if (source=='hcris') else 'bhcmisid'].isin(df_source_matched_ploc['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'])]['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()}"
-                f"of which were not previously matched"
+                "%s HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and "
+                "p_loc_state columns, %sof which were not previously matched",
+                df_source_matched_mail_state[_id_col].nunique(),
+                _n_mail_ploc,
             )
             df_source_matched_ploc = (
                 pd.concat(
@@ -3262,8 +3296,8 @@ def create_npi_fqhc_crosswalk(
                 .reset_index(drop=True)
             )
         logger.info(
-            f"{df_source_matched_ploc['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using provider_id and p_loc_state columns"
+            "%s HCLINIC providers were matched using provider_id and p_loc_state columns",
+            df_source_matched_ploc[_id_col].nunique(),
         )
 
         df_source_matched_mloc = df_npi_provider.merge(
@@ -3278,8 +3312,9 @@ def create_npi_fqhc_crosswalk(
 
         if source == "uds":
             logger.info(
-                f"{df_source_matched_mloc['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using hclinic_state, and nppes provider_id and p_mail_state columns"
+                "%s HCLINIC providers were matched using hclinic_state, and nppes provider_id and "
+                "p_mail_state columns",
+                df_source_matched_mloc[_id_col].nunique(),
             )
             df_source_matched_business_state = df_npi_provider.merge(
                 df_source.loc[
@@ -3297,12 +3332,16 @@ def create_npi_fqhc_crosswalk(
                 ],
                 how="inner",
             ).compute()
+            _n_biz_mloc = df_source_matched_business_state.loc[
+                ~df_source_matched_business_state[_id_col].isin(
+                    df_source_matched_mloc[_id_col]
+                )
+            ][_id_col].nunique()
             logger.info(
-                f"{df_source_matched_business_state['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using hclinic_business_state, and nppes provider_id and p_mail_state "
-                f"columns, "
-                f"{df_source_matched_business_state.loc[~df_source_matched_business_state['hclinic_provider_id_cleaned' if (source=='hcris') else 'bhcmisid'].isin(df_source_matched_mloc['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'])]['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()}"
-                f"of which were not previously matched"
+                "%s HCLINIC providers were matched using hclinic_business_state, and nppes provider_id "
+                "and p_mail_state columns, %sof which were not previously matched",
+                df_source_matched_business_state[_id_col].nunique(),
+                _n_biz_mloc,
             )
             df_source_matched_mail_state = df_npi_provider.merge(
                 df_source.loc[
@@ -3321,12 +3360,16 @@ def create_npi_fqhc_crosswalk(
                 right_on=["hclinic_provider_id_cleaned", "hclinic_mail_state"],
                 how="inner",
             ).compute()
+            _n_mail_mloc = df_source_matched_mail_state.loc[
+                ~df_source_matched_mail_state[_id_col].isin(
+                    df_source_matched_mloc[_id_col]
+                )
+            ][_id_col].nunique()
             logger.info(
-                f"{df_source_matched_mail_state['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and p_mail_state "
-                f"columns, "
-                f"{df_source_matched_mail_state.loc[~df_source_matched_mail_state['hclinic_provider_id_cleaned' if (source=='hcris') else 'bhcmisid'].isin(df_source_matched_mloc['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'])]['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()}"
-                f"of which were not previously matched"
+                "%s HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and "
+                "p_mail_state columns, %sof which were not previously matched",
+                df_source_matched_mail_state[_id_col].nunique(),
+                _n_mail_mloc,
             )
             df_source_matched_mloc = (
                 pd.concat(
@@ -3342,8 +3385,8 @@ def create_npi_fqhc_crosswalk(
                 .reset_index(drop=True)
             )
         logger.info(
-            f"{df_source_matched_mloc['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using provider_id and m_loc_state columns"
+            "%s HCLINIC providers were matched using provider_id and m_loc_state columns",
+            df_source_matched_mloc[_id_col].nunique(),
         )
 
         df_source_matched = (
@@ -3364,9 +3407,10 @@ def create_npi_fqhc_crosswalk(
             export_folder, dct_filenames["nppes_matches"]
         )
         logger.info(
-            f"In total, {df_source_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using provider_id and state columns from NPPES. These matched are saved "
-            f"at {fname_nppes_state_matched}"
+            "In total, %s HCLINIC providers were matched using provider_id and state columns from NPPES. "
+            "These matched are saved at %s",
+            df_source_matched[_id_col].nunique(),
+            fname_nppes_state_matched,
         )
 
         df_source_matched.to_pickle(fname_nppes_state_matched)
@@ -3502,8 +3546,8 @@ def create_npi_fqhc_crosswalk(
                 )
         if df_api_based_matched.shape[0] > 0:
             logger.info(
-                f"In total, {df_api_based_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using NPPES API calls"
+                "In total, %s HCLINIC providers were matched using NPPES API calls",
+                df_api_based_matched[_id_col].nunique(),
             )
 
             # Expanding multiple NPPES matches in json data returned by NPPES API
@@ -3547,15 +3591,16 @@ def create_npi_fqhc_crosswalk(
                 ]
             )
             logger.info(
-                f"{df_api_based_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} HCLINIC"
-                f" providers were matched using API calls after removing less clean matches (name score >70 or "
-                f"(address score >= 70 and same door number))"
+                "%s HCLINIC providers were matched using API calls after removing less clean matches "
+                "(name score >70 or (address score >= 70 and same door number))",
+                df_api_based_matched[_id_col].nunique(),
             )
             fname_api_based_matches = os.path.join(
                 export_folder, dct_filenames["api_matches"]
             )
             logger.info(
-                f"API based matches are saved at {fname_api_based_matches}"
+                "API based matches are saved at %s",
+                fname_api_based_matches,
             )
 
             df_api_based_matched_flattened.to_pickle(fname_api_based_matches)
@@ -3579,9 +3624,10 @@ def create_npi_fqhc_crosswalk(
                 export_folder, dct_filenames["api_and_nppes_matches"]
             )
             logger.info(
-                f"In total, {df_source_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"HCLINIC providers were matched using exports and NPPES API calls. These matches are saved at "
-                f"{fname_api_and_nppes_perfect_matches}"
+                "In total, %s HCLINIC providers were matched using exports and NPPES API calls. "
+                "These matches are saved at %s",
+                df_source_matched[_id_col].nunique(),
+                fname_api_and_nppes_perfect_matches,
             )
 
             df_source_matched.to_pickle(fname_api_and_nppes_perfect_matches)
@@ -3635,8 +3681,8 @@ def create_npi_fqhc_crosswalk(
             )
 
             logger.info(
-                f"{df_state_relaxed['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"hclinic provider ids were matched in this step"
+                "%s hclinic provider ids were matched in this step",
+                df_state_relaxed[_id_col].nunique(),
             )
 
             df_source_matched = (
@@ -3650,9 +3696,10 @@ def create_npi_fqhc_crosswalk(
                 export_folder, dct_filenames["api_nppes_state_relaxed_matches"]
             )
             logger.info(
-                f"In total {df_source_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-                f"hclinic provider ids were matched as of this step. All matches till this step are saved "
-                f"at {fname_with_state_relaxed}"
+                "In total %s hclinic provider ids were matched as of this step. All matches till this step "
+                "are saved at %s",
+                df_source_matched[_id_col].nunique(),
+                fname_with_state_relaxed,
             )
             df_source_matched.to_pickle(fname_with_state_relaxed)
     else:
@@ -3675,8 +3722,8 @@ def create_npi_fqhc_crosswalk(
         )
     ]
     logger.info(
-        f"{df_unmatched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} are yet to be "
-        f"matched"
+        "%s are yet to be matched",
+        df_unmatched[_id_col].nunique(),
     )
 
     df_text_based_perfect_matches, df_nppes_source_fuzzy_matched = fuzzy_match(
@@ -3691,10 +3738,10 @@ def create_npi_fqhc_crosswalk(
         export_folder, dct_filenames["text_matches"]
     )
     logger.info(
-        f"In total, perfect matches for "
-        f"{df_text_based_perfect_matches['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-        f"provider ids were arrived at using text distance metrics. These matches are saved at "
-        f"{fname_source_text_based_perfect_matches}"
+        "In total, perfect matches for %s provider ids were arrived at using text distance metrics. "
+        "These matches are saved at %s",
+        df_text_based_perfect_matches[_id_col].nunique(),
+        fname_source_text_based_perfect_matches,
     )
     df_text_based_perfect_matches.to_pickle(
         fname_source_text_based_perfect_matches
@@ -3714,9 +3761,10 @@ def create_npi_fqhc_crosswalk(
     )
     df_source_matched.to_pickle(fname_source_perfect_matches)
     logger.info(
-        f"In total, {df_source_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()}"
-        f" of the {df_source['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-        f"provider ids have perfect matches. All the perfect matches are saved at {fname_source_perfect_matches}"
+        "In total, %s of the %s provider ids have perfect matches. All the perfect matches are saved at %s",
+        df_source_matched[_id_col].nunique(),
+        df_source[_id_col].nunique(),
+        fname_source_perfect_matches,
     )
 
     df_nppes_source_fuzzy_matched = df_nppes_source_fuzzy_matched[
@@ -3728,23 +3776,22 @@ def create_npi_fqhc_crosswalk(
         export_folder, dct_filenames["fuzzy_matches"]
     )
     df_nppes_source_fuzzy_matched.to_pickle(fname_source_fuzzy_matches)
-    logger.info(
-        f"Less perfect matches were arrived at by filtering matches with >= 70 as the string distance score "
-        f"for address and >= 80 as the string distance score for cities. Door number match requirement was "
-        f"relaxed and matches that either meet this criteria or have >= 50 as the string distance score for "
-        f"names were allowed in this set. "
-        f"{df_nppes_source_fuzzy_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-        f"were matched this way. "
-        f"{df_nppes_source_fuzzy_matched[~df_nppes_source_fuzzy_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].isin(df_source_matched['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'])]['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()}"
-        f" of these providers do not have perfect matches. Less perfect matches are saved at "
-        f"{fname_source_fuzzy_matches}"
-    )
-
-    df_source_unmatched = df_source.loc[
-        ~df_source["hclinic_provider_id"].isin(
-            df_source_matched["hclinic_provider_id"]
+    _n_fuzzy = df_nppes_source_fuzzy_matched[_id_col].nunique()
+    _n_no_perfect = df_nppes_source_fuzzy_matched[
+        ~df_nppes_source_fuzzy_matched[_id_col].isin(
+            df_source_matched[_id_col]
         )
-    ]
+    ][_id_col].nunique()
+    logger.info(
+        "Less perfect matches were arrived at by filtering matches with >= 70 as the string distance score "
+        "for address and >= 80 as the string distance score for cities. Door number match requirement was "
+        "relaxed and matches that either meet this criteria or have >= 50 as the string distance score for "
+        "names were allowed in this set. %s were matched this way. %s of these providers do not have perfect "
+        "matches. Less perfect matches are saved at %s",
+        _n_fuzzy,
+        _n_no_perfect,
+        fname_source_fuzzy_matches,
+    )
 
     # Merge source & NPPES data on provider id (with no leading zeros) and state columns
     logger.info(
@@ -3762,9 +3809,9 @@ def create_npi_fqhc_crosswalk(
     ).compute()
     if source == "uds":
         logger.info(
-            f"{df_source_matched_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using hclinic_state, and nppes provider_id and provider_id_state "
-            f"columns (no leading zeros)"
+            "%s HCLINIC providers were matched using hclinic_state, and nppes provider_id and "
+            "provider_id_state columns (no leading zeros)",
+            df_source_matched_no_zeros[_id_col].nunique(),
         )
         df_source_matched_business_state_no_zeros = (
             df_npi_provider_cleaned.merge(
@@ -3790,9 +3837,9 @@ def create_npi_fqhc_crosswalk(
             ).compute()
         )
         logger.info(
-            f"{df_source_matched_business_state_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using hclinic_business_state, and nppes provider_id and provider_id_state "
-            f"columns (no leading zeros)"
+            "%s HCLINIC providers were matched using hclinic_business_state, and nppes provider_id and "
+            "provider_id_state columns (no leading zeros)",
+            df_source_matched_business_state_no_zeros[_id_col].nunique(),
         )
         df_source_matched_mail_state_no_zeros = df_npi_provider_cleaned.merge(
             df_source.loc[
@@ -3815,9 +3862,9 @@ def create_npi_fqhc_crosswalk(
             how="inner",
         ).compute()
         logger.info(
-            f"{df_source_matched_mail_state_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and provider_id_state "
-            f"columns (no leading zeros)"
+            "%s HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and "
+            "provider_id_state columns (no leading zeros)",
+            df_source_matched_mail_state_no_zeros[_id_col].nunique(),
         )
         df_source_matched_no_zeros = (
             pd.concat(
@@ -3834,8 +3881,8 @@ def create_npi_fqhc_crosswalk(
         )
 
     logger.info(
-        f"{df_source_matched_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-        f"HCLINIC providers were matched using provider_id and provider_id_state columns (no leading zeros)"
+        "%s HCLINIC providers were matched using provider_id and provider_id_state columns (no leading zeros)",
+        df_source_matched_no_zeros[_id_col].nunique(),
     )
     df_source_matched_ploc_no_zeros = df_npi_provider_cleaned.merge(
         df_source.loc[
@@ -3848,9 +3895,9 @@ def create_npi_fqhc_crosswalk(
     ).compute()
     if source == "uds":
         logger.info(
-            f"{df_source_matched_ploc_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using hclinic_state, and nppes provider_id and p_loc_state columns (no "
-            f"leading zeros)"
+            "%s HCLINIC providers were matched using hclinic_state, and nppes provider_id and p_loc_state "
+            "columns (no leading zeros)",
+            df_source_matched_ploc_no_zeros[_id_col].nunique(),
         )
         df_source_matched_business_state_no_zeros = (
             df_npi_provider_cleaned.merge(
@@ -3876,9 +3923,9 @@ def create_npi_fqhc_crosswalk(
             ).compute()
         )
         logger.info(
-            f"{df_source_matched_business_state_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using hclinic_business_state, and nppes provider_id and p_loc_state "
-            f"columns (no leading zeros)"
+            "%s HCLINIC providers were matched using hclinic_business_state, and nppes provider_id and "
+            "p_loc_state columns (no leading zeros)",
+            df_source_matched_business_state_no_zeros[_id_col].nunique(),
         )
         df_source_matched_mail_state_no_zeros = df_npi_provider_cleaned.merge(
             df_source.loc[
@@ -3901,9 +3948,9 @@ def create_npi_fqhc_crosswalk(
             how="inner",
         ).compute()
         logger.info(
-            f"{df_source_matched_mail_state_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and p_loc_state columns "
-            f"(no leading zeros)"
+            "%s HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and p_loc_state "
+            "columns (no leading zeros)",
+            df_source_matched_mail_state_no_zeros[_id_col].nunique(),
         )
         df_source_matched_ploc_no_zeros = (
             pd.concat(
@@ -3919,8 +3966,8 @@ def create_npi_fqhc_crosswalk(
             .reset_index(drop=True)
         )
     logger.info(
-        f"{df_source_matched_ploc_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()}"
-        f" HCLINIC providers were matched using provider_id and p_loc_state columns (no leading zeros)"
+        "%s HCLINIC providers were matched using provider_id and p_loc_state columns (no leading zeros)",
+        df_source_matched_ploc_no_zeros[_id_col].nunique(),
     )
 
     df_source_matched_mloc_no_zeros = df_npi_provider_cleaned.merge(
@@ -3934,9 +3981,9 @@ def create_npi_fqhc_crosswalk(
     ).compute()
     if source == "uds":
         logger.info(
-            f"{df_source_matched_mloc_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using hclinic_state, and nppes provider_id and p_mail_state columns"
-            f" (no leading zeros)"
+            "%s HCLINIC providers were matched using hclinic_state, and nppes provider_id and p_mail_state "
+            "columns (no leading zeros)",
+            df_source_matched_mloc_no_zeros[_id_col].nunique(),
         )
         df_source_matched_business_state_no_zeros = (
             df_npi_provider_cleaned.merge(
@@ -3962,9 +4009,9 @@ def create_npi_fqhc_crosswalk(
             ).compute()
         )
         logger.info(
-            f"{df_source_matched_business_state_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using hclinic_business_state, and nppes provider_id and p_mail_state "
-            f"columns (no leading zeros)"
+            "%s HCLINIC providers were matched using hclinic_business_state, and nppes provider_id and "
+            "p_mail_state columns (no leading zeros)",
+            df_source_matched_business_state_no_zeros[_id_col].nunique(),
         )
         df_source_matched_mail_state_no_zeros = df_npi_provider_cleaned.merge(
             df_source.loc[
@@ -3987,9 +4034,9 @@ def create_npi_fqhc_crosswalk(
             how="inner",
         ).compute()
         logger.info(
-            f"{df_source_matched_mail_state_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and p_mail_state columns "
-            f"(no leading zeros)"
+            "%s HCLINIC providers were matched using hclinic_mail_state, and nppes provider_id and p_mail_state "
+            "columns (no leading zeros)",
+            df_source_matched_mail_state_no_zeros[_id_col].nunique(),
         )
         df_source_matched_mloc_no_zeros = (
             pd.concat(
@@ -4005,8 +4052,8 @@ def create_npi_fqhc_crosswalk(
             .reset_index(drop=True)
         )
     logger.info(
-        f"{df_source_matched_mloc_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-        f"HCLINIC providers were matched using provider_id and m_loc_state columns (no leading zeros)"
+        "%s HCLINIC providers were matched using provider_id and m_loc_state columns (no leading zeros)",
+        df_source_matched_mloc_no_zeros[_id_col].nunique(),
     )
 
     df_source_matched_no_zeros = (
@@ -4037,9 +4084,9 @@ def create_npi_fqhc_crosswalk(
         )
         df_source_matched_no_zeros.to_pickle(fname_nppes_matched_no_zeros)
         logger.info(
-            f"{df_source_matched_no_zeros['hclinic_provider_id_cleaned' if (source == 'hcris') else 'bhcmisid'].nunique()} HCLINIC "
-            f"providers were matched using NPPES (no leading zeros). These matches are saved at "
-            f"{fname_nppes_matched_no_zeros}"
+            "%s HCLINIC providers were matched using NPPES (no leading zeros). These matches are saved at %s",
+            df_source_matched_no_zeros[_id_col].nunique(),
+            fname_nppes_matched_no_zeros,
         )
         df_source_matched = (
             pd.concat(
@@ -4055,9 +4102,10 @@ def create_npi_fqhc_crosswalk(
         )
         df_source_matched.to_pickle(fname_source_perfect_matches)
         logger.info(
-            f"In total, {df_source_matched['hclinic_provider_id' if (source == 'hcris') else 'bhcmisid'].nunique()} "
-            f"of the {df_source['hclinic_provider_id' if (source == 'hcris') else 'bhcmisid'].nunique()} provider "
-            f"ids have perfect matches. All the perfect matches are saved at {fname_source_perfect_matches}"
+            "In total, %s of the %s provider ids have perfect matches. All the perfect matches are saved at %s",
+            df_source_matched['hclinic_provider_id' if (source == 'hcris') else 'bhcmisid'].nunique(),
+            df_source['hclinic_provider_id' if (source == 'hcris') else 'bhcmisid'].nunique(),
+            fname_source_perfect_matches,
         )
 
 
@@ -4066,7 +4114,7 @@ def combine_uds_fqhc_npi_crosswalks(lst_year, logger_name, source="uds"):
     logger = logging.getLogger(logger_name)
     dct_file_names = get_file_name_dict(source)
     for fname in dct_file_names:
-        logger.info(f"Merging {source} {fname}")
+        logger.info("Merging %s %s", source, fname)
         lst_df = [
             pd.read_pickle(
                 os.path.join(
@@ -4098,7 +4146,7 @@ def combine_uds_fqhc_npi_crosswalks(lst_year, logger_name, source="uds"):
                 os.path.join(fqhc_lookup_folder, dct_file_names[fname])
             )
         else:
-            logger.info(f"No {source} matches of type {fname} were found")
+            logger.info("No %s matches of type %s were found", source, fname)
     df_perfect = pd.read_pickle(
         os.path.join(fqhc_lookup_folder, dct_file_names["perfect_matches"])
     )
@@ -4204,10 +4252,12 @@ def generate_bhcmisid_fqhc_crosswalk(
     )
 
     logger.info(
-        f"{df_bhcmisid_x_npi_matched.npi.nunique()} NPIs were matched with BHCMISIDs with a fresh text based "
-        f"match with relaxed constraints. (>=70 as the distance score for any of name and address columns). "
-        f"{df_bhcmisid_x_npi_matched.npi.nunique() + df_bhcmisid_x_npi.nunique()} of the "
-        f"{len(lst_perfect_npi) + len(lst_fuzzy_npi)} NPIs were matched to BHCMISIDs."
+        "%s NPIs were matched with BHCMISIDs with a fresh text based match with relaxed constraints. "
+        "(>=70 as the distance score for any of name and address columns). "
+        "%s of the %s NPIs were matched to BHCMISIDs.",
+        df_bhcmisid_x_npi_matched.npi.nunique(),
+        df_bhcmisid_x_npi_matched.npi.nunique() + df_bhcmisid_x_npi.nunique(),
+        len(lst_perfect_npi) + len(lst_fuzzy_npi),
     )
 
     pd.concat(
@@ -4350,6 +4400,7 @@ def generate_and_combine_fqhc_npi_crosswalks(logger_name):
     )
 
     logger.info(
-        f"NPI X FQHC croswalk is saved at {get_file_name_dict('uds')['fqhc_x_npi']} and "
-        "{os.path.join(fqhc_lookup_folder, 'fqhc_x_npi.csv')}"
+        "NPI X FQHC croswalk is saved at %s and %s",
+        get_file_name_dict('uds')['fqhc_x_npi'],
+        os.path.join(fqhc_lookup_folder, 'fqhc_x_npi.csv'),
     )

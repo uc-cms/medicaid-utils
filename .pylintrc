@@ -102,6 +102,7 @@ disable=
     missing-docstring,
     protected-access,
     too-few-public-methods,
+    redefined-outer-name,
     # handled by black
     format,
 

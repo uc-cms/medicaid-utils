@@ -4,24 +4,16 @@ import gc
 import os
 import shutil
 import logging
-from typing import Dict, List, Optional, Union, Tuple
+from typing import List, Optional, Union, Tuple
 
 import pandas as pd
 import dask.dataframe as dd
 
 from medicaid_utils.preprocessing import (
     max_file,
-    max_ip,
-    max_ps,
-    max_cc,
-    max_ot,  # pylint: disable=unused-import
     taf_file,
-    taf_ip,
-    taf_ot,
-    taf_ps,  # pylint: disable=unused-import
 )
 from medicaid_utils.filters.claims import dx_and_proc
-from medicaid_utils.common_utils import dataframe_utils
 
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 
@@ -821,7 +813,8 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
                     df_cohort_filter_stats.to_parquet(
                         os.path.join(
                             dct_data_paths["export_folder"],
-                            f"cohort_exclusions_{f_type}_{dct_claims[f_type].state}_{dct_claims[f_type].year}_{sub_type}.parquet",
+                            f"cohort_exclusions_{f_type}_{dct_claims[f_type].state}"
+                            f"_{dct_claims[f_type].year}_{sub_type}.parquet",
                         ),
                         engine=dct_claims[f_type].pq_engine,
                         index=False,

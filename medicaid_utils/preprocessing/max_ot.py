@@ -101,43 +101,26 @@ class MAXOT(max_file.MAXFile):
         self.df = dataframe_utils.fix_index(
             self.df, self.index_col, drop_column=True
         )
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
+
+        def _flag_excl(pdf):
+            php = pd.to_numeric(pdf["PHP_TYPE"], errors="coerce")
+            clm = pd.to_numeric(pdf["TYPE_CLM_CD"], errors="coerce")
+            is_encounter = (php == 77) | ((php == 88) & (clm == 3))
+            is_capitation = (php == 88) & (clm == 2)
+            return pdf.assign(
                 excl_missing_dob=pdf["birth_date"].isnull().astype(int),
                 excl_missing_srvc_bgn_date=pdf["srvc_bgn_date"]
                 .isnull()
                 .astype(int),
-                excl_encounter_claim=(
-                    (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 77)
-                    | (
-                        (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 88)
-                        & (
-                            pd.to_numeric(pdf["TYPE_CLM_CD"], errors="coerce")
-                            == 3
-                        )
-                    )
-                ).astype(int),
-                excl_capitation_claim=(
-                    (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 88)
-                    & (pd.to_numeric(pdf["TYPE_CLM_CD"], errors="coerce") == 2)
-                ).astype(int),
+                excl_encounter_claim=is_encounter.astype(int),
+                excl_capitation_claim=is_capitation.astype(int),
                 excl_ffs_claim=(
-                    ~(
-                        (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 77)
-                        | (
-                            (
-                                pd.to_numeric(pdf["PHP_TYPE"], errors="coerce")
-                                == 88
-                            )
-                            & pd.to_numeric(
-                                pdf["TYPE_CLM_CD"], errors="coerce"
-                            ).isin([2, 3])
-                        )
-                    )
+                    ~(is_encounter | is_capitation)
                 ).astype(int),
                 excl_female=(pdf["female"] == 1).astype(int),
             )
-        )
+
+        self.df = self.df.map_partitions(_flag_excl)
 
     def flag_duplicates(self) -> None:
         self.df = dataframe_utils.fix_index(self.df, self.index_col, True)
@@ -157,27 +140,25 @@ class MAXOT(max_file.MAXFile):
         New Column(s):
             EM - 0 or 1, 1 when PRCDR_CD in [99201, 99215] or [99301, 99350]
         """
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
+
+        def _flag_em(pdf):
+            prcdr = pd.to_numeric(pdf["PRCDR_CD"], errors="coerce")
+            prcdr_sys = pd.to_numeric(
+                pdf["PRCDR_CD_SYS"], errors="coerce"
+            )
+            return pdf.assign(
                 EM=(
-                    (pd.to_numeric(pdf["PRCDR_CD_SYS"], errors="coerce") == 1)
+                    (prcdr_sys == 1)
                     & (
-                        pd.to_numeric(
-                            pdf["PRCDR_CD"], errors="coerce"
-                        ).between(99201, 99205, inclusive="both")
-                        | pd.to_numeric(
-                            pdf["PRCDR_CD"], errors="coerce"
-                        ).between(99211, 99215, inclusive="both")
-                        | pd.to_numeric(
-                            pdf["PRCDR_CD"], errors="coerce"
-                        ).between(99381, 99387, inclusive="both")
-                        | pd.to_numeric(
-                            pdf["PRCDR_CD"], errors="coerce"
-                        ).between(99391, 99397, inclusive="both")
+                        prcdr.between(99201, 99205, inclusive="both")
+                        | prcdr.between(99211, 99215, inclusive="both")
+                        | prcdr.between(99381, 99387, inclusive="both")
+                        | prcdr.between(99391, 99397, inclusive="both")
                     )
                 ).astype(int)
             )
-        )
+
+        self.df = self.df.map_partitions(_flag_em)
 
     def flag_dental(self) -> None:
         """
@@ -187,20 +168,16 @@ class MAXOT(max_file.MAXFile):
             dental_PRCDR - 0 or 1, 1 when PRCDR_CD starts with 'D'
             dental - 0 or 1, 1 when any of dental_TOS or dental_PRCDR
         """
-        self.df = self.df.assign(
-            dental_TOS=(
-                dd.to_numeric(self.df["MAX_TOS"], errors="coerce") == 9
-            ).astype(int)
+        dental_tos = (
+            dd.to_numeric(self.df["MAX_TOS"], errors="coerce") == 9
+        )
+        dental_proc = (
+            self.df.PRCDR_CD.astype(str).str.slice(stop=1) == "D"
         )
         self.df = self.df.assign(
-            dental_PROC=(
-                self.df.PRCDR_CD.astype(str).str.slice(stop=1) == "D"
-            ).astype(int)
-        )
-        self.df["dental"] = (
-            self.df[["dental_TOS", "dental_PROC"]]
-            .any(axis="columns")
-            .astype(int)
+            dental_TOS=dental_tos.astype(int),
+            dental_PROC=dental_proc.astype(int),
+            dental=(dental_tos | dental_proc).astype(int),
         )
 
     def flag_transport(self) -> None:

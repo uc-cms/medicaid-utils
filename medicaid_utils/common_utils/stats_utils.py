@@ -277,7 +277,7 @@ def get_ranksum_table(
                         for pop_val in lst_pop_val
                     ]
                 )
-        except Exception as ex:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
 
         pdf_ranksum = pd.DataFrame(
@@ -343,9 +343,9 @@ def get_cont_table_statewise(
     state_col_name: str,
 ) -> pd.DataFrame:
     pdf_pretty_combined = {}
-    sorted(lst_st)
+    lst_st = sorted(lst_st)
     for state in ["All States"] + lst_st:
-        pdf_t, pdf_pretty = get_contingency_table(
+        _, pdf_pretty = get_contingency_table(
             (
                 pdf_included.loc[pdf_included[state_col_name] == state]
                 if (state != "All States")
@@ -370,9 +370,9 @@ def get_ranksum_table_statewise(
     state_col_name: str,
 ) -> pd.DataFrame:
     pdf_pretty_combined = {}
-    sorted(lst_st)
+    lst_st = sorted(lst_st)
     for state in ["All States"] + lst_st:
-        pdf_t, pdf_pretty = get_ranksum_table(
+        _, pdf_pretty = get_ranksum_table(
             (
                 pdf_included.loc[pdf_included[state_col_name] == state]
                 if (state != "All States")
@@ -415,7 +415,7 @@ def get_descriptives(
             .describe(percentiles=[0.01, 0.25, 0.5, 0.75, 0.95, 0.99])
             .T.reset_index()
         )
-        pdf_desc.rename(columns={"index": "metric"}, inplace=True)
+        pdf_desc = pdf_desc.rename(columns={"index": "metric"})
         pdf_desc[state_col_name] = state
         pdf_desc = pdf_desc[
             [state_col_name, "metric"]

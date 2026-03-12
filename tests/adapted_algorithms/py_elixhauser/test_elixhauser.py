@@ -1,6 +1,5 @@
 """Tests for the Elixhauser comorbidity scoring algorithm."""
 
-import pytest
 import pandas as pd
 import dask.dataframe as dd
 import numpy as np

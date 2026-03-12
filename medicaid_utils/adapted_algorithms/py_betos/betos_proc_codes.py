@@ -4,10 +4,7 @@
 __author__ = "Manoradhan Murugesan"
 __email__ = "manorathan@uchicago.edu"
 
-import sys
 import os
-from itertools import product
-from typing import List
 
 import numpy as np
 import pandas as pd
@@ -53,14 +50,15 @@ class BetosProcCodes:
         True
 
         """
-        pdf_crosswalk = pd.read_csv(
-            os.path.join(
-                cls.data_folder, "betpuf{0}.txt".format(str(year)[-2:])
-            ),
-            header=None,
-            names=["tmp"],
+        betpuf_path = os.path.join(
+            cls.data_folder, "betpuf{0}.txt".format(str(year)[-2:])
         )
         if year != 2020:
+            pdf_crosswalk = pd.read_csv(
+                betpuf_path,
+                header=None,
+                names=["tmp"],
+            )
             pdf_crosswalk["cpt_code"] = (
                 pdf_crosswalk["tmp"].str.split(" ").str[0]
             )
@@ -89,7 +87,7 @@ class BetosProcCodes:
                 ),
                 header=None,
                 sep="=",
-                on_bad_lines="error",
+                on_bad_lines="skip",
                 skiprows=54,
                 names=["betos_code", "betos_code_name"],
             )
@@ -117,13 +115,21 @@ class BetosProcCodes:
             )
         else:
             pdf_crosswalk = pd.read_csv(
-                os.path.join(
-                    cls.data_folder, "betpuf{0}.txt".format(str(year)[-2:])
-                ),
+                betpuf_path,
                 header=None,
-                names=["cpt_code", "betos_code", "betos_code_name"],
-                sep=" ",
+                names=["tmp"],
+                sep="\t",
             )
+            pdf_crosswalk["cpt_code"] = (
+                pdf_crosswalk["tmp"].str.split(" ").str[0]
+            )
+            pdf_crosswalk["betos_code"] = (
+                pdf_crosswalk["tmp"].str.split(" ").str[1]
+            )
+            pdf_crosswalk["betos_code_name"] = (
+                pdf_crosswalk["tmp"].str.extract(r'"(.+)"')[0]
+            )
+            pdf_crosswalk = pdf_crosswalk.drop(columns=["tmp"])
             pdf_crosswalk = pdf_crosswalk.loc[
                 pdf_crosswalk["betos_code"].notna()
             ]

@@ -84,4 +84,3 @@ class TAFLT(taf_file.TAFFile):
         >>> lt = TAFLT(2019, 'AL', '/data/cms', preprocess=False)  # doctest: +SKIP
         >>> lt.preprocess()  # doctest: +SKIP
         """
-        pass

@@ -12,7 +12,7 @@ __email__ = "manorathan@uchicago.edu"
 import re
 import os
 from ast import literal_eval
-from typing import Dict, Tuple, Union
+from typing import Tuple
 
 import pandas as pd
 import dask.dataframe as dd

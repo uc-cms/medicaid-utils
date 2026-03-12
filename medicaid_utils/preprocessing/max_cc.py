@@ -107,7 +107,7 @@ class MAXCC(max_file.MAXFile):
 
     def get_chronic_conditions(
         self, lst_conditions: Optional[List[str]] = None
-    ) -> dd.DataFrame:  # pylint: disable=missing-param-doc
+    ) -> dd.DataFrame:
         """
         Get chronic condition indidcators
 

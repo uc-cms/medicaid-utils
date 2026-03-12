@@ -77,47 +77,34 @@ class MAXIP(max_file.MAXFile):
         self.flag_ip_overlaps()
 
     def flag_common_exclusions(self) -> None:
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
+        def _flag_excl(pdf):
+            php = pd.to_numeric(pdf["PHP_TYPE"], errors="coerce")
+            clm = pd.to_numeric(pdf["TYPE_CLM_CD"], errors="coerce")
+            is_encounter = (php == 77) | ((php == 88) & (clm == 3))
+            is_capitation = (php == 88) & (clm == 2)
+            return pdf.assign(
                 excl_missing_dob=pdf["birth_date"].isnull().astype(int),
-                excl_missing_admsn_date=pdf["admsn_date"].isnull().astype(int),
+                excl_missing_admsn_date=pdf["admsn_date"]
+                .isnull()
+                .astype(int),
                 excl_missing_prncpl_proc_date=pdf["prncpl_proc_date"]
                 .isnull()
                 .astype(int),
-                excl_encounter_claim=(
-                    (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 77)
-                    | (
-                        (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 88)
-                        & (
-                            pd.to_numeric(pdf["TYPE_CLM_CD"], errors="coerce")
-                            == 3
-                        )
-                    )
-                ).astype(int),
-                excl_capitation_claim=(
-                    (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 88)
-                    & (pd.to_numeric(pdf["TYPE_CLM_CD"], errors="coerce") == 2)
-                ).astype(int),
+                excl_encounter_claim=is_encounter.astype(int),
+                excl_capitation_claim=is_capitation.astype(int),
                 excl_ffs_claim=(
-                    ~(
-                        (pd.to_numeric(pdf["PHP_TYPE"], errors="coerce") == 77)
-                        | (
-                            (
-                                pd.to_numeric(pdf["PHP_TYPE"], errors="coerce")
-                                == 88
-                            )
-                            & pd.to_numeric(
-                                pdf["TYPE_CLM_CD"], errors="coerce"
-                            ).isin([2, 3])
-                        )
-                    )
+                    ~(is_encounter | is_capitation)
                 ).astype(int),
                 excl_delivery=(
-                    pd.to_numeric(pdf["RCPNT_DLVRY_CD"], errors="coerce") == 1
+                    pd.to_numeric(
+                        pdf["RCPNT_DLVRY_CD"], errors="coerce"
+                    )
+                    == 1
                 ).astype(int),
                 excl_female=(pdf["female"] == 1).astype(int),
             )
-        )
+
+        self.df = self.df.map_partitions(_flag_excl)
 
     def flag_duplicates(self) -> None:
         self.df = dataframe_utils.fix_index(self.df, self.index_col, True)
@@ -144,8 +131,7 @@ class MAXIP(max_file.MAXFile):
         :rtype: None
         """
 
-        df_flagged = self.df.copy()
-        df_flagged[self.index_col] = df_flagged.index
+        df_flagged = self.df.assign(**{self.index_col: self.df.index})
         df_flagged["flag_ip_dup_drop"] = np.nan
         df_flagged["flag_ip_undup"] = np.nan
         df_flagged["admsntime"] = np.nan
@@ -161,7 +147,7 @@ class MAXIP(max_file.MAXFile):
         )
 
         def _mptn_check_ip_overlaps(pdf_partition: pd.DataFrame) -> pd.DataFrame:
-            pdf_partition.reset_index(drop=True, inplace=True)
+            pdf_partition = pdf_partition.reset_index(drop=True)
             # check duplicate claims (same ID, admission date), flag the largest payment amount
             pdf_partition = pdf_partition.sort_values(
                 by=[self.index_col, "admsn_date", "pymt_amt", "los"],
@@ -237,7 +223,7 @@ class MAXIP(max_file.MAXFile):
             pdf_partition = pdf_partition.sort_values(
                 by=[self.index_col, "admsn_date", "pymt_amt"]
             )
-            pdf_partition.set_index(self.index_col, drop=False, inplace=True)
+            pdf_partition = pdf_partition.set_index(self.index_col, drop=False)
             return pdf_partition
 
         df_flagged = df_flagged.map_partitions(

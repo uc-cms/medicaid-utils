@@ -13,10 +13,6 @@ def generate_dxgrp_file() -> None:
     used by the Prevention Quality Indicators algorithm. The file is saved
     to the package data directory.
 
-    Returns
-    -------
-    None
-
     Examples
     --------
     >>> generate_dxgrp_file()  # doctest: +SKIP
@@ -25,8 +21,7 @@ def generate_dxgrp_file() -> None:
     df_pqi_dxgroup = pd.DataFrame(
         columns=["primary_outcome", "lst_dx", "var_name", "comments"]
     )
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Diabetes with Short Term Complications",
                 "lst_dx": ",".join(
@@ -51,11 +46,8 @@ def generate_dxgrp_file() -> None:
                 ),
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+        )], ignore_index=True)
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Gastroenteritis",
                 "lst_dx": ",".join(
@@ -80,12 +72,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Perforated Appendix",
                 "lst_dx": ",".join(["5400 ", "5401 "]),
@@ -93,12 +82,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "Perforated Appendix rate (ACSAPP) - ACSC #2",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Appendicitis (Population at Risk)",
                 "lst_dx": ",".join(["5400 ", "5401 ", "5409 ", "541  "]),
@@ -106,12 +92,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Diabetes with Long Term Complication",
                 "lst_dx": ",".join(
@@ -148,12 +131,9 @@ def generate_dxgrp_file() -> None:
                 ),
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Asthma",
                 "lst_dx": ",".join(
@@ -178,12 +158,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "Asthma rate (ACSAST) - ACSC #15 - Adult ",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": (
                     "EXCLUDE: CYSTIC FIBROSIS AND ANOMALIES OF RESPIRATORY"
@@ -219,12 +196,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "COPD (#1)",
                 "lst_dx": ",".join(
@@ -247,12 +221,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "COPD rate (ACCOPD) - ACSC #5",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "COPD (#2)",
                 "lst_dx": ",".join(["4660 ", "490  "]),
@@ -260,12 +231,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Hypertension",
                 "lst_dx": ",".join(
@@ -287,12 +255,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "Hypertension rate (ACSHYP) - ACSC #7",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": (
                     "Exclude: Stage I-IV Kidney primary_outcome"
@@ -304,12 +269,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "EXCLUDE: CHRONIC RENAL FAILURE",
                 "lst_dx": ",".join(
@@ -341,12 +303,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Renal Failure",
                 "lst_dx": ",".join(
@@ -356,12 +315,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Congestive Heart Failure",
                 "lst_dx": ",".join(
@@ -397,12 +353,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "Congestive Heart Failure rate (ACSCHF) - ACSC #8",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Congestive Heart Failure",
                 "lst_dx": ",".join(
@@ -429,12 +382,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Liveborn (Populaton at Risk)",
                 "lst_dx": ",".join(
@@ -463,12 +413,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "Low Birth Weight rate (ACSLBW) - ACSC #9",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Liveborn (Populaton at Risk)",
                 "lst_dx": ",".join(
@@ -478,12 +425,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Liveborn (Populaton at Risk)",
                 "lst_dx": ",".join(
@@ -512,12 +456,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Dehydration",
                 "lst_dx": ",".join(["2765 ", "27650", "27651", "27652"]),
@@ -525,12 +466,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "Dehydration rate (ACSDEH) - ACSC #10",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Bacterial Pneumonia",
                 "lst_dx": ",".join(
@@ -555,12 +493,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "Bacterial Pneumonia rate (ACSBAC) - ACSC #11",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Exclude: Sickle Cell",
                 "lst_dx": ",".join(
@@ -580,12 +515,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "HYPEROSMOLALITY AND /OR HYPERNATREMIA",
                 "lst_dx": ",".join(["2760 "]),
@@ -593,12 +525,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Urinary Infection",
                 "lst_dx": ",".join(
@@ -619,12 +548,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "Urinary Infection rate (ACSUTI) - ACSC #12",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "EXCLUDE: IMMUNOCOMPROMISED",
                 "lst_dx": ",".join(
@@ -727,12 +653,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "XCLUDE: KIDNEY OR URINARY TRACT DISORDER",
                 "lst_dx": ",".join(
@@ -770,12 +693,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Angina",
                 "lst_dx": ",".join(
@@ -785,12 +705,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "Angina (w/o procedure) rate (ACSANG) - ACSC #13",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Diabetes uncontrolled",
                 "lst_dx": ",".join(["25002", "25003"]),
@@ -798,12 +715,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "Diabetes uncontrolled rate (ACDIAU) - ACSC #14",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Include only: Diabetes",
                 "lst_dx": ",".join(
@@ -854,12 +768,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "Exclude: Trauma",
                 "lst_dx": ",".join(
@@ -884,12 +795,9 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_dxgroup = df_pqi_dxgroup.append(
-        pd.DataFrame(
+    df_pqi_dxgroup = pd.concat([df_pqi_dxgroup, pd.DataFrame(
             {
                 "primary_outcome": "EXCLUDE: TOE AMPUTATION PROCEDURE",
                 "lst_dx": ",".join(["8411 "]),
@@ -897,9 +805,7 @@ def generate_dxgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
     df_pqi_dxgroup["lst_dx"] = df_pqi_dxgroup["lst_dx"].str.replace(
         " ", "", regex=True
@@ -919,10 +825,6 @@ def generate_prgrp_file() -> None:
     used by the Prevention Quality Indicators algorithm. The file is saved
     to the package data directory.
 
-    Returns
-    -------
-    None
-
     Examples
     --------
     >>> generate_prgrp_file()  # doctest: +SKIP
@@ -932,8 +834,7 @@ def generate_prgrp_file() -> None:
         columns=["primary_outcome", "lst_pr", "var_name", "comments"]
     )
 
-    df_pqi_prgrp = df_pqi_prgrp.append(
-        pd.DataFrame(
+    df_pqi_prgrp = pd.concat([df_pqi_prgrp, pd.DataFrame(
             {
                 "primary_outcome": "Haemodialysis",
                 "lst_pr": ",".join(
@@ -943,12 +844,9 @@ def generate_prgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_prgrp = df_pqi_prgrp.append(
-        pd.DataFrame(
+    df_pqi_prgrp = pd.concat([df_pqi_prgrp, pd.DataFrame(
             {
                 "primary_outcome": "Exclude: Cardiac Procedures",
                 "lst_pr": ",".join(
@@ -1100,12 +998,9 @@ def generate_prgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_prgrp = df_pqi_prgrp.append(
-        pd.DataFrame(
+    df_pqi_prgrp = pd.concat([df_pqi_prgrp, pd.DataFrame(
             {
                 "primary_outcome": "EXCLUDE: IMMUNOCOMPROMISED",
                 "lst_pr": ",".join(
@@ -1144,12 +1039,9 @@ def generate_prgrp_file() -> None:
                 "comments": "",
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
 
-    df_pqi_prgrp = df_pqi_prgrp.append(
-        pd.DataFrame(
+    df_pqi_prgrp = pd.concat([df_pqi_prgrp, pd.DataFrame(
             {
                 "primary_outcome": "Lower extremity amputation",
                 "lst_pr": ",".join(
@@ -1172,9 +1064,7 @@ def generate_prgrp_file() -> None:
                 ),
             },
             index=[0],
-        ),
-        ignore_index=True,
-    )
+        )], ignore_index=True)
     df_pqi_prgrp["lst_pr"] = df_pqi_prgrp["lst_pr"].str.replace(
         " ", "", regex=True
     )

@@ -1,5 +1,3 @@
-import logging
-
 import dask.dataframe as dd
 import pandas as pd
 import numpy as np
@@ -20,6 +18,8 @@ def flag_preterm(
     ----------
     df_claims: dd.DataFrame
         Claims dataframe
+    cms_format: str
+        CMS format identifier, default is 'MAX'
 
     Returns
     -------
@@ -1001,6 +1001,8 @@ def flag_abnormal_pregnancy(
     ----------
     df_claims: dd.DataFrame
         Claims dataframe
+    cms_format: str
+        CMS format identifier, default is 'MAX'
 
     Returns
     -------
@@ -1276,6 +1278,8 @@ def flag_prenatal(
     ----------
     df_claims: dd.DataFrame
         Claims dataframe
+    cms_format: str
+        CMS format identifier, default is 'MAX'
 
     Returns
     -------
@@ -1776,7 +1780,6 @@ def flag_smm_events(
         .max()
         .compute()
     )
-    index_col = df_ip_claims.index.name
     pdf_benes = pd.concat(
         [
             df_ip_claims.loc[df_ip_claims["hosp_smm"] == 1][[admsn_col_name]]

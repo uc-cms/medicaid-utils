@@ -8,7 +8,7 @@ __email__ = "manorathan@uchicago.edu"
 
 import os
 from itertools import product
-from typing import Dict, List, Tuple
+from typing import List
 
 import pandas as pd
 import numpy as np
@@ -64,7 +64,9 @@ class EDPreventionQualityIndicators:
     data_folder = os.path.join(package_folder, "data")
 
     @classmethod
-    def get_patient_exclusion_indicators(cls, df_ip: dd.DataFrame, df_ot: dd.DataFrame, df_ps: dd.DataFrame) -> dd.DataFrame:
+    def get_patient_exclusion_indicators(
+        cls, df_ip: dd.DataFrame, df_ot: dd.DataFrame, df_ps: dd.DataFrame
+    ) -> dd.DataFrame:
         """
         Generate patient-level exclusion indicators for ED PQI measures.
 
@@ -112,7 +114,9 @@ class EDPreventionQualityIndicators:
             .to_dict()
         )
 
-        def flag_disease_diagnoses(df: dd.DataFrame, dct_conditions: dict, dct_edvst_cat: dict) -> dd.DataFrame:
+        def flag_disease_diagnoses(
+            df: dd.DataFrame, dct_conditions: dict, dct_edvst_cat: dict
+        ) -> dd.DataFrame:
             df = df.map_partitions(
                 lambda pdf: pdf.assign(
                     **dict(
@@ -215,7 +219,9 @@ class EDPreventionQualityIndicators:
             "cellulitis_with_diabetes",
         ]
 
-        def agg_conditions_to_patient_level(pdf_claims: pd.DataFrame, lst_conditions: List[str]) -> pd.DataFrame:
+        def agg_conditions_to_patient_level(
+            pdf_claims: pd.DataFrame, lst_conditions: List[str]
+        ) -> pd.DataFrame:
             return pdf_claims.groupby("MSIS_ID").agg(
                 **dict(
                     [
@@ -273,7 +279,8 @@ class EDPreventionQualityIndicators:
 
     @classmethod
     def flag_potentially_preventable_ed_visits(
-        cls, df_ed: dd.DataFrame, df_ps: dd.DataFrame, months_restricted: bool = False
+        cls, df_ed: dd.DataFrame, df_ps: dd.DataFrame,
+        months_restricted: bool = False,
     ) -> dd.DataFrame:
         """
         Flag potentially preventable ED visits using PQI criteria.
@@ -322,7 +329,7 @@ class EDPreventionQualityIndicators:
             .to_dict()
         )
 
-        if months_restricted == False:
+        if months_restricted is False:
             df_ed["valid_month"] = 1
 
         lst_claimtype = [""]
@@ -331,8 +338,10 @@ class EDPreventionQualityIndicators:
 
         fix_index(df_ed, "MSIS_ID")
 
-        def mptn_categorise_ed_visits(pdf: pd.DataFrame, dct_edvst_cat: dict, dct_conditions: dict) -> pd.DataFrame:
-            ### Adding indicator and cost columns for each of PQI ED covered disease conditions
+        def mptn_categorise_ed_visits(
+            pdf: pd.DataFrame, dct_edvst_cat: dict, dct_conditions: dict
+        ) -> pd.DataFrame:
+            # Adding indicator and cost columns for each of PQI ED covered disease conditions
             pdf = pdf.assign(
                 **dict(
                     [
@@ -358,8 +367,8 @@ class EDPreventionQualityIndicators:
                     ]
                 )
             )
-            ### Lower respiratory infection related ED visits: first-listed diagnosis for Lower respiratory infection
-            ### and 2) a second-listed diagnosis of COPD or asthma.
+            # Lower respiratory infection related ED visits: first-listed diagnosis for Lower respiratory infection
+            # and 2) a second-listed diagnosis of COPD or asthma.
             pdf = pdf.assign(
                 **dict(
                     [
@@ -438,10 +447,10 @@ class EDPreventionQualityIndicators:
                 )
             )
 
-            ### Subsetting claims that meet months restriction
+            # Subsetting claims that meet months restriction
             pdf_months_restricted = pdf.loc[pdf["valid_month"] == 1]
 
-            ### Aggregating claims to day level
+            # Aggregating claims to day level
             pdf = (
                 pdf.groupby(["MSIS_ID", "DATE"])
                 .agg(
@@ -460,7 +469,7 @@ class EDPreventionQualityIndicators:
                 .set_index("MSIS_ID")
             )
 
-            ### Aggregating claims to patient level
+            # Aggregating claims to patient level
             pdf = pdf.groupby("MSIS_ID").agg(
                 **dict(
                     [
@@ -721,7 +730,10 @@ class EDPreventionQualityIndicators:
         return df_ed
 
 
-def get_ed_pqis(df_ip: dd.DataFrame, df_ot: dd.DataFrame, df_ps: dd.DataFrame, df_ed: dd.DataFrame, restrict_months: bool = False) -> dd.DataFrame:
+def get_ed_pqis(
+    df_ip: dd.DataFrame, df_ot: dd.DataFrame, df_ps: dd.DataFrame,
+    df_ed: dd.DataFrame, restrict_months: bool = False,
+) -> dd.DataFrame:
     """
     Compute ED Prevention Quality Indicators for a given set of claims.
 

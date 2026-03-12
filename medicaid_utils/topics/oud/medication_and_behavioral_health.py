@@ -52,7 +52,7 @@ def flag_rx_buprenorphine(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
 
     Parameters
     ----------
-    df_claims : dd.DataFrame
+    df_rx_claims : dd.DataFrame
             IP or OT claim file
 
     Returns
@@ -266,7 +266,7 @@ def flag_rx_buprenorphine_naloxone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
 
     Parameters
     ----------
-    df_claims : dd.DataFrame
+    df_rx_claims : dd.DataFrame
             IP or OT claim file
 
     Returns
@@ -468,7 +468,7 @@ def flag_rx_oral_naltrexone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
 
     Parameters
     ----------
-    df_claims : dd.DataFrame
+    df_rx_claims : dd.DataFrame
             IP or OT claim file
 
     Returns
@@ -618,7 +618,7 @@ def flag_rx_methadone(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
 
     Parameters
     ----------
-    df_claims : dd.DataFrame
+    df_rx_claims : dd.DataFrame
             IP or OT claim file
 
     Returns
@@ -787,7 +787,7 @@ def flag_rx_benzos_opioids(df_rx_claims: dd.DataFrame) -> dd.DataFrame:
 
     Parameters
     ----------
-    df_claims : dd.DataFrame
+    df_rx_claims : dd.DataFrame
             IP or OT claim file
 
     Returns

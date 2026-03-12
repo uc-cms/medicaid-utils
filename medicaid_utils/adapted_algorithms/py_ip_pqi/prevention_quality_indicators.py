@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
 import os
-from ast import literal_eval
 from copy import copy
 from itertools import product
 from typing import List, Optional, Tuple
@@ -12,7 +10,6 @@ import pandas as pd
 import numpy as np
 import dask.dataframe as dd
 
-sys.path.append("../../")
 from medicaid_utils.common_utils import recipes, dataframe_utils
 
 
@@ -22,7 +19,10 @@ class PreventionQualityIndicators:
     logger_name = __name__
 
     @classmethod
-    def prepare_cols(cls, df: dd.DataFrame, dx_col_suffix: str, pr_col_suffix: str, prsys_col_suffix: str) -> dd.DataFrame:
+    def prepare_cols(
+        cls, df: dd.DataFrame, dx_col_suffix: str,
+        pr_col_suffix: str, prsys_col_suffix: str,
+    ) -> dd.DataFrame:
         """
         Prepare diagnosis and procedure code columns for PQI computation.
 
@@ -542,7 +542,8 @@ class PreventionQualityIndicators:
                     np.nan,
                 ),
                 # URINARY INFECTION
-                # Exclude Kidney/Urinary Tract Disorder, High and Intermediate Risk Immunocompromised state, age <= 90 days
+                # Exclude Kidney/Urinary Tract Disorder,
+                # High and Intermediate Risk Immunocompromised state, age <= 90 days
                 TAPD18=pdf["ACSUTID1"].where(
                     ~(
                         pdf[["KIDNEY" + str(i) for i in range(1, 10)]].any(
@@ -628,9 +629,7 @@ class PreventionQualityIndicators:
         >>> df = PreventionQualityIndicators.add_acsc_cat_cols(df)  # doctest: +SKIP
 
         """
-        ################################################################################################################
-        #########################################   CONSTRUCT ACSC CATEGORIES   ########################################
-        ################################################################################################################
+        # CONSTRUCT ACSC CATEGORIES
         df = df.map_partitions(
             lambda pdf: pdf.assign(
                 TAPQ01=(pdf["ACDIASD1"] == 1).astype(
@@ -897,9 +896,7 @@ class PreventionQualityIndicators:
             )
         )
 
-        ################################################################################################################
-        #############################   CONSTRUCT AREA LEVEL COMPOSITE INDICATORS   ####################################
-        ################################################################################################################
+        # CONSTRUCT AREA LEVEL COMPOSITE INDICATORS
         # OVERALL
         df["TAPQ90"] = df[
             [

@@ -1,6 +1,5 @@
 """Tests for medicaid_utils.filters.claims.dx_and_proc."""
 import pandas as pd
-import numpy as np
 import dask.dataframe as dd
 import pytest
 

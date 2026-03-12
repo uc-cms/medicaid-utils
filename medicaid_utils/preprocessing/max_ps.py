@@ -89,7 +89,7 @@ class MAXPS(max_file.MAXFile):
 
     def preprocess(
         self, rural_method: str = "ruca"
-    ) -> None:  # pylint: disable=missing-param-doc
+    ) -> None:
         """
         Adds rural, eligibility criteria, dual, and restricted benefits
         indicator variables
@@ -155,7 +155,7 @@ class MAXPS(max_file.MAXFile):
 
     def flag_rural(
         self, method: str = "ruca"
-    ) -> None:  # pylint: disable=missing-param-doc
+    ) -> None:
         """
         Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of
         their resident ZIP/ FIPS codes
@@ -169,13 +169,18 @@ class MAXPS(max_file.MAXFile):
             - {ruca_code/ rucc_code} - resident ruca_code
 
         This function uses
-            - RUCA 3.1 dataset (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673). RUCA
-            codes >= 4 denote rural and the rest denote urban as per https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1
-            - RUCC codes were downloaded from https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372.
-            RUCC codes >= 8 denote rural and the rest denote urban.
-            - ZCTAs x zipcode crosswalk from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),
+            - RUCA 3.1 dataset (from
+              https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673).
+              RUCA codes >= 4 denote rural and the rest denote urban as per
+              https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1
+            - RUCC codes were downloaded from
+              https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372.
+              RUCC codes >= 8 denote rural and the rest denote urban.
+            - ZCTAs x zipcode crosswalk from UDSMapper
+              (https://udsmapper.org/zip-code-to-zcta-crosswalk/),
             - zipcodes from multiple sources
-            - istance between centroids of zipcodes using NBER data (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)
+            - distance between centroids of zipcodes using NBER data
+              (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)
 
         Parameters
         ----------
@@ -360,10 +365,11 @@ class MAXPS(max_file.MAXFile):
         # (https://resdac.org/sites/datadocumentation.resdac.org/files/MAX%20UNIFORM%20ELIGIBILITY%20CODE%20TABLE.txt)
         # FARA year 2 peds paper decided to collapse BOE assignments,
         # combining disabled and child groups
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
-                **{
-                    f"MAS_ELG_MON_{mon}": pdf[f"MAX_ELG_CD_MO_{mon}"]
+        def _assign_mas(pdf):
+            mas_cols = {}
+            for mon in range(1, 13):
+                mas_cols[f"MAS_ELG_MON_{mon}"] = (
+                    pdf[f"MAX_ELG_CD_MO_{mon}"]
                     .where(
                         ~(
                             pdf[f"MAX_ELG_CD_MO_{mon}"]
@@ -376,132 +382,93 @@ class MAXPS(max_file.MAXFile):
                     .astype(str)
                     .str.strip()
                     .str[:1]
-                    for mon in range(1, 13)
-                }
-            )
-        )
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
+                )
+            pdf = pdf.assign(**mas_cols)
+            mas_df = pdf[[f"MAS_ELG_MON_{mon}" for mon in range(1, 13)]]
+            return pdf.assign(
                 mas_elg_change=(
-                    pdf[[f"MAS_ELG_MON_{mon}" for mon in range(1, 13)]]
-                    .replace("9", np.nan)
+                    mas_df.replace("9", np.nan)
                     .nunique(axis=1, dropna=True)
                     > 1
                 ).astype(int),
-                mas_assignments=pdf[
-                    [f"MAS_ELG_MON_{mon}" for mon in range(1, 13)]
-                ]
-                .replace("9", "")
-                .apply(
-                    lambda x: ",".join(set(",".join(x).split(","))), axis=1
+                mas_assignments=mas_df.replace("9", "").apply(
+                    lambda x: ",".join(set(",".join(x).split(","))),
+                    axis=1,
                 ),
             )
-        )
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
-                **{
-                    **{
-                        f"BOE_ELG_MON_{mon}": np.select(
+
+        self.df = self.df.map_partitions(_assign_mas)
+
+        def _assign_boe(pdf):
+            boe_cols = {}
+            child_boe_cols = {}
+            for mon in range(1, 13):
+                # Convert once per month, reuse for all conditions
+                elg_str = pdf[f"MAX_ELG_CD_MO_{mon}"].astype(str)
+                boe_cols[f"BOE_ELG_MON_{mon}"] = np.select(
+                    [
+                        elg_str.isin(["11", "21", "31", "41"]),  # aged
+                        elg_str.isin(["12", "22", "32", "42"]),
+                        # blind / disabled
+                        elg_str.isin(
+                            ["14", "16", "24", "34", "44", "48"]
+                        ),  # child
+                        elg_str.isin(
+                            ["15", "17", "25", "35", "3A", "45"]
+                        ),  # adult
+                        elg_str.isin(["51", "52", "54", "55"]),
+                    ],
+                    # state demonstration EXPANSION
+                    [1, 2, 3, 4, 5],
+                    default=6,
+                )
+                child_boe_cols[f"CHILD_BOE_ELG_MON_{mon}"] = np.select(
+                    [
+                        elg_str.isin(["11", "21", "31", "41"]),  # aged
+                        elg_str.isin(
                             [
-                                pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                .astype(str)
-                                .isin(["11", "21", "31", "41"]),  # aged
-                                pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                .astype(str)
-                                .isin(["12", "22", "32", "42"]),
-                                # blind / disabled
-                                pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                .astype(str)
-                                .isin(
-                                    ["14", "16", "24", "34", "44", "48"]
-                                ),  # child
-                                pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                .astype(str)
-                                .isin(
-                                    ["15", "17", "25", "35", "3A", "45"]
-                                ),  # adult
-                                pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                .astype(str)
-                                .isin(["51", "52", "54", "55"]),
-                            ],
-                            # state demonstration EXPANSION
-                            [1, 2, 3, 4, 5],
-                            default=6,
-                        )
-                        for mon in range(1, 13)
-                    },
-                    **{
-                        f"CHILD_BOE_ELG_MON_{mon}": np.select(
-                            [
-                                pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                .astype(str)
-                                .isin(["11", "21", "31", "41"]),  # aged
-                                pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                .astype(str)
-                                .isin(
-                                    [
-                                        "12",
-                                        "22",
-                                        "32",
-                                        "42",
-                                        "14",
-                                        "16",
-                                        "24",
-                                        "34",
-                                        "44",
-                                        "48",
-                                    ]
-                                ),
-                                # blind / disabled OR CHILD
-                                pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                .astype(str)
-                                .isin(
-                                    ["15", "17", "25", "35", "3A", "45"]
-                                ),  # adult
-                                pdf[f"MAX_ELG_CD_MO_{mon}"]
-                                .astype(str)
-                                .isin(["51", "52", "54", "55"]),
-                            ],
-                            # state demonstration EXPANSION
-                            [1, 2, 3, 4],
-                            default=5,
-                        )
-                        for mon in range(1, 13)
-                    },
-                }
-            )
-        )
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
+                                "12", "22", "32", "42",
+                                "14", "16", "24", "34", "44", "48",
+                            ]
+                        ),
+                        # blind / disabled OR CHILD
+                        elg_str.isin(
+                            ["15", "17", "25", "35", "3A", "45"]
+                        ),  # adult
+                        elg_str.isin(["51", "52", "54", "55"]),
+                    ],
+                    # state demonstration EXPANSION
+                    [1, 2, 3, 4],
+                    default=5,
+                )
+            pdf = pdf.assign(**boe_cols, **child_boe_cols)
+            boe_df = pdf[[f"BOE_ELG_MON_{m}" for m in range(1, 13)]]
+            child_boe_df = pdf[
+                [f"CHILD_BOE_ELG_MON_{m}" for m in range(1, 13)]
+            ]
+            return pdf.assign(
                 boe_elg_change=(
-                    pdf[[f"BOE_ELG_MON_{mon}" for mon in range(1, 13)]]
-                    .replace(6, np.nan)
+                    boe_df.replace(6, np.nan)
                     .nunique(axis=1, dropna=True)
                     > 1
                 ).astype(int),
                 child_boe_elg_change=(
-                    pdf[[f"CHILD_BOE_ELG_MON_{mon}" for mon in range(1, 13)]]
-                    .replace(5, np.nan)
+                    child_boe_df.replace(5, np.nan)
                     .nunique(axis=1, dropna=True)
                     > 1
                 ).astype(int),
-                boe_assignments=pdf[
-                    [f"BOE_ELG_MON_{mon}" for mon in range(1, 13)]
-                ]
-                .astype(str)
-                .apply(
-                    lambda x: ",".join(set(",".join(x).split(","))), axis=1
+                boe_assignments=boe_df.astype(str).apply(
+                    lambda x: ",".join(set(",".join(x).split(","))),
+                    axis=1,
                 ),
-                dominant_boe_grp=pdf[
-                    [f"BOE_ELG_MON_{mon}" for mon in range(1, 13)]
-                ]
-                .replace(6, np.nan)
-                .assign(empty_boe_elg=6)  # For rows that are completely empty
+                dominant_boe_grp=boe_df.replace(6, np.nan)
+                .assign(empty_boe_elg=6)
                 .mode(axis=1, dropna=True)[0]
                 .fillna(6)
                 .astype(int),
             )
-        )
+
+        self.df = self.df.map_partitions(_assign_boe)
 
         self.df = self.df.assign(
             elg_change=(
@@ -530,42 +497,33 @@ class MAXPS(max_file.MAXFile):
                 }
             )
         )
-        self.df = self.df.assign(
-            total_elg_mon=self.df[[f"elg_mon_{i}" for i in range(1, 13)]].sum(
-                axis=1
-            )
+        total_elg = self.df[[f"elg_mon_{i}" for i in range(1, 13)]].sum(
+            axis=1
         )
         self.df = self.df.assign(
-            elg_full_year=(self.df["total_elg_mon"] == 12).astype(int),
-            elg_over_9mon=(self.df["total_elg_mon"] >= 9).astype(int),
-            elg_over_6mon=(self.df["total_elg_mon"] >= 6).astype(int),
+            total_elg_mon=total_elg,
+            elg_full_year=(total_elg == 12).astype(int),
+            elg_over_9mon=(total_elg >= 9).astype(int),
+            elg_over_6mon=(total_elg >= 6).astype(int),
         )
 
-        self.df = self.df.map_partitions(
-            lambda pdf: pdf.assign(
-                max_gap=pdf[[f"elg_mon_{mon}" for mon in range(1, 13)]]
+        def _compute_gaps_and_enrollment(pdf):
+            elg_str = (
+                pdf[[f"elg_mon_{mon}" for mon in range(1, 13)]]
                 .astype(int)
                 .astype(str)
-                .apply(
-                    lambda x: max([len(gap) for gap in "".join(x).split("1")]),
-                    axis=1,
+            )
+            joined = elg_str.apply("".join, axis=1)
+            return pdf.assign(
+                max_gap=joined.str.split("1").apply(
+                    lambda parts: max(len(p) for p in parts)
                 ),
-                max_cont_enrollment=pdf[
-                    ["elg_mon_" + str(mon) for mon in range(1, 13)]
-                ]
-                .astype(int)
-                .astype(str)
-                .apply(
-                    lambda x: max(
-                        [
-                            len(enrolled_months)
-                            for enrolled_months in "".join(x).split("0")
-                        ]
-                    ),
-                    axis=1,
+                max_cont_enrollment=joined.str.split("0").apply(
+                    lambda parts: max(len(p) for p in parts)
                 ),
             )
-        )
+
+        self.df = self.df.map_partitions(_compute_gaps_and_enrollment)
         self.df = self.df.assign(
             elg_cont_6mon=(self.df["max_cont_enrollment"] >= 6).astype(int)
         )

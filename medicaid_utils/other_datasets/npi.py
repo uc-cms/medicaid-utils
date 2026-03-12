@@ -167,7 +167,7 @@ def wide_to_long_nppes_taxonomy_file(year: int, pq_engine: str) -> None:
     )
     del df_pid
 
-    df_tax_group = df_pid = pd.concat([tpl[2] for tpl in lsttpl_df])
+    df_tax_group = pd.concat([tpl[2] for tpl in lsttpl_df])
     del lsttpl_df
     df_tax_group = df_tax_group.rename(
         columns={"p_tax_group": "taxonomy_group"}

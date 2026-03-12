@@ -7,7 +7,6 @@ import os
 import errno
 import shutil
 import re
-from math import ceil
 from logging.handlers import TimedRotatingFileHandler
 from typing import Any, Optional, Union
 
@@ -37,7 +36,7 @@ def log_assert(
         if verbose:
             # include more lines than that where the statement was made
             source_code = open(source_file).readlines()
-            source += "".join(source_code[line_no - 3 : line_no + 1])
+            source += "".join(source_code[line_no - 3:line_no + 1])
         else:
             source += last_stackframe[-2][0].strip()
         logger.debug("%s\n%s" % (message, source))
@@ -46,9 +45,9 @@ def log_assert(
 
 def is_number(x: Any) -> bool:
     try:
-        int_val = int(float(x))
+        int(float(x))
         return True
-    except Exception as ex:
+    except Exception:
         return False
 
 
@@ -56,7 +55,7 @@ def convert_to_int_str(x: Any) -> Union[str, Any]:
     try:
         int_val = str(int(float(x)))
         return int_val
-    except Exception as ex:
+    except Exception:
         return x
 
 

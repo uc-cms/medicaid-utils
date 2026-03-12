@@ -1,9 +1,7 @@
 """Tests for the Pediatric Medical Complexity Algorithm (PMCA)."""
 
-import pytest
 import pandas as pd
 import dask.dataframe as dd
-import numpy as np
 
 from medicaid_utils.adapted_algorithms.py_pmca.pmca import (
     PediatricMedicalComplexity,

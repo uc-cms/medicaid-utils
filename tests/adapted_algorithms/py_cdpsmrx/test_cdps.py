@@ -1,6 +1,5 @@
 """Tests for the CDPS+Rx risk adjustment algorithm."""
 
-import pytest
 import pandas as pd
 import dask.dataframe as dd
 import numpy as np
@@ -182,11 +181,9 @@ class TestAddMrxCatCols:
     def test_adds_mrx_columns(self):
         """Should add MRx category columns."""
         df = _make_base_df()
-        result_df, lst_cols = CdpsRxRiskAdjustment.add_mrx_cat_cols(
+        _, lst_cols = CdpsRxRiskAdjustment.add_mrx_cat_cols(
             df, lst_ndc_col_name="LST_NDC"
         )
-        result_pdf = result_df.compute()
-
         assert len(lst_cols) > 0
         assert "NONE" in lst_cols
         assert "OTHER" in lst_cols

@@ -1,13 +1,6 @@
 import os
 import pandas as pd
-import dask.dataframe as dd
-from dask import delayed
-import numpy as np
-from math import ceil
-import shutil
-from typing import List
 
-uds_lookup_folder = os.path.join(os.path.dirname(__file__), "data", "nppes")
 zip_folder = os.path.join(os.path.dirname(__file__), "data", "zip")
 
 

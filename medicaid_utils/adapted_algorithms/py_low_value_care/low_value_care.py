@@ -405,7 +405,7 @@ class LowValueCare:
                                                         - (year - 1)
                                                     )
                                                     - 1
-                                                ) :
+                                                ):
                                             ].replace("0", "")
                                         )
                                         >= (

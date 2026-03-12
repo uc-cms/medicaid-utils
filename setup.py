@@ -17,7 +17,11 @@ setuptools.setup(
         " Chicago"
     ),
     author_email="manorathan@uchicago.edu",  # This should be changed to group email,
-    description="Medicaid data utilities module",
+    description=(
+        "Python toolkit for Medicaid claims data analysis — preprocessing, cleaning,"
+        " risk adjustment, quality measures, and patient-level file construction"
+        " for MAX and TAF CMS data"
+    ),
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/uc-cms/medicaid-utils",
@@ -26,10 +30,10 @@ setuptools.setup(
     package_data={"": ["data/*.csv"]},
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OCI Approved :: MIT License",
+        "Programming Language :: Python :: 3.13",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Topic :: Claims Processing :: Medicaid",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.11",
     install_requires=INSTALL_REQUIRES,
 )

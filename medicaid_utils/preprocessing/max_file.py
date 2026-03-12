@@ -2,7 +2,7 @@
 import os
 import errno
 import shutil
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import dask.dataframe as dd
 import numpy as np
@@ -114,7 +114,7 @@ class MAXFile:
     @classmethod
     def get_claim_instance(
         cls, claim_type: str, *args: Any, **kwargs: Any
-    ) -> "MAXFile":  # pylint: disable=missing-param-doc
+    ) -> "MAXFile":
         """
         Returns an instance of the requested claim type
 
@@ -136,7 +136,7 @@ class MAXFile:
 
     def cache_results(
         self, repartition: bool = False
-    ) -> None:  # pylint: disable=missing-param-doc
+    ) -> None:
         """
         Save results in intermediate steps of some lengthy processing. Saving intermediate results speeds up
         processing
@@ -217,7 +217,7 @@ class MAXFile:
 
     def export(
         self, dest_folder: str, output_format: str = "csv", repartition: bool = False
-    ) -> None:  # pylint: disable=missing-param-doc
+    ) -> None:
         """
         Exports the files.
 
@@ -438,10 +438,10 @@ class MAXFile:
             if self.ftype != "ps":
                 df = df.map_partitions(
                     lambda pdf: pdf.assign(
-                        adult=pdf.groupby(pdf.index)["adult"].transform(max),
-                        age=pdf.groupby(pdf.index)["age"].transform(max),
+                        adult=pdf.groupby(pdf.index)["adult"].transform("max"),
+                        age=pdf.groupby(pdf.index)["age"].transform("max"),
                         age_day=pdf.groupby(pdf.index)["age_day"].transform(
-                            max
+                            "max"
                         ),
                     )
                 )
