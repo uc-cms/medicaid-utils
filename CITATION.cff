@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "medicaid-utils: Python Toolkit for Medicaid Claims Data Analysis"
+authors:
+  - family-names: Murugesan
+    given-names: Manoradhan
+    affiliation: "Research Computing Group, Biostatistics Laboratory, The University of Chicago"
+    email: manorathan@uchicago.edu
+keywords:
+  - medicaid
+  - claims data
+  - healthcare analytics
+  - cohort extraction
+  - risk adjustment
+  - quality measures
+  - CMS
+  - MAX
+  - TAF
+  - patient outcomes
+  - public health
+  - real-world evidence
+license: MIT
+url: "https://github.com/uc-cms/medicaid-utils"
+repository-code: "https://github.com/uc-cms/medicaid-utils"
