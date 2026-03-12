@@ -102,6 +102,71 @@ data_root/
 
 Each Parquet dataset can be a single file or a directory of partitioned Parquet files. Files must be **pre-sorted by beneficiary ID** to enable efficient partition-level operations.
 
+## Setting Up a Dask Cluster
+
+medicaid-utils uses [Dask](https://www.dask.org/) for distributed computation. All DataFrames in the package are lazy Dask DataFrames — operations are deferred until `.compute()` is called. To get the most out of the package, set up a Dask cluster before loading claims.
+
+### Local Cluster (Single Machine)
+
+For workstations with sufficient RAM (recommended: 64 GB+ for state-level data):
+
+```python
+from dask.distributed import Client, LocalCluster
+
+# Create a local cluster with 8 workers, 8 GB each
+cluster = LocalCluster(
+    n_workers=8,
+    threads_per_worker=1,    # 1 thread per worker avoids GIL contention with pandas
+    memory_limit="8GB",
+)
+client = Client(cluster)
+print(client.dashboard_link)  # Opens Dask dashboard for monitoring
+```
+
+### SLURM / HPC Cluster
+
+For high-performance computing environments, use [dask-jobqueue](https://jobqueue.dask.org/):
+
+```python
+from dask_jobqueue import SLURMCluster
+from dask.distributed import Client
+
+cluster = SLURMCluster(
+    cores=4,
+    memory="32GB",
+    processes=1,
+    walltime="04:00:00",
+    queue="standard",
+)
+cluster.scale(jobs=10)  # Request 10 SLURM jobs
+client = Client(cluster)
+```
+
+### Without a Cluster
+
+If no distributed client is created, Dask defaults to its **synchronous scheduler**, which processes partitions sequentially in the main thread. This works for small datasets or debugging but will be slow for full state-level claims. You can also use the threaded scheduler:
+
+```python
+import dask
+dask.config.set(scheduler="threads")  # or "synchronous" for debugging
+```
+
+### Tips
+
+- **Monitor progress**: The Dask dashboard (typically at `http://localhost:8787`) shows task progress, memory usage, and worker status
+- **Memory management**: Use `tmp_folder` when loading claims to cache intermediate results to disk and reduce memory pressure
+- **Partition size**: Aim for partitions of 50--200 MB each. The package handles partitioning automatically based on the input Parquet files
+
+## CMS Data Dictionary References
+
+For detailed documentation on the column names and coding schemes used in Medicaid claims data:
+
+- **MAX documentation**: [CMS MAX General Information](https://www.cms.gov/data-research/statistics-trends-and-reports/medicaid-chip-enrollment-data/medicaid-analytic-extract-max-general-information)
+- **TAF documentation**: [ResDAC TAF](https://resdac.org/cms-data/files/taf)
+- **TAF data dictionary**: [TAF Research Variables](https://resdac.org/cms-data/variables?tid_2%5B%5D=62)
+- **RUCA codes**: [USDA Rural-Urban Commuting Area Codes](https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/)
+- **RUCC codes**: [USDA Rural-Urban Continuum Codes](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/)
+
 ## Quick Start
 
 ### Loading and Cleaning Claims
@@ -135,19 +200,19 @@ ps = taf_ps.TAFPS(year=2016, state="WY", data_root="/path/to/data")
 ### Applying Risk Adjustment
 
 ```python
-from medicaid_utils.adapted_algorithms.py_elixhauser import elixhauser_comorbidity
+from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import ElixhauserScoring
 
 # Flag Elixhauser comorbidity groups on inpatient claims
-df_ip = elixhauser_comorbidity.flag_comorbidities(ip.df, claim_type="max")
+# lst_diag_col_name: list of diagnosis column names in the DataFrame
+lst_diag_cols = [col for col in ip.df.columns if col.startswith("DIAG_CD_")]
+df_ip = ElixhauserScoring.flag_comorbidities(ip.df, lst_diag_cols, cms_format="MAX")
 ```
 
 ```python
 from medicaid_utils.adapted_algorithms.py_cdpsmrx import cdps_rx_risk_adjustment
 
-# Compute CDPS-Rx risk scores from pharmacy claims
-df_risk = cdps_rx_risk_adjustment.cdps_rx_risk_adjust(
-    df_rx, year=2012, index_col="MSIS_ID"
-)
+# Compute CDPS-Rx risk scores from a DataFrame with diagnosis and NDC columns
+df_risk = cdps_rx_risk_adjustment.cdps_rx_risk_adjust(df_rx)
 ```
 
 ### Classifying Procedure Codes with BETOS
@@ -162,20 +227,34 @@ df_ot = betos_proc_codes.assign_betos_cat(ot.df, year=2012)
 ### Identifying Preventable ED Visits
 
 ```python
-from medicaid_utils.adapted_algorithms.py_ed_pqi import ed_pqi
+from medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi import EDPreventionQualityIndicators
 
-# Flag potentially preventable ED visits
-df_ed = ed_pqi.flag_potentially_preventable_ed_visits(ot.df, year=2012)
+# Flag potentially preventable ED visits (requires ED claims and person summary)
+df_pqi = EDPreventionQualityIndicators.flag_potentially_preventable_ed_visits(
+    df_ed=ot.df, df_ps=ps.df
+)
 ```
 
 ### Extracting Patient Cohorts
 
 ```python
-from medicaid_utils.filters.patients import cohort_extraction
+from medicaid_utils.filters.patients.cohort_extraction import extract_cohort
 
-# Extract cohort by diagnosis codes and eligibility criteria
-cohort = cohort_extraction.CohortExtraction(
-    year=2012, state="WY", data_root="/path/to/data"
+# Define diagnosis codes (ICD-9 and ICD-10 prefixes)
+dct_codes = {
+    "diag_codes": {"diabetes_t2": {"incl": {9: ["250"], 10: ["E11"]}}},
+    "proc_codes": {},
+}
+
+# Define filters and paths
+dct_filters = {"cohort": {"ip": {"missing_dob": 0}}, "export": {}}
+dct_paths = {"source_root": "/path/to/data", "export_folder": "/output/cohort/"}
+
+# Extract and export cohort claim files
+extract_cohort(
+    state="WY", lst_year=[2012], dct_diag_proc_codes=dct_codes,
+    dct_filters=dct_filters, lst_types_to_export=["ip", "ot", "ps"],
+    dct_data_paths=dct_paths, cms_format="MAX",
 )
 ```
 
@@ -184,9 +263,12 @@ cohort = cohort_extraction.CohortExtraction(
 ```python
 from medicaid_utils.filters.claims import dx_and_proc
 
-# Flag claims with specific ICD codes
-df_flagged = dx_and_proc.flag_diagnoses(
-    ot.df, lst_dx_codes=["4939", "49390"], claim_type="max"
+# Flag claims matching ICD-9 diagnosis codes
+df_flagged = dx_and_proc.flag_diagnoses_and_procedures(
+    dct_diag_codes={"asthma": {"incl": {9: ["4939", "49390"]}}},
+    dct_proc_codes={},
+    df_claims=ot.df,
+    cms_format="MAX",
 )
 ```
 

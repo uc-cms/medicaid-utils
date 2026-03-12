@@ -15,6 +15,7 @@ claims datasets.
    getting_started/installation
    getting_started/data_layout
    getting_started/quickstart
+   getting_started/references
 
 .. toctree::
    :maxdepth: 2
