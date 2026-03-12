@@ -1,14 +1,17 @@
 import os
 from operator import mul
 from functools import reduce
+from typing import Any, Dict, List, Optional, Tuple
+
 import scipy.stats as st
 import numpy as np
 import pandas as pd
+import dask.dataframe as dd
 from pandas.api.types import is_numeric_dtype
 from holoviews import opts
 
 
-def cramers_corrected_stat(confusion_matrix):
+def cramers_corrected_stat(confusion_matrix: pd.DataFrame) -> float:
     """calculate Cramers V statistic for categorial-categorial association.
     uses correction from Bergsma and Wicher,
     Journal of the Korean Statistical Society 42 (2013): 323-328
@@ -23,7 +26,7 @@ def cramers_corrected_stat(confusion_matrix):
     return np.sqrt(phi2corr / min((kcorr - 1), (rcorr - 1)))
 
 
-def get_phi(pdf_x):
+def get_phi(pdf_x: pd.DataFrame) -> float:
     lst_diag = [pdf_x.iloc[i, i] for i in range(pdf_x.shape[0])]
     lst_nondiag = [
         pdf_x.iloc[
@@ -43,12 +46,12 @@ def get_phi(pdf_x):
 
 
 def get_contingency_table(
-    pdf_dataset,
-    lst_categorical_metrics,
-    pop_col_name,
-    lst_numeric_col_to_binarize,
-    dct_labels,
-):
+    pdf_dataset: pd.DataFrame,
+    lst_categorical_metrics: List[str],
+    pop_col_name: str,
+    lst_numeric_col_to_binarize: List[str],
+    dct_labels: Dict[int, str],
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     lst_pop_val = sorted(
         pdf_dataset.loc[~pdf_dataset[pop_col_name].isna()][pop_col_name]
         .astype(int)
@@ -202,7 +205,12 @@ def get_contingency_table(
     return pdf_crosstab, pdf_crosstab_pretty
 
 
-def get_ranksum_table(pdf_dataset, lst_metrics, pop_col_name, dct_labels):
+def get_ranksum_table(
+    pdf_dataset: pd.DataFrame,
+    lst_metrics: List[str],
+    pop_col_name: str,
+    dct_labels: Dict[int, str],
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     lst_pop_val = sorted(
         pdf_dataset.loc[~pdf_dataset[pop_col_name].isna()][pop_col_name]
         .astype(int)
@@ -326,14 +334,14 @@ def get_ranksum_table(pdf_dataset, lst_metrics, pop_col_name, dct_labels):
 
 
 def get_cont_table_statewise(
-    pdf_included,
-    lst_metrics,
-    pop_col_name,
-    lst_count_metrics,
-    dct_labels,
-    lst_st,
-    state_col_name,
-):
+    pdf_included: pd.DataFrame,
+    lst_metrics: List[str],
+    pop_col_name: str,
+    lst_count_metrics: List[str],
+    dct_labels: Dict[int, str],
+    lst_st: List[str],
+    state_col_name: str,
+) -> pd.DataFrame:
     pdf_pretty_combined = {}
     sorted(lst_st)
     for state in ["All States"] + lst_st:
@@ -354,8 +362,13 @@ def get_cont_table_statewise(
 
 
 def get_ranksum_table_statewise(
-    pdf_included, lst_metrics, pop_col_name, dct_labels, lst_st, state_col_name
-):
+    pdf_included: pd.DataFrame,
+    lst_metrics: List[str],
+    pop_col_name: str,
+    dct_labels: Dict[int, str],
+    lst_st: List[str],
+    state_col_name: str,
+) -> pd.DataFrame:
     pdf_pretty_combined = {}
     sorted(lst_st)
     for state in ["All States"] + lst_st:
@@ -374,7 +387,7 @@ def get_ranksum_table_statewise(
     return pdf_pretty_combined
 
 
-def color_positive_green(x):
+def color_positive_green(x: pd.DataFrame) -> pd.DataFrame:
     c1 = "background-color: #d1cfa1"
     c2 = ""
     cols = x.select_dtypes(np.number).columns
@@ -384,7 +397,12 @@ def color_positive_green(x):
     return df1
 
 
-def get_descriptives(pdf, lst_st, lst_col, state_col_name):
+def get_descriptives(
+    pdf: pd.DataFrame,
+    lst_st: List[str],
+    lst_col: List[str],
+    state_col_name: str,
+) -> pd.DataFrame:
     lst_pdf_desc = []
     for state in lst_st + ["Σ All States"]:
         pdf_state = (
@@ -414,7 +432,7 @@ def get_descriptives(pdf, lst_st, lst_col, state_col_name):
     )
 
 
-def get_missingness_stats(df, outputfname):
+def get_missingness_stats(df: dd.DataFrame, outputfname: str) -> pd.DataFrame:
     df_missing = df.map_partitions(
         lambda pdf: pdf.groupby("STATE_CD").apply(
             lambda gpdf: pd.DataFrame(
@@ -466,17 +484,18 @@ def get_missingness_stats(df, outputfname):
     del df_missing["level_1"]
     df_missing = df_missing.set_index(["STATE_CD"])
     df_missing = df_missing.groupby("STATE_CD").sum()
-    df_missing_with_total = df_missing.reset_index(drop=False).append(
+    df_missing_with_total = pd.concat([
+        df_missing.reset_index(drop=False),
         pd.DataFrame(
             {**{"STATE_CD": "ALL STATES"}, **df_missing.sum(axis=0).to_dict()},
             index=[0],
-        )
+        )]
     )
     df_missing_with_total.to_excel(outputfname, index=False)
     return df_missing_with_total
 
 
-def get_utilisation_histograms(pdf, lst_covar):
+def get_utilisation_histograms(pdf: pd.DataFrame, lst_covar: List[str]) -> Any:
     dct_new_util_vist_names = {
         "nhrsapcvst": "No. PC Visits",
         "nhrsa_nonfqhc_pcvst": "No. PC Visits (excluding FQHC)",
@@ -508,7 +527,12 @@ def get_utilisation_histograms(pdf, lst_covar):
     return subplots.opts(opts.Layout(shared_axes=False)).cols(1)
 
 
-def get_covar_plots(pdf, lst_covar, lst_hist_covar, cut_outliers=False):
+def get_covar_plots(
+    pdf: pd.DataFrame,
+    lst_covar: List[str],
+    lst_hist_covar: List[str],
+    cut_outliers: bool = False,
+) -> Any:
     dct_known_titles = {
         "TotElMon": "Total Eligible Months",
         "total_ffs_month": "Total FFS Months",
@@ -578,8 +602,12 @@ def get_covar_plots(pdf, lst_covar, lst_hist_covar, cut_outliers=False):
 
 
 def compute_descriptives(
-    pdf, lst_states, lst_metrics, output_fname, state_col_name="STATE_CD"
-):
+    pdf: pd.DataFrame,
+    lst_states: List[str],
+    lst_metrics: List[str],
+    output_fname: str,
+    state_col_name: str = "STATE_CD",
+) -> pd.DataFrame:
     pdf_desc = get_descriptives(pdf, lst_states, lst_metrics, state_col_name)
     pdf_desc.to_excel(output_fname)
     print(f"Statewise stats is saved at {os.path.abspath(output_fname)}")
@@ -589,14 +617,14 @@ def compute_descriptives(
 
 
 def compute_t_stats(
-    pdf,
-    lst_states,
-    lst_metrics,
-    output_fname,
-    pop_col_name="gt_50pc_hrsa_fqhc",
-    dct_labels=None,
-    state_col_name="STATE_CD",
-):
+    pdf: pd.DataFrame,
+    lst_states: List[str],
+    lst_metrics: List[str],
+    output_fname: str,
+    pop_col_name: str = "gt_50pc_hrsa_fqhc",
+    dct_labels: Optional[Dict[int, str]] = None,
+    state_col_name: str = "STATE_CD",
+) -> "pd.io.formats.style.Styler":
     if dct_labels is None:
         dct_labels = {0: "non-FQHC", 1: "FQHC"}
     pdf_tstats = get_ranksum_table_statewise(
@@ -613,15 +641,15 @@ def compute_t_stats(
 
 
 def compute_contingency_table(
-    pdf,
-    lst_states,
-    lst_metrics,
-    lst_count_metrics,
-    output_fname,
-    pop_col_name="gt_50pc_hrsa_fqhc",
-    dct_labels=None,
-    state_col_name="STATE_CD",
-):
+    pdf: pd.DataFrame,
+    lst_states: List[str],
+    lst_metrics: List[str],
+    lst_count_metrics: List[str],
+    output_fname: str,
+    pop_col_name: str = "gt_50pc_hrsa_fqhc",
+    dct_labels: Optional[Dict[int, str]] = None,
+    state_col_name: str = "STATE_CD",
+) -> "pd.io.formats.style.Styler":
     if dct_labels is None:
         dct_labels = {0: "non-FQHC", 1: "FQHC"}
     pdf_crosstab = get_cont_table_statewise(
@@ -647,7 +675,11 @@ def compute_contingency_table(
     return pdf_crosstab.style.apply(color_positive_green, axis=None)
 
 
-def compute_missing_stats(df, output_fname, state_col_name="STATE_CD"):
+def compute_missing_stats(
+    df: dd.DataFrame,
+    output_fname: str,
+    state_col_name: str = "STATE_CD",
+) -> pd.DataFrame:
     pdf_missing_stats = df.map_partitions(
         lambda pdf: pd.concat(
             [
@@ -696,9 +728,9 @@ def compute_missing_stats(df, output_fname, state_col_name="STATE_CD"):
         pdf_missing_stats.index
     ).sum()
     pdf_missing_stats = (
-        pdf_missing_stats.reset_index(drop=False)
-        .rename(columns={"index": state_col_name})
-        .append(
+        pd.concat([
+            pdf_missing_stats.reset_index(drop=False)
+            .rename(columns={"index": state_col_name}),
             pd.DataFrame(
                 {
                     **{state_col_name: "All States"},
@@ -706,7 +738,7 @@ def compute_missing_stats(df, output_fname, state_col_name="STATE_CD"):
                 },
                 index=[0],
             )
-        )
+        ])
         .set_index(state_col_name)
         .astype(int)
         .reset_index(drop=False)

@@ -5,7 +5,23 @@ package_folder, filename = os.path.split(__file__)
 data_folder = os.path.join(package_folder, "data")
 
 
-def generate_dxgrp_file():
+def generate_dxgrp_file() -> None:
+    """
+    Generate the PQI diagnosis group reference file.
+
+    Creates a CSV file (dxgrp.csv) containing ICD-9 diagnosis code groups
+    used by the Prevention Quality Indicators algorithm. The file is saved
+    to the package data directory.
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    >>> generate_dxgrp_file()  # doctest: +SKIP
+
+    """
     df_pqi_dxgroup = pd.DataFrame(
         columns=["primary_outcome", "lst_dx", "var_name", "comments"]
     )
@@ -895,7 +911,23 @@ def generate_dxgrp_file():
     )
 
 
-def generate_prgrp_file():
+def generate_prgrp_file() -> None:
+    """
+    Generate the PQI procedure group reference file.
+
+    Creates a CSV file (prgrp.csv) containing ICD-9 procedure code groups
+    used by the Prevention Quality Indicators algorithm. The file is saved
+    to the package data directory.
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    >>> generate_prgrp_file()  # doctest: +SKIP
+
+    """
     df_pqi_prgrp = pd.DataFrame(
         columns=["primary_outcome", "lst_pr", "var_name", "comments"]
     )

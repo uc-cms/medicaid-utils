@@ -1,4 +1,6 @@
 """This module has MAXOT class which wraps together cleaning/ preprocessing routines specific for MAX OT files"""
+from typing import Optional
+
 import dask.dataframe as dd
 import pandas as pd
 
@@ -15,9 +17,9 @@ class MAXOT(max_file.MAXFile):
         index_col: str = "BENE_MSIS",
         clean: bool = True,
         preprocess: bool = True,
-        tmp_folder=None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
         Initializes MAX OT file object by preloading and preprocessing(if opted in) the file
 
@@ -63,7 +65,7 @@ class MAXOT(max_file.MAXFile):
         if preprocess:
             self.preprocess()
 
-    def clean(self):
+    def clean(self) -> None:
         """Runs cleaning routines and adds common exclusion flags based on default filters"""
         super().clean()
         self.cache_results()
@@ -73,7 +75,7 @@ class MAXOT(max_file.MAXFile):
         self.flag_duplicates()
         self.cache_results()
 
-    def preprocess(self):
+    def preprocess(self) -> None:
         """Adds payment, ed use, transport, dental, and em flags"""
         self.calculate_payment()
         self.flag_ed_use()
@@ -82,7 +84,7 @@ class MAXOT(max_file.MAXFile):
         self.flag_em()
         self.cache_results()
 
-    def flag_ip_overlaps_and_ed(self, df_ip: pd.DataFrame):
+    def flag_ip_overlaps_and_ed(self, df_ip: pd.DataFrame) -> None:
         """
         Adds flags to indicate overlaps with IP claims
 
@@ -95,7 +97,7 @@ class MAXOT(max_file.MAXFile):
         self.add_ot_flags()
         self.cache_results()
 
-    def flag_common_exclusions(self):
+    def flag_common_exclusions(self) -> None:
         self.df = dataframe_utils.fix_index(
             self.df, self.index_col, drop_column=True
         )
@@ -137,7 +139,7 @@ class MAXOT(max_file.MAXFile):
             )
         )
 
-    def flag_duplicates(self):
+    def flag_duplicates(self) -> None:
         self.df = dataframe_utils.fix_index(self.df, self.index_col, True)
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
@@ -149,7 +151,7 @@ class MAXOT(max_file.MAXFile):
             )
         )
 
-    def flag_em(self):
+    def flag_em(self) -> None:
         """
         Flag claim if procedure code belongs to E/M category
         New Column(s):
@@ -177,7 +179,7 @@ class MAXOT(max_file.MAXFile):
             )
         )
 
-    def flag_dental(self):
+    def flag_dental(self) -> None:
         """
         Flag dental claims
         New Column(s):
@@ -201,7 +203,7 @@ class MAXOT(max_file.MAXFile):
             .astype(int)
         )
 
-    def flag_transport(self):
+    def flag_transport(self) -> None:
         """
         Flag transport claims
         New Column(s):
@@ -233,7 +235,7 @@ class MAXOT(max_file.MAXFile):
             .astype(int)
         )
 
-    def find_ot_ip_overlaps(self, df_ip: dd.DataFrame):
+    def find_ot_ip_overlaps(self, df_ip: dd.DataFrame) -> None:
         """
         Checks for OT claims that have an overlapping IP claim
         New Column(s):
@@ -260,12 +262,12 @@ class MAXOT(max_file.MAXFile):
                     pdf["srvc_bgn_date"].between(
                         pdf["admsn_date"],
                         pdf["ip_srvc_end_date"],
-                        inclusive=True,
+                        inclusive="both",
                     )
                     | pdf["srvc_end_date"].between(
                         pdf["admsn_date"],
                         pdf["ip_srvc_end_date"],
-                        inclusive=True,
+                        inclusive="both",
                     )
                 ).astype(int)
             )
@@ -290,7 +292,7 @@ class MAXOT(max_file.MAXFile):
         )
         self.df = dataframe_utils.fix_index(self.df, self.index_col)
 
-    def add_ot_flags(self):
+    def add_ot_flags(self) -> None:
         """
         Assign flags for IP, OT and ED calculation
         Based on hierarchical principal: IP first,then ED, and then OT

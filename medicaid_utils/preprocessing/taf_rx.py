@@ -1,5 +1,6 @@
 """This module has TAFRX class which wraps together cleaning/ preprocessing
 routines specific for TAF Pharmacy files"""
+from typing import Optional
 
 from medicaid_utils.preprocessing import taf_file
 
@@ -13,9 +14,9 @@ class TAFRX(taf_file.TAFFile):
         index_col: str = "BENE_MSIS",
         clean: bool = True,
         preprocess: bool = True,
-        tmp_folder: str = None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
         Initializes TAF RX file object by preloading and preprocessing(if
         opted in) the associated files
@@ -42,6 +43,11 @@ class TAFRX(taf_file.TAFFile):
         pq_engine : str, default='pyarrow'
             Parquet engine to use
 
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_rx import TAFRX  # doctest: +SKIP
+        >>> rx = TAFRX(2019, 'AL', '/data/cms')  # doctest: +SKIP
+
         """
         super().__init__(
             "rx",
@@ -60,9 +66,16 @@ class TAFRX(taf_file.TAFFile):
         if preprocess:
             self.preprocess()
 
-    def clean(self):
+    def clean(self) -> None:
         """Cleaning routines to clean diagnosis & procedure code columns,
-        processes date and gender columns, and add duplicate check flags."""
+        processes date and gender columns, and add duplicate check flags.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_rx import TAFRX  # doctest: +SKIP
+        >>> rx = TAFRX(2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> rx.clean()  # doctest: +SKIP
+        """
         super().clean()
         self.clean_ndc_codes()
         self.flag_duplicates()

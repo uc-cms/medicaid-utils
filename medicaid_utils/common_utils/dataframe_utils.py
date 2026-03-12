@@ -6,7 +6,7 @@ import dask.dataframe as dd
 import sys
 import os
 import csv
-from typing import List
+from typing import Any, List, Optional, Union
 import logging
 import pyarrow as pa
 
@@ -15,8 +15,8 @@ from medicaid_utils.common_utils import recipes
 
 
 def toggle_datetime_string(
-    df: dd.DataFrame, lst_datetime_col, to_string: bool = True
-) -> None:
+    df: dd.DataFrame, lst_datetime_col: List[str], to_string: bool = True
+) -> dd.DataFrame:
     """
     Toggles data columnes in the passed dataframe to string/ datatime types. Inplace updates.
     :param df: dask dataframe
@@ -27,9 +27,9 @@ def toggle_datetime_string(
         if col in lst_datetime_col:
             if to_string:
                 df = df.map_partitions(
-                    lambda pdf: pdf.assign(
+                    lambda pdf, _col=col: pdf.assign(
                         **{
-                            col: pdf[col]
+                            _col: pdf[_col]
                             .dt.strftime("%Y%m%d")
                             .replace("NaT", "")
                             .fillna("")
@@ -38,17 +38,18 @@ def toggle_datetime_string(
                 )
             else:
                 df = df.map_partitions(
-                    lambda pdf: pdf.assign(
+                    lambda pdf, _col=col: pdf.assign(
                         **{
-                            col: pd.to_datetime(
-                                pdf[col], format="%Y%m%d", errors="coerce"
+                            _col: pd.to_datetime(
+                                pdf[_col], format="%Y%m%d", errors="coerce"
                             )
                         }
                     )
                 )
+    return df
 
 
-def convert_ddcols_to_datetime(df: dd.DataFrame, lst_col) -> dd.DataFrame:
+def convert_ddcols_to_datetime(df: dd.DataFrame, lst_col: List[str]) -> dd.DataFrame:
     """Convert list of columns specified in a dataframe to datetime type
     :param pandas_df df: dataframe
     :param list(str) lst_col: list of column names
@@ -67,7 +68,7 @@ def convert_ddcols_to_datetime(df: dd.DataFrame, lst_col) -> dd.DataFrame:
 
 def copy_ddcols(
     df: dd.DataFrame, lst_col: List[str], lst_new_names: List[str]
-):
+) -> dd.DataFrame:
     df = df.map_partitions(
         lambda pdf: pdf.assign(
             **dict(
@@ -81,16 +82,18 @@ def copy_ddcols(
     return df
 
 
-def get_reduced_column_names(multiidx_df_columns, combine_levels=False):
+def get_reduced_column_names(
+    multiidx_df_columns: pd.MultiIndex, combine_levels: bool = False
+) -> List[str]:
     return [
         (i[1] or i[0]) if not combine_levels else (i[1] + "_" + i[0])
         for i in multiidx_df_columns
     ]
 
 
-def sas_to_pandas(filename: str):
+def sas_to_pandas(filename: str) -> pd.DataFrame:
     df = pd.read_sas(filename)
-    lst_float_cols = df.select_dtypes(include=[np.float]).columns.tolist()
+    lst_float_cols = df.select_dtypes(include=[np.float64]).columns.tolist()
     for col in df.columns:
         if col not in lst_float_cols:
             df[col] = df[col].str.decode("utf-8")
@@ -98,16 +101,16 @@ def sas_to_pandas(filename: str):
     return df
 
 
-def _value_counts_chunk(s):
+def _value_counts_chunk(s: pd.Series) -> pd.Series:
     return s.value_counts()
 
 
-def _value_counts_agg(s):
+def _value_counts_agg(s: pd.Series) -> pd.Series:
     s = s._selected_obj
     return s.groupby(level=list(range(s.index.nlevels))).sum()
 
 
-def _value_counts_finalize(s):
+def _value_counts_finalize(s: pd.Series) -> pd.Series:
     return s
 
 
@@ -119,7 +122,7 @@ dask_groupby_value_counts = dd.Aggregation(
 )
 
 
-def safe_convert_int_to_str(df: dd.DataFrame, lst_col) -> dd.DataFrame:
+def safe_convert_int_to_str(df: dd.DataFrame, lst_col: List[str]) -> dd.DataFrame:
     df = df.map_partitions(
         lambda pdf: pdf.assign(
             **dict(
@@ -149,7 +152,7 @@ def safe_convert_int_to_str(df: dd.DataFrame, lst_col) -> dd.DataFrame:
 
 
 def fix_index(
-    df: dd.DataFrame, index_name: str, drop_column=True
+    df: dd.DataFrame, index_name: str, drop_column: bool = True
 ) -> dd.DataFrame:
     if (df.index.name != index_name) | (df.divisions[0] is None):
         if index_name not in df.columns:
@@ -165,7 +168,9 @@ def fix_index(
     return df
 
 
-def prepare_dtypes_for_csv(df_temp: dd.DataFrame, df_schema: pd.DataFrame):
+def prepare_dtypes_for_csv(
+    df_temp: dd.DataFrame, df_schema: pd.DataFrame
+) -> dd.DataFrame:
     df_temp = df_temp.map_partitions(
         lambda pdf: pdf.assign(
             **dict(
@@ -236,7 +241,7 @@ def export(
     is_dask: bool = True,
     n_rows: int = -1,
     do_csv: bool = True,
-    df_schema: pd.DataFrame = pd.DataFrame,
+    df_schema: Optional[pd.DataFrame] = None,
     logger_name: str = "Dataframe utils",
     rewrite: bool = False,
     do_parquet: bool = True,
@@ -248,6 +253,8 @@ def export(
     :param is_dask:
     :return:
     """
+    if df_schema is None:
+        df_schema = pd.DataFrame()
     # df = df.persist()
     logger = logging.getLogger(logger_name)
     if n_rows < 0:
@@ -262,7 +269,7 @@ def export(
         df = df.repartition(
             partition_size="100MB"
         ).persist()  # df.repartition(npartitions=max(int(n_rows / 100000), df.npartitions)).persist()
-    toggle_datetime_string(df, lst_datetime_col, to_string=True)
+    df = toggle_datetime_string(df, lst_datetime_col, to_string=True)
     if is_dask:
         if do_parquet:
             os.umask(int("007", base=8))
@@ -345,10 +352,16 @@ def export(
         )
         if do_csv:
             df.to_csv(output_filename, header=True, index=False)
-    toggle_datetime_string(df, lst_datetime_col, to_string=False)
+    df = toggle_datetime_string(df, lst_datetime_col, to_string=False)
 
 
-def get_first_day_gap(df, index_col, time_col, start_date_col, threshold):
+def get_first_day_gap(
+    df: pd.DataFrame,
+    index_col: str,
+    time_col: str,
+    start_date_col: str,
+    threshold: int,
+) -> pd.DataFrame:
     df = df.sort_values(by=[index_col, time_col])
     df = df.assign(
         gap_dur=df.groupby(index_col)[time_col].diff().dt.days.fillna(0),

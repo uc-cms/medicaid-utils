@@ -7,7 +7,7 @@ def flag_prescriptions(
     dct_ndc_codes: dict,
     df_claims: dd.DataFrame,
     ignore_missing_days_supply: bool = False,
-):
+) -> dd.DataFrame:
     """
     Flags claims based on NDC codes
 
@@ -37,6 +37,28 @@ def flag_prescriptions(
     Returns
     -------
     dd.DataFrame
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> import dask.dataframe as dd
+    >>> pdf = pd.DataFrame({
+    ...     'MSIS_ID': ['A', 'B', 'C'],
+    ...     'NDC': ['00378451905', '99999999999', '00378617005'],
+    ...     'DAYS_SUPPLY': ['30', '10', '0'],
+    ... }).set_index('MSIS_ID')
+    >>> ddf = dd.from_pandas(pdf, npartitions=1)
+    >>> dct_ndc = {'buprenorphine': ['00378451905', '00378617005']}
+    >>> result = flag_prescriptions(dct_ndc, ddf)
+    >>> result.compute()['rx_buprenorphine'].tolist()
+    [1, 0, 0]
+
+    When ``ignore_missing_days_supply`` is True, claims with zero or missing
+    days of supply are still flagged:
+
+    >>> result2 = flag_prescriptions(dct_ndc, ddf, ignore_missing_days_supply=True)
+    >>> result2.compute()['rx_buprenorphine'].tolist()
+    [1, 0, 1]
 
     """
     dct_ndc_codes = {

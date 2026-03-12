@@ -1,6 +1,7 @@
 """This module has MAXCC class which wraps together cleaning/ preprocessing routines specific for MAX CC files"""
-from typing import List
+from typing import List, Optional
 
+import dask.dataframe as dd
 import pandas as pd
 import numpy as np
 
@@ -18,9 +19,9 @@ class MAXCC(max_file.MAXFile):
         index_col: str = "BENE_MSIS",
         clean: bool = True,
         preprocess: bool = True,
-        tmp_folder: str = None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
         Initializes MAX file object by preloading and preprocessing(if opted in) the file
 
@@ -70,7 +71,7 @@ class MAXCC(max_file.MAXFile):
             ]
             self.agg_conditions(lst_conditions)
 
-    def agg_conditions(self, lst_conditions: List[str]):
+    def agg_conditions(self, lst_conditions: List[str]) -> None:
         """
         Aggregate condition indicators across payer levels
 
@@ -105,8 +106,8 @@ class MAXCC(max_file.MAXFile):
         )
 
     def get_chronic_conditions(
-        self, lst_conditions: List[str] = None
-    ):  # pylint: disable=missing-param-doc
+        self, lst_conditions: Optional[List[str]] = None
+    ) -> dd.DataFrame:  # pylint: disable=missing-param-doc
         """
         Get chronic condition indidcators
 

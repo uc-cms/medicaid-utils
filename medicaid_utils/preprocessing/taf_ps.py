@@ -1,6 +1,7 @@
 """This module has TAFPS class which wraps together cleaning/ preprocessing
 routines specific for TAF PS files"""
 import os
+from typing import Optional
 
 from itertools import product
 import numpy as np
@@ -31,9 +32,9 @@ class TAFPS(taf_file.TAFFile):
         clean: bool = True,
         preprocess: bool = True,
         rural_method: str = "ruca",
-        tmp_folder: str = None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
 
         Parameters
@@ -58,6 +59,12 @@ class TAFPS(taf_file.TAFFile):
             Folder to use to store temporary files
         pq_engine: str, default='pyarrow'
             Parquet Engine
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms')  # doctest: +SKIP
+
         """
         super().__init__(
             "ps",
@@ -80,17 +87,38 @@ class TAFPS(taf_file.TAFFile):
         if preprocess:
             self.preprocess(rural_method)
 
-    def clean(self):
-        """Runs cleaning routines and created common exclusion flags based
-        on default filters"""
+    def clean(self) -> None:
+        """Runs cleaning routines and creates common exclusion flags based
+        on default filters.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> ps.clean()  # doctest: +SKIP
+        """
         super().clean()
         self.add_gender()
         self.flag_common_exclusions()
 
     def preprocess(
-        self, rural_method="ruca", add_risk_adjustment_scores=False
-    ):
-        """Adds rural and eligibility criteria indicator variables"""
+        self, rural_method: str = "ruca", add_risk_adjustment_scores: bool = False
+    ) -> None:
+        """Adds rural and eligibility criteria indicator variables.
+
+        Parameters
+        ----------
+        rural_method : str, default='ruca'
+            Method to use for rural classification. Options: 'ruca', 'rucc'.
+        add_risk_adjustment_scores : bool, default=False
+            Whether to add Elixhauser risk adjustment scores.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', preprocess=False)  # doctest: +SKIP
+        >>> ps.preprocess(rural_method='ruca')  # doctest: +SKIP
+        """
         self.flag_rural(rural_method)
         self.flag_dual()
         self.flag_restricted_benefits()
@@ -103,7 +131,7 @@ class TAFPS(taf_file.TAFFile):
         if add_risk_adjustment_scores:
             self.add_risk_adjustment_scores()
 
-    def flag_common_exclusions(self):
+    def flag_common_exclusions(self) -> None:
         """
         Adds commonly used exclusion flags
 
@@ -111,6 +139,12 @@ class TAFPS(taf_file.TAFFile):
 
             - excl_duplicated_bene_id - 0 or 1, 1 when bene's index column is
               repeated
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> ps.flag_common_exclusions()  # doctest: +SKIP
 
         """
         df_base = self.dct_files["base"]
@@ -133,7 +167,7 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df_base
         self.cache_results("base")
 
-    def add_mas_boe(self):
+    def add_mas_boe(self) -> None:
         """
         Adds columns denoting number of months in each Maintenance
         Assistance Status (MAS) and Basis of Eligibility
@@ -170,6 +204,12 @@ class TAFPS(taf_file.TAFFile):
             - mas_unknown_months : Number of months in Unknown MAS category
             - max_mas_type : Top MAS category for the bene
             - max_boe_type : Top BOE category for the bene
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False, preprocess=False)  # doctest: +SKIP
+        >>> ps.add_mas_boe()  # doctest: +SKIP
 
         """
         df = self.dct_files["base"]
@@ -323,10 +363,19 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df
         self.cache_results("base")
 
-    def add_gender(self):
+    def add_gender(self) -> None:
         """Adds integer 'female' column based on 'SEX_CD' column. Undefined
         values ('U') in SEX_CD column will result in female column taking
-        the value -1"""
+        the value -1.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False, preprocess=False)  # doctest: +SKIP
+        >>> ps.add_gender()  # doctest: +SKIP
+        >>> 'female' in ps.dct_files['base'].columns  # doctest: +SKIP
+        True
+        """
         df = self.dct_files["base"]
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -345,7 +394,7 @@ class TAFPS(taf_file.TAFFile):
 
     def flag_rural(
         self, method: str = "ruca"
-    ):  # pylint: disable=missing-param-doc
+    ) -> None:  # pylint: disable=missing-param-doc
         """
         Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of
         their resident ZIP/ FIPS codes
@@ -381,6 +430,12 @@ class TAFPS(taf_file.TAFFile):
         ----------
         method : {'ruca', 'rucc'}
             Method to use for rural variable construction
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False, preprocess=False)  # doctest: +SKIP
+        >>> ps.flag_rural(method='ruca')  # doctest: +SKIP
 
         """
         df = self.dct_files["base"]
@@ -534,7 +589,7 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df
         self.cache_results("base")
 
-    def flag_dual(self):
+    def flag_dual(self) -> None:
         """
         Flags benes with  DUAL_ELGBL_CD equal to 1 (full dual), 2 (partial
         dual), or 3 (other dual) in any month are flagged as duals.
@@ -544,6 +599,13 @@ class TAFPS(taf_file.TAFFile):
         - `Identifying beneficiaries with a substance use disorder
           <https://www.medicaid.gov/medicaid/data-and-systems/downloads
           /macbis/sud_techspecs.docx>`_
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False, preprocess=False)  # doctest: +SKIP
+        >>> ps.flag_dual()  # doctest: +SKIP
+
         """
         df = self.dct_files["base"]
         df = df.assign(
@@ -580,7 +642,7 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df
         self.cache_results("base")
 
-    def flag_restricted_benefits(self):
+    def flag_restricted_benefits(self) -> None:
         """
         Flags beneficiaries whose benefits are restricted. Benes with the
         below values in their RSTRCTD_BNFTS_CD_XX columns are NOT assumed to
@@ -602,6 +664,13 @@ class TAFPS(taf_file.TAFFile):
         Reference: `Identifying beneficiaries with a substance use disorder
         <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis
         /sud_techspecs.docx>`_
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False, preprocess=False)  # doctest: +SKIP
+        >>> ps.flag_restricted_benefits()  # doctest: +SKIP
+
         """
         df = self.dct_files["base"]
         df = df.map_partitions(
@@ -648,9 +717,16 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df
         self.cache_results("base")
 
-    def compute_enrollment_gaps(self):
+    def compute_enrollment_gaps(self) -> None:
         """Computes enrollment gaps using dates file. Adds number of
-        enrollment gaps and length of maximum enrollment gap in days columns"""
+        enrollment gaps and length of maximum enrollment gap in days columns.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False, preprocess=False)  # doctest: +SKIP
+        >>> ps.compute_enrollment_gaps()  # doctest: +SKIP
+        """
         df = self.dct_files["dates"]
         df = dataframe_utils.fix_index(
             df, index_name=self.index_col, drop_column=False
@@ -668,7 +744,11 @@ class TAFPS(taf_file.TAFFile):
             Returns
             -------
             pd.DataFrame
+                Dates dataframe with enrollment gap columns added.
 
+            Examples
+            --------
+            >>> # Called internally by compute_enrollment_gaps  # doctest: +SKIP
             """
             pdf_dates = pdf_dates.reset_index(drop=True)
             pdf_dates = pdf_dates.sort_values(
@@ -771,12 +851,18 @@ class TAFPS(taf_file.TAFFile):
         )
         self.cache_results("base")
 
-    def flag_medicaid_enrolled_months(self):
+    def flag_medicaid_enrolled_months(self) -> None:
         """
-        Creates flags for medicaid enrollment for each and computes the
-        total number of months enroled in medicaid. Bene has to be enrolled
+        Creates flags for medicaid enrollment for each month and computes the
+        total number of months enrolled in medicaid. Bene has to be enrolled
         for all days of the month without missing eligibility information
         for the month to be considered a medicaid enrolled month.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False, preprocess=False)  # doctest: +SKIP
+        >>> ps.flag_medicaid_enrolled_months()  # doctest: +SKIP
         """
         df_base = self.dct_files["base"]
         df_base = df_base.assign(
@@ -865,11 +951,17 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df_base
         self.cache_results("base")
 
-    def flag_managed_care_months(self):
+    def flag_managed_care_months(self) -> None:
         """
         Creates flags for 3 categories of managed care plans for each month,
         and adds columns denoting total number of months enrolled in these
         plans and the enrollment sequence pattern.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False, preprocess=False)  # doctest: +SKIP
+        >>> ps.flag_managed_care_months()  # doctest: +SKIP
         """
         if "managed_care" in self.dct_files:
             df_mc = self.dct_files["managed_care"]
@@ -1103,7 +1195,7 @@ class TAFPS(taf_file.TAFFile):
             )
             self.cache_results("base")
 
-    def flag_tanf(self):
+    def flag_tanf(self) -> None:
         """
         The Temporary Assistance for Needy Families (TANF) program provides
         temporary financial assistance for pregnant women and families with
@@ -1115,6 +1207,12 @@ class TAFPS(taf_file.TAFFile):
             - 1: INDIVIDUAL DID NOT RECEIVE TANF BENEFITS DURING THE YEAR;
             - 2: INDIVIDUAL DID RECEIVE TANF BENEFITS DURING THE YEAR
 
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False, preprocess=False)  # doctest: +SKIP
+        >>> ps.flag_tanf()  # doctest: +SKIP
+
         """
         df_base = self.dct_files["base"]
         df_base = df_base.assign(
@@ -1125,9 +1223,15 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df_base
         self.cache_results("base")
 
-    def gather_bene_level_diag_ndc_codes(self):
+    def gather_bene_level_diag_ndc_codes(self) -> None:
         """Constructs patient level NDC and diagnosis code list columns and
-        saves them to individual file
+        saves them to individual file.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', tmp_folder='/tmp/ps')  # doctest: +SKIP
+        >>> ps.gather_bene_level_diag_ndc_codes()  # doctest: +SKIP
         """
         lst_util_claim_types = ["ip", "ot", "rx"]
         dct_utilization_claims = {
@@ -1206,9 +1310,16 @@ class TAFPS(taf_file.TAFFile):
         self.add_custom_subtype("diag_and_ndc_codes", df_diag)
         self.cache_results("diag_and_ndc_codes")
 
-    def add_risk_adjustment_scores(self):
+    def add_risk_adjustment_scores(self) -> None:
         """Adds bene level risk adjustment scores. Currently supports
-        Elixhauser scores."""
+        Elixhauser scores.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', tmp_folder='/tmp/ps')  # doctest: +SKIP
+        >>> ps.add_risk_adjustment_scores()  # doctest: +SKIP
+        """
         if "diag_and_ndc_codes" not in self.dct_files:
             self.gather_bene_level_diag_ndc_codes()
         df_diag_ndc = self.dct_files["diag_and_ndc_codes"]
@@ -1229,12 +1340,18 @@ class TAFPS(taf_file.TAFFile):
         self.dct_files["base"] = df_base
         self.cache_results("base")
 
-    def flag_ffs_months(self):
+    def flag_ffs_months(self) -> None:
         """
         Creates flags for months enrolled in medicaid without
         enrollment in managed care plans of 3 categories, and adds columns
         denoting total number of months enrolled in these
         plans and the enrollment sequence pattern.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ps import TAFPS  # doctest: +SKIP
+        >>> ps = TAFPS(2019, 'AL', '/data/cms', clean=False, preprocess=False)  # doctest: +SKIP
+        >>> ps.flag_ffs_months()  # doctest: +SKIP
         """
         df_base = self.dct_files["base"]
         df_base = df_base.map_partitions(

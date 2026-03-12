@@ -1,4 +1,5 @@
 """This module has TAFLT class which wraps together cleaning/ preprocessing routines specific for TAF LT files"""
+from typing import Optional
 
 from medicaid_utils.preprocessing import taf_file
 
@@ -12,9 +13,9 @@ class TAFLT(taf_file.TAFFile):
         index_col: str = "BENE_MSIS",
         clean: bool = True,
         preprocess: bool = True,
-        tmp_folder: str = None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
         Initializes TAF LT file object by preloading and preprocessing(if opted in) the associated files
 
@@ -38,6 +39,11 @@ class TAFLT(taf_file.TAFFile):
         pq_engine : str, default='pyarrow'
             Parquet engine to use
 
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_lt import TAFLT  # doctest: +SKIP
+        >>> lt = TAFLT(2019, 'AL', '/data/cms')  # doctest: +SKIP
+
         """
         super().__init__(
             "lt",
@@ -56,12 +62,26 @@ class TAFLT(taf_file.TAFFile):
         if preprocess:
             self.preprocess()
 
-    def clean(self):
+    def clean(self) -> None:
         """Cleaning routines to clean diagnosis & procedure code columns, processes date and gender columns,
-        and add duplicate check flags."""
+        and add duplicate check flags.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_lt import TAFLT  # doctest: +SKIP
+        >>> lt = TAFLT(2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> lt.clean()  # doctest: +SKIP
+        """
         super().clean()
         self.flag_duplicates()
 
-    def preprocess(self):
-        """Add basic constructed variables"""
+    def preprocess(self) -> None:
+        """Add basic constructed variables.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_lt import TAFLT  # doctest: +SKIP
+        >>> lt = TAFLT(2019, 'AL', '/data/cms', preprocess=False)  # doctest: +SKIP
+        >>> lt.preprocess()  # doctest: +SKIP
+        """
         pass

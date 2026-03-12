@@ -7,10 +7,11 @@ __email__ = "manorathan@uchicago.edu"
 import sys
 import os
 from itertools import product
+from typing import List
+
 import numpy as np
 import pandas as pd
 import dask.dataframe as dd
-from typing import List
 
 
 class BetosProcCodes:
@@ -43,6 +44,13 @@ class BetosProcCodes:
         Returns
         -------
         pandas.DataFrame
+
+        Examples
+        --------
+        >>> # Requires BETOS public use crosswalk files on disk
+        >>> pdf = BetosProcCodes.get_betos_cpt_crosswalk(2018)  # doctest: +SKIP
+        >>> 'cpt_code' in pdf.columns  # doctest: +SKIP
+        True
 
         """
         pdf_crosswalk = pd.read_csv(
@@ -81,7 +89,7 @@ class BetosProcCodes:
                 ),
                 header=None,
                 sep="=",
-                error_bad_lines=True,
+                on_bad_lines="error",
                 skiprows=54,
                 names=["betos_code", "betos_code_name"],
             )
@@ -178,6 +186,11 @@ class BetosProcCodes:
         Returns
         -------
         dask.DataFrame
+
+        Examples
+        --------
+        >>> # Requires BETOS crosswalk data and claim data
+        >>> BetosProcCodes.get_betos_cat(df, pdf_crosswalk)  # doctest: +SKIP
 
         """
         dct_code_lookup = (
@@ -337,6 +350,11 @@ def assign_betos_cat(
     Returns
     -------
     dask.DataFrame
+
+    Examples
+    --------
+    >>> # Requires BETOS public use files and claim data
+    >>> assign_betos_cat(df, 2018)  # doctest: +SKIP
 
     """
     pdf_crosswalk = BetosProcCodes.get_betos_cpt_crosswalk(year)

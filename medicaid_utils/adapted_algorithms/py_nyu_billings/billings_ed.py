@@ -12,6 +12,8 @@ __email__ = "manorathan@uchicago.edu"
 import re
 import os
 from ast import literal_eval
+from typing import Dict, Tuple, Union
+
 import pandas as pd
 import dask.dataframe as dd
 
@@ -115,6 +117,12 @@ class BillingsED:
         Returns
         -------
         str
+            Recoded diagnosis code.
+
+        Examples
+        --------
+        >>> BillingsED.recode_diag_code('4659')  # doctest: +SKIP
+        '4659'
 
         """
         return cls.dct_recode_non_startswith.get(
@@ -152,6 +160,13 @@ class BillingsED:
         Returns
         -------
         dict
+            Dictionary with keys 'acs', 'psych', 'drug', 'alcohol', 'injury'
+            and integer values (0 or 1).
+
+        Examples
+        --------
+        >>> BillingsED.get_special_categories('E8600')  # doctest: +SKIP
+        {'acs': 0, 'psych': 0, 'drug': 0, 'alcohol': 1, 'injury': 0}
 
         """
         return {
@@ -160,7 +175,7 @@ class BillingsED:
         }
 
     @classmethod
-    def get_nyu_ed_proba_for_dx_code(cls, dx_code) -> dict:
+    def get_nyu_ed_proba_for_dx_code(cls, dx_code: str) -> dict:
         """
         Merge with EDDXs gets the probbolities attached with the code
 
@@ -181,6 +196,13 @@ class BillingsED:
         Returns
         -------
         dict
+            Dictionary with probability keys ('nonemerg', 'emergpc',
+            'emedpa', 'emednpa') and float values, or empty dict if
+            the code is not found.
+
+        Examples
+        --------
+        >>> BillingsED.get_nyu_ed_proba_for_dx_code('4659')  # doctest: +SKIP
 
         """
         return (
@@ -192,7 +214,7 @@ class BillingsED:
     @classmethod
     def get_nyu_ed_categories(
         cls, dx_code: str
-    ) -> (int, int, int, int, int, int, float, float, float, float):
+    ) -> Tuple[int, int, int, int, int, int, float, float, float, float]:
         """
         Returns probabilities for each of the NYU ED categories, based on the input diagnosis code
 
@@ -223,6 +245,10 @@ class BillingsED:
             Emergent, ED Care Needed, Preventable/Avoidable
         edcnnpa : float
             Emergent, ED Care Needed, Not Preventable/Avoidable
+
+        Examples
+        --------
+        >>> BillingsED.get_nyu_ed_categories('4659')  # doctest: +SKIP
 
         """
         peds_acsed = cls.is_peds_acsed(dx_code)
@@ -312,6 +338,14 @@ class BillingsED:
         Returns
         -------
         int
+            1 if the code meets pediatric ACS ED criteria, 0 otherwise.
+
+        Examples
+        --------
+        >>> BillingsED.is_peds_acsed('493')  # doctest: +SKIP
+        1
+        >>> BillingsED.is_peds_acsed('999')  # doctest: +SKIP
+        0
 
         """
         return int(
@@ -395,6 +429,11 @@ def get_nyu_ed_proba(
     Returns
     -------
     pd.DataFrame
+
+    Examples
+    --------
+    >>> # Requires a dask DataFrame with ED claims and diagnosis columns
+    >>> pdf = get_nyu_ed_proba(df, 'srvc_bgn_date', 'MSIS_ID')  # doctest: +SKIP
 
     """
     principal_diag_col_name = (

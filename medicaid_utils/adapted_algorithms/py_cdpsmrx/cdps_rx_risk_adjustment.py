@@ -1,10 +1,10 @@
 import sys
 import os
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
 import dask.dataframe as dd
-from typing import List
 
 
 class CdpsRxRiskAdjustment:
@@ -14,7 +14,7 @@ class CdpsRxRiskAdjustment:
     @classmethod
     def add_age_and_gender_cols(
         cls, df: dd.DataFrame
-    ) -> (dd.DataFrame, List[str]):
+    ) -> Tuple[dd.DataFrame, List[str]]:
         """
         Adds age & gender related covariates used in CDPS Rx Risk Adjustment model. Returns a dataframe with the
         below columns:
@@ -38,6 +38,15 @@ class CdpsRxRiskAdjustment:
         Returns
         -------
         dask.DataFrame
+        list of str
+            List of age and gender column names added.
+
+        Examples
+        --------
+        >>> # Requires a dask DataFrame with 'Female' and 'age' columns
+        >>> df, lst_cols = CdpsRxRiskAdjustment.add_age_and_gender_cols(df)  # doctest: +SKIP
+        >>> 'a_under1' in lst_cols  # doctest: +SKIP
+        True
 
         """
         lst_age_and_gender_cols = [
@@ -60,7 +69,7 @@ class CdpsRxRiskAdjustment:
         )
         df = df.assign(
             a_under1=((df["age"] <= 1) | df["age"].isna()).astype(int),
-            a_1_4=(df["age"].between(1, 5, inclusive=False)).astype(int),
+            a_1_4=(df["age"].between(1, 5, inclusive="neither")).astype(int),
             a_5_14m=(
                 (df["age"] >= 5) & (df["age"] < 15) & (df["male"] == 1)
             ).astype(int),
@@ -91,8 +100,8 @@ class CdpsRxRiskAdjustment:
 
     @classmethod
     def add_cdps_category_cols(
-        cls, df: dd.DataFrame, lst_diag_cd_col_name
-    ) -> (dd.DataFrame, List[str]):
+        cls, df: dd.DataFrame, lst_diag_cd_col_name: str
+    ) -> Tuple[dd.DataFrame, List[str]]:
         """
         Adds CDPS category columns
 
@@ -105,6 +114,14 @@ class CdpsRxRiskAdjustment:
         Returns
         -------
         dask.DataFrame
+        list of str
+            List of CDPS category column names added.
+
+        Examples
+        --------
+        >>> # Requires a dask DataFrame with diagnosis code list and aid columns
+        >>> df, lst_cols = CdpsRxRiskAdjustment.add_cdps_category_cols(  # doctest: +SKIP
+        ...     df, 'LST_DIAG_CD')
         """
 
         # Load var lists and maps
@@ -277,7 +294,7 @@ class CdpsRxRiskAdjustment:
                             pdf["LST_ADULT_DIAG_CD"].tolist(), index=pdf.index
                         )
                         .isin(["OTHER"])
-                        .any(1)
+                        .any(axis=1)
                         | (
                             pdf["aid"].isin(["DC", "AC"])
                             & pd.DataFrame(
@@ -285,7 +302,7 @@ class CdpsRxRiskAdjustment:
                                 index=pdf.index,
                             )
                             .isin(["OTHER"])
-                            .any(1)
+                            .any(axis=1)
                         )
                     ).astype(int)
                 )
@@ -304,7 +321,7 @@ class CdpsRxRiskAdjustment:
                                     index=pdf.index,
                                 )
                                 .isin([diag])
-                                .any(1)
+                                .any(axis=1)
                             ).astype(int),
                         )
                         for diag in lst_non_hierarchical_diags_adult
@@ -325,7 +342,7 @@ class CdpsRxRiskAdjustment:
                                     index=pdf.index,
                                 )
                                 .isin([diag])
-                                .any(1)
+                                .any(axis=1)
                             ).astype(int),
                         )
                         for diag in lst_non_hierarchical_diags_child
@@ -341,7 +358,7 @@ class CdpsRxRiskAdjustment:
                                     index=pdf.index,
                                 )
                                 .isin([diag])
-                                .any(1)
+                                .any(axis=1)
                                 .astype(int),
                             ),
                         )
@@ -367,7 +384,7 @@ class CdpsRxRiskAdjustment:
                                             index=pdf.index,
                                         )
                                         .isin([diag])
-                                        .any(1)
+                                        .any(axis=1)
                                         & (
                                             (level_order == 1)
                                             | (
@@ -387,7 +404,7 @@ class CdpsRxRiskAdjustment:
                                                         ]
                                                     ]
                                                 )
-                                                .any(1)
+                                                .any(axis=1)
                                             )
                                         )
                                     ).astype(int),
@@ -419,7 +436,7 @@ class CdpsRxRiskAdjustment:
                                             index=pdf.index,
                                         )
                                         .isin([diag])
-                                        .any(1)
+                                        .any(axis=1)
                                         & (
                                             (level_order == 1)
                                             | (
@@ -439,7 +456,7 @@ class CdpsRxRiskAdjustment:
                                                         ]
                                                     ]
                                                 )
-                                                .any(1)
+                                                .any(axis=1)
                                             )
                                         )
                                     ).astype(int),
@@ -462,7 +479,7 @@ class CdpsRxRiskAdjustment:
                                                 index=pdf.index,
                                             )
                                             .isin([diag])
-                                            .any(1)
+                                            .any(axis=1)
                                             & (
                                                 (level_order == 1)
                                                 | (
@@ -483,7 +500,7 @@ class CdpsRxRiskAdjustment:
                                                             ]
                                                         ]
                                                     )
-                                                    .any(1)
+                                                    .any(axis=1)
                                                 )
                                             )
                                         ).astype(int),
@@ -558,8 +575,8 @@ class CdpsRxRiskAdjustment:
 
     @classmethod
     def add_mrx_cat_cols(
-        cls, df: dd.DataFrame, lst_ndc_col_name="LST_NDC"
-    ) -> (dd.DataFrame, List[str]):
+        cls, df: dd.DataFrame, lst_ndc_col_name: str = "LST_NDC"
+    ) -> Tuple[dd.DataFrame, List[str]]:
         """
         Adds MRX category columns
 
@@ -571,6 +588,14 @@ class CdpsRxRiskAdjustment:
         Returns
         -------
         dask.DataFrame
+        list of str
+            List of MRX category column names added.
+
+        Examples
+        --------
+        >>> # Requires a dask DataFrame with an NDC code list column
+        >>> df, lst_cols = CdpsRxRiskAdjustment.add_mrx_cat_cols(  # doctest: +SKIP
+        ...     df, 'LST_NDC')
 
         """
         # Load var lists and maps
@@ -642,7 +667,7 @@ class CdpsRxRiskAdjustment:
                     pdf["LST_NDC_MRX"].tolist(), index=pdf.index
                 )
                 .isin(["OTHER"])
-                .any(1)
+                .any(axis=1)
                 .astype(int)
             )
         )
@@ -656,7 +681,7 @@ class CdpsRxRiskAdjustment:
                                 pdf["LST_NDC_MRX"].tolist(), index=pdf.index
                             )
                             .isin([mrx])
-                            .any(1)
+                            .any(axis=1)
                             .astype(int),
                         )
                         for mrx in lst_non_hierarchical_mrx_cat
@@ -679,7 +704,7 @@ class CdpsRxRiskAdjustment:
                                             index=pdf.index,
                                         )
                                         .isin([mrx])
-                                        .any(1)
+                                        .any(axis=1)
                                         & (
                                             (level_order == 1)
                                             | (
@@ -699,7 +724,7 @@ class CdpsRxRiskAdjustment:
                                                         ]
                                                     ]
                                                 )
-                                                .any(1)
+                                                .any(axis=1)
                                             )
                                         )
                                     ).astype(int),
@@ -721,7 +746,7 @@ class CdpsRxRiskAdjustment:
         )
 
     @classmethod
-    def combine_cdps_mrx_hierarchies(cls, df: dd.DataFrame):
+    def combine_cdps_mrx_hierarchies(cls, df: dd.DataFrame) -> dd.DataFrame:
         """
         Apply CDPS MRX hierarchical rollups
 
@@ -732,6 +757,11 @@ class CdpsRxRiskAdjustment:
         Returns
         -------
         dask.DataFrame
+
+        Examples
+        --------
+        >>> # Requires a dask DataFrame with CDPS and MRX category columns
+        >>> df = CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies(df)  # doctest: +SKIP
 
         """
         df = df.assign(
@@ -905,7 +935,7 @@ class CdpsRxRiskAdjustment:
 
     @classmethod
     def calculate_risk(
-        cls, df: dd.DataFrame, lst_cov: List[str], score_col_name="risk"
+        cls, df: dd.DataFrame, lst_cov: List[str], score_col_name: str = "risk"
     ) -> dd.DataFrame:
         """
         Calculates CDPS risk adjustment score. The returned dataframe has the following new columns:
@@ -922,6 +952,13 @@ class CdpsRxRiskAdjustment:
         Returns
         -------
         dask.DataFrame
+
+        Examples
+        --------
+        >>> # Requires a dask DataFrame with covariate columns and aid column
+        >>> df = CdpsRxRiskAdjustment.calculate_risk(  # doctest: +SKIP
+        ...     df, lst_cov=['a_under1', 'a_1_4'], score_col_name='risk')
+
         """
         dct_weights = (
             pd.read_excel(
@@ -994,9 +1031,9 @@ class CdpsRxRiskAdjustment:
 
 def cdps_rx_risk_adjust(
     df: dd.DataFrame,
-    lst_diag_col_name="LST_DIAG_CD",
-    lst_ndc_col_name="LST_NDC",
-    score_col_name="risk",
+    lst_diag_col_name: str = "LST_DIAG_CD",
+    lst_ndc_col_name: str = "LST_NDC",
+    score_col_name: str = "risk",
 ) -> dd.DataFrame:
     """
     Calculate CDPS MRX risk adjustment score. This function expects the input dataframe to be aggregated to patient
@@ -1016,6 +1053,12 @@ def cdps_rx_risk_adjust(
     Returns
     -------
     dask.DataFrame
+
+    Examples
+    --------
+    >>> # Requires a patient-level dask DataFrame with diagnosis and NDC columns
+    >>> df = cdps_rx_risk_adjust(df, 'LST_DIAG_CD', 'LST_NDC')  # doctest: +SKIP
+
     """
     df, lst_age_and_gender_cols = CdpsRxRiskAdjustment.add_age_and_gender_cols(
         df

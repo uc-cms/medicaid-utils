@@ -1,4 +1,5 @@
 """This module has TAFOT class which wraps together cleaning/ preprocessing routines specific for TAF OT files"""
+from typing import Optional
 
 from medicaid_utils.preprocessing import taf_file
 
@@ -12,9 +13,9 @@ class TAFOT(taf_file.TAFFile):
         index_col: str = "BENE_MSIS",
         clean: bool = True,
         preprocess: bool = True,
-        tmp_folder: str = None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
         Initializes TAF OT file object by preloading and preprocessing(if opted in) the associated files
 
@@ -38,6 +39,11 @@ class TAFOT(taf_file.TAFFile):
         pq_engine : str, default='pyarrow'
             Parquet engine to use
 
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ot import TAFOT  # doctest: +SKIP
+        >>> ot = TAFOT(2019, 'AL', '/data/cms')  # doctest: +SKIP
+
         """
         super().__init__(
             "ot",
@@ -56,18 +62,32 @@ class TAFOT(taf_file.TAFFile):
         if preprocess:
             self.preprocess()
 
-    def clean(self):
+    def clean(self) -> None:
         """Cleaning routines to clean diagnosis & procedure code columns, processes date and gender columns,
-        and add duplicate check flags."""
+        and add duplicate check flags.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ot import TAFOT  # doctest: +SKIP
+        >>> ot = TAFOT(2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> ot.clean()  # doctest: +SKIP
+        """
         super().clean()
         self.clean_codes()
         self.flag_common_exclusions()
         self.cache_results()
 
-    def preprocess(self):
-        """Add basic constructed variables"""
+    def preprocess(self) -> None:
+        """Add basic constructed variables.
 
-    def flag_common_exclusions(self):
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ot import TAFOT  # doctest: +SKIP
+        >>> ot = TAFOT(2019, 'AL', '/data/cms', preprocess=False)  # doctest: +SKIP
+        >>> ot.preprocess()  # doctest: +SKIP
+        """
+
+    def flag_common_exclusions(self) -> None:
         """
         Adds commonly used IP claim exclusion flag columns.
         New Columns:
@@ -75,6 +95,12 @@ class TAFOT(taf_file.TAFFile):
             - ffs_or_encounter_claim, 0 or 1, 1 when base claim is an FFS or Encounter claim
             - excl_missing_dob, 0 or 1, 1 when base claim does not have birth date
             - excl_missing_srvc_bgn_date, 0 or 1, 1 when base claim does not have service begin date
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ot import TAFOT  # doctest: +SKIP
+        >>> ot = TAFOT(2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> ot.flag_common_exclusions()  # doctest: +SKIP
 
         """
         self.flag_ffs_and_encounter_claims()

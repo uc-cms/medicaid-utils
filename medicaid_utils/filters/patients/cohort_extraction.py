@@ -4,7 +4,7 @@ import gc
 import os
 import shutil
 import logging
-from typing import List, Union, Tuple
+from typing import Dict, List, Optional, Union, Tuple
 
 import pandas as pd
 import dask.dataframe as dd
@@ -57,6 +57,29 @@ def apply_range_filter(  # pylint: disable=missing-param-doc
     -------
     dd.DataFrame
 
+    Examples
+    --------
+    Apply a numeric range filter:
+
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({'age': [5, 12, 20, 35]})
+    >>> result = apply_range_filter(
+    ...     (0, 18), df, 'range_numeric_age', 'age', 'int')
+    >>> result['age'].tolist()
+    [5, 12]
+
+    Apply a date range filter:
+
+    >>> df_dates = pd.DataFrame({
+    ...     'service_date': pd.to_datetime(
+    ...         ['20200101', '20200601', '20210101'])
+    ... })
+    >>> result = apply_range_filter(
+    ...     ('20200101', '20200630'), df_dates,
+    ...     'range_date_service_date', 'service_date', 'date')
+    >>> len(result)
+    2
+
     """
     logger = logging.getLogger(logger_name)
     start = (
@@ -89,7 +112,7 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
     claim: Union[max_file.MAXFile, taf_file.TAFFile],
     dct_claim_filters: dict,
     tmp_folder: str,
-    subtype: str = None,
+    subtype: Optional[str] = None,
     logger_name: str = __file__,
 ) -> Tuple[Union[max_file.MAXFile, taf_file.TAFFile], pd.DataFrame]:
     """
@@ -159,6 +182,18 @@ def filter_claim_files(  # pylint: disable=missing-param-doc
     ValueError
         When subtype is parameter is missing for a function with TAFFile
         claim type input
+
+    Examples
+    --------
+    >>> from medicaid_utils.filters.patients.cohort_extraction import (
+    ...     filter_claim_files,
+    ... )  # doctest: +SKIP
+    >>> claim = max_ip.MAXIP(
+    ...     2012, 'AL', '/data/cms/')  # doctest: +SKIP
+    >>> filtered_claim, stats = filter_claim_files(
+    ...     claim,
+    ...     {'ip': {'missing_dob': 0}},
+    ...     '/tmp/cache')  # doctest: +SKIP
 
     """
     logger = logging.getLogger(logger_name)
@@ -262,7 +297,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     export_format: str = "csv",
     pq_engine: str = "pyarrow",
     logger_name: str = __file__,
-):
+) -> None:
     """
     Extracts and exports claim files corresponded cohort defined by the
     input filters
@@ -385,6 +420,28 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     FileNotFoundError
         Raised when any of file types requested to be imported does not
         exist for the state and year
+
+    Examples
+    --------
+    >>> from medicaid_utils.filters.patients.cohort_extraction import (
+    ...     extract_cohort,
+    ... )  # doctest: +SKIP
+    >>> dct_codes = {
+    ...     'diag_codes': {'oud': {'incl': {9: ['3040', '3055']}}},
+    ...     'proc_codes': {},
+    ... }  # doctest: +SKIP
+    >>> dct_filters = {
+    ...     'cohort': {'ip': {'missing_dob': 0}},
+    ...     'export': {},
+    ... }  # doctest: +SKIP
+    >>> dct_paths = {
+    ...     'source_root': '/data/cms/',
+    ...     'export_folder': '/output/cohort/',
+    ... }  # doctest: +SKIP
+    >>> extract_cohort(
+    ...     'AL', [2012], dct_codes, dct_filters,
+    ...     ['ip', 'ps'], dct_paths,
+    ...     cms_format='MAX')  # doctest: +SKIP
 
     """
     logger = logging.getLogger(logger_name)
@@ -916,6 +973,27 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
     FileNotFoundError
         Raised when any of file types requested to be imported does not
         exist for the state and year
+
+    Examples
+    --------
+    >>> from medicaid_utils.filters.patients.cohort_extraction import (
+    ...     export_cohort_datasets,
+    ... )  # doctest: +SKIP
+    >>> import pandas as pd
+    >>> import dask.dataframe as dd  # doctest: +SKIP
+    >>> pdf_cohort = pd.DataFrame({
+    ...     'MSIS_ID': ['A', 'B'],
+    ...     'include': [1, 1],
+    ... }).set_index('MSIS_ID')  # doctest: +SKIP
+    >>> ddf_cohort = dd.from_pandas(pdf_cohort, npartitions=1)  # doctest: +SKIP
+    >>> dct_paths = {
+    ...     'source_root': '/data/cms/',
+    ...     'export_folder': '/output/cohort/',
+    ... }  # doctest: +SKIP
+    >>> export_cohort_datasets(
+    ...     ddf_cohort, 2012, 'AL',
+    ...     ['ip', 'ps'], {}, dct_paths,
+    ...     cms_format='MAX')  # doctest: +SKIP
 
     """
     if bool(lst_types_to_export):

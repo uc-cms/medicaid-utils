@@ -8,14 +8,43 @@ __email__ = "manorathan@uchicago.edu"
 
 import os
 from itertools import product
+from typing import Dict, List, Tuple
+
 import pandas as pd
 import numpy as np
 import dask.dataframe as dd
 
 
 def fix_index(
-    df: dd.DataFrame, index_name: str, drop_column=True
+    df: dd.DataFrame, index_name: str, drop_column: bool = True
 ) -> dd.DataFrame:
+    """
+    Set or fix the index of a dask DataFrame.
+
+    Ensures the DataFrame is indexed by the specified column. If the
+    DataFrame already has the correct index with known divisions, it
+    optionally drops or keeps the index column.
+
+    Parameters
+    ----------
+    df : dask.DataFrame
+        Input dask DataFrame.
+    index_name : str
+        Name of the column to use as the index.
+    drop_column : bool, default=True
+        Whether to drop the index column from the DataFrame columns.
+
+    Returns
+    -------
+    dask.DataFrame
+        DataFrame with the specified index set.
+
+    Examples
+    --------
+    >>> # Requires a dask DataFrame with an 'MSIS_ID' column
+    >>> df = fix_index(df, 'MSIS_ID')  # doctest: +SKIP
+
+    """
     if (df.index.name != index_name) | (df.divisions[0] is None):
         if index_name not in df.columns:
             if df.index.name != index_name:
@@ -35,7 +64,35 @@ class EDPreventionQualityIndicators:
     data_folder = os.path.join(package_folder, "data")
 
     @classmethod
-    def get_patient_exclusion_indicators(cls, df_ip, df_ot, df_ps):
+    def get_patient_exclusion_indicators(cls, df_ip: dd.DataFrame, df_ot: dd.DataFrame, df_ps: dd.DataFrame) -> dd.DataFrame:
+        """
+        Generate patient-level exclusion indicators for ED PQI measures.
+
+        Flags disease-related diagnoses across IP and OT claims, aggregates
+        them to the patient level, and merges with the PS (personal summary)
+        file.
+
+        Parameters
+        ----------
+        df_ip : dask.DataFrame
+            Inpatient claims DataFrame.
+        df_ot : dask.DataFrame
+            Outpatient claims DataFrame.
+        df_ps : dask.DataFrame
+            Personal summary DataFrame with demographic columns.
+
+        Returns
+        -------
+        dask.DataFrame
+            Patient-level DataFrame with exclusion indicator columns.
+
+        Examples
+        --------
+        >>> # Requires IP, OT, and PS dask DataFrames with diagnosis columns
+        >>> df_ps = EDPreventionQualityIndicators.get_patient_exclusion_indicators(  # doctest: +SKIP
+        ...     df_ip, df_ot, df_ps)
+
+        """
         pdf_icd9_diseases = pd.read_excel(
             os.path.join(cls.data_folder, "icd9_codes.xlsx"),
             sheet_name="disease_diagnoses",
@@ -55,7 +112,7 @@ class EDPreventionQualityIndicators:
             .to_dict()
         )
 
-        def flag_disease_diagnoses(df, dct_conditions, dct_edvst_cat):
+        def flag_disease_diagnoses(df: dd.DataFrame, dct_conditions: dict, dct_edvst_cat: dict) -> dd.DataFrame:
             df = df.map_partitions(
                 lambda pdf: pdf.assign(
                     **dict(
@@ -158,7 +215,7 @@ class EDPreventionQualityIndicators:
             "cellulitis_with_diabetes",
         ]
 
-        def agg_conditions_to_patient_level(pdf_claims, lst_conditions):
+        def agg_conditions_to_patient_level(pdf_claims: pd.DataFrame, lst_conditions: List[str]) -> pd.DataFrame:
             return pdf_claims.groupby("MSIS_ID").agg(
                 **dict(
                     [
@@ -216,8 +273,36 @@ class EDPreventionQualityIndicators:
 
     @classmethod
     def flag_potentially_preventable_ed_visits(
-        cls, df_ed, df_ps, months_restricted=False
-    ):
+        cls, df_ed: dd.DataFrame, df_ps: dd.DataFrame, months_restricted: bool = False
+    ) -> dd.DataFrame:
+        """
+        Flag potentially preventable ED visits using PQI criteria.
+
+        Categorizes ED visits by condition type (acute ACSC, chronic ACSC,
+        dental, asthma, back pain), applies age and diagnosis-based
+        exclusions, and aggregates counts and costs at the patient level.
+
+        Parameters
+        ----------
+        df_ed : dask.DataFrame
+            ED claims DataFrame with diagnosis and payment columns.
+        df_ps : dask.DataFrame
+            Patient-level DataFrame with exclusion indicators.
+        months_restricted : bool, default=False
+            Whether to restrict to valid enrollment months.
+
+        Returns
+        -------
+        dask.DataFrame
+            Patient-level DataFrame with PQI ED visit count and cost columns.
+
+        Examples
+        --------
+        >>> # Requires ED and PS dask DataFrames with required columns
+        >>> df_ed = EDPreventionQualityIndicators.flag_potentially_preventable_ed_visits(  # doctest: +SKIP
+        ...     df_ed, df_ps, months_restricted=False)
+
+        """
         pdf_icd9_diseases = pd.read_excel(
             os.path.join(cls.data_folder, "icd9_codes.xlsx"),
             sheet_name="disease_diagnoses",
@@ -246,7 +331,7 @@ class EDPreventionQualityIndicators:
 
         fix_index(df_ed, "MSIS_ID")
 
-        def mptn_categorise_ed_visits(pdf, dct_edvst_cat, dct_conditions):
+        def mptn_categorise_ed_visits(pdf: pd.DataFrame, dct_edvst_cat: dict, dct_conditions: dict) -> pd.DataFrame:
             ### Adding indicator and cost columns for each of PQI ED covered disease conditions
             pdf = pdf.assign(
                 **dict(
@@ -518,7 +603,7 @@ class EDPreventionQualityIndicators:
                                         (pdf["Female"] == 1)
                                         & (
                                             pdf["age"].between(
-                                                18, 34, inclusive=True
+                                                18, 34, inclusive="both"
                                             )
                                         )
                                         & (
@@ -549,7 +634,7 @@ class EDPreventionQualityIndicators:
                             pdf[
                                 claim_type + "edvst_" + condn + "_" + agg_type
                             ].where(
-                                pdf["age"].between(5, 39, inclusive=True)
+                                pdf["age"].between(5, 39, inclusive="both")
                                 & (pdf["diag_cystic_fibrosis"] == 0)
                                 & (pdf["diag_pneumonia"] == 0),
                                 np.nan,
@@ -636,7 +721,38 @@ class EDPreventionQualityIndicators:
         return df_ed
 
 
-def get_ed_pqis(df_ip, df_ot, df_ps, df_ed, restrict_months=False):
+def get_ed_pqis(df_ip: dd.DataFrame, df_ot: dd.DataFrame, df_ps: dd.DataFrame, df_ed: dd.DataFrame, restrict_months: bool = False) -> dd.DataFrame:
+    """
+    Compute ED Prevention Quality Indicators for a given set of claims.
+
+    This is the main entry point that creates patient-level exclusion
+    indicators from IP and OT claims, then flags potentially preventable
+    ED visits.
+
+    Parameters
+    ----------
+    df_ip : dask.DataFrame
+        Inpatient claims DataFrame.
+    df_ot : dask.DataFrame
+        Outpatient claims DataFrame.
+    df_ps : dask.DataFrame
+        Personal summary DataFrame.
+    df_ed : dask.DataFrame
+        ED claims DataFrame.
+    restrict_months : bool, default=False
+        Whether to restrict to valid enrollment months.
+
+    Returns
+    -------
+    dask.DataFrame
+        Patient-level DataFrame with ED PQI measures.
+
+    Examples
+    --------
+    >>> # Requires IP, OT, PS, and ED dask DataFrames
+    >>> df_ed_pqi = get_ed_pqis(df_ip, df_ot, df_ps, df_ed)  # doctest: +SKIP
+
+    """
     df_ps = EDPreventionQualityIndicators.get_patient_exclusion_indicators(
         df_ip, df_ot, df_ps
     )

@@ -1,7 +1,10 @@
 import os
+from typing import Dict, Union
 
 
-def get_max_parquet_loc(root, claim_type, state, year) -> str:
+def get_max_parquet_loc(
+    root: str, claim_type: str, state: str, year: Union[int, str]
+) -> str:
     return os.path.join(
         root,
         "medicaid",
@@ -13,8 +16,10 @@ def get_max_parquet_loc(root, claim_type, state, year) -> str:
     )
 
 
-def get_taf_parquet_loc(root, claim_type, state, year):
-    dct_fileloc = {}
+def get_taf_parquet_loc(
+    root: str, claim_type: str, state: str, year: Union[int, str]
+) -> Dict[str, str]:
+    dct_fileloc: Dict[str, str] = {}
     data_folder = os.path.join(
         root, "medicaid", str(year), state.upper(), "taf"
     )

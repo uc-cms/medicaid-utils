@@ -9,9 +9,11 @@
 __author__ = "Manoradhan Murugesan"
 __email__ = "manorathan@uchicago.edu"
 
-import pandas as pd
 import os
+
 import numpy as np
+import pandas as pd
+import dask.dataframe as dd
 
 
 class PediatricMedicalComplexity:
@@ -24,7 +26,33 @@ class PediatricMedicalComplexity:
     data_folder = os.path.join(package_folder, "data")
 
     @classmethod
-    def create_pmca_condition_counts(cls, df, diag_cd_lst_col):
+    def create_pmca_condition_counts(cls, df: dd.DataFrame, diag_cd_lst_col: str) -> dd.DataFrame:
+        """
+        Create PMCA condition counts from diagnosis codes.
+
+        For each PMCA body system condition and progressive conditions,
+        counts how many diagnosis codes in the list match, and creates
+        binary indicator columns (any_{condition}, {condition}_2h).
+
+        Parameters
+        ----------
+        df : dask.DataFrame
+            Patient-level DataFrame with a diagnosis code list column.
+        diag_cd_lst_col : str
+            Name of the column containing comma-separated diagnosis codes.
+
+        Returns
+        -------
+        dask.DataFrame
+            DataFrame with condition count and indicator columns appended.
+
+        Examples
+        --------
+        >>> # Requires a dask DataFrame with diagnosis code list column
+        >>> df = PediatricMedicalComplexity.create_pmca_condition_counts(  # doctest: +SKIP
+        ...     df, 'LST_DIAG_CD_RAW')
+
+        """
         pdf_conditions = pd.read_csv(
             os.path.join(cls.data_folder, "pmca_condition_codes.csv")
         )
@@ -173,7 +201,32 @@ class PediatricMedicalComplexity:
         return df
 
     @classmethod
-    def get_pmca_chronic_condition_categories(cls, df):
+    def get_pmca_chronic_condition_categories(cls, df: dd.DataFrame) -> dd.DataFrame:
+        """
+        Assign PMCA chronic condition categories.
+
+        Creates cond_less (less conservative) and cond_more (more
+        conservative) category columns with values 1 (non-chronic),
+        2 (non-complex chronic), or 3 (complex chronic).
+
+        Parameters
+        ----------
+        df : dask.DataFrame
+            DataFrame with PMCA condition indicator columns from
+            ``create_pmca_condition_counts``.
+
+        Returns
+        -------
+        dask.DataFrame
+            DataFrame with cond_less and cond_more columns appended.
+
+        Examples
+        --------
+        >>> # Requires a dask DataFrame with PMCA condition indicator columns
+        >>> df = PediatricMedicalComplexity.get_pmca_chronic_condition_categories(  # doctest: +SKIP
+        ...     df)
+
+        """
         pdf_conditions = pd.read_csv(
             os.path.join(cls.data_folder, "pmca_condition_codes.csv")
         )
@@ -226,7 +279,7 @@ class PediatricMedicalComplexity:
         return df
 
 
-def pmca_chronic_conditions(df, diag_cd_lst_col="LST_DIAG_CD_RAW"):
+def pmca_chronic_conditions(df: dd.DataFrame, diag_cd_lst_col: str = "LST_DIAG_CD_RAW") -> dd.DataFrame:
     """
     This function implements the Pediatric Medical Complexity Algorithm to identify children with complex and
     non-complex chronic conditions using Medicaid claims data and to distinguish them from children with neither
@@ -296,6 +349,11 @@ def pmca_chronic_conditions(df, diag_cd_lst_col="LST_DIAG_CD_RAW"):
     Returns
     -------
     dask.DataFrame
+
+    Examples
+    --------
+    >>> # Requires a patient-level dask DataFrame with diagnosis code list
+    >>> df = pmca_chronic_conditions(df, 'LST_DIAG_CD_RAW')  # doctest: +SKIP
 
     """
     lst_columns = list(df.columns)

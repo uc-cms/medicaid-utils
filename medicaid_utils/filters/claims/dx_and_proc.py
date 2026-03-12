@@ -1,7 +1,7 @@
 """This module has functions to add diagnosis/ procedure code based
 indicator flags to claims"""
 import logging
-from typing import List
+from typing import Dict, List, Optional, Tuple
 import itertools
 from itertools import product
 
@@ -16,8 +16,8 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
     logger_name: str = __file__,
     cms_format: str = "MAX",
     dct_column_values: dict = {},
-    **dct_claims,
-) -> (pd.DataFrame, dict):
+    **dct_claims: dd.DataFrame,
+) -> Tuple[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
     Gets patient ids with conditions denoted by provided diagnosis codes or
     procedure codes
@@ -94,6 +94,22 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
     ------
     IndexError
         If the input claim datasets do not have the same index name
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> import dask.dataframe as dd
+    >>> pdf = pd.DataFrame({
+    ...     'MSIS_ID': ['A', 'B', 'A'],
+    ...     'DIAG_CD_1': ['3040', '250', '3055'],
+    ...     'service_date': pd.to_datetime(['2020-01-01', '2020-02-01', '2020-03-01']),
+    ... }).set_index('MSIS_ID')
+    >>> ddf = dd.from_pandas(pdf, npartitions=1)
+    >>> dct_diag = {'oud': {'incl': {9: ['3040', '3055']}}}
+    >>> pdf_ids, dct_stats = get_patient_ids_with_conditions(
+    ...     dct_diag, {}, cms_format='MAX', ip=ddf)
+    >>> 'ip_diag_oud' in pdf_ids.columns
+    True
 
     """
     logger = logging.getLogger(logger_name)
@@ -225,7 +241,7 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
     df_claims: dd.DataFrame,
     cms_format: str = "MAX",
     lst_claim_diag_col: List[str] = None,
-    dct_column_values: dict = {},
+    dct_column_values: Optional[dict] = {},
 ) -> dd.DataFrame:
     """
     Flags claims based on diagnosis/ procedure codes
@@ -299,6 +315,22 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
     ValueError
         If non-alphanumeric columns are present in ICD/ CPT procedure codes
         in dct_diag_codes/ dct_proc_codes
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> import dask.dataframe as dd
+    >>> pdf = pd.DataFrame({
+    ...     'MSIS_ID': ['A', 'B'],
+    ...     'DIAG_CD_1': ['3040', '250'],
+    ...     'DIAG_CD_2': ['', '3055'],
+    ...     'service_date': pd.to_datetime(['2020-01-01', '2020-02-01']),
+    ... }).set_index('MSIS_ID')
+    >>> ddf = dd.from_pandas(pdf, npartitions=1)
+    >>> dct_diag = {'oud': {'incl': {9: ['3040', '3055']}}}
+    >>> result = flag_diagnoses_and_procedures(dct_diag, {}, ddf, cms_format='MAX')
+    >>> result.compute()['diag_oud'].tolist()
+    [1, 1]
 
     """
     # Validate procedure codes

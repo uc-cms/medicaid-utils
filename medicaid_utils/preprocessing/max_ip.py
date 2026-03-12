@@ -1,4 +1,6 @@
 """This module has MAXIP class which wraps together cleaning/ preprocessing routines specific for MAX IP files"""
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 
@@ -15,9 +17,9 @@ class MAXIP(max_file.MAXFile):
         index_col: str = "BENE_MSIS",
         clean: bool = True,
         preprocess: bool = True,
-        tmp_folder: str = None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
         Initializes MAX OT file object by preloading and preprocessing(if opted in) the file
 
@@ -60,7 +62,7 @@ class MAXIP(max_file.MAXFile):
         if preprocess:
             self.preprocess()
 
-    def clean(self):
+    def clean(self) -> None:
         """Runs cleaning routines and adds common exclusion flags based on default filters"""
         super().clean()
         self.clean_diag_codes()
@@ -68,13 +70,13 @@ class MAXIP(max_file.MAXFile):
         self.flag_common_exclusions()
         self.flag_duplicates()
 
-    def preprocess(self):
+    def preprocess(self) -> None:
         """Adds payment, ed use, and overlap flags"""
         self.calculate_payment()
         self.flag_ed_use()
         self.flag_ip_overlaps()
 
-    def flag_common_exclusions(self):
+    def flag_common_exclusions(self) -> None:
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
                 excl_missing_dob=pdf["birth_date"].isnull().astype(int),
@@ -117,7 +119,7 @@ class MAXIP(max_file.MAXFile):
             )
         )
 
-    def flag_duplicates(self):
+    def flag_duplicates(self) -> None:
         self.df = dataframe_utils.fix_index(self.df, self.index_col, True)
         self.df = self.df.map_partitions(
             lambda pdf: pdf.assign(
@@ -129,7 +131,7 @@ class MAXIP(max_file.MAXFile):
             )
         )
 
-    def flag_ip_overlaps(self):
+    def flag_ip_overlaps(self) -> None:
         """
         Identifies duplicate/ overlapping claims.
         When several/ overlapping claims exist with the same MSIS_ID, claim with the largest payment amount is retained.
@@ -158,7 +160,7 @@ class MAXIP(max_file.MAXFile):
             np.nan, errors="coerce"
         )
 
-        def _mptn_check_ip_overlaps(pdf_partition):
+        def _mptn_check_ip_overlaps(pdf_partition: pd.DataFrame) -> pd.DataFrame:
             pdf_partition.reset_index(drop=True, inplace=True)
             # check duplicate claims (same ID, admission date), flag the largest payment amount
             pdf_partition = pdf_partition.sort_values(

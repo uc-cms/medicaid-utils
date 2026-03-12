@@ -44,6 +44,17 @@ class LowValueCare:
         pd.DataFrame
             Dataframe with conditions names normalized
 
+        Examples
+        --------
+        >>> import pandas as pd
+        >>> pdf = pd.DataFrame({
+        ...     'description': ['Heart Failure (Acute)'],
+        ...     'measure': ['HF Test']
+        ... })
+        >>> result = LowValueCare.normalize_condition_names(pdf)
+        >>> result['description'].iloc[0]
+        'heart_failure_acute_'
+
         """
         pdf_spec = pdf_spec.assign(
             **{
@@ -60,7 +71,7 @@ class LowValueCare:
     @classmethod
     def get_diag_proc_specs(
         cls, pdf_spec: pd.DataFrame, prefix: str
-    ) -> (dict, dict, dict, dict):
+    ) -> Tuple[dict, dict, dict, dict]:
         # pylint: disable=missing-param-doc
         """
         Returns DX & procedure code specs as dictionary
@@ -82,6 +93,12 @@ class LowValueCare:
             Procedure codes dictionary
         dct_excl_proc_codes : dict
             Excluded procedure codes dictionary
+
+        Examples
+        --------
+        >>> # Requires a properly formatted spec DataFrame
+        >>> dct_diag, dct_excl_diag, dct_proc, dct_excl_proc = (  # doctest: +SKIP
+        ...     LowValueCare.get_diag_proc_specs(pdf_spec, 'denom'))
 
         """
         dct_diag_codes = {
@@ -199,6 +216,12 @@ class LowValueCare:
         Returns
         -------
         pd.DataFrame
+
+        Examples
+        --------
+        >>> # Requires date lists and eligibility DataFrames with proper structure
+        >>> pdf = LowValueCare.construct_low_value_care_measures(  # doctest: +SKIP
+        ...     pdf_dates, 2012, dct_msr_spec, dct_denom_spec)
 
         """
         for (  # pylint: disable=too-many-nested-blocks
@@ -521,7 +544,7 @@ class LowValueCare:
     @classmethod
     def get_diag_proc_codes(
         cls, pdf_denom_spec: pd.DataFrame, pdf_measure_spec: pd.DataFrame
-    ) -> (dict, dict):
+    ) -> Tuple[dict, dict]:
         """
         Returns dictionaries of diagnosis & procedure codes
 
@@ -538,6 +561,12 @@ class LowValueCare:
             Dictionary of diagnostic codes
         dct_proc_codes : dict
             Dictionary of procedure codes
+
+        Examples
+        --------
+        >>> # Requires denom and measure spec DataFrames
+        >>> dct_diag, dct_proc = LowValueCare.get_diag_proc_codes(  # doctest: +SKIP
+        ...     pdf_denom_spec, pdf_measure_spec)
 
         """
         (
@@ -578,7 +607,7 @@ class LowValueCare:
         max_data_root: str,
         lst_bene_id_filter: List[str],
         out_folder: str,
-        index_col="BENE_MSIS",
+        index_col: str = "BENE_MSIS",
     ) -> None:
         """
         Creates condition & eligibility pattern indicators, and saves them as parquet files
@@ -604,6 +633,14 @@ class LowValueCare:
 
         Returns
         -------
+        None
+
+        Examples
+        --------
+        >>> # Requires Medicaid MAX data files on disk
+        >>> LowValueCare.generate_condn_and_eligibility_indicators(  # doctest: +SKIP
+        ...     'AL', 2012, pdf_denom_spec, pdf_measure_spec,
+        ...     '/data/max', [], '/output')
 
         """
         cache_folder = os.path.join(out_folder, "cache")
@@ -749,6 +786,12 @@ class LowValueCare:
         pdf_dates : pd.DataFrame
             Dataframe with denom/ measure condition date lists at bene level
 
+        Examples
+        --------
+        >>> # Requires parquet claim files with condition flags
+        >>> pdf = LowValueCare.get_dates(  # doctest: +SKIP
+        ...     'AL', 2012, ['msr_sinusitis'], 'BENE_MSIS', '/output')
+
         """
         pdf_dates = None
         for ftype in ["ip", "ot"]:
@@ -872,6 +915,12 @@ class LowValueCare:
         -------
         pd.DataFrame
 
+        Examples
+        --------
+        >>> # Requires parquet claim files with condition flags and PS files
+        >>> pdf = LowValueCare.get_dates_with_eligibility(  # doctest: +SKIP
+        ...     'AL', 2012, ['msr_sinusitis'], 'BENE_MSIS', '/output')
+
         """
         pdf_dates = cls.get_dates(
             state, year, lst_condn, index_col, claims_folder
@@ -950,6 +999,12 @@ class LowValueCare:
             Denominator spec codes dataframe
         pdf_measure_spec_codes : pd.DataFrame
             Measure spec codes dataframe
+
+        Examples
+        --------
+        >>> # Requires the bundled low_value_care.xlsx data file
+        >>> dct_msr, dct_denom, lst, pdf_d, pdf_m = (  # doctest: +SKIP
+        ...     LowValueCare.get_denom_measure_spec())
 
         """
         pdf_denom_spec = pd.read_excel(
@@ -1094,6 +1149,12 @@ def construct_low_value_care_measures(
     -------
     pdf_dates : pd.DataFrame
         Dataframe with low value care measures
+
+    Examples
+    --------
+    >>> # Requires actual Medicaid MAX claim files and bundled spec data
+    >>> construct_low_value_care_measures(  # doctest: +SKIP
+    ...     'AL', 2012, [], 'BENE_MSIS', '/data/max', '/output')
 
     """
     (

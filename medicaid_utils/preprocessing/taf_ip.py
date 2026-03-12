@@ -1,4 +1,6 @@
 """This module has TAFIP class which wraps together cleaning/ preprocessing routines specific for TAF IP files"""
+from typing import Optional
+
 from medicaid_utils.preprocessing import taf_file
 
 
@@ -11,9 +13,9 @@ class TAFIP(taf_file.TAFFile):
         index_col: str = "BENE_MSIS",
         clean: bool = True,
         preprocess: bool = True,
-        tmp_folder: str = None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
         Initializes TAF IP file object by preloading and preprocessing(if opted in) the associated files
 
@@ -37,6 +39,11 @@ class TAFIP(taf_file.TAFFile):
         pq_engine : str, default='pyarrow'
             Parquet engine to use
 
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ip import TAFIP  # doctest: +SKIP
+        >>> ip = TAFIP(2019, 'AL', '/data/cms')  # doctest: +SKIP
+
         """
         super().__init__(
             "ip",
@@ -56,18 +63,32 @@ class TAFIP(taf_file.TAFFile):
         if preprocess:
             self.preprocess()
 
-    def clean(self):
+    def clean(self) -> None:
         """Cleaning routines to clean diagnosis & procedure code columns, processes date and gender columns,
-        and add duplicate check flags."""
+        and add duplicate check flags.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ip import TAFIP  # doctest: +SKIP
+        >>> ip = TAFIP(2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> ip.clean()  # doctest: +SKIP
+        """
         super().clean()
         self.cache_results()
         self.clean_codes()
         self.flag_common_exclusions()
 
-    def preprocess(self):
-        """Add basic constructed variables"""
+    def preprocess(self) -> None:
+        """Add basic constructed variables.
 
-    def flag_common_exclusions(self):
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ip import TAFIP  # doctest: +SKIP
+        >>> ip = TAFIP(2019, 'AL', '/data/cms', preprocess=False)  # doctest: +SKIP
+        >>> ip.preprocess()  # doctest: +SKIP
+        """
+
+    def flag_common_exclusions(self) -> None:
         """
         Adds commonly used IP claim exclusion flag columns.
         New Columns:
@@ -76,6 +97,12 @@ class TAFIP(taf_file.TAFFile):
             - excl_missing_dob, 0 or 1, 1 when base claim does not have birth date
             - excl_missing_admsn_date, 0 or 1, 1 when base claim does not have admission date
             - excl_missing_prncpl_proc_date, 0 or 1, 1 when base claim does not have principal procedure date
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_ip import TAFIP  # doctest: +SKIP
+        >>> ip = TAFIP(2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> ip.flag_common_exclusions()  # doctest: +SKIP
 
         """
         self.flag_ffs_and_encounter_claims()

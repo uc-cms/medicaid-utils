@@ -9,15 +9,16 @@ import shutil
 import re
 from math import ceil
 from logging.handlers import TimedRotatingFileHandler
+from typing import Any, Optional, Union
 
 
 def log_assert(
     bool_: bool,
     message: str = "",
-    logger: str = None,
+    logger: Optional[logging.Logger] = None,
     logger_name: str = "",
     verbose: bool = False,
-):
+) -> None:
     """Use this as a replacement for assert if you want the failing of the
     assert statement to be logged."""
     if logger is None:
@@ -43,7 +44,7 @@ def log_assert(
         raise AssertionError("%s\n%s" % (message, source))
 
 
-def is_number(x):
+def is_number(x: Any) -> bool:
     try:
         int_val = int(float(x))
         return True
@@ -51,7 +52,7 @@ def is_number(x):
         return False
 
 
-def convert_to_int_str(x):
+def convert_to_int_str(x: Any) -> Union[str, Any]:
     try:
         int_val = str(int(float(x)))
         return int_val
@@ -59,7 +60,9 @@ def convert_to_int_str(x):
         return x
 
 
-def setup_logger(logger_name, log_file, level=logging.INFO):
+def setup_logger(
+    logger_name: str, log_file: str, level: int = logging.INFO
+) -> None:
     formatter = logging.Formatter(
         "%(asctime)s %(levelname)s : %(message)s",
         datefmt="%a, %d %b %Y %H:%M:%S",
@@ -73,7 +76,7 @@ def setup_logger(logger_name, log_file, level=logging.INFO):
     logger.setLevel(level)
 
 
-def remove_ignore_if_not_exists(filename: str):
+def remove_ignore_if_not_exists(filename: str) -> None:
     try:
         os.remove(filename) if not os.path.isdir(filename) else shutil.rmtree(
             filename
@@ -85,7 +88,7 @@ def remove_ignore_if_not_exists(filename: str):
             raise  # re-raise exception if a different error occurred
 
 
-def remove_tail_dot_zeros(a: str):
+def remove_tail_dot_zeros(a: str) -> str:
     return re.compile(r"(?:(\.)|(\.\d*?[1-9]\d*?))0+(?=\b|[^0-9])").sub(
         r"\2", a
     )

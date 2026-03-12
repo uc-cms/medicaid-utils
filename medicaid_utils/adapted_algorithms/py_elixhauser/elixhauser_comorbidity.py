@@ -14,8 +14,35 @@ class ElixhauserScoring:
 
     @classmethod
     def flag_comorbidities(
-        cls, df: dd.DataFrame, lst_diag_col_name, cms_format="MAX"
+        cls, df: dd.DataFrame, lst_diag_col_name: str, cms_format: str = "MAX"
     ) -> dd.DataFrame:
+        """
+        Flag Elixhauser comorbidity groups based on diagnosis codes.
+
+        Adds 31 binary columns (ELX_GRP_1 through ELX_GRP_31) indicating
+        the presence of each Elixhauser comorbidity group.
+
+        Parameters
+        ----------
+        df : dask.DataFrame
+            Bene-level DataFrame with a diagnosis code list column.
+        lst_diag_col_name : str
+            Column name containing comma-separated diagnosis codes.
+        cms_format : {'MAX', 'TAF'}, default='MAX'
+            CMS file format, determines ICD-9 vs ICD-10 mapping.
+
+        Returns
+        -------
+        dask.DataFrame
+            DataFrame with ELX_GRP columns appended.
+
+        Examples
+        --------
+        >>> # Requires a dask DataFrame with diagnosis codes
+        >>> df = ElixhauserScoring.flag_comorbidities(  # doctest: +SKIP
+        ...     df, 'LST_DIAG_CD', cms_format='MAX')
+
+        """
         df_icd_mapping = pd.read_csv(
             os.path.join(
                 cls.data_folder,
@@ -61,8 +88,31 @@ class ElixhauserScoring:
 
     @classmethod
     def calculate_final_score(
-        cls, df: dd.DataFrame, output_column_name="elixhauser_score"
+        cls, df: dd.DataFrame, output_column_name: str = "elixhauser_score"
     ) -> dd.DataFrame:
+        """
+        Calculate the final Elixhauser comorbidity score.
+
+        Sums the 31 ELX_GRP binary columns into a single integer score.
+
+        Parameters
+        ----------
+        df : dask.DataFrame
+            DataFrame with ELX_GRP_1 through ELX_GRP_31 columns.
+        output_column_name : str, default='elixhauser_score'
+            Name for the output score column.
+
+        Returns
+        -------
+        dask.DataFrame
+            DataFrame with the score column appended.
+
+        Examples
+        --------
+        >>> # Requires a dask DataFrame with ELX_GRP columns
+        >>> df = ElixhauserScoring.calculate_final_score(df)  # doctest: +SKIP
+
+        """
         df[output_column_name] = (
             df[["ELX_GRP_" + str(i) for i in range(1, 32)]]
             .sum(axis=1)
@@ -74,9 +124,9 @@ class ElixhauserScoring:
 
 def score(
     df: dd.DataFrame,
-    lst_diag_col_name,
-    cms_format="MAX",
-    output_column_name="elixhauser_score",
+    lst_diag_col_name: str,
+    cms_format: str = "MAX",
+    output_column_name: str = "elixhauser_score",
 ) -> dd.DataFrame:
     """
     Computes Elixhauser score for the benes in the input dataframe. The input dataframe should be at bene level, with
@@ -96,6 +146,11 @@ def score(
     Returns
     -------
     dask.DataFrame
+
+    Examples
+    --------
+    >>> # Requires a bene-level dask DataFrame with diagnosis codes
+    >>> df = score(df, 'LST_DIAG_CD', cms_format='MAX')  # doctest: +SKIP
 
     """
     df = ElixhauserScoring.flag_comorbidities(

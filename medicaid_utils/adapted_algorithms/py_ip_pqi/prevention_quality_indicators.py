@@ -4,11 +4,13 @@
 import sys
 import os
 from ast import literal_eval
+from copy import copy
+from itertools import product
+from typing import List, Optional, Tuple
+
 import pandas as pd
 import numpy as np
 import dask.dataframe as dd
-from copy import copy
-from itertools import product
 
 sys.path.append("../../")
 from medicaid_utils.common_utils import recipes, dataframe_utils
@@ -20,19 +22,35 @@ class PreventionQualityIndicators:
     logger_name = __name__
 
     @classmethod
-    def prepare_cols(cls, df, dx_col_suffix, pr_col_suffix, prsys_col_suffix):
+    def prepare_cols(cls, df: dd.DataFrame, dx_col_suffix: str, pr_col_suffix: str, prsys_col_suffix: str) -> dd.DataFrame:
         """
-        New Column(s):
+        Prepare diagnosis and procedure code columns for PQI computation.
 
-            DRG - Inpatient DIAGNOSIS RELATED GROUP (DRG) CODE (if from CMS system)
-            DRGVER - GROUPING ALGORITHM USED TO ASSIGN DIAGNOSIS RELATED GROUP (DRG) VALUES (if from CMS system)
-            DQTR - Claim quarter of the year
-            YEAR - Claim year
-            PR{1-6} - ICD9 procedure code columns
-            DX{1-9} - ICD9 diagnosis code columns
+        Adds standardized DRG, DRGVER, DQTR, YEAR, DX{1-9}, and PR{1-6}
+        columns derived from raw claim columns.
 
-        :param df:
-        :return:
+        Parameters
+        ----------
+        df : dask.DataFrame
+            IP claims DataFrame.
+        dx_col_suffix : str
+            Prefix for diagnosis code columns (e.g., 'DIAG_CD_').
+        pr_col_suffix : str
+            Prefix for procedure code columns (e.g., 'PRCDR_CD_').
+        prsys_col_suffix : str
+            Prefix for procedure code system columns (e.g., 'PRCDR_CD_SYS_').
+
+        Returns
+        -------
+        dask.DataFrame
+            DataFrame with standardized columns appended.
+
+        Examples
+        --------
+        >>> # Requires an IP claims dask DataFrame
+        >>> df = PreventionQualityIndicators.prepare_cols(  # doctest: +SKIP
+        ...     df, 'DIAG_CD_', 'PRCDR_CD_', 'PRCDR_CD_SYS_')
+
         """
         # IDENTIFIES THE GROUPING ALGORITHM USED TO ASSIGN DIAGNOSIS RELATED GROUP (DRG) VALUES,
         # HG = IF THE DRG VALUES ARE FROM THE CMS SYSTEM
@@ -106,18 +124,28 @@ class PreventionQualityIndicators:
         return df
 
     @classmethod
-    def add_drg_cols(cls, df):
+    def add_drg_cols(cls, df: dd.DataFrame) -> dd.DataFrame:
         """
-        New Column(s):
+        Add DRG-related columns for PQI computation.
 
-            IMMUNDR
-            MDC24
-            MDC25
-            MDCNEW
-            ICDVER
+        Derives IMMUNDR, MDC24, MDC25, MDCNEW, and ICDVER columns from
+        the DRG and admission date information.
 
-        :param df:
-        :return:
+        Parameters
+        ----------
+        df : dask.DataFrame
+            IP claims DataFrame with DRG and DRGVER columns.
+
+        Returns
+        -------
+        dask.DataFrame
+            DataFrame with DRG-related columns appended.
+
+        Examples
+        --------
+        >>> # Requires an IP claims dask DataFrame with DRG columns
+        >>> df = PreventionQualityIndicators.add_drg_cols(df)  # doctest: +SKIP
+
         """
         # VER=version,FOR EXAMPLE "HG15" WOULD REPRESENT CMS DRG, VERSION 15
         # df['DRGVER'] = df['DRGVER'].where(df['DRG_REL_GROUP_IND'].astype(str).str.slice(stop=2) != 'HG',
@@ -258,62 +286,29 @@ class PreventionQualityIndicators:
         return df
 
     @classmethod
-    def add_pr_dxgrp_cols(cls, df):
+    def add_pr_dxgrp_cols(cls, df: dd.DataFrame) -> dd.DataFrame:
         """
-        New Column(s):
+        Add diagnosis and procedure group indicator columns.
 
-            DX{1-9}
-            PR{1-6}
-            ACDIASD{1-9}
-            ACPGASD{1-9}
-            ACSAPPD{1-9}
-            ACSAP2D{1-9}
-            ACDIALD{1-9}
-            ACSASTD{1-9}
-            RESPAN{1-9}
-            ACCOPDD{1-9}
-            ACCPD2D{1-9}
-            ACSHYPD{1-9}
-            ACSHY2D{1-9}
-            CRENLFD{1-9}
-            PHYSIDB{1-9}
-            ACSCHFD{1-9}
-            ACSCH2D{1-9}
-            LIVEBND{1-9}
-            V29D{1-9}
-            LIVEB2D{1-9}
-            ACSDEHD{1-9}
-            ACSBACD{1-9}
-            ACSBA2D{1-9}
-            HYPERID{1-9}
-            ACSUTID{1-9}
-            IMMUNID{1-9}
-            KIDNEY{1-9}
-            ACSANGD{1-9}
-            ACDIAUD{1-9}
-            ACSLEAD{1-9}
-            ACLEA2D{1-9}
-            TOEAMIP{1-9}
-            ACSCYFD{1-9}
-            ACGDISD{1-9}
-            ACBACGD{1-9}
-            IMMUNHD{1-9}
-            IMMUITD{1-9}
-            HEPFA2D{1-9}
-            HEPFA3D{1-9}
-            ACSLBWD{1-9}
-            ACSHYPP{1-6}
-            ACSCARP{1-6}
-            IMMUNIP{1-6}
-            ACSLEAP{1-6}
-            TRANSPP{1-6}
-            DIABT2D{1-9}
+        Creates binary indicator columns for each PQI diagnosis group
+        (applied to DX1-DX9) and procedure group (applied to PR1-PR6)
+        by matching against reference code lists.
 
-        :param DataFrame df:
-        :param str dx_col_suffix:
-        :param str pr_col_suffix:
-        :param str prsys_col_suffix:
-        :return:
+        Parameters
+        ----------
+        df : dask.DataFrame
+            IP claims DataFrame with DX{1-9} and PR{1-6} columns.
+
+        Returns
+        -------
+        dask.DataFrame
+            DataFrame with diagnosis/procedure group indicator columns.
+
+        Examples
+        --------
+        >>> # Requires an IP claims dask DataFrame with DX and PR columns
+        >>> df = PreventionQualityIndicators.add_pr_dxgrp_cols(df)  # doctest: +SKIP
+
         """
         df_dxgrp = pd.read_csv(os.path.join(cls.data_folder, "dxgrp.csv"))[
             ["var_name", "lst_dx"]
@@ -363,15 +358,28 @@ class PreventionQualityIndicators:
         return df
 
     @classmethod
-    def add_neonate_newborn_cols(cls, df):
+    def add_neonate_newborn_cols(cls, df: dd.DataFrame) -> dd.DataFrame:
         """
-        New Column(s):
+        Add neonate and newborn indicator columns.
 
-            NEONATE
-            NEWBORN
+        Creates NEONATE and NEWBORN binary columns based on age at
+        admission, delivery code, and liveborn diagnosis codes.
 
-        :param df:
-        :return:
+        Parameters
+        ----------
+        df : dask.DataFrame
+            IP claims DataFrame with age, diagnosis, and delivery columns.
+
+        Returns
+        -------
+        dask.DataFrame
+            DataFrame with NEONATE and NEWBORN columns appended.
+
+        Examples
+        --------
+        >>> # Requires an IP claims dask DataFrame with required columns
+        >>> df = PreventionQualityIndicators.add_neonate_newborn_cols(df)  # doctest: +SKIP
+
         """
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -442,22 +450,30 @@ class PreventionQualityIndicators:
         return df
 
     @classmethod
-    def add_area_level_indicator_cols(cls, df):
+    def add_area_level_indicator_cols(cls, df: dd.DataFrame) -> dd.DataFrame:
         """
-        New Column(s):
+        Add pediatric area-level PQI indicator columns.
 
-            TAPD14: PEDIATRIC ASTHMA
-            TAPD15 : DIABETES SHORT TERM COMPLICATION
-            TAPD16: PEDIATRIC GASTROENTERITIS
-            TAPD17: PERFORATED APPENDIX
-            TAPD18: URINARY INFECTION
-            TAPQ09:  LOW BIRTH WEIGHT
-            TAPD90: OVERALL
-            TAPD91: ACUTE
-            TAPD92: CHRONIC
+        Creates TAPD14 (asthma), TAPD15 (diabetes short-term), TAPD16
+        (gastroenteritis), TAPD17 (perforated appendix), TAPD18 (UTI),
+        TAPQ09 (low birth weight), and composite indicators TAPD90
+        (overall), TAPD91 (acute), TAPD92 (chronic).
 
-        :param df:
-        :return:
+        Parameters
+        ----------
+        df : dask.DataFrame
+            IP claims DataFrame with diagnosis group and neonate columns.
+
+        Returns
+        -------
+        dask.DataFrame
+            DataFrame with pediatric PQI indicator columns appended.
+
+        Examples
+        --------
+        >>> # Requires an IP claims dask DataFrame with diagnosis group columns
+        >>> df = PreventionQualityIndicators.add_area_level_indicator_cols(df)  # doctest: +SKIP
+
         """
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -588,29 +604,29 @@ class PreventionQualityIndicators:
         return df
 
     @classmethod
-    def add_acsc_cat_cols(cls, df):
+    def add_acsc_cat_cols(cls, df: dd.DataFrame) -> dd.DataFrame:
         """
-        New Column(s):
+        Add adult ACSC (Ambulatory Care Sensitive Condition) PQI columns.
 
-            TAPQ01: DIABETES SHORT TERM COMPLICATION
-            TAPQ02: PERFORATED APPENDIX
-            TAPQ03: DIABETES LONG TERM COMPLICATION
-            TAPQ05: COPD
-            TAPQ07: HYPERTENSION
-            TAPQ08: CONGESTIVE HEART FAILURE
-            TAPQ10: DEHYDRATION
-            TAPQ11: BACTERIAL PNEUMONIA
-            TAPQ12: URINARY INFECTION
-            TAPQ13: ANGINA
-            TAPQ14: DIABETES UNCONTROLLED
-            TAPQ15: ADULT ASTHMA
-            TAPQ16: LOWER EXTREMITY AMPUTATION
-            TAPQ90: OVERALL
-            TAPQ91: ACUTE
-            TAPQ92: CHRONIC
+        Creates TAPQ01-TAPQ16 individual condition indicators and
+        TAPQ90 (overall), TAPQ91 (acute), TAPQ92 (chronic) composite
+        indicators with appropriate clinical exclusions applied.
 
-        :param df:
-        :return:
+        Parameters
+        ----------
+        df : dask.DataFrame
+            IP claims DataFrame with diagnosis/procedure group columns.
+
+        Returns
+        -------
+        dask.DataFrame
+            DataFrame with ACSC PQI indicator columns appended.
+
+        Examples
+        --------
+        >>> # Requires an IP claims dask DataFrame with diagnosis group columns
+        >>> df = PreventionQualityIndicators.add_acsc_cat_cols(df)  # doctest: +SKIP
+
         """
         ################################################################################################################
         #########################################   CONSTRUCT ACSC CATEGORIES   ########################################
@@ -921,13 +937,13 @@ class PreventionQualityIndicators:
 
 
 def pqirecode(
-    df,
-    dx_col_suffix="DIAG_CD_",
-    pr_col_suffix="PRCDR_CD_",
-    prsys_col_suffix="PRCDR_CD_SYS_",
-    logger_name="pqi",
-    lst_keep_cols=None,
-):
+    df: dd.DataFrame,
+    dx_col_suffix: str = "DIAG_CD_",
+    pr_col_suffix: str = "PRCDR_CD_",
+    prsys_col_suffix: str = "PRCDR_CD_SYS_",
+    logger_name: str = "pqi",
+    lst_keep_cols: Optional[List[str]] = None,
+) -> Tuple[dd.DataFrame, dd.DataFrame]:
     """
     Adds PQI measures to IP claims. Columns added:
 
@@ -988,6 +1004,12 @@ def pqirecode(
     Returns
     -------
     dask.DataFrame
+        Tuple of (adult PQI DataFrame, children PQI DataFrame).
+
+    Examples
+    --------
+    >>> # Requires an IP claims dask DataFrame with required columns
+    >>> df_adult, df_children = pqirecode(df)  # doctest: +SKIP
 
     """
     PreventionQualityIndicators.logger_name = logger_name

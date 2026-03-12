@@ -4,6 +4,7 @@ import os
 import errno
 import shutil
 import logging
+from typing import Any, Optional
 
 import numpy as np
 import dask.dataframe as dd
@@ -25,9 +26,9 @@ class TAFFile:
         index_col: str = "BENE_MSIS",
         clean: bool = True,
         preprocess: bool = True,
-        tmp_folder: str = None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
         Initializes TAF file object by preloading and preprocessing(if opted
         in) the associated files
@@ -60,6 +61,11 @@ class TAFFile:
         ------
         FileNotFoundError
             Raised when any of the subtype files are missing
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms')  # doctest: +SKIP
 
         """
         self.data_root = data_root
@@ -152,8 +158,8 @@ class TAFFile:
 
     @classmethod
     def get_claim_instance(
-        cls, claim_type, *args, **kwargs
-    ):  # pylint: disable=missing-param-doc
+        cls, claim_type: str, *args: Any, **kwargs: Any
+    ) -> "TAFFile":  # pylint: disable=missing-param-doc
         """
         Returns an instance of the requested claim type
 
@@ -166,6 +172,11 @@ class TAFFile:
         **kwargs : dict
             Dictionary of keyword arguments
 
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> ip_claim = TAFFile.get_claim_instance('ip', 2019, 'AL', '/data/cms')  # doctest: +SKIP
+
         """
         return next(
             claim
@@ -173,16 +184,26 @@ class TAFFile:
             if claim.__name__ == f"TAF{claim_type.upper()}"
         )(*args, **kwargs)
 
-    def add_custom_subtype(self, subtype_name: str, df_file: dd.DataFrame):
-        """Add custom subtype file to claim object"""
+    def add_custom_subtype(self, subtype_name: str, df_file: dd.DataFrame) -> None:
+        """Add custom subtype file to claim object.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms')  # doctest: +SKIP
+        >>> import dask.dataframe as dd  # doctest: +SKIP
+        >>> import pandas as pd  # doctest: +SKIP
+        >>> df = dd.from_pandas(pd.DataFrame({'col': [1]}), npartitions=1)  # doctest: +SKIP
+        >>> taf.add_custom_subtype('my_subtype', df)  # doctest: +SKIP
+        """
         self.dct_fileloc[subtype_name] = links.get_taf_parquet_loc(
             self.data_root, self.ftype, self.state, self.year
         )[subtype_name]
         self.dct_files[subtype_name] = df_file
 
     def cache_results(
-        self, subtype=None, repartition=False
-    ):  # pylint: disable=missing-param-doc
+        self, subtype: Optional[str] = None, repartition: bool = False
+    ) -> None:  # pylint: disable=missing-param-doc
         """
         Save results in intermediate steps of some lengthy processing.
         Saving intermediate results speeds up processing, and avoid dask
@@ -195,6 +216,12 @@ class TAFFile:
         repartition : bool, default=False
             Repartition the dask dataframe
 
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms', tmp_folder='/tmp/cache')  # doctest: +SKIP
+        >>> taf.cache_results(subtype='base')  # doctest: +SKIP
+
         """
         for f_subtype in list(self.dct_files.keys()):
             if (subtype is not None) and (f_subtype != subtype):
@@ -206,7 +233,7 @@ class TAFFile:
                     repartition=repartition,
                 )
 
-    def pq_export(self, f_subtype, dest_path_and_fname, repartition=False):
+    def pq_export(self, f_subtype: str, dest_path_and_fname: str, repartition: bool = False) -> None:
         """
         Export parquet files (overwrite safe)
 
@@ -218,6 +245,12 @@ class TAFFile:
             Destination path
         repartition : bool, default=False
             Repartition the dask dataframe
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms')  # doctest: +SKIP
+        >>> taf.pq_export('base', '/tmp/output/base')  # doctest: +SKIP
 
         """
         if repartition:  # and (f_subtype != "dates"):  # patch for dates files
@@ -273,20 +306,34 @@ class TAFFile:
                 self.index_col
             )
 
-    def clean(self):
+    def clean(self) -> None:
         """Cleaning routines to processes date and gender columns, and add
-        duplicate check flags."""
+        duplicate check flags.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> taf.clean()  # doctest: +SKIP
+        """
         self.process_date_cols()
         self.cache_results()
         self.flag_duplicates()
         self.cache_results()
 
-    def preprocess(self):
-        """Add basic constructed variables"""
+    def preprocess(self) -> None:
+        """Add basic constructed variables.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms', preprocess=False)  # doctest: +SKIP
+        >>> taf.preprocess()  # doctest: +SKIP
+        """
 
     def export(
-        self, dest_folder, output_format="csv", repartition=False
-    ):  # pylint: disable=missing-param-doc
+        self, dest_folder: str, output_format: str = "csv", repartition: bool = False
+    ) -> None:  # pylint: disable=missing-param-doc
         """
         Exports the files.
 
@@ -298,6 +345,12 @@ class TAFFile:
             Export format. Csv is the currently supported format
         repartition : bool, default=False
             Repartition the dask dataframe
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms')  # doctest: +SKIP
+        >>> taf.export('/tmp/output', output_format='csv')  # doctest: +SKIP
 
         """
         lst_subtype = list(self.dct_files.keys())
@@ -333,14 +386,37 @@ class TAFFile:
         """Clean diagnostic code columns by removing non-alphanumeric
         characters and converting them to upper case and NDC codes columns
         by removing white space characters and padding 0s to the left so the
-        codes are of length 12"""
+        codes are of length 12.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> taf.clean_codes()  # doctest: +SKIP
+        """
         self.clean_diag_codes()
         self.clean_ndc_codes()
         self.clean_proc_codes()
 
     def clean_diag_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric
-        characters and converting them to upper case"""
+        characters and converting them to upper case.
+
+        Examples
+        --------
+        >>> import pandas as pd
+        >>> import dask.dataframe as dd
+        >>> pdf = pd.DataFrame({'DGNS_CD_1': ['a12.3', 'B45-6'],
+        ...                     'other_col': [1, 2]})
+        >>> ddf = dd.from_pandas(pdf, npartitions=1)
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile
+        >>> obj = object.__new__(TAFFile)
+        >>> obj.dct_files = {'base': ddf}
+        >>> obj.clean_diag_codes()
+        >>> result = obj.dct_files['base'].compute()
+        >>> list(result['DGNS_CD_1'])
+        ['A123', 'B456']
+        """
         for ftype in self.dct_files:
             df = self.dct_files[ftype]
             lst_diag_cd_col = [
@@ -363,7 +439,22 @@ class TAFFile:
 
     def clean_ndc_codes(self) -> None:
         """Clean NDC codes columns by removing white space characters and
-        padding 0s to the left so the codes are of length 12"""
+        padding 0s to the left so the codes are of length 12.
+
+        Examples
+        --------
+        >>> import pandas as pd
+        >>> import dask.dataframe as dd
+        >>> pdf = pd.DataFrame({'NDC': ['1234', ' 5678 ']})
+        >>> ddf = dd.from_pandas(pdf, npartitions=1)
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile
+        >>> obj = object.__new__(TAFFile)
+        >>> obj.dct_files = {'line': ddf}
+        >>> obj.clean_ndc_codes()
+        >>> result = obj.dct_files['line'].compute()
+        >>> list(result['NDC'])
+        ['000000001234', '000000005678']
+        """
         for ftype in self.dct_files:
             df = self.dct_files[ftype]
             if "NDC" in df.columns:
@@ -378,9 +469,27 @@ class TAFFile:
 
                 self.dct_files[ftype] = df
 
-    def clean_proc_codes(self):
-        """Clean diagnostic code columns by removing non-alphanumeric
-        characters and converting them to upper case"""
+    def clean_proc_codes(self) -> None:
+        """Clean procedure code columns by removing non-alphanumeric
+        characters and converting them to upper case.
+
+        Examples
+        --------
+        >>> import pandas as pd
+        >>> import dask.dataframe as dd
+        >>> pdf = pd.DataFrame({'PRCDR_CD_1': ['ab.1', 'C2-d'],
+        ...                     'PRCDR_CD_SYS_1': ['ICD', 'CPT']})
+        >>> ddf = dd.from_pandas(pdf, npartitions=1)
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile
+        >>> obj = object.__new__(TAFFile)
+        >>> obj.dct_files = {'base': ddf}
+        >>> obj.clean_proc_codes()
+        >>> result = obj.dct_files['base'].compute()
+        >>> list(result['PRCDR_CD_1'])
+        ['AB1', 'C2D']
+        >>> list(result['PRCDR_CD_SYS_1'])
+        ['ICD', 'CPT']
+        """
         for ftype in self.dct_files:
             df = self.dct_files[ftype]
             lst_prcdr_cd_col = [
@@ -412,7 +521,7 @@ class TAFFile:
                 )
                 self.dct_files[ftype] = df
 
-    def flag_duplicates(self):
+    def flag_duplicates(self) -> None:
         """
         Removes duplicated rows. TAF claims have multiple versions for each
         month. This function keeps the most recent file version date for
@@ -423,6 +532,12 @@ class TAFFile:
         References
         ----------
         - `Identifying beneficiaries with a substance use disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> taf.flag_duplicates()  # doctest: +SKIP
 
         """
         for ftype in self.dct_files:
@@ -479,10 +594,16 @@ class TAFFile:
                     ].drop("max_version", axis=1)
                 self.dct_files[ftype] = df
 
-    def gather_bene_level_diag_ndc_codes(self):
+    def gather_bene_level_diag_ndc_codes(self) -> None:
         """
         Constructs patient level NDC and diagnosis code list columns and
-        saves them to individual files
+        saves them to individual files.
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms')  # doctest: +SKIP
+        >>> taf.gather_bene_level_diag_ndc_codes()  # doctest: +SKIP
         """
         if self.ftype in ["ip", "ot"]:
             df_base = self.dct_files["base"]
@@ -538,7 +659,7 @@ class TAFFile:
         self.add_custom_subtype("line_ndc_codes", df_line)
         self.cache_results("line_ndc_codes")
 
-    def flag_ffs_and_encounter_claims(self):
+    def flag_ffs_and_encounter_claims(self) -> None:
         """
         Flags claims where CLM_TYPE_CD is equal to one of the following values:
 
@@ -551,6 +672,14 @@ class TAFFile:
         ----------
         - `Identifying beneficiaries with a substance use disorder <https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx>`_
 
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms')  # doctest: +SKIP
+        >>> taf.flag_ffs_and_encounter_claims()  # doctest: +SKIP
+        >>> 'ffs_or_encounter_claim' in taf.dct_files['base'].columns  # doctest: +SKIP
+        True
+
         """
         df = self.dct_files["base"]
         df = df.assign(
@@ -561,7 +690,7 @@ class TAFFile:
         )
         self.dct_files["base"] = df
 
-    def process_date_cols(self):
+    def process_date_cols(self) -> None:
         """
         Convert datetime columns to datetime type and add basic date based
         constructed variables
@@ -609,6 +738,12 @@ class TAFFile:
             New Column(s):
 
                 - date_of_death - Date of death (DEATH_DT)
+
+        Examples
+        --------
+        >>> from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP
+        >>> taf = TAFFile('ip', 2019, 'AL', '/data/cms', clean=False)  # doctest: +SKIP
+        >>> taf.process_date_cols()  # doctest: +SKIP
 
         """
         for ftype in self.dct_files:

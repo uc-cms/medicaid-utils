@@ -2,6 +2,7 @@
 import os
 import errno
 import shutil
+from typing import Any, Dict, List, Optional
 
 import dask.dataframe as dd
 import numpy as np
@@ -23,9 +24,9 @@ class MAXFile:
         index_col: str = "BENE_MSIS",
         clean: bool = True,
         preprocess: bool = True,
-        tmp_folder: str = None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
         Initializes MAX file object by preloading and preprocessing(if opted
         in) the file
@@ -112,8 +113,8 @@ class MAXFile:
 
     @classmethod
     def get_claim_instance(
-        cls, claim_type, *args, **kwargs
-    ):  # pylint: disable=missing-param-doc
+        cls, claim_type: str, *args: Any, **kwargs: Any
+    ) -> "MAXFile":  # pylint: disable=missing-param-doc
         """
         Returns an instance of the requested claim type
 
@@ -134,8 +135,8 @@ class MAXFile:
         )(*args, **kwargs)
 
     def cache_results(
-        self, repartition=False
-    ):  # pylint: disable=missing-param-doc
+        self, repartition: bool = False
+    ) -> None:  # pylint: disable=missing-param-doc
         """
         Save results in intermediate steps of some lengthy processing. Saving intermediate results speeds up
         processing
@@ -155,7 +156,7 @@ class MAXFile:
             #         self.df = self.df.reset_index().set_index(self.index_col)
             self.pq_export(self.tmp_folder, repartition)
 
-    def pq_export(self, dest_path_and_fname, repartition=False):
+    def pq_export(self, dest_path_and_fname: str, repartition: bool = False) -> dd.DataFrame:
         """
         Export parquet files (overwrite safe)
 
@@ -203,7 +204,7 @@ class MAXFile:
         ).set_index(self.index_col, sorted=True)
         return self.df
 
-    def clean(self):
+    def clean(self) -> None:
         """Cleaning routines to processes date and gender columns"""
         # Date columns will be cleaned and all commonly used date based
         # variables are constructed
@@ -211,12 +212,12 @@ class MAXFile:
         self.process_date_cols()
         self.add_gender()
 
-    def preprocess(self):
+    def preprocess(self) -> None:
         """Add basic constructed variables"""
 
     def export(
-        self, dest_folder, output_format="csv", repartition=False
-    ):  # pylint: disable=missing-param-doc
+        self, dest_folder: str, output_format: str = "csv", repartition: bool = False
+    ) -> None:  # pylint: disable=missing-param-doc
         """
         Exports the files.
 
@@ -271,7 +272,7 @@ class MAXFile:
                 )
             )
 
-    def clean_diag_codes(self):
+    def clean_diag_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
         if (
             len([col for col in self.df.columns if col.startswith("DIAG_CD_")])
@@ -289,7 +290,7 @@ class MAXFile:
                 )
             )
 
-    def clean_proc_codes(self):
+    def clean_proc_codes(self) -> None:
         """Clean diagnostic code columns by removing non-alphanumeric characters and converting them to upper case"""
         if (
             len(
@@ -315,7 +316,7 @@ class MAXFile:
                 )
             )
 
-    def process_date_cols(self):
+    def process_date_cols(self) -> None:
         """
         Convert datetime columns to datetime type and add basic date based constructed variables
 
@@ -527,7 +528,7 @@ class MAXFile:
                 )
             self.df = df
 
-    def calculate_payment(self):
+    def calculate_payment(self) -> None:
         """
         Calculates payment amount
         New Column(s):

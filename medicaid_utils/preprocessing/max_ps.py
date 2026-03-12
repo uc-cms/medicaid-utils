@@ -1,6 +1,7 @@
 """This module has MAXPS class which wraps together cleaning/ preprocessing
 routines specific for MAX PS files"""
 import os
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -26,9 +27,9 @@ class MAXPS(max_file.MAXFile):
         clean: bool = True,
         preprocess: bool = True,
         rural_method: str = "ruca",
-        tmp_folder: str = None,
+        tmp_folder: Optional[str] = None,
         pq_engine: str = "pyarrow",
-    ):
+    ) -> None:
         """
         Initializes PS file object by preloading and preprocessing(if opted
         in) the file
@@ -79,7 +80,7 @@ class MAXPS(max_file.MAXFile):
         if preprocess:
             self.preprocess(rural_method)
 
-    def clean(self):
+    def clean(self) -> None:
         """Runs cleaning routines and adds common exclusion flags based on
         default filters"""
         super().clean()
@@ -87,8 +88,8 @@ class MAXPS(max_file.MAXFile):
         self.cache_results()
 
     def preprocess(
-        self, rural_method="ruca"
-    ):  # pylint: disable=missing-param-doc
+        self, rural_method: str = "ruca"
+    ) -> None:  # pylint: disable=missing-param-doc
         """
         Adds rural, eligibility criteria, dual, and restricted benefits
         indicator variables
@@ -106,7 +107,7 @@ class MAXPS(max_file.MAXFile):
         self.flag_tanf()
         self.cache_results()
 
-    def flag_common_exclusions(self):
+    def flag_common_exclusions(self) -> None:
         """
         Adds exclusion flags
         New Column(s):
@@ -132,7 +133,7 @@ class MAXPS(max_file.MAXFile):
         )
         self.df = self.df.drop([f"_{self.index_col}"], axis=1)
 
-    def flag_duals(self):
+    def flag_duals(self) -> None:
         """
         Flags dual patients
         New column(s):
@@ -154,7 +155,7 @@ class MAXPS(max_file.MAXFile):
 
     def flag_rural(
         self, method: str = "ruca"
-    ):  # pylint: disable=missing-param-doc
+    ) -> None:  # pylint: disable=missing-param-doc
         """
         Classifies benes into rural/ non-rural on the basis of RUCA/ RUCC of
         their resident ZIP/ FIPS codes
@@ -574,7 +575,7 @@ class MAXPS(max_file.MAXFile):
         ]
         self.df = self.df.drop(lst_cols_to_delete, axis=1)
 
-    def flag_restricted_benefits(self):
+    def flag_restricted_benefits(self) -> None:
         """
         Checks individual's eligibility for various medicaid services,
         based on EL_RSTRCT_BNFT_FLG_{month} values,
@@ -667,7 +668,7 @@ class MAXPS(max_file.MAXFile):
             ).astype(int)
         )
 
-    def flag_tanf(self):
+    def flag_tanf(self) -> None:
         """
         The Temporary Assistance for Needy Families (TANF) program provides
         temporary financial assistance for pregnant women and families with
