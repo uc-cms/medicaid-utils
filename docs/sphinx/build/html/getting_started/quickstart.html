@@ -1,0 +1,218 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Preprocessing Claims" href="../user_guide/preprocessing.html" />
+    <link rel="prev" title="Expected Data Layout" href="data_layout.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            medicaid_utils
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#loading-and-cleaning-claims">Loading and Cleaning Claims</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-cleaning-does">What Cleaning Does</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-preprocessing-adds">What Preprocessing Adds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#skipping-cleaning-or-preprocessing">Skipping Cleaning or Preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#caching-intermediate-results">Caching Intermediate Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quick Start</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/getting_started/quickstart.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h1>
+<p>This page walks through the basic workflow: loading claims, cleaning them, and
+extracting a patient cohort.</p>
+<section id="loading-and-cleaning-claims">
+<h2>Loading and Cleaning Claims<a class="headerlink" href="#loading-and-cleaning-claims" title="Link to this heading"></a></h2>
+<p>MAX format (ICD-9 era):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">max_ip</span><span class="p">,</span> <span class="n">max_ot</span><span class="p">,</span> <span class="n">max_ps</span>
+
+<span class="c1"># Load and preprocess inpatient claims (cleaning + variable construction)</span>
+<span class="n">ip</span> <span class="o">=</span> <span class="n">max_ip</span><span class="o">.</span><span class="n">MAXIP</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;WY&quot;</span><span class="p">,</span> <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/path/to/data&quot;</span><span class="p">)</span>
+
+<span class="c1"># Access the cleaned Dask DataFrame</span>
+<span class="n">df_ip</span> <span class="o">=</span> <span class="n">ip</span><span class="o">.</span><span class="n">df</span>
+
+<span class="c1"># Load outpatient claims with IP overlap flagging</span>
+<span class="n">ot</span> <span class="o">=</span> <span class="n">max_ot</span><span class="o">.</span><span class="n">MAXOT</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;WY&quot;</span><span class="p">,</span> <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/path/to/data&quot;</span><span class="p">)</span>
+<span class="n">ot</span><span class="o">.</span><span class="n">flag_ip_overlaps_and_ed</span><span class="p">(</span><span class="n">df_ip</span><span class="p">)</span>
+
+<span class="c1"># Load person summary with rural classification</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">max_ps</span><span class="o">.</span><span class="n">MAXPS</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;WY&quot;</span><span class="p">,</span> <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/path/to/data&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>TAF format (ICD-10 era):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">taf_ip</span><span class="p">,</span> <span class="n">taf_ot</span><span class="p">,</span> <span class="n">taf_ps</span>
+
+<span class="n">ip</span> <span class="o">=</span> <span class="n">taf_ip</span><span class="o">.</span><span class="n">TAFIP</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2019</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;AL&quot;</span><span class="p">,</span> <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/path/to/data&quot;</span><span class="p">)</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">taf_ps</span><span class="o">.</span><span class="n">TAFPS</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2019</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;AL&quot;</span><span class="p">,</span> <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/path/to/data&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="what-cleaning-does">
+<h3>What Cleaning Does<a class="headerlink" href="#what-cleaning-does" title="Link to this heading"></a></h3>
+<p>Each file type has tailored cleaning routines that run automatically (<code class="docutils literal notranslate"><span class="pre">clean=True</span></code>):</p>
+<ul class="simple">
+<li><p><strong>Date standardization</strong> – converts date columns to consistent datetime types</p></li>
+<li><p><strong>Diagnosis code cleaning</strong> – strips whitespace, normalizes formatting</p></li>
+<li><p><strong>Procedure code cleaning</strong> – validates procedure code systems (CPT, HCPCS, ICD)</p></li>
+<li><p><strong>Demographic derivation</strong> – computes age, gender flags, date-of-birth validation</p></li>
+<li><p><strong>Duplicate flagging</strong> – identifies exact duplicate claims for exclusion</p></li>
+</ul>
+</section>
+<section id="what-preprocessing-adds">
+<h3>What Preprocessing Adds<a class="headerlink" href="#what-preprocessing-adds" title="Link to this heading"></a></h3>
+<p>Additional derived variables computed via <code class="docutils literal notranslate"><span class="pre">preprocess=True</span></code>:</p>
+<ul class="simple">
+<li><p><strong>Payment calculation</strong> – standardized payment amount</p></li>
+<li><p><strong>ED use flags</strong> – emergency department utilization indicators</p></li>
+<li><p><strong>IP overlap detection</strong> – flags outpatient claims overlapping inpatient stays</p></li>
+<li><p><strong>Length of stay</strong> – computed from admission and discharge dates</p></li>
+<li><p><strong>Eligibility patterns</strong> – monthly enrollment strings and gap detection</p></li>
+<li><p><strong>Rural classification</strong> – RUCA or RUCC codes via ZIP code crosswalk</p></li>
+<li><p><strong>Dual eligibility</strong> – Medicare-Medicaid dual enrollment flags</p></li>
+</ul>
+</section>
+<section id="skipping-cleaning-or-preprocessing">
+<h3>Skipping Cleaning or Preprocessing<a class="headerlink" href="#skipping-cleaning-or-preprocessing" title="Link to this heading"></a></h3>
+<p>You can load raw data without any transformations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ip</span> <span class="o">=</span> <span class="n">max_ip</span><span class="o">.</span><span class="n">MAXIP</span><span class="p">(</span>
+    <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;WY&quot;</span><span class="p">,</span> <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/path/to/data&quot;</span><span class="p">,</span>
+    <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="caching-intermediate-results">
+<h3>Caching Intermediate Results<a class="headerlink" href="#caching-intermediate-results" title="Link to this heading"></a></h3>
+<p>For large datasets, cache intermediate results to avoid recomputation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ip</span> <span class="o">=</span> <span class="n">max_ip</span><span class="o">.</span><span class="n">MAXIP</span><span class="p">(</span>
+    <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;WY&quot;</span><span class="p">,</span> <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/path/to/data&quot;</span><span class="p">,</span>
+    <span class="n">tmp_folder</span><span class="o">=</span><span class="s2">&quot;/path/to/cache&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../user_guide/cohort_extraction.html"><span class="doc">Cohort Extraction</span></a> – learn how to define and extract patient cohorts</p></li>
+<li><p><a class="reference internal" href="../user_guide/risk_adjustment.html"><span class="doc">Risk Adjustment &amp; Clinical Algorithms</span></a> – apply comorbidity scoring and risk adjustment</p></li>
+<li><p><a class="reference internal" href="../tutorials/diabetes_cohort.html"><span class="doc">Tutorial: Extracting a Type 2 Diabetes Cohort</span></a> – end-to-end example for Type 2 diabetes</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="data_layout.html" class="btn btn-neutral float-left" title="Expected Data Layout" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../user_guide/preprocessing.html" class="btn btn-neutral float-right" title="Preprocessing Claims" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

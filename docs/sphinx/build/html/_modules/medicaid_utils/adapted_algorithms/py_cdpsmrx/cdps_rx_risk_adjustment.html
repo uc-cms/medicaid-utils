@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -66,23 +87,26 @@
            <div itemprop="articleBody">
              
   <h1>Source code for medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
 
 
-<div class="viewcode-block" id="CdpsRxRiskAdjustment"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment">[docs]</a><span class="k">class</span> <span class="nc">CdpsRxRiskAdjustment</span><span class="p">:</span>
+<div class="viewcode-block" id="CdpsRxRiskAdjustment">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CdpsRxRiskAdjustment</span><span class="p">:</span>
     <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
     <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="CdpsRxRiskAdjustment.add_age_and_gender_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_age_and_gender_cols">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">add_age_and_gender_cols</span><span class="p">(</span>
+<div class="viewcode-block" id="CdpsRxRiskAdjustment.add_age_and_gender_cols">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_age_and_gender_cols">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_age_and_gender_cols</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds age &amp; gender related covariates used in CDPS Rx Risk Adjustment model. Returns a dataframe with the</span>
 <span class="sd">        below columns:</span>
@@ -106,6 +130,15 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dask.DataFrame</span>
+<span class="sd">        list of str</span>
+<span class="sd">            List of age and gender column names added.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires a dask DataFrame with &#39;Female&#39; and &#39;age&#39; columns</span>
+<span class="sd">        &gt;&gt;&gt; df, lst_cols = CdpsRxRiskAdjustment.add_age_and_gender_cols(df)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; &#39;a_under1&#39; in lst_cols  # doctest: +SKIP</span>
+<span class="sd">        True</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lst_age_and_gender_cols</span> <span class="o">=</span> <span class="p">[</span>
@@ -128,7 +161,7 @@
         <span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
             <span class="n">a_under1</span><span class="o">=</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-            <span class="n">a_1_4</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">a_1_4</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;neither&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
             <span class="n">a_5_14m</span><span class="o">=</span><span class="p">(</span>
                 <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;male&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
             <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
@@ -157,10 +190,13 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">lst_age_and_gender_cols</span></div>
 
-<div class="viewcode-block" id="CdpsRxRiskAdjustment.add_cdps_category_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_cdps_category_cols">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">add_cdps_category_cols</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_diag_cd_col_name</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+
+<div class="viewcode-block" id="CdpsRxRiskAdjustment.add_cdps_category_cols">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_cdps_category_cols">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_cdps_category_cols</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_diag_cd_col_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds CDPS category columns</span>
 
@@ -173,6 +209,14 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dask.DataFrame</span>
+<span class="sd">        list of str</span>
+<span class="sd">            List of CDPS category column names added.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires a dask DataFrame with diagnosis code list and aid columns</span>
+<span class="sd">        &gt;&gt;&gt; df, lst_cols = CdpsRxRiskAdjustment.add_cdps_category_cols(  # doctest: +SKIP</span>
+<span class="sd">        ...     df, &#39;LST_DIAG_CD&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Load var lists and maps</span>
@@ -345,7 +389,7 @@
                             <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_ADULT_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span>
                         <span class="p">)</span>
                         <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;OTHER&quot;</span><span class="p">])</span>
-                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                         <span class="o">|</span> <span class="p">(</span>
                             <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;aid&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;DC&quot;</span><span class="p">,</span> <span class="s2">&quot;AC&quot;</span><span class="p">])</span>
                             <span class="o">&amp;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -353,7 +397,7 @@
                                 <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                             <span class="p">)</span>
                             <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;OTHER&quot;</span><span class="p">])</span>
-                            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                         <span class="p">)</span>
                     <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                 <span class="p">)</span>
@@ -372,7 +416,7 @@
                                     <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                                 <span class="p">)</span>
                                 <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
-                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                             <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
                         <span class="p">)</span>
                         <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">lst_non_hierarchical_diags_adult</span>
@@ -393,7 +437,7 @@
                                     <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                                 <span class="p">)</span>
                                 <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
-                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                             <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
                         <span class="p">)</span>
                         <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">lst_non_hierarchical_diags_child</span>
@@ -409,7 +453,7 @@
                                     <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                                 <span class="p">)</span>
                                 <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
-                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                                 <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
                             <span class="p">),</span>
                         <span class="p">)</span>
@@ -435,7 +479,7 @@
                                             <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                                         <span class="p">)</span>
                                         <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
-                                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                                         <span class="o">&amp;</span> <span class="p">(</span>
                                             <span class="p">(</span><span class="n">level_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
                                             <span class="o">|</span> <span class="p">(</span>
@@ -455,7 +499,7 @@
                                                         <span class="p">]</span>
                                                     <span class="p">]</span>
                                                 <span class="p">)</span>
-                                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                                             <span class="p">)</span>
                                         <span class="p">)</span>
                                     <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
@@ -487,7 +531,7 @@
                                             <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                                         <span class="p">)</span>
                                         <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
-                                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                                         <span class="o">&amp;</span> <span class="p">(</span>
                                             <span class="p">(</span><span class="n">level_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
                                             <span class="o">|</span> <span class="p">(</span>
@@ -507,7 +551,7 @@
                                                         <span class="p">]</span>
                                                     <span class="p">]</span>
                                                 <span class="p">)</span>
-                                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                                             <span class="p">)</span>
                                         <span class="p">)</span>
                                     <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
@@ -530,7 +574,7 @@
                                                 <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                                             <span class="p">)</span>
                                             <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">diag</span><span class="p">])</span>
-                                            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                                             <span class="o">&amp;</span> <span class="p">(</span>
                                                 <span class="p">(</span><span class="n">level_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
                                                 <span class="o">|</span> <span class="p">(</span>
@@ -551,7 +595,7 @@
                                                             <span class="p">]</span>
                                                         <span class="p">]</span>
                                                     <span class="p">)</span>
-                                                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                                    <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                                                 <span class="p">)</span>
                                             <span class="p">)</span>
                                         <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
@@ -624,10 +668,13 @@
             <span class="n">lst_cdps_cat_cols</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="CdpsRxRiskAdjustment.add_mrx_cat_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_mrx_cat_cols">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">add_mrx_cat_cols</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_ndc_col_name</span><span class="o">=</span><span class="s2">&quot;LST_NDC&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+
+<div class="viewcode-block" id="CdpsRxRiskAdjustment.add_mrx_cat_cols">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.add_mrx_cat_cols">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_mrx_cat_cols</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_ndc_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LST_NDC&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds MRX category columns</span>
 
@@ -639,6 +686,14 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dask.DataFrame</span>
+<span class="sd">        list of str</span>
+<span class="sd">            List of MRX category column names added.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires a dask DataFrame with an NDC code list column</span>
+<span class="sd">        &gt;&gt;&gt; df, lst_cols = CdpsRxRiskAdjustment.add_mrx_cat_cols(  # doctest: +SKIP</span>
+<span class="sd">        ...     df, &#39;LST_NDC&#39;)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Load var lists and maps</span>
@@ -710,7 +765,7 @@
                     <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_NDC_MRX&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span>
                 <span class="p">)</span>
                 <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;OTHER&quot;</span><span class="p">])</span>
-                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="p">)</span>
@@ -724,7 +779,7 @@
                                 <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_NDC_MRX&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span>
                             <span class="p">)</span>
                             <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">mrx</span><span class="p">])</span>
-                            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
                         <span class="p">)</span>
                         <span class="k">for</span> <span class="n">mrx</span> <span class="ow">in</span> <span class="n">lst_non_hierarchical_mrx_cat</span>
@@ -747,7 +802,7 @@
                                             <span class="n">index</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                                         <span class="p">)</span>
                                         <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">mrx</span><span class="p">])</span>
-                                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                        <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                                         <span class="o">&amp;</span> <span class="p">(</span>
                                             <span class="p">(</span><span class="n">level_order</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
                                             <span class="o">|</span> <span class="p">(</span>
@@ -767,7 +822,7 @@
                                                         <span class="p">]</span>
                                                     <span class="p">]</span>
                                                 <span class="p">)</span>
-                                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                                <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                                             <span class="p">)</span>
                                         <span class="p">)</span>
                                     <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
@@ -788,8 +843,11 @@
             <span class="n">lst_mrx_cat_cols</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">combine_cdps_mrx_hierarchies</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">combine_cdps_mrx_hierarchies</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply CDPS MRX hierarchical rollups</span>
 
@@ -800,6 +858,11 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dask.DataFrame</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires a dask DataFrame with CDPS and MRX category columns</span>
+<span class="sd">        &gt;&gt;&gt; df = CdpsRxRiskAdjustment.combine_cdps_mrx_hierarchies(df)  # doctest: +SKIP</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
@@ -971,9 +1034,12 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="CdpsRxRiskAdjustment.calculate_risk"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.calculate_risk">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">calculate_risk</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_cov</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">score_col_name</span><span class="o">=</span><span class="s2">&quot;risk&quot;</span>
+
+<div class="viewcode-block" id="CdpsRxRiskAdjustment.calculate_risk">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.CdpsRxRiskAdjustment.calculate_risk">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_risk</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_cov</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">score_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;risk&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates CDPS risk adjustment score. The returned dataframe has the following new columns:</span>
@@ -990,6 +1056,13 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dask.DataFrame</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires a dask DataFrame with covariate columns and aid column</span>
+<span class="sd">        &gt;&gt;&gt; df = CdpsRxRiskAdjustment.calculate_risk(  # doctest: +SKIP</span>
+<span class="sd">        ...     df, lst_cov=[&#39;a_under1&#39;, &#39;a_1_4&#39;], score_col_name=&#39;risk&#39;)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dct_weights</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
@@ -1057,14 +1130,18 @@
                 <span class="p">]</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lst_cov</span><span class="p">]]</span></div></div>
+        <span class="k">return</span> <span class="n">df</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">lst_cov</span><span class="p">]]</span></div>
+</div>
 
 
-<div class="viewcode-block" id="cdps_rx_risk_adjust"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.cdps_rx_risk_adjust">[docs]</a><span class="k">def</span> <span class="nf">cdps_rx_risk_adjust</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cdps_rx_risk_adjust">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_cdpsmrx.html#medicaid_utils.adapted_algorithms.py_cdpsmrx.cdps_rx_risk_adjustment.cdps_rx_risk_adjust">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cdps_rx_risk_adjust</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">lst_diag_col_name</span><span class="o">=</span><span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">,</span>
-    <span class="n">lst_ndc_col_name</span><span class="o">=</span><span class="s2">&quot;LST_NDC&quot;</span><span class="p">,</span>
-    <span class="n">score_col_name</span><span class="o">=</span><span class="s2">&quot;risk&quot;</span><span class="p">,</span>
+    <span class="n">lst_diag_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">,</span>
+    <span class="n">lst_ndc_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LST_NDC&quot;</span><span class="p">,</span>
+    <span class="n">score_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;risk&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate CDPS MRX risk adjustment score. This function expects the input dataframe to be aggregated to patient</span>
@@ -1084,6 +1161,12 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dask.DataFrame</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Requires a patient-level dask DataFrame with diagnosis and NDC columns</span>
+<span class="sd">    &gt;&gt;&gt; df = cdps_rx_risk_adjust(df, &#39;LST_DIAG_CD&#39;, &#39;LST_NDC&#39;)  # doctest: +SKIP</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span><span class="p">,</span> <span class="n">lst_age_and_gender_cols</span> <span class="o">=</span> <span class="n">CdpsRxRiskAdjustment</span><span class="o">.</span><span class="n">add_age_and_gender_cols</span><span class="p">(</span>
         <span class="n">df</span>
@@ -1101,6 +1184,7 @@
         <span class="o">+</span> <span class="n">lst_mrx_category_cols</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">CdpsRxRiskAdjustment</span><span class="o">.</span><span class="n">calculate_risk</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">lst_cov</span><span class="p">,</span> <span class="n">score_col_name</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>
@@ -1110,7 +1194,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

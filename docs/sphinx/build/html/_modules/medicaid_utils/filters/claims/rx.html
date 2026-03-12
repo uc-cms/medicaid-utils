@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.filters.claims.rx &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.filters.claims.rx</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.filters.claims.rx</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -67,15 +88,16 @@
              
   <h1>Source code for medicaid_utils.filters.claims.rx</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;This module has functions to add NDC code based indicator flags to claims&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
 
 
-<div class="viewcode-block" id="flag_prescriptions"><a class="viewcode-back" href="../../../../medicaid_utils.filters.claims.html#medicaid_utils.filters.claims.rx.flag_prescriptions">[docs]</a><span class="k">def</span> <span class="nf">flag_prescriptions</span><span class="p">(</span>
+<div class="viewcode-block" id="flag_prescriptions">
+<a class="viewcode-back" href="../../../../medicaid_utils.filters.claims.html#medicaid_utils.filters.claims.rx.flag_prescriptions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_prescriptions</span><span class="p">(</span>
     <span class="n">dct_ndc_codes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">ignore_missing_days_supply</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Flags claims based on NDC codes</span>
 
@@ -106,6 +128,28 @@
 <span class="sd">    -------</span>
 <span class="sd">    dd.DataFrame</span>
 
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; import dask.dataframe as dd</span>
+<span class="sd">    &gt;&gt;&gt; pdf = pd.DataFrame({</span>
+<span class="sd">    ...     &#39;MSIS_ID&#39;: [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;],</span>
+<span class="sd">    ...     &#39;NDC&#39;: [&#39;00378451905&#39;, &#39;99999999999&#39;, &#39;00378617005&#39;],</span>
+<span class="sd">    ...     &#39;DAYS_SUPPLY&#39;: [&#39;30&#39;, &#39;10&#39;, &#39;0&#39;],</span>
+<span class="sd">    ... }).set_index(&#39;MSIS_ID&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; ddf = dd.from_pandas(pdf, npartitions=1)</span>
+<span class="sd">    &gt;&gt;&gt; dct_ndc = {&#39;buprenorphine&#39;: [&#39;00378451905&#39;, &#39;00378617005&#39;]}</span>
+<span class="sd">    &gt;&gt;&gt; result = flag_prescriptions(dct_ndc, ddf)</span>
+<span class="sd">    &gt;&gt;&gt; result.compute()[&#39;rx_buprenorphine&#39;].tolist()</span>
+<span class="sd">    [1, 0, 0]</span>
+
+<span class="sd">    When ``ignore_missing_days_supply`` is True, claims with zero or missing</span>
+<span class="sd">    days of supply are still flagged:</span>
+
+<span class="sd">    &gt;&gt;&gt; result2 = flag_prescriptions(dct_ndc, ddf, ignore_missing_days_supply=True)</span>
+<span class="sd">    &gt;&gt;&gt; result2.compute()[&#39;rx_buprenorphine&#39;].tolist()</span>
+<span class="sd">    [1, 0, 1]</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dct_ndc_codes</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">condn</span><span class="p">:</span> <span class="p">[</span>
@@ -114,22 +158,35 @@
         <span class="p">]</span>
         <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_ndc_codes</span>
     <span class="p">}</span>
-    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="o">**</span><span class="p">{</span><span class="sa">f</span><span class="s2">&quot;rx_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_ndc_codes</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">ignore_missing_days_supply</span><span class="p">:</span>
+        <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
             <span class="o">**</span><span class="p">{</span>
                 <span class="sa">f</span><span class="s2">&quot;rx_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;NDC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">[</span><span class="n">condn</span><span class="p">])</span>
+                    <span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;NDC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">[</span><span class="n">condn</span><span class="p">])</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_ndc_codes</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="s2">&quot;DAYS_SUPPLY&quot;</span> <span class="ow">in</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="sa">f</span><span class="s2">&quot;rx_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;NDC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">[</span><span class="n">condn</span><span class="p">])</span>
                     <span class="o">&amp;</span> <span class="p">(</span>
-                        <span class="p">(</span><span class="n">ignore_missing_days_supply</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">)</span>
-                        <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;DAYS_SUPPLY&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                        <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                            <span class="n">df_claims</span><span class="p">[</span><span class="s2">&quot;DAYS_SUPPLY&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                        <span class="p">)</span>
                         <span class="o">&gt;</span> <span class="mi">0</span>
                     <span class="p">)</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_ndc_codes</span>
             <span class="p">}</span>
         <span class="p">)</span>
-    <span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
+
 </pre></div>
 
            </div>
@@ -139,7 +196,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

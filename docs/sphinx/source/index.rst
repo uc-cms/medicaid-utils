@@ -1,17 +1,42 @@
-.. medicaid_utils documentation master file, created by
-   sphinx-quickstart on Fri Jan 20 22:50:03 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+medicaid-utils Documentation
+============================
 
-Welcome to medicaid_utils's documentation!
-==========================================
+**medicaid-utils** is a Python toolkit for constructing patient-level analytic files from
+Medicaid claims data. It implements validated cleaning routines, variable construction methods,
+and public-domain clinical measure algorithms for both MAX and TAF CMS file formats.
+
+Built on `Dask <https://www.dask.org/>`_ for scalable, distributed processing of large-scale
+claims datasets.
 
 .. toctree::
-   :maxdepth: 4
-   :caption: Contents:
+   :maxdepth: 2
+   :caption: Getting Started
+
+   getting_started/installation
+   getting_started/data_layout
+   getting_started/quickstart
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide
+
+   user_guide/preprocessing
+   user_guide/cohort_extraction
+   user_guide/risk_adjustment
+   user_guide/quality_measures
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutorials
+
+   tutorials/diabetes_cohort
+   tutorials/oud_cohort
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
 
    medicaid_utils
-
 
 
 Indices and tables

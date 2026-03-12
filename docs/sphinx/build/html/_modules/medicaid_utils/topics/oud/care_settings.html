@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.topics.oud.care_settings &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.topics.oud.care_settings</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.topics.oud.care_settings</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -67,10 +88,12 @@
              
   <h1>Source code for medicaid_utils.topics.oud.care_settings</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;This module has functions that can be used to identify OUD care settings&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
 
 
-<div class="viewcode-block" id="flag_care_settings"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.care_settings.flag_care_settings">[docs]</a><span class="k">def</span> <span class="nf">flag_care_settings</span><span class="p">(</span><span class="n">df_ot</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<div class="viewcode-block" id="flag_care_settings">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.care_settings.flag_care_settings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_care_settings</span><span class="p">(</span><span class="n">df_ot</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates claim level flags for FQHC, Outpatient Hospital, Physician</span>
 <span class="sd">    Office, Behavioral Health Centers, Hospital &amp; Office-based care</span>
 <span class="sd">    settings.</span>
@@ -93,52 +116,100 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df_ot</span> <span class="o">=</span> <span class="n">df_ot</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
         <span class="o">**</span><span class="p">{</span>
-            <span class="s2">&quot;fqhc&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">50</span><span class="p">)</span>
-                <span class="o">|</span> <span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;BLG_PRVDR_TXNMY_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;261QF0400X&quot;</span><span class="p">)</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-            <span class="s2">&quot;outpatient_hospital&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
-                <span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
-            <span class="p">)</span>
-            <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="mi">12</span><span class="p">,</span>
-                    <span class="mi">22</span><span class="p">,</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
-            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-            <span class="s2">&quot;physician_office&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">11</span><span class="p">)</span>
-                <span class="o">|</span> <span class="p">(</span>
-                    <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;TOS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
-                        <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">37</span><span class="p">]</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-            <span class="s2">&quot;behavioral_health_centers&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
-                    <span class="p">[</span>
-                        <span class="mi">52</span><span class="p">,</span>
-                        <span class="mi">53</span><span class="p">,</span>
-                        <span class="mi">55</span><span class="p">,</span>
-                        <span class="mi">56</span><span class="p">,</span>
-                        <span class="mi">57</span><span class="p">,</span>
-                        <span class="mi">58</span><span class="p">,</span>
-                    <span class="p">]</span>
-                <span class="p">)</span>
-                <span class="o">|</span> <span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;BLG_PRVDR_TXNMY_CD&quot;</span><span class="p">]</span>
-                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;261QM0855X&quot;</span><span class="p">,</span> <span class="s2">&quot;261QM0801X&quot;</span><span class="p">,</span> <span class="s2">&quot;261QM2800X&quot;</span><span class="p">,</span> <span class="s2">&quot;261QR0405X&quot;</span><span class="p">])</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-            <span class="s2">&quot;hospital&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">])</span>
-            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-            <span class="s2">&quot;office_based&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">11</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">])</span>
-            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="n">setting</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;fqhc&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;outpatient_hospital&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;physician_office&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;behavioral_health_centers&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;hospital&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;office_based&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
         <span class="p">}</span>
     <span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;POS_CD&quot;</span> <span class="ow">in</span> <span class="n">df_ot</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;BLG_PRVDR_TXNMY_CD&quot;</span> <span class="ow">in</span> <span class="n">df_ot</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+        <span class="n">df_ot</span> <span class="o">=</span> <span class="n">df_ot</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="s2">&quot;fqhc&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">50</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;BLG_PRVDR_TXNMY_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;261QF0400X&quot;</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;BILL_TYPE_CD&quot;</span><span class="p">])</span>
+                    <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;73&quot;</span><span class="p">,</span> <span class="s2">&quot;77&quot;</span><span class="p">])</span>
+                    <span class="o">|</span> <span class="p">(</span>
+                        <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;PGM_TYPE_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                        <span class="o">==</span> <span class="mi">4</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="s2">&quot;outpatient_hospital&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                    <span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="mi">12</span><span class="p">,</span>
+                        <span class="mi">22</span><span class="p">,</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="s2">&quot;physician_office&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">11</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="s2">&quot;behavioral_health_centers&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="mi">52</span><span class="p">,</span>
+                            <span class="mi">53</span><span class="p">,</span>
+                            <span class="mi">55</span><span class="p">,</span>
+                            <span class="mi">56</span><span class="p">,</span>
+                            <span class="mi">57</span><span class="p">,</span>
+                            <span class="mi">58</span><span class="p">,</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="o">|</span> <span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;BLG_PRVDR_TXNMY_CD&quot;</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="o">.</span><span class="n">isin</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="s2">&quot;261QM0855X&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;261QM0801X&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;261QM2800X&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;261QR0405X&quot;</span><span class="p">,</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="s2">&quot;hospital&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="s2">&quot;office_based&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;POS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">11</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;TOS_CD&quot;</span> <span class="ow">in</span> <span class="n">df_ot</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df_ot</span> <span class="o">=</span> <span class="n">df_ot</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">{</span>
+                <span class="s2">&quot;physician_office&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                    <span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;TOS_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">36</span><span class="p">,</span> <span class="mi">37</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="s2">&quot;fqhc&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;BNFT_TYPE_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                        <span class="o">==</span> <span class="mi">4</span>
+                    <span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span>
+                        <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                            <span class="n">df_ot</span><span class="p">[</span><span class="s2">&quot;XIX_SRVC_CTGRY_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                        <span class="p">)</span>
+                        <span class="o">==</span> <span class="mi">28</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
     <span class="k">return</span> <span class="n">df_ot</span></div>
+
 </pre></div>
 
            </div>
@@ -148,7 +219,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

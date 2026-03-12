@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -77,14 +98,18 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Manoradhan Murugesan&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;manorathan@uchicago.edu&quot;</span>
 
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">literal_eval</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
 
 
-<div class="viewcode-block" id="BillingsED"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED">[docs]</a><span class="k">class</span> <span class="nc">BillingsED</span><span class="p">:</span>
+<div class="viewcode-block" id="BillingsED">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BillingsED</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This class packages functions to perform NYU/ Billings algorithm based classification of ED visits&quot;&quot;&quot;</span>
 
     <span class="n">logger_name</span> <span class="o">=</span> <span class="vm">__name__</span>
@@ -170,8 +195,10 @@
     <span class="p">)</span>
     <span class="n">df_eddxs</span> <span class="o">=</span> <span class="n">df_eddxs</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">([</span><span class="s2">&quot;prindx&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BillingsED.recode_diag_code"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.recode_diag_code">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">recode_diag_code</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="BillingsED.recode_diag_code">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.recode_diag_code">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">recode_diag_code</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Recodes diagnosis code</span>
 
@@ -183,6 +210,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        str</span>
+<span class="sd">            Recoded diagnosis code.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; BillingsED.recode_diag_code(&#39;4659&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &#39;4659&#39;</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">dct_recode_non_startswith</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -197,8 +230,11 @@
             <span class="p">),</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="BillingsED.get_special_categories"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.get_special_categories">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_special_categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="BillingsED.get_special_categories">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.get_special_categories">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_special_categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Categorizes the diagnosis code into below categories</span>
 
@@ -220,6 +256,13 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict</span>
+<span class="sd">            Dictionary with keys &#39;acs&#39;, &#39;psych&#39;, &#39;drug&#39;, &#39;alcohol&#39;, &#39;injury&#39;</span>
+<span class="sd">            and integer values (0 or 1).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; BillingsED.get_special_categories(&#39;E8600&#39;)  # doctest: +SKIP</span>
+<span class="sd">        {&#39;acs&#39;: 0, &#39;psych&#39;: 0, &#39;drug&#39;: 0, &#39;alcohol&#39;: 1, &#39;injury&#39;: 0}</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -227,8 +270,11 @@
             <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">lst_special_ed_categories</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="BillingsED.get_nyu_ed_proba_for_dx_code"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.get_nyu_ed_proba_for_dx_code">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_nyu_ed_proba_for_dx_code</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="BillingsED.get_nyu_ed_proba_for_dx_code">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.get_nyu_ed_proba_for_dx_code">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nyu_ed_proba_for_dx_code</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Merge with EDDXs gets the probbolities attached with the code</span>
 
@@ -249,6 +295,13 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict</span>
+<span class="sd">            Dictionary with probability keys (&#39;nonemerg&#39;, &#39;emergpc&#39;,</span>
+<span class="sd">            &#39;emedpa&#39;, &#39;emednpa&#39;) and float values, or empty dict if</span>
+<span class="sd">            the code is not found.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; BillingsED.get_nyu_ed_proba_for_dx_code(&#39;4659&#39;)  # doctest: +SKIP</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -257,10 +310,13 @@
             <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dx_code</span><span class="p">,</span> <span class="p">{})</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="BillingsED.get_nyu_ed_categories"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.get_nyu_ed_categories">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_nyu_ed_categories</span><span class="p">(</span>
+
+<div class="viewcode-block" id="BillingsED.get_nyu_ed_categories">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.get_nyu_ed_categories">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nyu_ed_categories</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns probabilities for each of the NYU ED categories, based on the input diagnosis code</span>
 
@@ -291,6 +347,10 @@
 <span class="sd">            Emergent, ED Care Needed, Preventable/Avoidable</span>
 <span class="sd">        edcnnpa : float</span>
 <span class="sd">            Emergent, ED Care Needed, Not Preventable/Avoidable</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; BillingsED.get_nyu_ed_categories(&#39;4659&#39;)  # doctest: +SKIP</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">peds_acsed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">is_peds_acsed</span><span class="p">(</span><span class="n">dx_code</span><span class="p">)</span>
@@ -367,8 +427,11 @@
             <span class="n">edcnnpa</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="BillingsED.is_peds_acsed"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.is_peds_acsed">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">is_peds_acsed</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="BillingsED.is_peds_acsed">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.BillingsED.is_peds_acsed">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_peds_acsed</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dx_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the diagnosis code meets pediatric ACS ED visit criteria</span>
 
@@ -380,6 +443,14 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        int</span>
+<span class="sd">            1 if the code meets pediatric ACS ED criteria, 0 otherwise.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; BillingsED.is_peds_acsed(&#39;493&#39;)  # doctest: +SKIP</span>
+<span class="sd">        1</span>
+<span class="sd">        &gt;&gt;&gt; BillingsED.is_peds_acsed(&#39;999&#39;)  # doctest: +SKIP</span>
+<span class="sd">        0</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span>
@@ -436,10 +507,14 @@
                     <span class="s2">&quot;956&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="get_nyu_ed_proba"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.get_nyu_ed_proba">[docs]</a><span class="k">def</span> <span class="nf">get_nyu_ed_proba</span><span class="p">(</span>
+
+<div class="viewcode-block" id="get_nyu_ed_proba">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_nyu_billings.html#medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed.get_nyu_ed_proba">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_nyu_ed_proba</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MAX&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="c1"># pylint: disable=missing-param-doc</span>
@@ -463,6 +538,11 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Requires a dask DataFrame with ED claims and diagnosis columns</span>
+<span class="sd">    &gt;&gt;&gt; pdf = get_nyu_ed_proba(df, &#39;srvc_bgn_date&#39;, &#39;MSIS_ID&#39;)  # doctest: +SKIP</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">principal_diag_col_name</span> <span class="o">=</span> <span class="p">(</span>
@@ -547,6 +627,7 @@
         <span class="o">.</span><span class="n">compute</span><span class="p">()</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
+
 </pre></div>
 
            </div>
@@ -556,7 +637,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cohort Extraction &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Risk Adjustment &amp; Clinical Algorithms" href="risk_adjustment.html" />
+    <link rel="prev" title="Preprocessing Claims" href="preprocessing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            medicaid_utils
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cohort Extraction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-extract-cohort-function">The <code class="docutils literal notranslate"><span class="pre">extract_cohort</span></code> Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#defining-diagnosis-and-procedure-codes">Defining Diagnosis and Procedure Codes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#diagnosis-codes">Diagnosis Codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#procedure-codes">Procedure Codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#column-value-conditions">Column Value Conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#defining-filters">Defining Filters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#filter-types">Filter Types</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#data-paths">Data Paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-files">Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lower-level-functions">Lower-Level Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#flagging-diagnoses-and-procedures">Flagging Diagnoses and Procedures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#flagging-prescriptions">Flagging Prescriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#filtering-claim-files">Filtering Claim Files</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Cohort Extraction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user_guide/cohort_extraction.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cohort-extraction">
+<h1>Cohort Extraction<a class="headerlink" href="#cohort-extraction" title="Link to this heading"></a></h1>
+<p>The cohort extraction module is the primary tool for building patient-level analytic files.
+It identifies patients matching diagnosis/procedure criteria, applies inclusion/exclusion
+filters, and exports the resulting claim files.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>A typical cohort extraction workflow:</p>
+<ol class="arabic simple">
+<li><p><strong>Define diagnosis/procedure codes</strong> that identify your condition of interest</p></li>
+<li><p><strong>Define filters</strong> for inclusion criteria (age, gender, enrollment)</p></li>
+<li><p><strong>Call</strong> <a class="reference internal" href="../medicaid_utils.filters.patients.html#medicaid_utils.filters.patients.cohort_extraction.extract_cohort" title="medicaid_utils.filters.patients.cohort_extraction.extract_cohort"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_cohort()</span></code></a></p></li>
+<li><p><strong>Receive</strong> exported claim files for the matching cohort</p></li>
+</ol>
+</section>
+<section id="the-extract-cohort-function">
+<h2>The <code class="docutils literal notranslate"><span class="pre">extract_cohort</span></code> Function<a class="headerlink" href="#the-extract-cohort-function" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.filters.patients.cohort_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_cohort</span>
+
+<span class="n">extract_cohort</span><span class="p">(</span>
+    <span class="n">state</span><span class="o">=</span><span class="s2">&quot;AL&quot;</span><span class="p">,</span>
+    <span class="n">lst_year</span><span class="o">=</span><span class="p">[</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">2017</span><span class="p">,</span> <span class="mi">2018</span><span class="p">],</span>
+    <span class="n">dct_diag_proc_codes</span><span class="o">=</span><span class="n">dct_codes</span><span class="p">,</span>
+    <span class="n">dct_filters</span><span class="o">=</span><span class="n">dct_filters</span><span class="p">,</span>
+    <span class="n">lst_types_to_export</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="s2">&quot;ps&quot;</span><span class="p">],</span>
+    <span class="n">dct_data_paths</span><span class="o">=</span><span class="n">dct_paths</span><span class="p">,</span>
+    <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This function:</p>
+<ul class="simple">
+<li><p>Loads IP, OT, PS (and optionally RX) claims for each year</p></li>
+<li><p>Applies cohort filters to narrow the population</p></li>
+<li><p>Identifies patients with the specified diagnoses/procedures</p></li>
+<li><p>Exports filtered claim files for the matching cohort</p></li>
+</ul>
+</section>
+<section id="defining-diagnosis-and-procedure-codes">
+<h2>Defining Diagnosis and Procedure Codes<a class="headerlink" href="#defining-diagnosis-and-procedure-codes" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">dct_diag_proc_codes</span></code> dictionary supports three types of criteria:</p>
+<section id="diagnosis-codes">
+<h3>Diagnosis Codes<a class="headerlink" href="#diagnosis-codes" title="Link to this heading"></a></h3>
+<p>Use ICD-9 and/or ICD-10 codes with inclusion and exclusion logic:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dct_codes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;diag_codes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;diabetes_t2&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;250&quot;</span><span class="p">],</span>       <span class="c1"># ICD-9 prefix</span>
+                <span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E11&quot;</span><span class="p">],</span>      <span class="c1"># ICD-10 prefix</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;excl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;25001&quot;</span><span class="p">,</span> <span class="s2">&quot;25003&quot;</span><span class="p">,</span> <span class="s2">&quot;25011&quot;</span><span class="p">,</span> <span class="s2">&quot;25013&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;25021&quot;</span><span class="p">,</span> <span class="s2">&quot;25023&quot;</span><span class="p">,</span> <span class="s2">&quot;25031&quot;</span><span class="p">,</span> <span class="s2">&quot;25033&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;25041&quot;</span><span class="p">,</span> <span class="s2">&quot;25043&quot;</span><span class="p">,</span> <span class="s2">&quot;25051&quot;</span><span class="p">,</span> <span class="s2">&quot;25053&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;25061&quot;</span><span class="p">,</span> <span class="s2">&quot;25063&quot;</span><span class="p">,</span> <span class="s2">&quot;25071&quot;</span><span class="p">,</span> <span class="s2">&quot;25073&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;25081&quot;</span><span class="p">,</span> <span class="s2">&quot;25083&quot;</span><span class="p">,</span> <span class="s2">&quot;25091&quot;</span><span class="p">,</span> <span class="s2">&quot;25093&quot;</span><span class="p">],</span>
+                <span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E10&quot;</span><span class="p">],</span>      <span class="c1"># Exclude Type 1</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;proc_codes&quot;</span><span class="p">:</span> <span class="p">{},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Codes are matched using <strong>prefix matching</strong> – <code class="docutils literal notranslate"><span class="pre">&quot;250&quot;</span></code> matches <code class="docutils literal notranslate"><span class="pre">&quot;2500&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;25000&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;25002&quot;</span></code>, etc. Exclusion codes take precedence over inclusion codes.</p>
+</section>
+<section id="procedure-codes">
+<h3>Procedure Codes<a class="headerlink" href="#procedure-codes" title="Link to this heading"></a></h3>
+<p>Procedure codes are keyed by procedure coding system:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dct_codes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;diag_codes&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s2">&quot;proc_codes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;methadone&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="mi">7</span><span class="p">:</span> <span class="p">[</span>  <span class="c1"># ICD-10-PCS (system code 7)</span>
+                <span class="s2">&quot;HZ81ZZZ&quot;</span><span class="p">,</span> <span class="s2">&quot;HZ84ZZZ&quot;</span><span class="p">,</span> <span class="s2">&quot;HZ85ZZZ&quot;</span><span class="p">,</span> <span class="s2">&quot;HZ86ZZZ&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;HZ91ZZZ&quot;</span><span class="p">,</span> <span class="s2">&quot;HZ94ZZZ&quot;</span><span class="p">,</span> <span class="s2">&quot;HZ95ZZZ&quot;</span><span class="p">,</span> <span class="s2">&quot;HZ96ZZZ&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Common procedure system codes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> – CPT/HCPCS</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">6</span></code> – ICD-9-CM procedure</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">7</span></code> – ICD-10-PCS</p></li>
+</ul>
+</section>
+<section id="column-value-conditions">
+<h3>Column Value Conditions<a class="headerlink" href="#column-value-conditions" title="Link to this heading"></a></h3>
+<p>You can also flag patients based on specific column values:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dct_codes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;diag_codes&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s2">&quot;proc_codes&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s2">&quot;column_values&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;diag_delivery&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;RCPNT_DLVRY_CD&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span>  <span class="c1"># Delivery recipient code = 1</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="defining-filters">
+<h2>Defining Filters<a class="headerlink" href="#defining-filters" title="Link to this heading"></a></h2>
+<p>Filters control which claims and patients are included. The filter dictionary has two
+sections: <code class="docutils literal notranslate"><span class="pre">cohort</span></code> (applied before cohort identification) and <code class="docutils literal notranslate"><span class="pre">export</span></code> (applied when
+exporting claim files).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dct_filters</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;cohort&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ip&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;missing_dob&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>                          <span class="c1"># Exclude missing DOB</span>
+            <span class="s2">&quot;range_numeric_age_prncpl_proc&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>  <span class="c1"># Age 18-64</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;ot&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;missing_dob&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;range_numeric_age_srvc_bgn&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;export&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ip&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;missing_dob&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="filter-types">
+<h3>Filter Types<a class="headerlink" href="#filter-types" title="Link to this heading"></a></h3>
+<p><strong>Range filters</strong> restrict to a numeric or date range:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Numeric range (inclusive on both ends)</span>
+<span class="s2">&quot;range_numeric_age_srvc_bgn&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+
+<span class="c1"># Date range (YYYYMMDD format)</span>
+<span class="s2">&quot;range_date_srvc_bgn_date&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;20160101&quot;</span><span class="p">,</span> <span class="s2">&quot;20181231&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Exclusion filters</strong> remove patients with a positive exclusion flag:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Exclude female patients (excl_female column = 1)</span>
+<span class="s2">&quot;excl_female&quot;</span><span class="p">:</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p><strong>Column value filters</strong> restrict to rows with a specific value:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Keep only claims where missing_dob = 0</span>
+<span class="s2">&quot;missing_dob&quot;</span><span class="p">:</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="data-paths">
+<h2>Data Paths<a class="headerlink" href="#data-paths" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dct_paths</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;source_root&quot;</span><span class="p">:</span> <span class="s2">&quot;/data/cms/&quot;</span><span class="p">,</span>          <span class="c1"># Where raw claim files live</span>
+    <span class="s2">&quot;export_folder&quot;</span><span class="p">:</span> <span class="s2">&quot;/output/my_cohort/&quot;</span><span class="p">,</span> <span class="c1"># Where to write results</span>
+    <span class="s2">&quot;tmp_folder&quot;</span><span class="p">:</span> <span class="s2">&quot;/tmp/cohort_cache/&quot;</span><span class="p">,</span>    <span class="c1"># Optional intermediate cache</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="output-files">
+<h2>Output Files<a class="headerlink" href="#output-files" title="Link to this heading"></a></h2>
+<p>After extraction, the export folder contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cohort_{STATE}.csv</span></code> – patient-level file with condition flags, inclusion indicator,
+and date of birth</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cohort_{STATE}_{YEAR}.csv</span></code> – year-specific patient file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cohort_exclusions_{TYPE}_{STATE}_{YEAR}.parquet</span></code> – filter statistics showing how
+many claims were removed at each step</p></li>
+<li><p>Exported claim files in the requested format (CSV or Parquet)</p></li>
+</ul>
+</section>
+<section id="lower-level-functions">
+<h2>Lower-Level Functions<a class="headerlink" href="#lower-level-functions" title="Link to this heading"></a></h2>
+<p>For more control, you can use the building blocks directly:</p>
+<section id="flagging-diagnoses-and-procedures">
+<h3>Flagging Diagnoses and Procedures<a class="headerlink" href="#flagging-diagnoses-and-procedures" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.filters.claims</span><span class="w"> </span><span class="kn">import</span> <span class="n">dx_and_proc</span>
+
+<span class="c1"># Flag claims with specific diagnosis codes</span>
+<span class="n">df_flagged</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+    <span class="n">dct_diag_codes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;diabetes_t2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E11&quot;</span><span class="p">]}}},</span>
+    <span class="n">dct_proc_codes</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">df_claims</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Get patient IDs with conditions</span>
+<span class="n">pdf_patients</span><span class="p">,</span> <span class="n">dct_stats</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">get_patient_ids_with_conditions</span><span class="p">(</span>
+    <span class="n">dct_diag_codes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;diabetes_t2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E11&quot;</span><span class="p">]}}},</span>
+    <span class="n">dct_proc_codes</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">,</span>
+    <span class="n">ip</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">],</span>
+    <span class="n">ot</span><span class="o">=</span><span class="n">ot</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="flagging-prescriptions">
+<h3>Flagging Prescriptions<a class="headerlink" href="#flagging-prescriptions" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.filters.claims</span><span class="w"> </span><span class="kn">import</span> <span class="n">rx</span>
+
+<span class="c1"># Flag pharmacy claims by NDC codes</span>
+<span class="n">df_rx_flagged</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span>
+    <span class="n">dct_ndc_codes</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;metformin&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;00093727801&quot;</span><span class="p">,</span> <span class="s2">&quot;00093727901&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="n">df_claims</span><span class="o">=</span><span class="n">rx_claims</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="filtering-claim-files">
+<h3>Filtering Claim Files<a class="headerlink" href="#filtering-claim-files" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.filters.patients.cohort_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_claim_files</span>
+
+<span class="n">claim</span><span class="p">,</span> <span class="n">filter_stats</span> <span class="o">=</span> <span class="n">filter_claim_files</span><span class="p">(</span>
+    <span class="n">claim</span><span class="o">=</span><span class="n">ip</span><span class="p">,</span>
+    <span class="n">dct_claim_filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ip&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;missing_dob&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+    <span class="n">tmp_folder</span><span class="o">=</span><span class="s2">&quot;/tmp/cache&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="preprocessing.html" class="btn btn-neutral float-left" title="Preprocessing Claims" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="risk_adjustment.html" class="btn btn-neutral float-right" title="Risk Adjustment &amp; Clinical Algorithms" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

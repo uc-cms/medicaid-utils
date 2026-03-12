@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -74,16 +95,47 @@
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;manorathan@uchicago.edu&quot;</span>
 
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
 
 
-<div class="viewcode-block" id="fix_index"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.fix_index">[docs]</a><span class="k">def</span> <span class="nf">fix_index</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">index_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">drop_column</span><span class="o">=</span><span class="kc">True</span>
+<div class="viewcode-block" id="fix_index">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.fix_index">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fix_index</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">index_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">drop_column</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set or fix the index of a dask DataFrame.</span>
+
+<span class="sd">    Ensures the DataFrame is indexed by the specified column. If the</span>
+<span class="sd">    DataFrame already has the correct index with known divisions, it</span>
+<span class="sd">    optionally drops or keeps the index column.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : dask.DataFrame</span>
+<span class="sd">        Input dask DataFrame.</span>
+<span class="sd">    index_name : str</span>
+<span class="sd">        Name of the column to use as the index.</span>
+<span class="sd">    drop_column : bool, default=True</span>
+<span class="sd">        Whether to drop the index column from the DataFrame columns.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dask.DataFrame</span>
+<span class="sd">        DataFrame with the specified index set.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Requires a dask DataFrame with an &#39;MSIS_ID&#39; column</span>
+<span class="sd">    &gt;&gt;&gt; df = fix_index(df, &#39;MSIS_ID&#39;)  # doctest: +SKIP</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">index_name</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">divisions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">index_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">index_name</span><span class="p">:</span>
@@ -98,12 +150,47 @@
     <span class="k">return</span> <span class="n">df</span></div>
 
 
-<div class="viewcode-block" id="EDPreventionQualityIndicators"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.EDPreventionQualityIndicators">[docs]</a><span class="k">class</span> <span class="nc">EDPreventionQualityIndicators</span><span class="p">:</span>
+
+<div class="viewcode-block" id="EDPreventionQualityIndicators">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.EDPreventionQualityIndicators">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EDPreventionQualityIndicators</span><span class="p">:</span>
     <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
     <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="EDPreventionQualityIndicators.get_patient_exclusion_indicators"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.EDPreventionQualityIndicators.get_patient_exclusion_indicators">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_patient_exclusion_indicators</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df_ip</span><span class="p">,</span> <span class="n">df_ot</span><span class="p">,</span> <span class="n">df_ps</span><span class="p">):</span>
+<div class="viewcode-block" id="EDPreventionQualityIndicators.get_patient_exclusion_indicators">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.EDPreventionQualityIndicators.get_patient_exclusion_indicators">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_patient_exclusion_indicators</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df_ip</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_ot</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_ps</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate patient-level exclusion indicators for ED PQI measures.</span>
+
+<span class="sd">        Flags disease-related diagnoses across IP and OT claims, aggregates</span>
+<span class="sd">        them to the patient level, and merges with the PS (personal summary)</span>
+<span class="sd">        file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df_ip : dask.DataFrame</span>
+<span class="sd">            Inpatient claims DataFrame.</span>
+<span class="sd">        df_ot : dask.DataFrame</span>
+<span class="sd">            Outpatient claims DataFrame.</span>
+<span class="sd">        df_ps : dask.DataFrame</span>
+<span class="sd">            Personal summary DataFrame with demographic columns.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            Patient-level DataFrame with exclusion indicator columns.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires IP, OT, and PS dask DataFrames with diagnosis columns</span>
+<span class="sd">        &gt;&gt;&gt; df_ps = EDPreventionQualityIndicators.get_patient_exclusion_indicators(  # doctest: +SKIP</span>
+<span class="sd">        ...     df_ip, df_ot, df_ps)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pdf_icd9_diseases</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;icd9_codes.xlsx&quot;</span><span class="p">),</span>
             <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;disease_diagnoses&quot;</span><span class="p">,</span>
@@ -123,7 +210,9 @@
             <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">flag_disease_diagnoses</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">dct_conditions</span><span class="p">,</span> <span class="n">dct_edvst_cat</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">flag_disease_diagnoses</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dct_conditions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dct_edvst_cat</span><span class="p">:</span> <span class="nb">dict</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
                 <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
                     <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
@@ -226,7 +315,9 @@
             <span class="s2">&quot;cellulitis_with_diabetes&quot;</span><span class="p">,</span>
         <span class="p">]</span>
 
-        <span class="k">def</span> <span class="nf">agg_conditions_to_patient_level</span><span class="p">(</span><span class="n">pdf_claims</span><span class="p">,</span> <span class="n">lst_conditions</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">agg_conditions_to_patient_level</span><span class="p">(</span>
+            <span class="n">pdf_claims</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_conditions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pdf_claims</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
                 <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
                     <span class="p">[</span>
@@ -282,10 +373,42 @@
         <span class="n">fix_index</span><span class="p">(</span><span class="n">df_ps</span><span class="p">,</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df_ps</span></div>
 
-<div class="viewcode-block" id="EDPreventionQualityIndicators.flag_potentially_preventable_ed_visits"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.EDPreventionQualityIndicators.flag_potentially_preventable_ed_visits">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">flag_potentially_preventable_ed_visits</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">df_ed</span><span class="p">,</span> <span class="n">df_ps</span><span class="p">,</span> <span class="n">months_restricted</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">):</span>
+
+<div class="viewcode-block" id="EDPreventionQualityIndicators.flag_potentially_preventable_ed_visits">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.EDPreventionQualityIndicators.flag_potentially_preventable_ed_visits">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flag_potentially_preventable_ed_visits</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df_ed</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_ps</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">months_restricted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Flag potentially preventable ED visits using PQI criteria.</span>
+
+<span class="sd">        Categorizes ED visits by condition type (acute ACSC, chronic ACSC,</span>
+<span class="sd">        dental, asthma, back pain), applies age and diagnosis-based</span>
+<span class="sd">        exclusions, and aggregates counts and costs at the patient level.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df_ed : dask.DataFrame</span>
+<span class="sd">            ED claims DataFrame with diagnosis and payment columns.</span>
+<span class="sd">        df_ps : dask.DataFrame</span>
+<span class="sd">            Patient-level DataFrame with exclusion indicators.</span>
+<span class="sd">        months_restricted : bool, default=False</span>
+<span class="sd">            Whether to restrict to valid enrollment months.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            Patient-level DataFrame with PQI ED visit count and cost columns.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires ED and PS dask DataFrames with required columns</span>
+<span class="sd">        &gt;&gt;&gt; df_ed = EDPreventionQualityIndicators.flag_potentially_preventable_ed_visits(  # doctest: +SKIP</span>
+<span class="sd">        ...     df_ed, df_ps, months_restricted=False)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pdf_icd9_diseases</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;icd9_codes.xlsx&quot;</span><span class="p">),</span>
             <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;disease_diagnoses&quot;</span><span class="p">,</span>
@@ -305,7 +428,7 @@
             <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">months_restricted</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">months_restricted</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="n">df_ed</span><span class="p">[</span><span class="s2">&quot;valid_month&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="n">lst_claimtype</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span>
@@ -314,9 +437,10 @@
 
         <span class="n">fix_index</span><span class="p">(</span><span class="n">df_ed</span><span class="p">,</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">mptn_categorise_ed_visits</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">dct_edvst_cat</span><span class="p">,</span> <span class="n">dct_conditions</span><span class="p">):</span>
-
-            <span class="c1">### Adding indicator and cost columns for each of PQI ED covered disease conditions</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">mptn_categorise_ed_visits</span><span class="p">(</span>
+            <span class="n">pdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dct_edvst_cat</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dct_conditions</span><span class="p">:</span> <span class="nb">dict</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+            <span class="c1"># Adding indicator and cost columns for each of PQI ED covered disease conditions</span>
             <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
                 <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
                     <span class="p">[</span>
@@ -342,8 +466,8 @@
                     <span class="p">]</span>
                 <span class="p">)</span>
             <span class="p">)</span>
-            <span class="c1">### Lower respiratory infection related ED visits: first-listed diagnosis for Lower respiratory infection</span>
-            <span class="c1">### and 2) a second-listed diagnosis of COPD or asthma.</span>
+            <span class="c1"># Lower respiratory infection related ED visits: first-listed diagnosis for Lower respiratory infection</span>
+            <span class="c1"># and 2) a second-listed diagnosis of COPD or asthma.</span>
             <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
                 <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
                     <span class="p">[</span>
@@ -422,10 +546,10 @@
                 <span class="p">)</span>
             <span class="p">)</span>
 
-            <span class="c1">### Subsetting claims that meet months restriction</span>
+            <span class="c1"># Subsetting claims that meet months restriction</span>
             <span class="n">pdf_months_restricted</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;valid_month&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
 
-            <span class="c1">### Aggregating claims to day level</span>
+            <span class="c1"># Aggregating claims to day level</span>
             <span class="n">pdf</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;DATE&quot;</span><span class="p">])</span>
                 <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
@@ -444,7 +568,7 @@
                 <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span>
             <span class="p">)</span>
 
-            <span class="c1">### Aggregating claims to patient level</span>
+            <span class="c1"># Aggregating claims to patient level</span>
             <span class="n">pdf</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
                 <span class="o">**</span><span class="nb">dict</span><span class="p">(</span>
                     <span class="p">[</span>
@@ -587,7 +711,7 @@
                                         <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;Female&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
                                         <span class="o">&amp;</span> <span class="p">(</span>
                                             <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
-                                                <span class="mi">18</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="kc">True</span>
+                                                <span class="mi">18</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span>
                                             <span class="p">)</span>
                                         <span class="p">)</span>
                                         <span class="o">&amp;</span> <span class="p">(</span>
@@ -618,7 +742,7 @@
                             <span class="n">pdf</span><span class="p">[</span>
                                 <span class="n">claim_type</span> <span class="o">+</span> <span class="s2">&quot;edvst_&quot;</span> <span class="o">+</span> <span class="n">condn</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">agg_type</span>
                             <span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                                <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                                <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">39</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
                                 <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_cystic_fibrosis&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
                                 <span class="o">&amp;</span> <span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;diag_pneumonia&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span>
                                 <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
@@ -702,10 +826,48 @@
                 <span class="p">)</span>
             <span class="p">]</span>
         <span class="p">]</span>
-        <span class="k">return</span> <span class="n">df_ed</span></div></div>
+        <span class="k">return</span> <span class="n">df_ed</span></div>
+</div>
 
 
-<div class="viewcode-block" id="get_ed_pqis"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.get_ed_pqis">[docs]</a><span class="k">def</span> <span class="nf">get_ed_pqis</span><span class="p">(</span><span class="n">df_ip</span><span class="p">,</span> <span class="n">df_ot</span><span class="p">,</span> <span class="n">df_ps</span><span class="p">,</span> <span class="n">df_ed</span><span class="p">,</span> <span class="n">restrict_months</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_ed_pqis">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ed_pqi.html#medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi.get_ed_pqis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ed_pqis</span><span class="p">(</span>
+    <span class="n">df_ip</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_ot</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_ps</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">df_ed</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">restrict_months</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute ED Prevention Quality Indicators for a given set of claims.</span>
+
+<span class="sd">    This is the main entry point that creates patient-level exclusion</span>
+<span class="sd">    indicators from IP and OT claims, then flags potentially preventable</span>
+<span class="sd">    ED visits.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df_ip : dask.DataFrame</span>
+<span class="sd">        Inpatient claims DataFrame.</span>
+<span class="sd">    df_ot : dask.DataFrame</span>
+<span class="sd">        Outpatient claims DataFrame.</span>
+<span class="sd">    df_ps : dask.DataFrame</span>
+<span class="sd">        Personal summary DataFrame.</span>
+<span class="sd">    df_ed : dask.DataFrame</span>
+<span class="sd">        ED claims DataFrame.</span>
+<span class="sd">    restrict_months : bool, default=False</span>
+<span class="sd">        Whether to restrict to valid enrollment months.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dask.DataFrame</span>
+<span class="sd">        Patient-level DataFrame with ED PQI measures.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Requires IP, OT, PS, and ED dask DataFrames</span>
+<span class="sd">    &gt;&gt;&gt; df_ed_pqi = get_ed_pqis(df_ip, df_ot, df_ps, df_ed)  # doctest: +SKIP</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df_ps</span> <span class="o">=</span> <span class="n">EDPreventionQualityIndicators</span><span class="o">.</span><span class="n">get_patient_exclusion_indicators</span><span class="p">(</span>
         <span class="n">df_ip</span><span class="p">,</span> <span class="n">df_ot</span><span class="p">,</span> <span class="n">df_ps</span>
     <span class="p">)</span>
@@ -715,6 +877,7 @@
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df_ed</span></div>
+
 </pre></div>
 
            </div>
@@ -724,7 +887,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

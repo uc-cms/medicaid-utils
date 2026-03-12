@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -67,23 +88,51 @@
              
   <h1>Source code for medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;This a python package for computing Elixhauser comorbidity score&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
 
 
-<div class="viewcode-block" id="ElixhauserScoring"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_elixhauser.html#medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity.ElixhauserScoring">[docs]</a><span class="k">class</span> <span class="nc">ElixhauserScoring</span><span class="p">:</span>
+<div class="viewcode-block" id="ElixhauserScoring">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_elixhauser.html#medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity.ElixhauserScoring">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ElixhauserScoring</span><span class="p">:</span>
     <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
     <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ElixhauserScoring.flag_comorbidities"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_elixhauser.html#medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity.ElixhauserScoring.flag_comorbidities">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">flag_comorbidities</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_diag_col_name</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;MAX&quot;</span>
+<div class="viewcode-block" id="ElixhauserScoring.flag_comorbidities">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_elixhauser.html#medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity.ElixhauserScoring.flag_comorbidities">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flag_comorbidities</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_diag_col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MAX&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Flag Elixhauser comorbidity groups based on diagnosis codes.</span>
+
+<span class="sd">        Adds 31 binary columns (ELX_GRP_1 through ELX_GRP_31) indicating</span>
+<span class="sd">        the presence of each Elixhauser comorbidity group.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            Bene-level DataFrame with a diagnosis code list column.</span>
+<span class="sd">        lst_diag_col_name : str</span>
+<span class="sd">            Column name containing comma-separated diagnosis codes.</span>
+<span class="sd">        cms_format : {&#39;MAX&#39;, &#39;TAF&#39;}, default=&#39;MAX&#39;</span>
+<span class="sd">            CMS file format, determines ICD-9 vs ICD-10 mapping.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            DataFrame with ELX_GRP columns appended.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires a dask DataFrame with diagnosis codes</span>
+<span class="sd">        &gt;&gt;&gt; df = ElixhauserScoring.flag_comorbidities(  # doctest: +SKIP</span>
+<span class="sd">        ...     df, &#39;LST_DIAG_CD&#39;, cms_format=&#39;MAX&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df_icd_mapping</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span>
@@ -127,24 +176,54 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="ElixhauserScoring.calculate_final_score"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_elixhauser.html#medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity.ElixhauserScoring.calculate_final_score">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">calculate_final_score</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">output_column_name</span><span class="o">=</span><span class="s2">&quot;elixhauser_score&quot;</span>
+
+<div class="viewcode-block" id="ElixhauserScoring.calculate_final_score">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_elixhauser.html#medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity.ElixhauserScoring.calculate_final_score">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_final_score</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">output_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elixhauser_score&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the final Elixhauser comorbidity score.</span>
+
+<span class="sd">        Sums the 31 ELX_GRP binary columns into a single integer score.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            DataFrame with ELX_GRP_1 through ELX_GRP_31 columns.</span>
+<span class="sd">        output_column_name : str, default=&#39;elixhauser_score&#39;</span>
+<span class="sd">            Name for the output score column.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            DataFrame with the score column appended.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires a dask DataFrame with ELX_GRP columns</span>
+<span class="sd">        &gt;&gt;&gt; df = ElixhauserScoring.calculate_final_score(df)  # doctest: +SKIP</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span><span class="p">[</span><span class="n">output_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;ELX_GRP_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">)]]</span>
             <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span></div></div>
+        <span class="k">return</span> <span class="n">df</span></div>
+</div>
 
 
-<div class="viewcode-block" id="score"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_elixhauser.html#medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity.score">[docs]</a><span class="k">def</span> <span class="nf">score</span><span class="p">(</span>
+
+<div class="viewcode-block" id="score">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_elixhauser.html#medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity.score">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">lst_diag_col_name</span><span class="p">,</span>
-    <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;MAX&quot;</span><span class="p">,</span>
-    <span class="n">output_column_name</span><span class="o">=</span><span class="s2">&quot;elixhauser_score&quot;</span><span class="p">,</span>
+    <span class="n">lst_diag_col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MAX&quot;</span><span class="p">,</span>
+    <span class="n">output_column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elixhauser_score&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes Elixhauser score for the benes in the input dataframe. The input dataframe should be at bene level, with</span>
@@ -165,12 +244,18 @@
 <span class="sd">    -------</span>
 <span class="sd">    dask.DataFrame</span>
 
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Requires a bene-level dask DataFrame with diagnosis codes</span>
+<span class="sd">    &gt;&gt;&gt; df = score(df, &#39;LST_DIAG_CD&#39;, cms_format=&#39;MAX&#39;)  # doctest: +SKIP</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">ElixhauserScoring</span><span class="o">.</span><span class="n">flag_comorbidities</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span> <span class="n">lst_diag_col_name</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="n">cms_format</span>
     <span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">ElixhauserScoring</span><span class="o">.</span><span class="n">calculate_final_score</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">output_column_name</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
+
 </pre></div>
 
            </div>
@@ -180,7 +265,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

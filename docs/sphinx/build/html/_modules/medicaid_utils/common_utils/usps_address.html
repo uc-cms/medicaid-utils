@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.common_utils.usps_address &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.common_utils.usps_address</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.common_utils.usps_address</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -75,19 +96,21 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c1"># Imports #####################################################################</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">xml.dom.minidom</span>
-<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">xml_et</span>
-<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xml.dom.minidom</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xml.etree.ElementTree</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xml_et</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
 
-<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 
 <span class="n">load_dotenv</span><span class="p">()</span>
 <span class="c1"># Globals #####################################################################</span>
 <span class="n">USPS_USERID</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;USPS_USERID&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="dump_xml"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.dump_xml">[docs]</a><span class="k">def</span> <span class="nf">dump_xml</span><span class="p">(</span><span class="n">raw_xml</span><span class="p">):</span>
+<div class="viewcode-block" id="dump_xml">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.dump_xml">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dump_xml</span><span class="p">(</span><span class="n">raw_xml</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a string representation of XML with proper intendation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -97,7 +120,10 @@
     <span class="k">return</span> <span class="n">xml</span><span class="o">.</span><span class="n">dom</span><span class="o">.</span><span class="n">minidom</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">raw_xml</span><span class="p">)</span><span class="o">.</span><span class="n">toprettyxml</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="get_text"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.get_text">[docs]</a><span class="k">def</span> <span class="nf">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">xpath</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_text">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.get_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_text</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">xpath</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the text of the XPath element, or None if the element was not found.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -109,10 +135,13 @@
     <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="USPSAddress"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress">[docs]</a><span class="k">class</span> <span class="nc">USPSAddress</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="USPSAddress">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">USPSAddress</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Representation of an United States Postal Service address.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">suite</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">street</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">zip5</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">zip4</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -125,14 +154,19 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-<div class="viewcode-block" id="USPSAddress.zipcode"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress.zipcode">[docs]</a>    <span class="k">def</span> <span class="nf">zipcode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="USPSAddress.zipcode">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress.zipcode">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">zipcode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the zipcode based on whether or not `zip4` is used.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip4</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">-</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zip5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip4</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zip5</span></div>
 
-<div class="viewcode-block" id="USPSAddress.original"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress.original">[docs]</a>    <span class="k">def</span> <span class="nf">original</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="USPSAddress.original">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress.original">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">original</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the non-standardized address format&quot;&quot;&quot;</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -143,7 +177,10 @@
 
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">if</span> <span class="n">x</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="USPSAddress.standardized"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress.standardized">[docs]</a>    <span class="k">def</span> <span class="nf">standardized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="USPSAddress.standardized">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSAddress.standardized">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">standardized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the standardized address format&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span>
@@ -187,10 +224,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">if</span> <span class="n">x</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_warning</span> <span class="o">=</span> <span class="n">warning</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_error</span> <span class="o">=</span> <span class="n">error</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_standardized</span></div>
+</div>
 
 
-<div class="viewcode-block" id="USPSShippingAPI"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSShippingAPI">[docs]</a><span class="k">class</span> <span class="nc">USPSShippingAPI</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="USPSShippingAPI">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSShippingAPI">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">USPSShippingAPI</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Representation of the USPS Shipping API</span>
 <span class="sd">    https://www.usps.com/business/web-tools-apis/address-information-api.htm</span>
@@ -198,18 +239,20 @@
 
     <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://production.shippingapis.com/ShippingAPI.dll&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">,</span> <span class="n">userid</span><span class="o">=</span><span class="n">USPS_USERID</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">,</span> <span class="n">userid</span><span class="o">=</span><span class="n">USPS_USERID</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">userid</span> <span class="o">=</span> <span class="n">userid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">api</span>
 
-    <span class="k">def</span> <span class="nf">_xml_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_xml_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Child classes should override this to return a string appropriate for</span>
 <span class="sd">        its API.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Must override this function!&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="USPSShippingAPI.send_request"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSShippingAPI.send_request">[docs]</a>    <span class="k">def</span> <span class="nf">send_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="USPSShippingAPI.send_request">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.USPSShippingAPI.send_request">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">send_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Send the request and return the XML response.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -232,17 +275,21 @@
         <span class="n">warning</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.//ReturnText&quot;</span><span class="p">)</span>
         <span class="n">warning</span> <span class="o">=</span> <span class="n">warning</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">warning</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">root</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">error</span></div></div>
+        <span class="k">return</span> <span class="n">root</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">error</span></div>
+</div>
 
 
-<div class="viewcode-block" id="AddressStandardizationWebTool"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool">[docs]</a><span class="k">class</span> <span class="nc">AddressStandardizationWebTool</span><span class="p">(</span><span class="n">USPSShippingAPI</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AddressStandardizationWebTool">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AddressStandardizationWebTool</span><span class="p">(</span><span class="n">USPSShippingAPI</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object to get a standardized USPS Address.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">api</span> <span class="o">=</span> <span class="s2">&quot;Verify&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">street</span><span class="p">,</span>
         <span class="n">city</span><span class="p">,</span>
@@ -265,7 +312,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">zip5</span> <span class="o">=</span> <span class="n">zip5</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">zip4</span> <span class="o">=</span> <span class="n">zip4</span>
 
-<div class="viewcode-block" id="AddressStandardizationWebTool.get_standardized_address"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool.get_standardized_address">[docs]</a>    <span class="k">def</span> <span class="nf">get_standardized_address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AddressStandardizationWebTool.get_standardized_address">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.usps_address.AddressStandardizationWebTool.get_standardized_address">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_standardized_address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a standardized format of the object&#39;s address.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -283,7 +332,8 @@
             <span class="p">}</span>
         <span class="k">return</span> <span class="n">standardized</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">error</span></div>
 
-    <span class="k">def</span> <span class="nf">_xml_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_xml_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the appropriate XML format for an &#39;Address Standardization Web</span>
 <span class="sd">        Tool&#39; request.</span>
@@ -333,6 +383,7 @@
         <span class="n">root</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">xml_et</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">root</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>
@@ -342,7 +393,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

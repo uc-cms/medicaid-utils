@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.preprocessing.taf_file &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.preprocessing.taf_file</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.preprocessing.taf_file</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -68,23 +89,26 @@
   <h1>Source code for medicaid_utils.preprocessing.taf_file</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;This module has TAFFile class from which is the base class for all TAF</span>
 <span class="sd">file type classes&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">errno</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">errno</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">medicaid_utils.common_utils</span> <span class="kn">import</span> <span class="n">dataframe_utils</span><span class="p">,</span> <span class="n">links</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.common_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataframe_utils</span><span class="p">,</span> <span class="n">links</span>
 
 
-<div class="viewcode-block" id="TAFFile"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile">[docs]</a><span class="k">class</span> <span class="nc">TAFFile</span><span class="p">:</span>
+<div class="viewcode-block" id="TAFFile">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TAFFile</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parent class for all TAF file classes, each of which will have clean</span>
 <span class="sd">    and preprocess functions&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ftype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -93,9 +117,9 @@
         <span class="n">index_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BENE_MSIS&quot;</span><span class="p">,</span>
         <span class="n">clean</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">preprocess</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">tmp_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tmp_folder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pq_engine</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes TAF file object by preloading and preprocessing(if opted</span>
 <span class="sd">        in) the associated files</span>
@@ -129,6 +153,11 @@
 <span class="sd">        FileNotFoundError</span>
 <span class="sd">            Raised when any of the subtype files are missing</span>
 
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;)  # doctest: +SKIP</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_root</span> <span class="o">=</span> <span class="n">data_root</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dct_fileloc</span> <span class="o">=</span> <span class="n">links</span><span class="o">.</span><span class="n">get_taf_parquet_loc</span><span class="p">(</span>
@@ -147,10 +176,19 @@
             <span class="s2">&quot;waiver&quot;</span><span class="p">,</span>
             <span class="s2">&quot;home_health&quot;</span><span class="p">,</span>
             <span class="s2">&quot;managed_care&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;line_ndc_codes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;base_diag_codes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;diag_and_ndc_codes&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">non_core_ftypes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;line_ndc_codes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;base_diag_codes&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;diag_and_ndc_codes&quot;</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">for</span> <span class="n">subtype</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dct_fileloc</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dct_fileloc</span><span class="p">[</span><span class="n">subtype</span><span class="p">]):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subtype</span><span class="si">}</span><span class="s2"> does not exist for </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">subtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">non_core_ftypes</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> does not exist for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">subtype</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">subtype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_missing_ftypes</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
                         <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">,</span>
@@ -158,12 +196,43 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">dct_fileloc</span><span class="p">[</span><span class="n">subtype</span><span class="p">],</span>
                     <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dct_fileloc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">subtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">has_bene</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">sorted_index</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># if (year not in [2015, 2016]) else False</span>
+        <span class="k">for</span> <span class="n">ftype</span><span class="p">,</span> <span class="n">file_loc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_fileloc</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">file_loc</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pq_engine</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;BENE_MSIS&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="n">HAS_BENE</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;BENE_ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                        <span class="nb">int</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">has_bene</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">sorted_index</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">BENE_MSIS</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="s2">&quot;-&quot;</span>
+                        <span class="o">+</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;HAS_BENE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="s2">&quot;-&quot;</span>
+                        <span class="o">+</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;BENE_ID&quot;</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;BENE_ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;MSIS_ID&quot;</span><span class="p">])</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_bene</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span> <span class="o">=</span> <span class="n">index_col</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">ftype</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
-                <span class="n">file_loc</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pq_engine</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">,</span> <span class="nb">sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">ftype</span><span class="p">,</span> <span class="n">file_loc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_fileloc</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="n">ftype</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">,</span> <span class="nb">sorted</span><span class="o">=</span><span class="n">sorted_index</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">ftype</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_fileloc</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sorted_index</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dct_collist</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">ftype</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">claim_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
@@ -178,10 +247,12 @@
         <span class="k">if</span> <span class="n">preprocess</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
 
-<div class="viewcode-block" id="TAFFile.get_claim_instance"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.get_claim_instance">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_claim_instance</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">claim_type</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">):</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+<div class="viewcode-block" id="TAFFile.get_claim_instance">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.get_claim_instance">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_claim_instance</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">claim_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TAFFile&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an instance of the requested claim type</span>
 
@@ -194,6 +265,11 @@
 <span class="sd">        **kwargs : dict</span>
 <span class="sd">            Dictionary of keyword arguments</span>
 
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; ip_claim = TAFFile.get_claim_instance(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;)  # doctest: +SKIP</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span>
             <span class="n">claim</span>
@@ -201,9 +277,32 @@
             <span class="k">if</span> <span class="n">claim</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="sa">f</span><span class="s2">&quot;TAF</span><span class="si">{</span><span class="n">claim_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TAFFile.cache_results"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.cache_results">[docs]</a>    <span class="k">def</span> <span class="nf">cache_results</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">subtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">repartition</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">):</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+
+<div class="viewcode-block" id="TAFFile.add_custom_subtype">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.add_custom_subtype">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_custom_subtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subtype_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">df_file</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add custom subtype file to claim object.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; import dask.dataframe as dd  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; df = dd.from_pandas(pd.DataFrame({&#39;col&#39;: [1]}), npartitions=1)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.add_custom_subtype(&#39;my_subtype&#39;, df)  # doctest: +SKIP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_fileloc</span><span class="p">[</span><span class="n">subtype_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">links</span><span class="o">.</span><span class="n">get_taf_parquet_loc</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span>
+        <span class="p">)[</span><span class="n">subtype_name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">subtype_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_file</span></div>
+
+
+<div class="viewcode-block" id="TAFFile.cache_results">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.cache_results">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cache_results</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">subtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">repartition</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save results in intermediate steps of some lengthy processing.</span>
 <span class="sd">        Saving intermediate results speeds up processing, and avoid dask</span>
@@ -216,23 +315,27 @@
 <span class="sd">        repartition : bool, default=False</span>
 <span class="sd">            Repartition the dask dataframe</span>
 
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;, tmp_folder=&#39;/tmp/cache&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.cache_results(subtype=&#39;base&#39;)  # doctest: +SKIP</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">f_subtype</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">subtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">f_subtype</span> <span class="o">!=</span> <span class="n">subtype</span><span class="p">):</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmp_folder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">repartition</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">f_subtype</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">f_subtype</span><span class="p">]</span>
-                        <span class="o">.</span><span class="n">repartition</span><span class="p">(</span><span class="n">partition_size</span><span class="o">=</span><span class="s2">&quot;20MB&quot;</span><span class="p">)</span>
-                        <span class="o">.</span><span class="n">persist</span><span class="p">()</span>
-                    <span class="p">)</span>  <span class="c1"># Patch, currently to_parquet results</span>
-                    <span class="c1"># in error when any of the partitions is empty</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pq_export</span><span class="p">(</span>
-                    <span class="n">f_subtype</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_folder</span><span class="p">,</span> <span class="n">f_subtype</span><span class="p">)</span>
+                    <span class="n">f_subtype</span><span class="p">,</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_folder</span><span class="p">,</span> <span class="n">f_subtype</span><span class="p">),</span>
+                    <span class="n">repartition</span><span class="o">=</span><span class="n">repartition</span><span class="p">,</span>
                 <span class="p">)</span></div>
 
-<div class="viewcode-block" id="TAFFile.pq_export"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.pq_export">[docs]</a>    <span class="k">def</span> <span class="nf">pq_export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_subtype</span><span class="p">,</span> <span class="n">dest_path_and_fname</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TAFFile.pq_export">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.pq_export">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pq_export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_subtype</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dest_path_and_fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">repartition</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Export parquet files (overwrite safe)</span>
 
@@ -242,8 +345,36 @@
 <span class="sd">            File type. Eg. &#39;header&#39;</span>
 <span class="sd">        dest_path_and_fname : str</span>
 <span class="sd">            Destination path</span>
+<span class="sd">        repartition : bool, default=False</span>
+<span class="sd">            Repartition the dask dataframe</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.pq_export(&#39;base&#39;, &#39;/tmp/output/base&#39;)  # doctest: +SKIP</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">repartition</span><span class="p">:</span>  <span class="c1"># and (f_subtype != &quot;dates&quot;):  # patch for dates files</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">f_subtype</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">f_subtype</span><span class="p">]</span><span class="o">.</span><span class="n">repartition</span><span class="p">(</span>
+                <span class="n">partition_size</span><span class="o">=</span><span class="s2">&quot;100MB&quot;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">(</span><span class="n">f_subtype</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">f_subtype</span><span class="p">]</span><span class="o">.</span><span class="n">known_divisions</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">f_subtype</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">f_subtype</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="o">**</span><span class="p">{</span>
+                            <span class="sa">f</span><span class="s2">&quot;new_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span>
+                                <span class="n">f_subtype</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">index</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;new_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">f_subtype</span><span class="p">]</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span>
+                    <span class="n">f_subtype</span>
+                <span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dest_path_and_fname</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">dest_path_and_fname</span> <span class="o">+</span> <span class="s2">&quot;_tmp&quot;</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -259,11 +390,6 @@
                 <span class="o">.</span><span class="n">difference</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">pq_engine</span><span class="p">])</span>
                 <span class="o">.</span><span class="n">pop</span><span class="p">(),</span>
                 <span class="n">write_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="c1"># **(</span>
-                <span class="c1">#     {&quot;schema&quot;: &quot;infer&quot;}</span>
-                <span class="c1">#     if (self.pq_engine == &quot;pyarrow&quot;)</span>
-                <span class="c1">#     else {}</span>
-                <span class="c1"># ),</span>
             <span class="p">)</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">f_subtype</span><span class="p">]</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">dest_path_and_fname</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -282,19 +408,43 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">index_col</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="TAFFile.clean"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TAFFile.clean">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Cleaning routines to processes date and gender columns, and add</span>
-<span class="sd">        duplicate check flags.&quot;&quot;&quot;</span>
+<span class="sd">        duplicate check flags.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;, clean=False)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.clean()  # doctest: +SKIP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process_date_cols</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flag_duplicates</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_duplicates</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="TAFFile.preprocess"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add basic constructed variables&quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="TAFFile.export"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.export">[docs]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">dest_folder</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span>
-    <span class="p">):</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+<div class="viewcode-block" id="TAFFile.preprocess">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.preprocess">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add basic constructed variables.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;, preprocess=False)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.preprocess()  # doctest: +SKIP</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="TAFFile.export">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.export">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dest_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="n">repartition</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Exports the files.</span>
 
@@ -304,6 +454,14 @@
 <span class="sd">            Destination folder</span>
 <span class="sd">        output_format : str, default=&#39;csv&#39;</span>
 <span class="sd">            Export format. Csv is the currently supported format</span>
+<span class="sd">        repartition : bool, default=False</span>
+<span class="sd">            Repartition the dask dataframe</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.export(&#39;/tmp/output&#39;, output_format=&#39;csv&#39;)  # doctest: +SKIP</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lst_subtype</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -323,46 +481,100 @@
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="n">dest_folder</span><span class="p">,</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">dct_fileloc</span><span class="p">[</span><span class="n">subtype</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">data_root</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">data_root</span>
+                            <span class="o">+</span> <span class="p">(</span>
+                                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span>
+                                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_root</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
+                                <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                            <span class="p">)</span>
                         <span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
                     <span class="p">),</span>
+                    <span class="n">repartition</span><span class="o">=</span><span class="n">repartition</span>
+                    <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">subtype</span><span class="p">]</span><span class="o">.</span><span class="n">npartitions</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">),</span>
                 <span class="p">)</span></div>
 
-<div class="viewcode-block" id="TAFFile.clean_codes"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_codes">[docs]</a>    <span class="k">def</span> <span class="nf">clean_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="TAFFile.clean_codes">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_codes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean diagnostic code columns by removing non-alphanumeric</span>
 <span class="sd">        characters and converting them to upper case and NDC codes columns</span>
 <span class="sd">        by removing white space characters and padding 0s to the left so the</span>
-<span class="sd">        codes are of length 12&quot;&quot;&quot;</span>
+<span class="sd">        codes are of length 12.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;, clean=False)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.clean_codes()  # doctest: +SKIP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clean_diag_codes</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clean_ndc_codes</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clean_diag_codes</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_proc_codes</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="TAFFile.clean_diag_codes"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_diag_codes">[docs]</a>    <span class="k">def</span> <span class="nf">clean_diag_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="TAFFile.clean_diag_codes">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_diag_codes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_diag_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean diagnostic code columns by removing non-alphanumeric</span>
-<span class="sd">        characters and converting them to upper case&quot;&quot;&quot;</span>
+<span class="sd">        characters and converting them to upper case.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; import dask.dataframe as dd</span>
+<span class="sd">        &gt;&gt;&gt; pdf = pd.DataFrame({&#39;DGNS_CD_1&#39;: [&#39;a12.3&#39;, &#39;B45-6&#39;],</span>
+<span class="sd">        ...                     &#39;other_col&#39;: [1, 2]})</span>
+<span class="sd">        &gt;&gt;&gt; ddf = dd.from_pandas(pdf, npartitions=1)</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile</span>
+<span class="sd">        &gt;&gt;&gt; obj = object.__new__(TAFFile)</span>
+<span class="sd">        &gt;&gt;&gt; obj.dct_files = {&#39;base&#39;: ddf}</span>
+<span class="sd">        &gt;&gt;&gt; obj.clean_diag_codes()</span>
+<span class="sd">        &gt;&gt;&gt; result = obj.dct_files[&#39;base&#39;].compute()</span>
+<span class="sd">        &gt;&gt;&gt; list(result[&#39;DGNS_CD_1&#39;])</span>
+<span class="sd">        [&#39;A123&#39;, &#39;B456&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span>
             <span class="n">lst_diag_cd_col</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">col</span>
                 <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
-                <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;DGNS_CD_&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">col</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;ADMTG_DGNS_CD&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;DGNS_CD_&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">col</span> <span class="o">==</span> <span class="s2">&quot;ADMTG_DGNS_CD&quot;</span><span class="p">)</span>
             <span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst_diag_cd_col</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
-                    <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">_cols</span><span class="o">=</span><span class="n">lst_diag_cd_col</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
                         <span class="o">**</span><span class="p">{</span>
                             <span class="n">col</span><span class="p">:</span> <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
                             <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[^a-zA-Z0-9]+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                             <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-                            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_diag_cd_col</span>  <span class="c1"># pylint: disable=cell-var-from-loop</span>
+                            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">_cols</span>
                         <span class="p">}</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="TAFFile.clean_ndc_codes"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_ndc_codes">[docs]</a>    <span class="k">def</span> <span class="nf">clean_ndc_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="TAFFile.clean_ndc_codes">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_ndc_codes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_ndc_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean NDC codes columns by removing white space characters and</span>
-<span class="sd">        padding 0s to the left so the codes are of length 12&quot;&quot;&quot;</span>
+<span class="sd">        padding 0s to the left so the codes are of length 12.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; import dask.dataframe as dd</span>
+<span class="sd">        &gt;&gt;&gt; pdf = pd.DataFrame({&#39;NDC&#39;: [&#39;1234&#39;, &#39; 5678 &#39;]})</span>
+<span class="sd">        &gt;&gt;&gt; ddf = dd.from_pandas(pdf, npartitions=1)</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile</span>
+<span class="sd">        &gt;&gt;&gt; obj = object.__new__(TAFFile)</span>
+<span class="sd">        &gt;&gt;&gt; obj.dct_files = {&#39;line&#39;: ddf}</span>
+<span class="sd">        &gt;&gt;&gt; obj.clean_ndc_codes()</span>
+<span class="sd">        &gt;&gt;&gt; result = obj.dct_files[&#39;line&#39;].compute()</span>
+<span class="sd">        &gt;&gt;&gt; list(result[&#39;NDC&#39;])</span>
+<span class="sd">        [&#39;000000001234&#39;, &#39;000000005678&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span>
             <span class="k">if</span> <span class="s2">&quot;NDC&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -377,9 +589,30 @@
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="TAFFile.clean_proc_codes"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_proc_codes">[docs]</a>    <span class="k">def</span> <span class="nf">clean_proc_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean diagnostic code columns by removing non-alphanumeric</span>
-<span class="sd">        characters and converting them to upper case&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TAFFile.clean_proc_codes">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.clean_proc_codes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean_proc_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean procedure code columns by removing non-alphanumeric</span>
+<span class="sd">        characters and converting them to upper case.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; import dask.dataframe as dd</span>
+<span class="sd">        &gt;&gt;&gt; pdf = pd.DataFrame({&#39;PRCDR_CD_1&#39;: [&#39;ab.1&#39;, &#39;C2-d&#39;],</span>
+<span class="sd">        ...                     &#39;PRCDR_CD_SYS_1&#39;: [&#39;ICD&#39;, &#39;CPT&#39;]})</span>
+<span class="sd">        &gt;&gt;&gt; ddf = dd.from_pandas(pdf, npartitions=1)</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile</span>
+<span class="sd">        &gt;&gt;&gt; obj = object.__new__(TAFFile)</span>
+<span class="sd">        &gt;&gt;&gt; obj.dct_files = {&#39;base&#39;: ddf}</span>
+<span class="sd">        &gt;&gt;&gt; obj.clean_proc_codes()</span>
+<span class="sd">        &gt;&gt;&gt; result = obj.dct_files[&#39;base&#39;].compute()</span>
+<span class="sd">        &gt;&gt;&gt; list(result[&#39;PRCDR_CD_1&#39;])</span>
+<span class="sd">        [&#39;AB1&#39;, &#39;C2D&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; list(result[&#39;PRCDR_CD_SYS_1&#39;])</span>
+<span class="sd">        [&#39;ICD&#39;, &#39;CPT&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span>
             <span class="n">lst_prcdr_cd_col</span> <span class="o">=</span> <span class="p">[</span>
@@ -400,18 +633,21 @@
             <span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst_prcdr_cd_col</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
-                    <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">_cols</span><span class="o">=</span><span class="n">lst_prcdr_cd_col</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
                         <span class="o">**</span><span class="p">{</span>
                             <span class="n">col</span><span class="p">:</span> <span class="n">pdf</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
                             <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[^a-zA-Z0-9]+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                             <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-                            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">lst_prcdr_cd_col</span>  <span class="c1"># pylint: disable=cell-var-from-loop</span>
+                            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">_cols</span>
                         <span class="p">}</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="TAFFile.flag_duplicates"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.flag_duplicates">[docs]</a>    <span class="k">def</span> <span class="nf">flag_duplicates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TAFFile.flag_duplicates">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.flag_duplicates">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flag_duplicates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes duplicated rows. TAF claims have multiple versions for each</span>
 <span class="sd">        month. This function keeps the most recent file version date for</span>
@@ -421,7 +657,15 @@
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        - `Identifying beneficiaries with a substance use disorder &lt;https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx&gt;`_</span>
+<span class="sd">        - `Identifying beneficiaries with a substance use disorder</span>
+<span class="sd">          &lt;https://www.medicaid.gov/medicaid/data-and-systems/downloads/</span>
+<span class="sd">          macbis/sud_techspecs.docx&gt;`_</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;, clean=False)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.flag_duplicates()  # doctest: +SKIP</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">:</span>
@@ -478,10 +722,19 @@
                     <span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;max_version&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="TAFFile.gather_bene_level_diag_ndc_codes"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.gather_bene_level_diag_ndc_codes">[docs]</a>    <span class="k">def</span> <span class="nf">gather_bene_level_diag_ndc_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TAFFile.gather_bene_level_diag_ndc_codes">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.gather_bene_level_diag_ndc_codes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gather_bene_level_diag_ndc_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs patient level NDC and diagnosis code list columns and</span>
-<span class="sd">        saves them to individual files</span>
+<span class="sd">        saves them to individual files.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.gather_bene_level_diag_ndc_codes()  # doctest: +SKIP</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">]:</span>
             <span class="n">df_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
@@ -492,7 +745,7 @@
                             <span class="n">col</span>
                             <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">pdf</span><span class="o">.</span><span class="n">columns</span>
                             <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;DGNS_CD_&quot;</span><span class="p">)</span>
-                            <span class="ow">or</span> <span class="p">(</span><span class="n">col</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;ADMTG_DGNS_CD&quot;</span><span class="p">])</span>
+                            <span class="ow">or</span> <span class="p">(</span><span class="n">col</span> <span class="o">==</span> <span class="s2">&quot;ADMTG_DGNS_CD&quot;</span><span class="p">)</span>
                         <span class="p">]</span>
                     <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
                 <span class="p">)</span>
@@ -502,36 +755,45 @@
             <span class="p">)</span>
             <span class="n">df_base</span> <span class="o">=</span> <span class="n">df_base</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
                 <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                    <span class="n">LST_DIAG_CD_RAW</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="n">LST_DIAG_CD_RAW</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
                         <span class="k">lambda</span> <span class="n">lst</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">cd</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="n">lst</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">cd</span><span class="p">)])</span>
-                    <span class="p">),</span>
-                    <span class="n">LST_DIAG_CD</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+                    <span class="n">LST_DIAG_CD</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">apply</span><span class="p">(</span>
                         <span class="k">lambda</span> <span class="n">lst</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cd</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="n">lst</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">cd</span><span class="p">)))</span>
-                    <span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
                 <span class="p">)</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base_diag_codes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_base</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_custom_subtype</span><span class="p">(</span><span class="s2">&quot;base_diag_codes&quot;</span><span class="p">,</span> <span class="n">df_base</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">(</span><span class="s2">&quot;base_diag_codes&quot;</span><span class="p">)</span>
         <span class="n">df_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;line&quot;</span><span class="p">]</span>
         <span class="n">df_line</span> <span class="o">=</span> <span class="n">df_line</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                <span class="n">LST_NDC</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;NDC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;NDC&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;NDC&quot;</span><span class="p">:</span> <span class="s2">&quot;LST_NDC&quot;</span><span class="p">})</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_col</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">df_line</span> <span class="o">=</span> <span class="n">df_line</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                <span class="n">LST_NDC_RAW</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_NDC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-                    <span class="k">lambda</span> <span class="n">lst</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">cd</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="n">lst</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">cd</span><span class="p">)])</span>
-                <span class="p">),</span>
-                <span class="n">LST_NDC</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_NDC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-                    <span class="k">lambda</span> <span class="n">lst</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cd</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="n">lst</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">cd</span><span class="p">)))</span>
-                <span class="p">),</span>
+                <span class="n">LST_NDC_RAW</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_NDC&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">lst</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">cd</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="n">lst</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">cd</span><span class="p">)]))</span>
+                <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">LST_NDC</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;LST_NDC&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">lst</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cd</span> <span class="k">for</span> <span class="n">cd</span> <span class="ow">in</span> <span class="n">lst</span> <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">cd</span><span class="p">))))</span>
+                <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;line_ndc_codes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_line</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_custom_subtype</span><span class="p">(</span><span class="s2">&quot;line_ndc_codes&quot;</span><span class="p">,</span> <span class="n">df_line</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_results</span><span class="p">(</span><span class="s2">&quot;line_ndc_codes&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TAFFile.flag_ffs_and_encounter_claims"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.flag_ffs_and_encounter_claims">[docs]</a>    <span class="k">def</span> <span class="nf">flag_ffs_and_encounter_claims</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TAFFile.flag_ffs_and_encounter_claims">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.flag_ffs_and_encounter_claims">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flag_ffs_and_encounter_claims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Flags claims where CLM_TYPE_CD is equal to one of the following values:</span>
 
@@ -542,7 +804,17 @@
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        - `Identifying beneficiaries with a substance use disorder &lt;https://www.medicaid.gov/medicaid/data-and-systems/downloads/macbis/sud_techspecs.docx&gt;`_</span>
+<span class="sd">        - `Identifying beneficiaries with a substance use disorder</span>
+<span class="sd">          &lt;https://www.medicaid.gov/medicaid/data-and-systems/downloads/</span>
+<span class="sd">          macbis/sud_techspecs.docx&gt;`_</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.flag_ffs_and_encounter_claims()  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; &#39;ffs_or_encounter_claim&#39; in taf.dct_files[&#39;base&#39;].columns  # doctest: +SKIP</span>
+<span class="sd">        True</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span>
@@ -554,7 +826,10 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="TAFFile.process_date_cols"><a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.process_date_cols">[docs]</a>    <span class="k">def</span> <span class="nf">process_date_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TAFFile.process_date_cols">
+<a class="viewcode-back" href="../../../medicaid_utils.preprocessing.html#medicaid_utils.preprocessing.taf_file.TAFFile.process_date_cols">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_date_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert datetime columns to datetime type and add basic date based</span>
 <span class="sd">        constructed variables</span>
@@ -565,7 +840,6 @@
 <span class="sd">            - birth_date - birth date (EL_DOB)</span>
 <span class="sd">            - death - 0 or 1, if DEATH_DT is not empty and falls in the claim year or before</span>
 <span class="sd">            - age - age in years, integer format</span>
-<span class="sd">            - age_decimal - age in years, with decimals</span>
 <span class="sd">            - age_day - age in days</span>
 <span class="sd">            - adult - 0 or 1, 1 when patient&#39;s age is in [18,115]</span>
 <span class="sd">            - child - 0 or 1, 1 when patient&#39;s age is in [0,17]</span>
@@ -604,6 +878,12 @@
 
 <span class="sd">                - date_of_death - Date of death (DEATH_DT)</span>
 
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from medicaid_utils.preprocessing.taf_file import TAFFile  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf = TAFFile(&#39;ip&#39;, 2019, &#39;AL&#39;, &#39;/data/cms&#39;, clean=False)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt; taf.process_date_cols()  # doctest: +SKIP</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">ftype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing date columns for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ftype</span><span class="p">)</span>
@@ -622,6 +902,8 @@
                     <span class="s2">&quot;IMGRTN_STUS_5YR_BAR_END_DT&quot;</span><span class="p">:</span> <span class="s2">&quot;immigration_status_5yr_bar_end_date&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;ENRLMT_START_DT&quot;</span><span class="p">:</span> <span class="s2">&quot;enrollment_start_date&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;ENRLMT_END_DT&quot;</span><span class="p">:</span> <span class="s2">&quot;enrollment_end_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;RX_FILL_DT&quot;</span><span class="p">:</span> <span class="s2">&quot;rx_fill_date&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;PRSCRBD_DT&quot;</span><span class="p">:</span> <span class="s2">&quot;prescribed_date&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
                 <span class="n">dct_date_col</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="n">col</span><span class="p">:</span> <span class="n">new_col_name</span>
@@ -651,32 +933,45 @@
                         <span class="p">}</span>
                     <span class="p">)</span>
 
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="s2">&quot;rx&quot;</span><span class="p">]:</span>
                         <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_FIL_DT&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;ip&quot;</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2018</span><span class="p">,</span> <span class="mi">2014</span><span class="p">])</span> <span class="ow">or</span> <span class="p">(</span>
+                                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="mi">2017</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="s2">&quot;rx&quot;</span><span class="p">])</span>
+                            <span class="p">):</span>
                                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
                                     <span class="n">filing_period</span><span class="o">=</span><span class="n">df</span><span class="p">[</span>
                                         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_FIL_DT&quot;</span>
-                                    <span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">],</span>
+                                    <span class="p">]</span>
+                                    <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;01JAN1000&quot;</span><span class="p">)</span>
+                                    <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                                <span class="p">)</span>
+                                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                                    <span class="n">year</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">filing_period</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                                 <span class="p">)</span>
                             <span class="k">else</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;ip&quot;</span><span class="p">:</span>
+                                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                                        <span class="n">filing_period</span><span class="o">=</span><span class="n">df</span><span class="p">[</span>
+                                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_FIL_DT&quot;</span>
+                                        <span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">],</span>
+                                    <span class="p">)</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                                        <span class="n">filing_period</span><span class="o">=</span><span class="n">df</span><span class="p">[</span>
+                                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_FIL_DT&quot;</span>
+                                        <span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span>
+                                    <span class="p">)</span>
                                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                                    <span class="n">filing_period</span><span class="o">=</span><span class="n">df</span><span class="p">[</span>
-                                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_FIL_DT&quot;</span>
-                                    <span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span>
+                                    <span class="n">year</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">filing_period</span><span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                                 <span class="p">)</span>
                             <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                                <span class="n">year</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">filing_period</span><span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-                            <span class="p">)</span>
-                            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
-                                <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                                    <span class="o">**</span><span class="p">{</span>
-                                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_version&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
-                                            <span class="n">pdf</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_VRSN&quot;</span><span class="p">],</span>
-                                            <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
-                                        <span class="p">)</span>
-                                    <span class="p">}</span>
-                                <span class="p">)</span>
+                                <span class="o">**</span><span class="p">{</span>
+                                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_version&quot;</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                                        <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">_VRSN&quot;</span><span class="p">],</span>
+                                        <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+                                    <span class="p">)</span>
+                                <span class="p">}</span>
                             <span class="p">)</span>
 
                     <span class="k">else</span><span class="p">:</span>
@@ -686,198 +981,209 @@
                             <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                         <span class="p">)</span>
 
-                    <span class="c1"># Remove abnormally large or low date values. The bounds</span>
-                    <span class="c1"># used are Dec 31, 1800 and Dec 31, 2100</span>
-                    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
-                        <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">,</span> <span class="s2">&quot;admsn_date&quot;</span><span class="p">,</span> <span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span>
-                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
-                    <span class="p">):</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="o">**</span><span class="p">{</span>
-                                <span class="n">col</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                                    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
-                                        <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-                                            <span class="s2">&quot;18001231&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
-                                        <span class="p">),</span>
-                                        <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-                                            <span class="s2">&quot;21001231&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
-                                        <span class="p">),</span>
-                                        <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
+                <span class="c1"># Remove abnormally large or low date values. The bounds</span>
+                <span class="c1"># used are Dec 31, 1800 and Dec 31, 2100</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                    <span class="n">col</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dct_date_col</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+                <span class="p">):</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="o">**</span><span class="p">{</span>
+                            <span class="n">col</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                                <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span>
+                                    <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                                        <span class="s2">&quot;18001231&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
                                     <span class="p">),</span>
-                                    <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">),</span>
-                                <span class="p">)</span>
-                                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
-                                    <span class="s2">&quot;admsn_date&quot;</span><span class="p">,</span>
-                                    <span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">,</span>
-                                    <span class="s2">&quot;srvc_end_date&quot;</span><span class="p">,</span>
-                                    <span class="s2">&quot;birth_date&quot;</span><span class="p">,</span>
-                                <span class="p">]</span>
-                                <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
-                            <span class="p">}</span>
+                                    <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                                        <span class="s2">&quot;21001231&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                                    <span class="p">),</span>
+                                    <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
+                                <span class="p">),</span>
+                                <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">),</span>
+                            <span class="p">)</span>
+                            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dct_date_col</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;birth_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">birth_year</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">birth_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+                        <span class="n">birth_month</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">birth_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
+                        <span class="n">birth_day</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">birth_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">age_day</span><span class="o">=</span><span class="p">(</span>
+                            <span class="n">dd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;1231&quot;</span><span class="p">,</span>
+                                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
+                            <span class="p">)</span>
+                            <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
+                    <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="s2">&quot;AGE&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">birth_year</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;AGE&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">age</span><span class="o">=</span><span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;AGE&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;AGE_GRP_CD&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">age_group</span><span class="o">=</span><span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;AGE_GRP_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
                         <span class="p">)</span>
+                        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;age&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">adult</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">())</span>
+                        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="n">elderly</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">65</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">())</span>
+                        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                        <span class="n">child</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">17</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">())</span>
+                        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="p">)</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">!=</span> <span class="s2">&quot;ps&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;age&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                            <span class="n">adult</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;adult&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+                                <span class="s2">&quot;max&quot;</span>
+                            <span class="p">),</span>
+                            <span class="n">child</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;child&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+                                <span class="s2">&quot;max&quot;</span>
+                            <span class="p">),</span>
+                            <span class="n">age</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">),</span>
+                            <span class="n">age_day</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span>
+                                <span class="s2">&quot;age_day&quot;</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;max&quot;</span><span class="p">),</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;death_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">death</span><span class="o">=</span><span class="p">(</span>
+                            <span class="n">df</span><span class="o">.</span><span class="n">death_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                                <span class="nb">int</span>
+                            <span class="p">)</span>
+                            <span class="o">&lt;=</span> <span class="n">df</span><span class="o">.</span><span class="n">year</span>
+                        <span class="p">)</span>
+                        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;DEATH_IND&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">death</span><span class="o">=</span><span class="p">(</span>
+                            <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;DEATH_IND&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                            <span class="o">==</span> <span class="mi">1</span>
+                        <span class="p">)</span>
+                        <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;ip&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;admsn_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">missing_admsn_date</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+                        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">admsn_date</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                            <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">los</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
+                        <span class="o">+</span> <span class="mi">1</span>
+                    <span class="p">)</span>
+
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">los</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;los&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+                                <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">])</span>
+                            <span class="p">),</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">age_day_admsn</span><span class="o">=</span><span class="p">(</span>
+                            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
+                    <span class="p">)</span>
+
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">age_admsn</span><span class="o">=</span><span class="p">(</span>
+                            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;age_day_admsn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">365.25</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;ip&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;prncpl_proc_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">prncpl_proc_date</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;prncpl_proc_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+                            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                            <span class="n">prncpl_proc_date</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                                <span class="p">[</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;CLM_ID&quot;</span><span class="p">]</span>
+                            <span class="p">)[</span><span class="s2">&quot;prncpl_proc_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
                     <span class="k">if</span> <span class="s2">&quot;birth_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">birth_year</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">birth_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
-                            <span class="n">birth_month</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">birth_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
-                            <span class="n">birth_day</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">birth_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
-                        <span class="p">)</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">age_day</span><span class="o">=</span><span class="p">(</span>
-                                <span class="n">dd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-                                    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;1231&quot;</span><span class="p">,</span>
-                                    <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
-                                <span class="p">)</span>
-                                <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]</span>
-                            <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span><span class="p">,</span>
-                            <span class="n">age_decimal</span><span class="o">=</span><span class="p">(</span>
-                                <span class="n">dd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-                                    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;1231&quot;</span><span class="p">,</span>
-                                    <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">,</span>
-                                <span class="p">)</span>
-                                <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]</span>
-                            <span class="p">)</span>
-                            <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">),</span>
-                        <span class="p">)</span>
-
-                        <span class="k">if</span> <span class="s2">&quot;AGE&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">birth_year</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="s2">&quot;AGE&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">age</span><span class="o">=</span><span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;AGE&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
-                        <span class="p">)</span>
-                    <span class="k">if</span> <span class="s2">&quot;AGE_GRP_CD&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">age_group</span><span class="o">=</span><span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
-                                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;AGE_GRP_CD&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
-                            <span class="p">)</span>
-                            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-                        <span class="p">)</span>
-                    <span class="k">if</span> <span class="s2">&quot;age&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">adult</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span>
-                            <span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="n">inclusive</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">)</span>
-                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">())</span>
-                            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-                            <span class="n">elderly</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">65</span><span class="p">)</span>
-                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">())</span>
-                            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-                            <span class="n">child</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">17</span><span class="p">)</span>
-                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">())</span>
-                            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-                        <span class="p">)</span>
-
-                    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">!=</span> <span class="s2">&quot;ps&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;age&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
-                            <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                                <span class="n">adult</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span>
-                                    <span class="s2">&quot;adult&quot;</span>
-                                <span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="nb">max</span><span class="p">),</span>
-                                <span class="n">child</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span>
-                                    <span class="s2">&quot;child&quot;</span>
-                                <span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="nb">max</span><span class="p">),</span>
-                                <span class="n">age</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-                                    <span class="nb">max</span>
-                                <span class="p">),</span>
-                                <span class="n">age_day</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span>
-                                    <span class="s2">&quot;age_day&quot;</span>
-                                <span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="nb">max</span><span class="p">),</span>
-                                <span class="n">age_decimal</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">)[</span>
-                                    <span class="s2">&quot;age_decimal&quot;</span>
-                                <span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="nb">max</span><span class="p">),</span>
-                            <span class="p">)</span>
-                        <span class="p">)</span>
-                    <span class="k">if</span> <span class="s2">&quot;death_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">death</span><span class="o">=</span><span class="p">(</span>
-                                <span class="n">df</span><span class="o">.</span><span class="n">death_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
-                                    <span class="n">df</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="mi">10</span>
-                                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-                                <span class="o">&lt;=</span> <span class="n">df</span><span class="o">.</span><span class="n">year</span>
-                            <span class="p">)</span>
-                            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-                        <span class="p">)</span>
-                    <span class="k">if</span> <span class="s2">&quot;DEATH_IND&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">death</span><span class="o">=</span><span class="p">(</span>
-                                <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;DEATH_IND&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
-                                <span class="o">==</span> <span class="mi">1</span>
-                            <span class="p">)</span>
-                            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-                        <span class="p">)</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;ip&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;admsn_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">missing_admsn_date</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span>
-                            <span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
-                            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-                        <span class="p">)</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">admsn_date</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                                <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span>
-                            <span class="p">),</span>
-                        <span class="p">)</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">los</span><span class="o">=</span><span class="p">(</span>
-                                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span>
-                            <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
-                            <span class="o">+</span> <span class="mi">1</span>
-                        <span class="p">)</span>
-
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">los</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;los&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                                <span class="p">(</span>
-                                    <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
-                                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">])</span>
-                                <span class="p">),</span>
-                                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
-                            <span class="p">)</span>
-                        <span class="p">)</span>
-                        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">age_day_admsn</span><span class="o">=</span><span class="p">(</span>
-                                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;admsn_date&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]</span>
+                            <span class="n">age_day_prncpl_proc</span><span class="o">=</span><span class="p">(</span>
+                                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;prncpl_proc_date&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]</span>
                             <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
                         <span class="p">)</span>
 
                         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">age_admsn</span><span class="o">=</span><span class="p">(</span>
-                                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;age_day_admsn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">365.25</span>
+                            <span class="n">age_prncpl_proc</span><span class="o">=</span><span class="p">(</span>
+                                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;age_day_prncpl_proc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">365.25</span>
                             <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
                         <span class="p">)</span>
 
-                    <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;ot&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
-                        <span class="s2">&quot;srvc_bgn_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
-                    <span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;ot&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;srvc_bgn_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
+                        <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                            <span class="n">srvc_bgn_date</span><span class="o">=</span><span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">pdf</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;CLM_ID&quot;</span><span class="p">])[</span>
+                                <span class="s2">&quot;srvc_bgn_date&quot;</span>
+                            <span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">duration</span><span class="o">=</span><span class="p">(</span>
+                            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
+                    <span class="p">)</span>
+
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                        <span class="n">duration</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                            <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]),</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="s2">&quot;birth_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">duration</span><span class="o">=</span><span class="p">(</span>
-                                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span>
+                            <span class="n">age_day_srvc_bgn</span><span class="o">=</span><span class="p">(</span>
+                                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]</span>
                             <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
                         <span class="p">)</span>
 
                         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                            <span class="n">duration</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                                <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_end_date&quot;</span><span class="p">]),</span>
-                                <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
-                            <span class="p">)</span>
+                            <span class="n">age_srvc_bgn</span><span class="o">=</span><span class="p">(</span>
+                                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;age_day_srvc_bgn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">365.25</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
                         <span class="p">)</span>
-                        <span class="k">if</span> <span class="s2">&quot;birth_date&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                                <span class="n">age_day_srvc_bgn</span><span class="o">=</span><span class="p">(</span>
-                                    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;birth_date&quot;</span><span class="p">]</span>
-                                <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span>
-                            <span class="p">)</span>
 
-                            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                                <span class="n">age_srvc_bgn</span><span class="o">=</span><span class="p">(</span>
-                                    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;age_day_srvc_bgn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">365.25</span>
-                                <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-                            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
+</div>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="n">ftype</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div></div>
 </pre></div>
 
            </div>
@@ -887,7 +1193,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

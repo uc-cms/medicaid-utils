@@ -1,0 +1,267 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Risk Adjustment &amp; Clinical Algorithms &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Quality Measures &amp; Domain Modules" href="quality_measures.html" />
+    <link rel="prev" title="Cohort Extraction" href="cohort_extraction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            medicaid_utils
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Risk Adjustment &amp; Clinical Algorithms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#elixhauser-comorbidity-index">Elixhauser Comorbidity Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cdps-rx-risk-adjustment">CDPS-Rx Risk Adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#betos-procedure-classification">BETOS Procedure Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ed-prevention-quality-indicators">ED Prevention Quality Indicators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inpatient-pqi">Inpatient PQI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nyu-billings-ed-classification">NYU/Billings ED Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pediatric-medical-complexity-algorithm-pmca">Pediatric Medical Complexity Algorithm (PMCA)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#low-value-care">Low-Value Care</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#algorithm-summary">Algorithm Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Risk Adjustment &amp; Clinical Algorithms</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user_guide/risk_adjustment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="risk-adjustment-clinical-algorithms">
+<h1>Risk Adjustment &amp; Clinical Algorithms<a class="headerlink" href="#risk-adjustment-clinical-algorithms" title="Link to this heading"></a></h1>
+<p>medicaid-utils includes Python implementations of several published clinical algorithms
+for risk adjustment, procedure classification, and quality measurement.</p>
+<section id="elixhauser-comorbidity-index">
+<h2>Elixhauser Comorbidity Index<a class="headerlink" href="#elixhauser-comorbidity-index" title="Link to this heading"></a></h2>
+<p>Flags 31 comorbidity groups from diagnosis codes (Elixhauser et al., 1998).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_elixhauser</span><span class="w"> </span><span class="kn">import</span> <span class="n">elixhauser_comorbidity</span>
+
+<span class="n">df_ip</span> <span class="o">=</span> <span class="n">elixhauser_comorbidity</span><span class="o">.</span><span class="n">flag_comorbidities</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">claim_type</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="cdps-rx-risk-adjustment">
+<h2>CDPS-Rx Risk Adjustment<a class="headerlink" href="#cdps-rx-risk-adjustment" title="Link to this heading"></a></h2>
+<p>Pharmacy-based risk adjustment using the Chronic Illness and Disability Payment System
+(Kronick et al., UC San Diego).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_cdpsmrx</span><span class="w"> </span><span class="kn">import</span> <span class="n">cdps_rx_risk_adjustment</span>
+
+<span class="n">df_risk</span> <span class="o">=</span> <span class="n">cdps_rx_risk_adjustment</span><span class="o">.</span><span class="n">cdps_rx_risk_adjust</span><span class="p">(</span>
+    <span class="n">df_rx</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;MSIS_ID&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="betos-procedure-classification">
+<h2>BETOS Procedure Classification<a class="headerlink" href="#betos-procedure-classification" title="Link to this heading"></a></h2>
+<p>Assigns Berenson-Eggers Type of Service (BETOS) categories to procedure codes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_betos</span><span class="w"> </span><span class="kn">import</span> <span class="n">betos_proc_codes</span>
+
+<span class="n">df_ot</span> <span class="o">=</span> <span class="n">betos_proc_codes</span><span class="o">.</span><span class="n">assign_betos_cat</span><span class="p">(</span><span class="n">ot</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="ed-prevention-quality-indicators">
+<h2>ED Prevention Quality Indicators<a class="headerlink" href="#ed-prevention-quality-indicators" title="Link to this heading"></a></h2>
+<p>Flags potentially preventable emergency department visits (Davies et al., 2017).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_ed_pqi</span><span class="w"> </span><span class="kn">import</span> <span class="n">ed_pqi</span>
+
+<span class="n">df_ed</span> <span class="o">=</span> <span class="n">ed_pqi</span><span class="o">.</span><span class="n">flag_potentially_preventable_ed_visits</span><span class="p">(</span><span class="n">ot</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="inpatient-pqi">
+<h2>Inpatient PQI<a class="headerlink" href="#inpatient-pqi" title="Link to this heading"></a></h2>
+<p>AHRQ Prevention Quality Indicators for inpatient admissions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_ip_pqi</span><span class="w"> </span><span class="kn">import</span> <span class="n">ip_pqi</span>
+
+<span class="n">df_ip_pqi</span> <span class="o">=</span> <span class="n">ip_pqi</span><span class="o">.</span><span class="n">flag_ip_pqi</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="nyu-billings-ed-classification">
+<h2>NYU/Billings ED Classification<a class="headerlink" href="#nyu-billings-ed-classification" title="Link to this heading"></a></h2>
+<p>Classifies ED visits by severity and preventability (Billings, Parikh, Mijanovich, 2000).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_nyu_billings</span><span class="w"> </span><span class="kn">import</span> <span class="n">nyu_billings</span>
+
+<span class="n">df_nyu</span> <span class="o">=</span> <span class="n">nyu_billings</span><span class="o">.</span><span class="n">classify_ed_visits</span><span class="p">(</span><span class="n">ot</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="pediatric-medical-complexity-algorithm-pmca">
+<h2>Pediatric Medical Complexity Algorithm (PMCA)<a class="headerlink" href="#pediatric-medical-complexity-algorithm-pmca" title="Link to this heading"></a></h2>
+<p>Classifies pediatric patients by medical complexity (Simon et al., Seattle Children’s).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_pmca</span><span class="w"> </span><span class="kn">import</span> <span class="n">pmca</span>
+
+<span class="n">df_pmca</span> <span class="o">=</span> <span class="n">pmca</span><span class="o">.</span><span class="n">classify_complexity</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="low-value-care">
+<h2>Low-Value Care<a class="headerlink" href="#low-value-care" title="Link to this heading"></a></h2>
+<p>Identifies low-value care services (Charlesworth et al., JAMA Intern Med, 2016).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_low_value_care</span><span class="w"> </span><span class="kn">import</span> <span class="n">low_value_care</span>
+
+<span class="n">df_lvc</span> <span class="o">=</span> <span class="n">low_value_care</span><span class="o">.</span><span class="n">flag_low_value_care</span><span class="p">(</span>
+    <span class="n">pdf_dates</span><span class="p">,</span> <span class="n">lvc_specs</span><span class="p">,</span> <span class="n">lst_conditions</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="algorithm-summary">
+<h2>Algorithm Summary<a class="headerlink" href="#algorithm-summary" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 40.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Algorithm</p></th>
+<th class="head"><p>Reference</p></th>
+<th class="head"><p>Module</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Elixhauser Comorbidity Index</p></td>
+<td><p>Elixhauser et al., 1998</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">py_elixhauser</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>CDPS-Rx Risk Adjustment</p></td>
+<td><p>Kronick et al., UC San Diego</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">py_cdpsmrx</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>BETOS Classification</p></td>
+<td><p>CMS Berenson-Eggers Type of Service</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">py_betos</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>ED PQI</p></td>
+<td><p>Davies et al., 2017</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">py_ed_pqi</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>IP PQI</p></td>
+<td><p>AHRQ Prevention Quality Indicators</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">py_ip_pqi</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>NYU/Billings ED Algorithm</p></td>
+<td><p>Billings, Parikh, Mijanovich, 2000</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">py_nyu_billings</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>PMCA</p></td>
+<td><p>Simon et al., Seattle Children’s</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">py_pmca</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Low-Value Care</p></td>
+<td><p>Charlesworth et al., JAMA Intern Med, 2016</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">py_low_value_care</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cohort_extraction.html" class="btn btn-neutral float-left" title="Cohort Extraction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="quality_measures.html" class="btn btn-neutral float-right" title="Quality Measures &amp; Domain Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.topics.oud.medication_and_behavioral_health &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.topics.oud.medication_and_behavioral_health</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.topics.oud.medication_and_behavioral_health</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -68,15 +89,20 @@
   <h1>Source code for medicaid_utils.topics.oud.medication_and_behavioral_health</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;This module has functions that can be used to identify OUD related</span>
 <span class="sd">medications and behavioral health service claims&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
-<span class="kn">from</span> <span class="nn">...filters.claims</span> <span class="kn">import</span> <span class="n">dx_and_proc</span><span class="p">,</span> <span class="n">rx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...filters.claims</span><span class="w"> </span><span class="kn">import</span> <span class="n">dx_and_proc</span><span class="p">,</span> <span class="n">rx</span>
 
 <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="flag_proc_buprenorphine"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_buprenorphine">[docs]</a><span class="k">def</span> <span class="nf">flag_proc_buprenorphine</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="flag_proc_buprenorphine">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_buprenorphine">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_proc_buprenorphine</span><span class="p">(</span>
+    <span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TAF&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds indicator column denoting presence of buprenorphine treatment</span>
 <span class="sd">    procedure codes in claims.</span>
@@ -90,6 +116,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    df_claims : dd.DataFrame</span>
 <span class="sd">            IP or OT claim file</span>
+<span class="sd">    cms_format : {&#39;MAX&#39;, TAF&#39;}</span>
+<span class="sd">        CMS file format.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -98,12 +126,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;buprenorphine&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J0571&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J0571&quot;</span><span class="p">]}}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
-        <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+        <span class="p">{},</span> <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="n">df_claims</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="n">cms_format</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
 
 
-<div class="viewcode-block" id="flag_rx_buprenorphine"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_buprenorphine">[docs]</a><span class="k">def</span> <span class="nf">flag_rx_buprenorphine</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="flag_rx_buprenorphine">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_buprenorphine">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_rx_buprenorphine</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds indicator column denoting presence of buprenorphine NDC codes in</span>
 <span class="sd">    claims.</span>
@@ -115,7 +146,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">    df_rx_claims : dd.DataFrame</span>
 <span class="sd">            IP or OT claim file</span>
 
 <span class="sd">    Returns</span>
@@ -277,11 +308,16 @@
             <span class="s2">&quot;063874117403&quot;</span><span class="p">,</span>
         <span class="p">]</span>
     <span class="p">}</span>
-    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
 
 
-<div class="viewcode-block" id="flag_proc_buprenorphine_naloxone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_buprenorphine_naloxone">[docs]</a><span class="k">def</span> <span class="nf">flag_proc_buprenorphine_naloxone</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="flag_proc_buprenorphine_naloxone">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_buprenorphine_naloxone">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_proc_buprenorphine_naloxone</span><span class="p">(</span>
+    <span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TAF&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds indicator column denoting presence of Buprenorphine/ Naloxone</span>
 <span class="sd">    treatment procedure codes in claims.</span>
@@ -295,6 +331,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    df_claims : dd.DataFrame</span>
 <span class="sd">            IP or OT claim file</span>
+<span class="sd">    cms_format : {&#39;MAX&#39;, TAF&#39;}</span>
+<span class="sd">        CMS file format.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -308,12 +346,15 @@
         <span class="p">}</span>
     <span class="p">}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
-        <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+        <span class="p">{},</span> <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="n">df_claims</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="n">cms_format</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
 
 
-<div class="viewcode-block" id="flag_rx_buprenorphine_naloxone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_buprenorphine_naloxone">[docs]</a><span class="k">def</span> <span class="nf">flag_rx_buprenorphine_naloxone</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="flag_rx_buprenorphine_naloxone">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_buprenorphine_naloxone">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_rx_buprenorphine_naloxone</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds indicator column denoting presence of Buprenorphine/ Naloxone NDC</span>
 <span class="sd">    codes in claims.</span>
@@ -325,7 +366,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">    df_rx_claims : dd.DataFrame</span>
 <span class="sd">            IP or OT claim file</span>
 
 <span class="sd">    Returns</span>
@@ -480,11 +521,16 @@
             <span class="s2">&quot;054123098630&quot;</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">}</span>
-    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
 
 
-<div class="viewcode-block" id="flag_proc_injectable_naltrexone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_injectable_naltrexone">[docs]</a><span class="k">def</span> <span class="nf">flag_proc_injectable_naltrexone</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="flag_proc_injectable_naltrexone">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_injectable_naltrexone">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_proc_injectable_naltrexone</span><span class="p">(</span>
+    <span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TAF&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds indicator column denoting presence of Injectable Naltrexone</span>
 <span class="sd">    procedure codes in claims.</span>
@@ -498,6 +544,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    df_claims : dd.DataFrame</span>
 <span class="sd">            IP or OT claim file</span>
+<span class="sd">    cms_format : {&#39;MAX&#39;, TAF&#39;}</span>
+<span class="sd">        CMS file format.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -506,12 +554,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;injectable_naltrexone&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J2315&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;J2315&quot;</span><span class="p">]}}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
-        <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+        <span class="p">{},</span> <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="n">df_claims</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="n">cms_format</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
 
 
-<div class="viewcode-block" id="flag_rx_oral_naltrexone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_oral_naltrexone">[docs]</a><span class="k">def</span> <span class="nf">flag_rx_oral_naltrexone</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="flag_rx_oral_naltrexone">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_oral_naltrexone">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_rx_oral_naltrexone</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds indicator column denoting presence of Oral Naltrexone NDC</span>
 <span class="sd">    codes in claims.</span>
@@ -523,7 +574,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">    df_rx_claims : dd.DataFrame</span>
 <span class="sd">            IP or OT claim file</span>
 
 <span class="sd">    Returns</span>
@@ -625,11 +676,16 @@
             <span class="s2">&quot;051285027502&quot;</span><span class="p">,</span>
         <span class="p">]</span>
     <span class="p">}</span>
-    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
 
 
-<div class="viewcode-block" id="flag_proc_methadone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_methadone">[docs]</a><span class="k">def</span> <span class="nf">flag_proc_methadone</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="flag_proc_methadone">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_methadone">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_proc_methadone</span><span class="p">(</span>
+    <span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TAF&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds indicator column denoting presence of Methadone procedure codes in</span>
 <span class="sd">    claims.</span>
@@ -643,6 +699,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    df_claims : dd.DataFrame</span>
 <span class="sd">            IP or OT claim file</span>
+<span class="sd">    cms_format : {&#39;MAX&#39;, TAF&#39;}</span>
+<span class="sd">        CMS file format.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -651,12 +709,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dct_proc_codes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;methadone&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">6</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H0020&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H0020&quot;</span><span class="p">]}}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
-        <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+        <span class="p">{},</span> <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="n">df_claims</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="n">cms_format</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
 
 
-<div class="viewcode-block" id="flag_rx_methadone"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_methadone">[docs]</a><span class="k">def</span> <span class="nf">flag_rx_methadone</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="flag_rx_methadone">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_methadone">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_rx_methadone</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds indicator column denoting presence of Methadone NDC codes in claims.</span>
 
@@ -669,7 +730,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">    df_rx_claims : dd.DataFrame</span>
 <span class="sd">            IP or OT claim file</span>
 
 <span class="sd">    Returns</span>
@@ -712,11 +773,16 @@
         <span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
     <span class="p">}</span>
 
-    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
 
 
-<div class="viewcode-block" id="flag_proc_behavioral_health_trtmt"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_behavioral_health_trtmt">[docs]</a><span class="k">def</span> <span class="nf">flag_proc_behavioral_health_trtmt</span><span class="p">(</span><span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="flag_proc_behavioral_health_trtmt">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_proc_behavioral_health_trtmt">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_proc_behavioral_health_trtmt</span><span class="p">(</span>
+    <span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TAF&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds indicator column denoting presence of Behavioral Health treatment</span>
 <span class="sd">    procedure codes in claims.</span>
@@ -729,7 +795,9 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    df_claims : dd.DataFrame</span>
-<span class="sd">            IP or OT claim file</span>
+<span class="sd">        IP or OT claim file</span>
+<span class="sd">    cms_format : {&#39;MAX&#39;, TAF&#39;}</span>
+<span class="sd">        CMS file format.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -775,7 +843,7 @@
                 <span class="s2">&quot;T1012&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;90875&quot;</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="mi">1</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="p">[</span>
                 <span class="s2">&quot;90785&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;90832&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;90834&quot;</span><span class="p">,</span>
@@ -815,12 +883,15 @@
         <span class="p">}</span>
     <span class="p">}</span>
     <span class="n">df_claims</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
-        <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="p">{},</span> <span class="n">df_claims</span>
+        <span class="p">{},</span> <span class="n">dct_proc_codes</span><span class="p">,</span> <span class="n">df_claims</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="n">cms_format</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
 
 
-<div class="viewcode-block" id="flag_rx_benzos_opioids"><a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_benzos_opioids">[docs]</a><span class="k">def</span> <span class="nf">flag_rx_benzos_opioids</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="flag_rx_benzos_opioids">
+<a class="viewcode-back" href="../../../../medicaid_utils.topics.oud.html#medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_benzos_opioids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_rx_benzos_opioids</span><span class="p">(</span><span class="n">df_rx_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds indicator column denoting presence of Benzodiazepines/ Opioids NDC</span>
 <span class="sd">    codes in claims.</span>
@@ -834,7 +905,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df_claims : dd.DataFrame</span>
+<span class="sd">    df_rx_claims : dd.DataFrame</span>
 <span class="sd">            IP or OT claim file</span>
 
 <span class="sd">    Returns</span>
@@ -871,8 +942,16 @@
         <span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
     <span class="p">}</span>
 
-    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">flag_prescriptions</span><span class="p">(</span><span class="n">dct_ndc_codes</span><span class="p">,</span> <span class="n">df_rx_claims</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">rx_benzo_and_opioid</span><span class="o">=</span><span class="n">df_claims</span><span class="p">[</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;rx_</span><span class="si">{</span><span class="n">drug</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">drug</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;opioids&quot;</span><span class="p">,</span> <span class="s2">&quot;benzodiazepines&quot;</span><span class="p">]]</span>
+        <span class="p">]</span>
+        <span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
+
 </pre></div>
 
            </div>
@@ -882,7 +961,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

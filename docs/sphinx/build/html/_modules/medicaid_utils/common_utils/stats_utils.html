@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.common_utils.stats_utils &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.common_utils.stats_utils</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.common_utils.stats_utils</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -66,16 +87,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for medicaid_utils.common_utils.stats_utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">mul</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
-<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">st</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">holoviews</span> <span class="kn">import</span> <span class="n">opts</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="kn">import</span> <span class="n">mul</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">st</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pandas.api.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_numeric_dtype</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">holoviews</span><span class="w"> </span><span class="kn">import</span> <span class="n">opts</span>
 
 
-<div class="viewcode-block" id="cramers_corrected_stat"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.cramers_corrected_stat">[docs]</a><span class="k">def</span> <span class="nf">cramers_corrected_stat</span><span class="p">(</span><span class="n">confusion_matrix</span><span class="p">):</span>
+<div class="viewcode-block" id="cramers_corrected_stat">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.cramers_corrected_stat">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cramers_corrected_stat</span><span class="p">(</span><span class="n">confusion_matrix</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;calculate Cramers V statistic for categorial-categorial association.</span>
 <span class="sd">    uses correction from Bergsma and Wicher,</span>
 <span class="sd">    Journal of the Korean Statistical Society 42 (2013): 323-328</span>
@@ -90,7 +117,10 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">phi2corr</span> <span class="o">/</span> <span class="nb">min</span><span class="p">((</span><span class="n">kcorr</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">rcorr</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span></div>
 
 
-<div class="viewcode-block" id="get_phi"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_phi">[docs]</a><span class="k">def</span> <span class="nf">get_phi</span><span class="p">(</span><span class="n">pdf_x</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_phi">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_phi">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_phi</span><span class="p">(</span><span class="n">pdf_x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="n">lst_diag</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdf_x</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pdf_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
     <span class="n">lst_nondiag</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">pdf_x</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span>
@@ -109,13 +139,16 @@
     <span class="k">return</span> <span class="n">phi</span></div>
 
 
-<div class="viewcode-block" id="get_contingency_table"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_contingency_table">[docs]</a><span class="k">def</span> <span class="nf">get_contingency_table</span><span class="p">(</span>
-    <span class="n">pdf_dataset</span><span class="p">,</span>
-    <span class="n">lst_categorical_metrics</span><span class="p">,</span>
-    <span class="n">pop_col_name</span><span class="p">,</span>
-    <span class="n">lst_numeric_col_to_binarize</span><span class="p">,</span>
-    <span class="n">dct_labels</span><span class="p">,</span>
-<span class="p">):</span>
+
+<div class="viewcode-block" id="get_contingency_table">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_contingency_table">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_contingency_table</span><span class="p">(</span>
+    <span class="n">pdf_dataset</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">lst_categorical_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">pop_col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">lst_numeric_col_to_binarize</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">dct_labels</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
     <span class="n">lst_pop_val</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="n">pdf_dataset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">pdf_dataset</span><span class="p">[</span><span class="n">pop_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()][</span><span class="n">pop_col_name</span><span class="p">]</span>
         <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
@@ -156,11 +189,17 @@
                 <span class="o">**</span><span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="p">(</span><span class="n">pdf_temp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)}</span>
             <span class="p">)</span>
         <span class="n">pdf_temp</span> <span class="o">=</span> <span class="n">pdf_temp</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">pop_col_name</span><span class="p">,</span> <span class="n">col</span><span class="p">])</span>
-        <span class="n">phi</span> <span class="o">=</span> <span class="n">pdf_temp</span><span class="p">[[</span><span class="n">pop_col_name</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">col</span><span class="p">]]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
         <span class="n">phi</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-            <span class="k">if</span> <span class="p">((</span><span class="n">phi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst_pop_val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">))</span>
-            <span class="k">else</span> <span class="n">phi</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst_pop_val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">pdf_temp</span><span class="p">[</span><span class="n">col</span><span class="p">]))</span>
+            <span class="p">)</span>
+            <span class="k">else</span> <span class="n">pdf_temp</span><span class="p">[[</span><span class="n">pop_col_name</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">col</span><span class="p">]]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">phi</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span> <span class="ow">and</span> <span class="p">((</span><span class="n">phi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)))</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="p">)</span>
         <span class="n">pdf_crosstab</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">pdf_temp</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -263,7 +302,15 @@
     <span class="k">return</span> <span class="n">pdf_crosstab</span><span class="p">,</span> <span class="n">pdf_crosstab_pretty</span></div>
 
 
-<div class="viewcode-block" id="get_ranksum_table"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_ranksum_table">[docs]</a><span class="k">def</span> <span class="nf">get_ranksum_table</span><span class="p">(</span><span class="n">pdf_dataset</span><span class="p">,</span> <span class="n">lst_metrics</span><span class="p">,</span> <span class="n">pop_col_name</span><span class="p">,</span> <span class="n">dct_labels</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_ranksum_table">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_ranksum_table">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ranksum_table</span><span class="p">(</span>
+    <span class="n">pdf_dataset</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">lst_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">pop_col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dct_labels</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
     <span class="n">lst_pop_val</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="n">pdf_dataset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">pdf_dataset</span><span class="p">[</span><span class="n">pop_col_name</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()][</span><span class="n">pop_col_name</span><span class="p">]</span>
         <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
@@ -330,7 +377,7 @@
                         <span class="k">for</span> <span class="n">pop_val</span> <span class="ow">in</span> <span class="n">lst_pop_val</span>
                     <span class="p">]</span>
                 <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-exception-caught</span>
             <span class="k">pass</span>
 
         <span class="n">pdf_ranksum</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -386,19 +433,22 @@
     <span class="k">return</span> <span class="n">pdf_ranksum</span><span class="p">,</span> <span class="n">pdf_ranksum_pretty</span></div>
 
 
-<div class="viewcode-block" id="get_cont_table_statewise"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_cont_table_statewise">[docs]</a><span class="k">def</span> <span class="nf">get_cont_table_statewise</span><span class="p">(</span>
-    <span class="n">pdf_included</span><span class="p">,</span>
-    <span class="n">lst_metrics</span><span class="p">,</span>
-    <span class="n">pop_col_name</span><span class="p">,</span>
-    <span class="n">lst_count_metrics</span><span class="p">,</span>
-    <span class="n">dct_labels</span><span class="p">,</span>
-    <span class="n">lst_st</span><span class="p">,</span>
-    <span class="n">state_col_name</span><span class="p">,</span>
-<span class="p">):</span>
+
+<div class="viewcode-block" id="get_cont_table_statewise">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_cont_table_statewise">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cont_table_statewise</span><span class="p">(</span>
+    <span class="n">pdf_included</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">lst_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">pop_col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">lst_count_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">dct_labels</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">lst_st</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">state_col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">pdf_pretty_combined</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="nb">sorted</span><span class="p">(</span><span class="n">lst_st</span><span class="p">)</span>
+    <span class="n">lst_st</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lst_st</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;All States&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">lst_st</span><span class="p">:</span>
-        <span class="n">pdf_t</span><span class="p">,</span> <span class="n">pdf_pretty</span> <span class="o">=</span> <span class="n">get_contingency_table</span><span class="p">(</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">pdf_pretty</span> <span class="o">=</span> <span class="n">get_contingency_table</span><span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">pdf_included</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_included</span><span class="p">[</span><span class="n">state_col_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">state</span><span class="p">]</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">!=</span> <span class="s2">&quot;All States&quot;</span><span class="p">)</span>
@@ -414,13 +464,21 @@
     <span class="k">return</span> <span class="n">pdf_pretty_combined</span></div>
 
 
-<div class="viewcode-block" id="get_ranksum_table_statewise"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_ranksum_table_statewise">[docs]</a><span class="k">def</span> <span class="nf">get_ranksum_table_statewise</span><span class="p">(</span>
-    <span class="n">pdf_included</span><span class="p">,</span> <span class="n">lst_metrics</span><span class="p">,</span> <span class="n">pop_col_name</span><span class="p">,</span> <span class="n">dct_labels</span><span class="p">,</span> <span class="n">lst_st</span><span class="p">,</span> <span class="n">state_col_name</span>
-<span class="p">):</span>
+
+<div class="viewcode-block" id="get_ranksum_table_statewise">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_ranksum_table_statewise">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ranksum_table_statewise</span><span class="p">(</span>
+    <span class="n">pdf_included</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">lst_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">pop_col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dct_labels</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">lst_st</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">state_col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">pdf_pretty_combined</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="nb">sorted</span><span class="p">(</span><span class="n">lst_st</span><span class="p">)</span>
+    <span class="n">lst_st</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">lst_st</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;All States&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">lst_st</span><span class="p">:</span>
-        <span class="n">pdf_t</span><span class="p">,</span> <span class="n">pdf_pretty</span> <span class="o">=</span> <span class="n">get_ranksum_table</span><span class="p">(</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">pdf_pretty</span> <span class="o">=</span> <span class="n">get_ranksum_table</span><span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">pdf_included</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pdf_included</span><span class="p">[</span><span class="n">state_col_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">state</span><span class="p">]</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">!=</span> <span class="s2">&quot;All States&quot;</span><span class="p">)</span>
@@ -435,7 +493,10 @@
     <span class="k">return</span> <span class="n">pdf_pretty_combined</span></div>
 
 
-<div class="viewcode-block" id="color_positive_green"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.color_positive_green">[docs]</a><span class="k">def</span> <span class="nf">color_positive_green</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+
+<div class="viewcode-block" id="color_positive_green">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.color_positive_green">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">color_positive_green</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">c1</span> <span class="o">=</span> <span class="s2">&quot;background-color: #d1cfa1&quot;</span>
     <span class="n">c2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="n">cols</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
@@ -445,7 +506,15 @@
     <span class="k">return</span> <span class="n">df1</span></div>
 
 
-<div class="viewcode-block" id="get_descriptives"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_descriptives">[docs]</a><span class="k">def</span> <span class="nf">get_descriptives</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">lst_st</span><span class="p">,</span> <span class="n">lst_col</span><span class="p">,</span> <span class="n">state_col_name</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_descriptives">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_descriptives">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_descriptives</span><span class="p">(</span>
+    <span class="n">pdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">lst_st</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">lst_col</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">state_col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">lst_pdf_desc</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">lst_st</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;Σ All States&quot;</span><span class="p">]:</span>
         <span class="n">pdf_state</span> <span class="o">=</span> <span class="p">(</span>
@@ -458,7 +527,7 @@
             <span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="n">percentiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">])</span>
             <span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="p">)</span>
-        <span class="n">pdf_desc</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;metric&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">pdf_desc</span> <span class="o">=</span> <span class="n">pdf_desc</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;metric&quot;</span><span class="p">})</span>
         <span class="n">pdf_desc</span><span class="p">[</span><span class="n">state_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
         <span class="n">pdf_desc</span> <span class="o">=</span> <span class="n">pdf_desc</span><span class="p">[</span>
             <span class="p">[</span><span class="n">state_col_name</span><span class="p">,</span> <span class="s2">&quot;metric&quot;</span><span class="p">]</span>
@@ -475,7 +544,10 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_missingness_stats"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_missingness_stats">[docs]</a><span class="k">def</span> <span class="nf">get_missingness_stats</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">outputfname</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_missingness_stats">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_missingness_stats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_missingness_stats</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">outputfname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">df_missing</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">gpdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -527,17 +599,21 @@
     <span class="k">del</span> <span class="n">df_missing</span><span class="p">[</span><span class="s2">&quot;level_1&quot;</span><span class="p">]</span>
     <span class="n">df_missing</span> <span class="o">=</span> <span class="n">df_missing</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">])</span>
     <span class="n">df_missing</span> <span class="o">=</span> <span class="n">df_missing</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-    <span class="n">df_missing_with_total</span> <span class="o">=</span> <span class="n">df_missing</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="n">df_missing_with_total</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
+        <span class="n">df_missing</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span><span class="o">**</span><span class="p">{</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">:</span> <span class="s2">&quot;ALL STATES&quot;</span><span class="p">},</span> <span class="o">**</span><span class="n">df_missing</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">)</span>
+        <span class="p">)]</span>
     <span class="p">)</span>
     <span class="n">df_missing_with_total</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">outputfname</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df_missing_with_total</span></div>
 
 
-<div class="viewcode-block" id="get_utilisation_histograms"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_utilisation_histograms">[docs]</a><span class="k">def</span> <span class="nf">get_utilisation_histograms</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">lst_covar</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_utilisation_histograms">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_utilisation_histograms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_utilisation_histograms</span><span class="p">(</span><span class="n">pdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">lst_covar</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
     <span class="n">dct_new_util_vist_names</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;nhrsapcvst&quot;</span><span class="p">:</span> <span class="s2">&quot;No. PC Visits&quot;</span><span class="p">,</span>
         <span class="s2">&quot;nhrsa_nonfqhc_pcvst&quot;</span><span class="p">:</span> <span class="s2">&quot;No. PC Visits (excluding FQHC)&quot;</span><span class="p">,</span>
@@ -569,7 +645,15 @@
     <span class="k">return</span> <span class="n">subplots</span><span class="o">.</span><span class="n">opts</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="n">shared_axes</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span><span class="o">.</span><span class="n">cols</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_covar_plots"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_covar_plots">[docs]</a><span class="k">def</span> <span class="nf">get_covar_plots</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">lst_covar</span><span class="p">,</span> <span class="n">lst_hist_covar</span><span class="p">,</span> <span class="n">cut_outliers</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_covar_plots">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.get_covar_plots">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_covar_plots</span><span class="p">(</span>
+    <span class="n">pdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">lst_covar</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">lst_hist_covar</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">cut_outliers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
     <span class="n">dct_known_titles</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;TotElMon&quot;</span><span class="p">:</span> <span class="s2">&quot;Total Eligible Months&quot;</span><span class="p">,</span>
         <span class="s2">&quot;total_ffs_month&quot;</span><span class="p">:</span> <span class="s2">&quot;Total FFS Months&quot;</span><span class="p">,</span>
@@ -638,9 +722,16 @@
     <span class="k">return</span> <span class="n">plots</span><span class="o">.</span><span class="n">opts</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span><span class="n">shared_axes</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span><span class="o">.</span><span class="n">cols</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="compute_descriptives"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_descriptives">[docs]</a><span class="k">def</span> <span class="nf">compute_descriptives</span><span class="p">(</span>
-    <span class="n">pdf</span><span class="p">,</span> <span class="n">lst_states</span><span class="p">,</span> <span class="n">lst_metrics</span><span class="p">,</span> <span class="n">output_fname</span><span class="p">,</span> <span class="n">state_col_name</span><span class="o">=</span><span class="s2">&quot;STATE_CD&quot;</span>
-<span class="p">):</span>
+
+<div class="viewcode-block" id="compute_descriptives">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_descriptives">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_descriptives</span><span class="p">(</span>
+    <span class="n">pdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">lst_states</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">lst_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">output_fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">state_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;STATE_CD&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">pdf_desc</span> <span class="o">=</span> <span class="n">get_descriptives</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">lst_states</span><span class="p">,</span> <span class="n">lst_metrics</span><span class="p">,</span> <span class="n">state_col_name</span><span class="p">)</span>
     <span class="n">pdf_desc</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">output_fname</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Statewise stats is saved at </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">output_fname</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -649,15 +740,18 @@
     <span class="k">return</span> <span class="n">pdf_desc</span></div>
 
 
-<div class="viewcode-block" id="compute_t_stats"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_t_stats">[docs]</a><span class="k">def</span> <span class="nf">compute_t_stats</span><span class="p">(</span>
-    <span class="n">pdf</span><span class="p">,</span>
-    <span class="n">lst_states</span><span class="p">,</span>
-    <span class="n">lst_metrics</span><span class="p">,</span>
-    <span class="n">output_fname</span><span class="p">,</span>
-    <span class="n">pop_col_name</span><span class="o">=</span><span class="s2">&quot;gt_50pc_hrsa_fqhc&quot;</span><span class="p">,</span>
-    <span class="n">dct_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">state_col_name</span><span class="o">=</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">,</span>
-<span class="p">):</span>
+
+<div class="viewcode-block" id="compute_t_stats">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_t_stats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_t_stats</span><span class="p">(</span>
+    <span class="n">pdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">lst_states</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">lst_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">output_fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">pop_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gt_50pc_hrsa_fqhc&quot;</span><span class="p">,</span>
+    <span class="n">dct_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">state_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;STATE_CD&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;pd.io.formats.style.Styler&quot;</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">dct_labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">dct_labels</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;non-FQHC&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;FQHC&quot;</span><span class="p">}</span>
     <span class="n">pdf_tstats</span> <span class="o">=</span> <span class="n">get_ranksum_table_statewise</span><span class="p">(</span>
@@ -673,16 +767,19 @@
     <span class="k">return</span> <span class="n">pdf_tstats</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">color_positive_green</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="compute_contingency_table"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_contingency_table">[docs]</a><span class="k">def</span> <span class="nf">compute_contingency_table</span><span class="p">(</span>
-    <span class="n">pdf</span><span class="p">,</span>
-    <span class="n">lst_states</span><span class="p">,</span>
-    <span class="n">lst_metrics</span><span class="p">,</span>
-    <span class="n">lst_count_metrics</span><span class="p">,</span>
-    <span class="n">output_fname</span><span class="p">,</span>
-    <span class="n">pop_col_name</span><span class="o">=</span><span class="s2">&quot;gt_50pc_hrsa_fqhc&quot;</span><span class="p">,</span>
-    <span class="n">dct_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">state_col_name</span><span class="o">=</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">,</span>
-<span class="p">):</span>
+
+<div class="viewcode-block" id="compute_contingency_table">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_contingency_table">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_contingency_table</span><span class="p">(</span>
+    <span class="n">pdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">lst_states</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">lst_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">lst_count_metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">output_fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">pop_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gt_50pc_hrsa_fqhc&quot;</span><span class="p">,</span>
+    <span class="n">dct_labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">state_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;STATE_CD&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;pd.io.formats.style.Styler&quot;</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">dct_labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">dct_labels</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;non-FQHC&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;FQHC&quot;</span><span class="p">}</span>
     <span class="n">pdf_crosstab</span> <span class="o">=</span> <span class="n">get_cont_table_statewise</span><span class="p">(</span>
@@ -708,7 +805,14 @@
     <span class="k">return</span> <span class="n">pdf_crosstab</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">color_positive_green</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="compute_missing_stats"><a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_missing_stats">[docs]</a><span class="k">def</span> <span class="nf">compute_missing_stats</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">output_fname</span><span class="p">,</span> <span class="n">state_col_name</span><span class="o">=</span><span class="s2">&quot;STATE_CD&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="compute_missing_stats">
+<a class="viewcode-back" href="../../../medicaid_utils.common_utils.html#medicaid_utils.common_utils.stats_utils.compute_missing_stats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_missing_stats</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">output_fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">state_col_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;STATE_CD&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">pdf_missing_stats</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
             <span class="p">[</span>
@@ -757,9 +861,9 @@
         <span class="n">pdf_missing_stats</span><span class="o">.</span><span class="n">index</span>
     <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
     <span class="n">pdf_missing_stats</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pdf_missing_stats</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">state_col_name</span><span class="p">})</span>
-        <span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span>
+            <span class="n">pdf_missing_stats</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">state_col_name</span><span class="p">}),</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
                 <span class="p">{</span>
                     <span class="o">**</span><span class="p">{</span><span class="n">state_col_name</span><span class="p">:</span> <span class="s2">&quot;All States&quot;</span><span class="p">},</span>
@@ -767,7 +871,7 @@
                 <span class="p">},</span>
                 <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="p">)</span>
-        <span class="p">)</span>
+        <span class="p">])</span>
         <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">state_col_name</span><span class="p">)</span>
         <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -784,6 +888,7 @@
     <span class="p">)</span>
     <span class="k">del</span> <span class="n">pdf_missing_stats</span><span class="p">[</span><span class="n">state_col_name</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">pdf_missing_stats</span><span class="o">.</span><span class="n">T</span></div>
+
 </pre></div>
 
            </div>
@@ -793,7 +898,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

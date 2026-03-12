@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial: Extracting a Type 2 Diabetes Cohort &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort" href="oud_cohort.html" />
+    <link rel="prev" title="Quality Measures &amp; Domain Modules" href="../user_guide/quality_measures.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            medicaid_utils
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial: Extracting a Type 2 Diabetes Cohort</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#scenario">Scenario</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-define-diagnosis-codes">Step 1: Define Diagnosis Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-define-inclusion-filters">Step 2: Define Inclusion Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-set-up-data-paths">Step 3: Set Up Data Paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-run-the-extraction">Step 4: Run the Extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-what-gets-exported">Step 5: What Gets Exported</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-6-adding-risk-adjustment">Step 6: Adding Risk Adjustment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-multiple-states">Running Multiple States</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-max-data-instead">Using MAX Data Instead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#alternative-manual-cohort-construction">Alternative: Manual Cohort Construction</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tutorial: Extracting a Type 2 Diabetes Cohort</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/diabetes_cohort.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tutorial-extracting-a-type-2-diabetes-cohort">
+<h1>Tutorial: Extracting a Type 2 Diabetes Cohort<a class="headerlink" href="#tutorial-extracting-a-type-2-diabetes-cohort" title="Link to this heading"></a></h1>
+<p>This tutorial walks through extracting a cohort of adult Medicaid patients with Type 2
+diabetes, including their inpatient, outpatient, and person summary files.</p>
+<section id="scenario">
+<h2>Scenario<a class="headerlink" href="#scenario" title="Link to this heading"></a></h2>
+<p>You want to study healthcare utilization among adult (18–64) Medicaid enrollees with
+Type 2 diabetes in Alabama using TAF data from 2016–2018.</p>
+</section>
+<section id="step-1-define-diagnosis-codes">
+<h2>Step 1: Define Diagnosis Codes<a class="headerlink" href="#step-1-define-diagnosis-codes" title="Link to this heading"></a></h2>
+<p>Type 2 diabetes maps to ICD-10 code <code class="docutils literal notranslate"><span class="pre">E11</span></code> (and subcodes). We exclude Type 1 diabetes
+(<code class="docutils literal notranslate"><span class="pre">E10</span></code>) to avoid misclassification.</p>
+<p>For ICD-9 (if using MAX data or cross-era studies), Type 2 diabetes uses prefix <code class="docutils literal notranslate"><span class="pre">250</span></code>
+with even fifth digits (e.g., <code class="docutils literal notranslate"><span class="pre">25000</span></code>, <code class="docutils literal notranslate"><span class="pre">25002</span></code>), while Type 1 uses odd fifth digits
+(<code class="docutils literal notranslate"><span class="pre">25001</span></code>, <code class="docutils literal notranslate"><span class="pre">25003</span></code>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dct_codes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;diag_codes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;diabetes_t2&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="mi">9</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;250&quot;</span><span class="p">],</span>
+                <span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E11&quot;</span><span class="p">],</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;excl&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="mi">9</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;25001&quot;</span><span class="p">,</span> <span class="s2">&quot;25003&quot;</span><span class="p">,</span> <span class="s2">&quot;25011&quot;</span><span class="p">,</span> <span class="s2">&quot;25013&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;25021&quot;</span><span class="p">,</span> <span class="s2">&quot;25023&quot;</span><span class="p">,</span> <span class="s2">&quot;25031&quot;</span><span class="p">,</span> <span class="s2">&quot;25033&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;25041&quot;</span><span class="p">,</span> <span class="s2">&quot;25043&quot;</span><span class="p">,</span> <span class="s2">&quot;25051&quot;</span><span class="p">,</span> <span class="s2">&quot;25053&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;25061&quot;</span><span class="p">,</span> <span class="s2">&quot;25063&quot;</span><span class="p">,</span> <span class="s2">&quot;25071&quot;</span><span class="p">,</span> <span class="s2">&quot;25073&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;25081&quot;</span><span class="p">,</span> <span class="s2">&quot;25083&quot;</span><span class="p">,</span> <span class="s2">&quot;25091&quot;</span><span class="p">,</span> <span class="s2">&quot;25093&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E10&quot;</span><span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;proc_codes&quot;</span><span class="p">:</span> <span class="p">{},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-define-inclusion-filters">
+<h2>Step 2: Define Inclusion Filters<a class="headerlink" href="#step-2-define-inclusion-filters" title="Link to this heading"></a></h2>
+<p>Restrict to adults aged 18–64 with valid demographics:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dct_filters</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;cohort&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;ip&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;missing_dob&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;duplicated&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;range_numeric_age_prncpl_proc&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;ot&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;missing_dob&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;duplicated&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;range_numeric_age_srvc_bgn&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;export&quot;</span><span class="p">:</span> <span class="p">{},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Filter explanations:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">missing_dob:</span> <span class="pre">0</span></code> – keep only claims where date of birth is not missing</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">duplicated:</span> <span class="pre">0</span></code> – exclude duplicate claims</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">range_numeric_age_*:</span> <span class="pre">(18,</span> <span class="pre">64)</span></code> – restrict to ages 18–64 inclusive, computed as of
+the principal procedure date (IP) or service begin date (OT)</p></li>
+</ul>
+</section>
+<section id="step-3-set-up-data-paths">
+<h2>Step 3: Set Up Data Paths<a class="headerlink" href="#step-3-set-up-data-paths" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dct_paths</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;source_root&quot;</span><span class="p">:</span> <span class="s2">&quot;/data/cms/&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;export_folder&quot;</span><span class="p">:</span> <span class="s2">&quot;/output/diabetes_cohort/&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-run-the-extraction">
+<h2>Step 4: Run the Extraction<a class="headerlink" href="#step-4-run-the-extraction" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.filters.patients.cohort_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_cohort</span>
+
+<span class="n">extract_cohort</span><span class="p">(</span>
+    <span class="n">state</span><span class="o">=</span><span class="s2">&quot;AL&quot;</span><span class="p">,</span>
+    <span class="n">lst_year</span><span class="o">=</span><span class="p">[</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">2017</span><span class="p">,</span> <span class="mi">2018</span><span class="p">],</span>
+    <span class="n">dct_diag_proc_codes</span><span class="o">=</span><span class="n">dct_codes</span><span class="p">,</span>
+    <span class="n">dct_filters</span><span class="o">=</span><span class="n">dct_filters</span><span class="p">,</span>
+    <span class="n">lst_types_to_export</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="s2">&quot;ps&quot;</span><span class="p">],</span>
+    <span class="n">dct_data_paths</span><span class="o">=</span><span class="n">dct_paths</span><span class="p">,</span>
+    <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">,</span>
+    <span class="n">clean_exports</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">preprocess_exports</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">export_format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-5-what-gets-exported">
+<h2>Step 5: What Gets Exported<a class="headerlink" href="#step-5-what-gets-exported" title="Link to this heading"></a></h2>
+<p>After running, <code class="docutils literal notranslate"><span class="pre">/output/diabetes_cohort/</span></code> will contain:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>diabetes_cohort/
+  cohort_AL.csv              # All patients across years
+  cohort_AL_2016.csv         # 2016 patients with condition flags
+  cohort_AL_2017.csv
+  cohort_AL_2018.csv
+  cohort_exclusions_ip_AL_2016.parquet   # Filter statistics
+  cohort_exclusions_ot_AL_2016.parquet
+  cohort_exclusions_ps_AL_2016.parquet
+  ...
+  ip/                        # Exported inpatient claims (cleaned)
+  ot/                        # Exported outpatient claims (cleaned)
+  ps/                        # Exported person summary (cleaned)
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">cohort_AL.csv</span></code> file contains one row per patient-year with columns:</p>
+<ul class="simple">
+<li><p>Beneficiary ID (index)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ip_diag_diabetes_t2</span></code> – 1 if the patient had a T2D diagnosis in IP claims</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ot_diag_diabetes_t2</span></code> – 1 if the patient had a T2D diagnosis in OT claims</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ip_diag_diabetes_t2_date</span></code> – earliest T2D diagnosis date in IP</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ot_diag_diabetes_t2_date</span></code> – earliest T2D diagnosis date in OT</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include</span></code> – 1 if the patient meets all cohort criteria</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">YEAR</span></code>, <code class="docutils literal notranslate"><span class="pre">STATE_CD</span></code> – year and state identifiers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">birth_date</span></code> – date of birth</p></li>
+</ul>
+</section>
+<section id="step-6-adding-risk-adjustment">
+<h2>Step 6: Adding Risk Adjustment<a class="headerlink" href="#step-6-adding-risk-adjustment" title="Link to this heading"></a></h2>
+<p>After extracting the cohort, you can add Elixhauser comorbidity scores:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">taf_ip</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_elixhauser</span><span class="w"> </span><span class="kn">import</span> <span class="n">elixhauser_comorbidity</span>
+
+<span class="c1"># Load the exported IP claims</span>
+<span class="n">ip</span> <span class="o">=</span> <span class="n">taf_ip</span><span class="o">.</span><span class="n">TAFIP</span><span class="p">(</span>
+    <span class="n">year</span><span class="o">=</span><span class="mi">2016</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;AL&quot;</span><span class="p">,</span>
+    <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/output/diabetes_cohort&quot;</span><span class="p">,</span>
+    <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">preprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Flag Elixhauser comorbidities</span>
+<span class="n">df_ip</span> <span class="o">=</span> <span class="n">elixhauser_comorbidity</span><span class="o">.</span><span class="n">flag_comorbidities</span><span class="p">(</span>
+    <span class="n">ip</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">],</span> <span class="n">claim_type</span><span class="o">=</span><span class="s2">&quot;taf&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="running-multiple-states">
+<h2>Running Multiple States<a class="headerlink" href="#running-multiple-states" title="Link to this heading"></a></h2>
+<p>To extract the same cohort across multiple states:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AL&quot;</span><span class="p">,</span> <span class="s2">&quot;IL&quot;</span><span class="p">,</span> <span class="s2">&quot;CA&quot;</span><span class="p">,</span> <span class="s2">&quot;NY&quot;</span><span class="p">,</span> <span class="s2">&quot;TX&quot;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">states</span><span class="p">:</span>
+    <span class="n">extract_cohort</span><span class="p">(</span>
+        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+        <span class="n">lst_year</span><span class="o">=</span><span class="p">[</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">2017</span><span class="p">,</span> <span class="mi">2018</span><span class="p">],</span>
+        <span class="n">dct_diag_proc_codes</span><span class="o">=</span><span class="n">dct_codes</span><span class="p">,</span>
+        <span class="n">dct_filters</span><span class="o">=</span><span class="n">dct_filters</span><span class="p">,</span>
+        <span class="n">lst_types_to_export</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="s2">&quot;ps&quot;</span><span class="p">],</span>
+        <span class="n">dct_data_paths</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;source_root&quot;</span><span class="p">:</span> <span class="s2">&quot;/data/cms/&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;export_folder&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;/output/diabetes_cohort/</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">,</span>
+        <span class="n">clean_exports</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">preprocess_exports</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="using-max-data-instead">
+<h2>Using MAX Data Instead<a class="headerlink" href="#using-max-data-instead" title="Link to this heading"></a></h2>
+<p>For older data (pre-2016), switch to MAX format. The main differences:</p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">cms_format=&quot;MAX&quot;</span></code> instead of <code class="docutils literal notranslate"><span class="pre">&quot;TAF&quot;</span></code></p></li>
+<li><p>ICD-9 codes become primary (ICD-10 exclusions are optional)</p></li>
+<li><p>Age columns differ: <code class="docutils literal notranslate"><span class="pre">age_prncpl_proc</span></code> (IP) and <code class="docutils literal notranslate"><span class="pre">age_srvc_bgn</span></code> (OT)</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extract_cohort</span><span class="p">(</span>
+    <span class="n">state</span><span class="o">=</span><span class="s2">&quot;WY&quot;</span><span class="p">,</span>
+    <span class="n">lst_year</span><span class="o">=</span><span class="p">[</span><span class="mi">2010</span><span class="p">,</span> <span class="mi">2011</span><span class="p">,</span> <span class="mi">2012</span><span class="p">],</span>
+    <span class="n">dct_diag_proc_codes</span><span class="o">=</span><span class="n">dct_codes</span><span class="p">,</span>
+    <span class="n">dct_filters</span><span class="o">=</span><span class="n">dct_filters</span><span class="p">,</span>
+    <span class="n">lst_types_to_export</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ip&quot;</span><span class="p">,</span> <span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="s2">&quot;ps&quot;</span><span class="p">],</span>
+    <span class="n">dct_data_paths</span><span class="o">=</span><span class="n">dct_paths</span><span class="p">,</span>
+    <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;MAX&quot;</span><span class="p">,</span>
+    <span class="n">clean_exports</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">preprocess_exports</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="alternative-manual-cohort-construction">
+<h2>Alternative: Manual Cohort Construction<a class="headerlink" href="#alternative-manual-cohort-construction" title="Link to this heading"></a></h2>
+<p>If you need more control than <code class="docutils literal notranslate"><span class="pre">extract_cohort</span></code> provides, you can build the cohort
+step by step:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">taf_ip</span><span class="p">,</span> <span class="n">taf_ot</span><span class="p">,</span> <span class="n">taf_ps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.filters.claims</span><span class="w"> </span><span class="kn">import</span> <span class="n">dx_and_proc</span>
+
+<span class="c1"># 1. Load and preprocess claims</span>
+<span class="n">ip</span> <span class="o">=</span> <span class="n">taf_ip</span><span class="o">.</span><span class="n">TAFIP</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2016</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;AL&quot;</span><span class="p">,</span> <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/data/cms&quot;</span><span class="p">)</span>
+<span class="n">ot</span> <span class="o">=</span> <span class="n">taf_ot</span><span class="o">.</span><span class="n">TAFOT</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2016</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;AL&quot;</span><span class="p">,</span> <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/data/cms&quot;</span><span class="p">)</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">taf_ps</span><span class="o">.</span><span class="n">TAFPS</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2016</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">&quot;AL&quot;</span><span class="p">,</span> <span class="n">data_root</span><span class="o">=</span><span class="s2">&quot;/data/cms&quot;</span><span class="p">)</span>
+
+<span class="c1"># 2. Flag diagnosis codes on claims</span>
+<span class="n">df_ip_flagged</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
+    <span class="n">dct_diag_codes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;diabetes_t2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E11&quot;</span><span class="p">]},</span> <span class="s2">&quot;excl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E10&quot;</span><span class="p">]}}},</span>
+    <span class="n">dct_proc_codes</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">df_claims</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prncpl_proc_date&quot;</span><span class="p">:</span> <span class="s2">&quot;service_date&quot;</span><span class="p">}</span>
+    <span class="p">),</span>
+    <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># 3. Get patient IDs with T2D</span>
+<span class="n">pdf_patients</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">get_patient_ids_with_conditions</span><span class="p">(</span>
+    <span class="n">dct_diag_codes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;diabetes_t2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E11&quot;</span><span class="p">]},</span> <span class="s2">&quot;excl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E10&quot;</span><span class="p">]}}},</span>
+    <span class="n">dct_proc_codes</span><span class="o">=</span><span class="p">{},</span>
+    <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">,</span>
+    <span class="n">ip</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prncpl_proc_date&quot;</span><span class="p">:</span> <span class="s2">&quot;service_date&quot;</span><span class="p">}</span>
+    <span class="p">),</span>
+    <span class="n">ot</span><span class="o">=</span><span class="n">ot</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;srvc_bgn_date&quot;</span><span class="p">:</span> <span class="s2">&quot;service_date&quot;</span><span class="p">}</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># 4. Filter to your population</span>
+<span class="n">t2d_patients</span> <span class="o">=</span> <span class="n">pdf_patients</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+    <span class="p">(</span><span class="n">pdf_patients</span><span class="p">[</span><span class="s2">&quot;ip_diag_diabetes_t2&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="o">|</span> <span class="p">(</span><span class="n">pdf_patients</span><span class="p">[</span><span class="s2">&quot;ot_diag_diabetes_t2&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">t2d_patients</span><span class="p">)</span><span class="si">}</span><span class="s2"> patients with Type 2 diabetes&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../user_guide/quality_measures.html" class="btn btn-neutral float-left" title="Quality Measures &amp; Domain Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="oud_cohort.html" class="btn btn-neutral float-right" title="Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.filters.claims.dx_and_proc &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.filters.claims.dx_and_proc</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.filters.claims.dx_and_proc</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -68,23 +89,26 @@
   <h1>Source code for medicaid_utils.filters.claims.dx_and_proc</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;This module has functions to add diagnosis/ procedure code based</span>
 <span class="sd">indicator flags to claims&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
 
 
-<div class="viewcode-block" id="get_patient_ids_with_conditions"><a class="viewcode-back" href="../../../../medicaid_utils.filters.claims.html#medicaid_utils.filters.claims.dx_and_proc.get_patient_ids_with_conditions">[docs]</a><span class="k">def</span> <span class="nf">get_patient_ids_with_conditions</span><span class="p">(</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+<div class="viewcode-block" id="get_patient_ids_with_conditions">
+<a class="viewcode-back" href="../../../../medicaid_utils.filters.claims.html#medicaid_utils.filters.claims.dx_and_proc.get_patient_ids_with_conditions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_patient_ids_with_conditions</span><span class="p">(</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
     <span class="n">dct_diag_codes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">dct_proc_codes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="vm">__file__</span><span class="p">,</span>
     <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MAX&quot;</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">dct_claims</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="n">dct_column_values</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="o">**</span><span class="n">dct_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Gets patient ids with conditions denoted by provided diagnosis codes or</span>
 <span class="sd">    procedure codes</span>
@@ -130,6 +154,25 @@
 <span class="sd">        Logger name</span>
 <span class="sd">    cms_format : {&#39;MAX&#39;, TAF&#39;}</span>
 <span class="sd">        CMS file format.</span>
+<span class="sd">    dct_column_values : dict</span>
+<span class="sd">        Dictionary of column names and value that should be used to flag</span>
+<span class="sd">        conditions and procedures. Should be in the format</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {condn_procedure_name:</span>
+<span class="sd">                {column_name: list of values} }</span>
+
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;dx_delivery&#39;:</span>
+<span class="sd">                {&#39;RCPNT_DLVRY_CD&#39;: [1]}</span>
+<span class="sd">            }</span>
+
 <span class="sd">    **dct_claims : dict</span>
 <span class="sd">        Keyword arguments of claim dataframes. Should be in the format:</span>
 <span class="sd">            {file_type: dask.dataframe}</span>
@@ -143,6 +186,22 @@
 <span class="sd">    IndexError</span>
 <span class="sd">        If the input claim datasets do not have the same index name</span>
 
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; import dask.dataframe as dd</span>
+<span class="sd">    &gt;&gt;&gt; pdf = pd.DataFrame({</span>
+<span class="sd">    ...     &#39;MSIS_ID&#39;: [&#39;A&#39;, &#39;B&#39;, &#39;A&#39;],</span>
+<span class="sd">    ...     &#39;DIAG_CD_1&#39;: [&#39;3040&#39;, &#39;250&#39;, &#39;3055&#39;],</span>
+<span class="sd">    ...     &#39;service_date&#39;: pd.to_datetime([&#39;2020-01-01&#39;, &#39;2020-02-01&#39;, &#39;2020-03-01&#39;]),</span>
+<span class="sd">    ... }).set_index(&#39;MSIS_ID&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; ddf = dd.from_pandas(pdf, npartitions=1)</span>
+<span class="sd">    &gt;&gt;&gt; dct_diag = {&#39;oud&#39;: {&#39;incl&#39;: {9: [&#39;3040&#39;, &#39;3055&#39;]}}}</span>
+<span class="sd">    &gt;&gt;&gt; pdf_ids, dct_stats = get_patient_ids_with_conditions(</span>
+<span class="sd">    ...     dct_diag, {}, cms_format=&#39;MAX&#39;, ip=ddf)</span>
+<span class="sd">    &gt;&gt;&gt; &#39;ip_diag_oud&#39; in pdf_ids.columns</span>
+<span class="sd">    True</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
     <span class="n">pdf_patient_ids</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
@@ -155,6 +214,7 @@
             <span class="n">dct_proc_codes</span><span class="p">,</span>
             <span class="n">df_claim</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
             <span class="n">cms_format</span><span class="p">,</span>
+            <span class="n">dct_column_values</span><span class="o">=</span><span class="n">dct_column_values</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">dct_filter_results</span><span class="p">[</span><span class="n">claim_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -177,20 +237,28 @@
                 <span class="n">lst_diag_col</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">col</span>
                     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;diag_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_diag_codes</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="n">col</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dct_column_values</span>
+                        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;diag&quot;</span><span class="p">)</span>
+                    <span class="p">]</span>
                     <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
                 <span class="p">]</span>
                 <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lst_diag_col</span><span class="p">):</span>
                     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
                         <span class="n">diag_condn</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">lst_diag_col</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="n">lst_col</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                        <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;diag_</span><span class="si">{</span><span class="n">condn</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">condn</span> <span class="ow">in</span> <span class="n">dct_diag_codes</span><span class="p">]</span>
-                    <span class="p">)</span>
+                    <span class="n">lst_col</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">lst_diag_col</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">dct_proc_codes</span><span class="p">):</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">proc_condn</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                 <span class="n">lst_proc_col</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">col</span>
                     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;proc_</span><span class="si">{</span><span class="n">proc</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">dct_proc_codes</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="p">[</span>
+                        <span class="n">col</span>
+                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dct_column_values</span>
+                        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;proc&quot;</span><span class="p">)</span>
+                    <span class="p">]</span>
                     <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
                 <span class="p">]</span>
                 <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lst_proc_col</span><span class="p">):</span>
@@ -201,7 +269,7 @@
                         <span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                         <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="n">lst_col</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;proc_</span><span class="si">{</span><span class="n">proc</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">dct_proc_codes</span><span class="p">])</span>
+                    <span class="n">lst_col</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">lst_proc_col</span><span class="p">)</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">lst_col</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)][</span><span class="n">lst_col</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;service_date&quot;</span><span class="p">]]</span>
             <span class="n">dct_filter_results</span><span class="p">[</span><span class="n">claim_type</span><span class="p">][</span>
                 <span class="s2">&quot;with_conditions_procedures&quot;</span>
@@ -258,12 +326,16 @@
     <span class="k">return</span> <span class="n">pdf_patient_ids</span><span class="p">,</span> <span class="n">dct_filter_results</span></div>
 
 
-<div class="viewcode-block" id="flag_diagnoses_and_procedures"><a class="viewcode-back" href="../../../../medicaid_utils.filters.claims.html#medicaid_utils.filters.claims.dx_and_proc.flag_diagnoses_and_procedures">[docs]</a><span class="k">def</span> <span class="nf">flag_diagnoses_and_procedures</span><span class="p">(</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
+
+<div class="viewcode-block" id="flag_diagnoses_and_procedures">
+<a class="viewcode-back" href="../../../../medicaid_utils.filters.claims.html#medicaid_utils.filters.claims.dx_and_proc.flag_diagnoses_and_procedures">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_diagnoses_and_procedures</span><span class="p">(</span>  <span class="c1"># pylint: disable=missing-param-doc</span>
     <span class="n">dct_diag_codes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">dct_proc_codes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">df_claims</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">cms_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MAX&quot;</span><span class="p">,</span>
     <span class="n">lst_claim_diag_col</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dct_column_values</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{},</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Flags claims based on diagnosis/ procedure codes</span>
@@ -309,6 +381,24 @@
 <span class="sd">        CMS file format.</span>
 <span class="sd">    lst_claim_diag_col : List[str], optional</span>
 <span class="sd">        List of diagnosis column names</span>
+<span class="sd">    dct_column_values : dict</span>
+<span class="sd">        Dictionary of column names and numerical values that should be used to</span>
+<span class="sd">        flag conditions and procedures. Should be in the format</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {condn_procedure_name:</span>
+<span class="sd">                {column_name: list of numerical values} }</span>
+
+<span class="sd">        Eg:</span>
+
+<span class="sd">        .. highlight:: python</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {&#39;dx_delivery&#39;:</span>
+<span class="sd">                {&#39;RCPNT_DLVRY_CD&#39;: [1]}</span>
+<span class="sd">            }</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -319,6 +409,22 @@
 <span class="sd">    ValueError</span>
 <span class="sd">        If non-alphanumeric columns are present in ICD/ CPT procedure codes</span>
 <span class="sd">        in dct_diag_codes/ dct_proc_codes</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; import dask.dataframe as dd</span>
+<span class="sd">    &gt;&gt;&gt; pdf = pd.DataFrame({</span>
+<span class="sd">    ...     &#39;MSIS_ID&#39;: [&#39;A&#39;, &#39;B&#39;],</span>
+<span class="sd">    ...     &#39;DIAG_CD_1&#39;: [&#39;3040&#39;, &#39;250&#39;],</span>
+<span class="sd">    ...     &#39;DIAG_CD_2&#39;: [&#39;&#39;, &#39;3055&#39;],</span>
+<span class="sd">    ...     &#39;service_date&#39;: pd.to_datetime([&#39;2020-01-01&#39;, &#39;2020-02-01&#39;]),</span>
+<span class="sd">    ... }).set_index(&#39;MSIS_ID&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; ddf = dd.from_pandas(pdf, npartitions=1)</span>
+<span class="sd">    &gt;&gt;&gt; dct_diag = {&#39;oud&#39;: {&#39;incl&#39;: {9: [&#39;3040&#39;, &#39;3055&#39;]}}}</span>
+<span class="sd">    &gt;&gt;&gt; result = flag_diagnoses_and_procedures(dct_diag, {}, ddf, cms_format=&#39;MAX&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; result.compute()[&#39;diag_oud&#39;].tolist()</span>
+<span class="sd">    [1, 1]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Validate procedure codes</span>
@@ -763,35 +869,53 @@
                     <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">dct_proc_codes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
                 <span class="p">}</span>
             <span class="p">)</span>
-            <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="p">[</span>
-                <span class="p">[</span>
+        <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="p">[</span>
+            <span class="p">[</span>
+                <span class="n">col</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">columns</span>
+                <span class="k">if</span> <span class="n">col</span>
+                <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
+                    <span class="n">item</span>
+                    <span class="k">for</span> <span class="n">subitem</span> <span class="ow">in</span> <span class="p">[</span>
+                        <span class="p">[</span>
+                            <span class="n">col</span>
+                            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">columns</span>
+                            <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;proc_</span><span class="si">{</span><span class="n">proc</span><span class="si">}</span><span class="s2">_&quot;</span><span class="p">)</span>
+                        <span class="p">]</span>
+                        <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">dct_proc_codes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="p">]</span>
+                    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">subitem</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span>
                     <span class="n">col</span>
                     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">columns</span>
-                    <span class="k">if</span> <span class="n">col</span>
-                    <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
-                        <span class="n">item</span>
-                        <span class="k">for</span> <span class="n">subitem</span> <span class="ow">in</span> <span class="p">[</span>
-                            <span class="p">[</span>
-                                <span class="n">col</span>
-                                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">columns</span>
-                                <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;proc_</span><span class="si">{</span><span class="n">proc</span><span class="si">}</span><span class="s2">_&quot;</span><span class="p">)</span>
-                            <span class="p">]</span>
-                            <span class="k">for</span> <span class="n">proc</span> <span class="ow">in</span> <span class="n">dct_proc_codes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                        <span class="p">]</span>
-                        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">subitem</span>
-                    <span class="p">]</span>
-                    <span class="o">+</span> <span class="p">[</span>
-                        <span class="n">col</span>
-                        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">columns</span>
-                        <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;VALID_PRCDR_SYS_&quot;</span><span class="p">)</span>
-                    <span class="p">]</span>
-                    <span class="o">+</span> <span class="p">[</span>
-                        <span class="sa">f</span><span class="s2">&quot;valid_icd_</span><span class="si">{</span><span class="n">ver</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="k">for</span> <span class="n">ver</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">product</span><span class="p">([</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">lst_diag_col</span><span class="p">)</span>
-                    <span class="p">]</span>
+                    <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;VALID_PRCDR_SYS_&quot;</span><span class="p">)</span>
+                <span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">&quot;valid_icd_</span><span class="si">{</span><span class="n">ver</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">for</span> <span class="n">ver</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">product</span><span class="p">([</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">lst_diag_col</span><span class="p">)</span>
                 <span class="p">]</span>
             <span class="p">]</span>
+        <span class="p">]</span>
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span><span class="n">dct_column_values</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">condn_or_proc</span> <span class="ow">in</span> <span class="n">dct_column_values</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">condn_or_proc</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">df_claims</span><span class="p">[</span><span class="n">condn_or_proc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dct_col</span> <span class="o">=</span> <span class="n">dct_column_values</span><span class="p">[</span><span class="n">condn_or_proc</span><span class="p">]</span>
+            <span class="n">col_name</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">dct_col</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">df_claims</span> <span class="o">=</span> <span class="n">df_claims</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                    <span class="o">**</span><span class="p">{</span>
+                        <span class="n">condn_or_proc</span><span class="p">:</span> <span class="p">(</span>
+                            <span class="p">(</span><span class="n">df_claims</span><span class="p">[</span><span class="n">condn_or_proc</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="o">|</span> <span class="n">dd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+                                <span class="n">df_claims</span><span class="p">[</span><span class="n">col_name</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+                            <span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">dct_col</span><span class="p">[</span><span class="n">col_name</span><span class="p">])</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
     <span class="k">return</span> <span class="n">df_claims</span></div>
+
 </pre></div>
 
            </div>
@@ -801,7 +925,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

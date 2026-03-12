@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -69,38 +90,60 @@
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">literal_eval</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../../&quot;</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">medicaid_utils.common_utils</span> <span class="kn">import</span> <span class="n">recipes</span><span class="p">,</span> <span class="n">dataframe_utils</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.common_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">recipes</span><span class="p">,</span> <span class="n">dataframe_utils</span>
 
 
-<div class="viewcode-block" id="PreventionQualityIndicators"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators">[docs]</a><span class="k">class</span> <span class="nc">PreventionQualityIndicators</span><span class="p">:</span>
+<div class="viewcode-block" id="PreventionQualityIndicators">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PreventionQualityIndicators</span><span class="p">:</span>
     <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
     <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
     <span class="n">logger_name</span> <span class="o">=</span> <span class="vm">__name__</span>
 
-<div class="viewcode-block" id="PreventionQualityIndicators.prepare_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.prepare_cols">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">prepare_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">dx_col_suffix</span><span class="p">,</span> <span class="n">pr_col_suffix</span><span class="p">,</span> <span class="n">prsys_col_suffix</span><span class="p">):</span>
+<div class="viewcode-block" id="PreventionQualityIndicators.prepare_cols">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.prepare_cols">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_cols</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dx_col_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">pr_col_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prsys_col_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        New Column(s):</span>
+<span class="sd">        Prepare diagnosis and procedure code columns for PQI computation.</span>
 
-<span class="sd">            DRG - Inpatient DIAGNOSIS RELATED GROUP (DRG) CODE (if from CMS system)</span>
-<span class="sd">            DRGVER - GROUPING ALGORITHM USED TO ASSIGN DIAGNOSIS RELATED GROUP (DRG) VALUES (if from CMS system)</span>
-<span class="sd">            DQTR - Claim quarter of the year</span>
-<span class="sd">            YEAR - Claim year</span>
-<span class="sd">            PR{1-6} - ICD9 procedure code columns</span>
-<span class="sd">            DX{1-9} - ICD9 diagnosis code columns</span>
+<span class="sd">        Adds standardized DRG, DRGVER, DQTR, YEAR, DX{1-9}, and PR{1-6}</span>
+<span class="sd">        columns derived from raw claim columns.</span>
 
-<span class="sd">        :param df:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            IP claims DataFrame.</span>
+<span class="sd">        dx_col_suffix : str</span>
+<span class="sd">            Prefix for diagnosis code columns (e.g., &#39;DIAG_CD_&#39;).</span>
+<span class="sd">        pr_col_suffix : str</span>
+<span class="sd">            Prefix for procedure code columns (e.g., &#39;PRCDR_CD_&#39;).</span>
+<span class="sd">        prsys_col_suffix : str</span>
+<span class="sd">            Prefix for procedure code system columns (e.g., &#39;PRCDR_CD_SYS_&#39;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            DataFrame with standardized columns appended.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires an IP claims dask DataFrame</span>
+<span class="sd">        &gt;&gt;&gt; df = PreventionQualityIndicators.prepare_cols(  # doctest: +SKIP</span>
+<span class="sd">        ...     df, &#39;DIAG_CD_&#39;, &#39;PRCDR_CD_&#39;, &#39;PRCDR_CD_SYS_&#39;)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># IDENTIFIES THE GROUPING ALGORITHM USED TO ASSIGN DIAGNOSIS RELATED GROUP (DRG) VALUES,</span>
         <span class="c1"># HG = IF THE DRG VALUES ARE FROM THE CMS SYSTEM</span>
@@ -173,19 +216,32 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="PreventionQualityIndicators.add_drg_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.add_drg_cols">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">add_drg_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PreventionQualityIndicators.add_drg_cols">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.add_drg_cols">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_drg_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        New Column(s):</span>
+<span class="sd">        Add DRG-related columns for PQI computation.</span>
 
-<span class="sd">            IMMUNDR</span>
-<span class="sd">            MDC24</span>
-<span class="sd">            MDC25</span>
-<span class="sd">            MDCNEW</span>
-<span class="sd">            ICDVER</span>
+<span class="sd">        Derives IMMUNDR, MDC24, MDC25, MDCNEW, and ICDVER columns from</span>
+<span class="sd">        the DRG and admission date information.</span>
 
-<span class="sd">        :param df:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            IP claims DataFrame with DRG and DRGVER columns.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            DataFrame with DRG-related columns appended.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires an IP claims dask DataFrame with DRG columns</span>
+<span class="sd">        &gt;&gt;&gt; df = PreventionQualityIndicators.add_drg_cols(df)  # doctest: +SKIP</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># VER=version,FOR EXAMPLE &quot;HG15&quot; WOULD REPRESENT CMS DRG, VERSION 15</span>
         <span class="c1"># df[&#39;DRGVER&#39;] = df[&#39;DRGVER&#39;].where(df[&#39;DRG_REL_GROUP_IND&#39;].astype(str).str.slice(stop=2) != &#39;HG&#39;,</span>
@@ -325,63 +381,33 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="PreventionQualityIndicators.add_pr_dxgrp_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.add_pr_dxgrp_cols">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">add_pr_dxgrp_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PreventionQualityIndicators.add_pr_dxgrp_cols">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.add_pr_dxgrp_cols">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_pr_dxgrp_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        New Column(s):</span>
+<span class="sd">        Add diagnosis and procedure group indicator columns.</span>
 
-<span class="sd">            DX{1-9}</span>
-<span class="sd">            PR{1-6}</span>
-<span class="sd">            ACDIASD{1-9}</span>
-<span class="sd">            ACPGASD{1-9}</span>
-<span class="sd">            ACSAPPD{1-9}</span>
-<span class="sd">            ACSAP2D{1-9}</span>
-<span class="sd">            ACDIALD{1-9}</span>
-<span class="sd">            ACSASTD{1-9}</span>
-<span class="sd">            RESPAN{1-9}</span>
-<span class="sd">            ACCOPDD{1-9}</span>
-<span class="sd">            ACCPD2D{1-9}</span>
-<span class="sd">            ACSHYPD{1-9}</span>
-<span class="sd">            ACSHY2D{1-9}</span>
-<span class="sd">            CRENLFD{1-9}</span>
-<span class="sd">            PHYSIDB{1-9}</span>
-<span class="sd">            ACSCHFD{1-9}</span>
-<span class="sd">            ACSCH2D{1-9}</span>
-<span class="sd">            LIVEBND{1-9}</span>
-<span class="sd">            V29D{1-9}</span>
-<span class="sd">            LIVEB2D{1-9}</span>
-<span class="sd">            ACSDEHD{1-9}</span>
-<span class="sd">            ACSBACD{1-9}</span>
-<span class="sd">            ACSBA2D{1-9}</span>
-<span class="sd">            HYPERID{1-9}</span>
-<span class="sd">            ACSUTID{1-9}</span>
-<span class="sd">            IMMUNID{1-9}</span>
-<span class="sd">            KIDNEY{1-9}</span>
-<span class="sd">            ACSANGD{1-9}</span>
-<span class="sd">            ACDIAUD{1-9}</span>
-<span class="sd">            ACSLEAD{1-9}</span>
-<span class="sd">            ACLEA2D{1-9}</span>
-<span class="sd">            TOEAMIP{1-9}</span>
-<span class="sd">            ACSCYFD{1-9}</span>
-<span class="sd">            ACGDISD{1-9}</span>
-<span class="sd">            ACBACGD{1-9}</span>
-<span class="sd">            IMMUNHD{1-9}</span>
-<span class="sd">            IMMUITD{1-9}</span>
-<span class="sd">            HEPFA2D{1-9}</span>
-<span class="sd">            HEPFA3D{1-9}</span>
-<span class="sd">            ACSLBWD{1-9}</span>
-<span class="sd">            ACSHYPP{1-6}</span>
-<span class="sd">            ACSCARP{1-6}</span>
-<span class="sd">            IMMUNIP{1-6}</span>
-<span class="sd">            ACSLEAP{1-6}</span>
-<span class="sd">            TRANSPP{1-6}</span>
-<span class="sd">            DIABT2D{1-9}</span>
+<span class="sd">        Creates binary indicator columns for each PQI diagnosis group</span>
+<span class="sd">        (applied to DX1-DX9) and procedure group (applied to PR1-PR6)</span>
+<span class="sd">        by matching against reference code lists.</span>
 
-<span class="sd">        :param DataFrame df:</span>
-<span class="sd">        :param str dx_col_suffix:</span>
-<span class="sd">        :param str pr_col_suffix:</span>
-<span class="sd">        :param str prsys_col_suffix:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            IP claims DataFrame with DX{1-9} and PR{1-6} columns.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            DataFrame with diagnosis/procedure group indicator columns.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires an IP claims dask DataFrame with DX and PR columns</span>
+<span class="sd">        &gt;&gt;&gt; df = PreventionQualityIndicators.add_pr_dxgrp_cols(df)  # doctest: +SKIP</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df_dxgrp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;dxgrp.csv&quot;</span><span class="p">))[</span>
             <span class="p">[</span><span class="s2">&quot;var_name&quot;</span><span class="p">,</span> <span class="s2">&quot;lst_dx&quot;</span><span class="p">]</span>
@@ -430,16 +456,32 @@
 
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="PreventionQualityIndicators.add_neonate_newborn_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.add_neonate_newborn_cols">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">add_neonate_newborn_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PreventionQualityIndicators.add_neonate_newborn_cols">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.add_neonate_newborn_cols">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_neonate_newborn_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        New Column(s):</span>
+<span class="sd">        Add neonate and newborn indicator columns.</span>
 
-<span class="sd">            NEONATE</span>
-<span class="sd">            NEWBORN</span>
+<span class="sd">        Creates NEONATE and NEWBORN binary columns based on age at</span>
+<span class="sd">        admission, delivery code, and liveborn diagnosis codes.</span>
 
-<span class="sd">        :param df:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            IP claims DataFrame with age, diagnosis, and delivery columns.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            DataFrame with NEONATE and NEWBORN columns appended.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires an IP claims dask DataFrame with required columns</span>
+<span class="sd">        &gt;&gt;&gt; df = PreventionQualityIndicators.add_neonate_newborn_cols(df)  # doctest: +SKIP</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
@@ -509,23 +551,34 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="PreventionQualityIndicators.add_area_level_indicator_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.add_area_level_indicator_cols">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">add_area_level_indicator_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PreventionQualityIndicators.add_area_level_indicator_cols">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.add_area_level_indicator_cols">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_area_level_indicator_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        New Column(s):</span>
+<span class="sd">        Add pediatric area-level PQI indicator columns.</span>
 
-<span class="sd">            TAPD14: PEDIATRIC ASTHMA</span>
-<span class="sd">            TAPD15 : DIABETES SHORT TERM COMPLICATION</span>
-<span class="sd">            TAPD16: PEDIATRIC GASTROENTERITIS</span>
-<span class="sd">            TAPD17: PERFORATED APPENDIX</span>
-<span class="sd">            TAPD18: URINARY INFECTION</span>
-<span class="sd">            TAPQ09:  LOW BIRTH WEIGHT</span>
-<span class="sd">            TAPD90: OVERALL</span>
-<span class="sd">            TAPD91: ACUTE</span>
-<span class="sd">            TAPD92: CHRONIC</span>
+<span class="sd">        Creates TAPD14 (asthma), TAPD15 (diabetes short-term), TAPD16</span>
+<span class="sd">        (gastroenteritis), TAPD17 (perforated appendix), TAPD18 (UTI),</span>
+<span class="sd">        TAPQ09 (low birth weight), and composite indicators TAPD90</span>
+<span class="sd">        (overall), TAPD91 (acute), TAPD92 (chronic).</span>
 
-<span class="sd">        :param df:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            IP claims DataFrame with diagnosis group and neonate columns.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            DataFrame with pediatric PQI indicator columns appended.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires an IP claims dask DataFrame with diagnosis group columns</span>
+<span class="sd">        &gt;&gt;&gt; df = PreventionQualityIndicators.add_area_level_indicator_cols(df)  # doctest: +SKIP</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
@@ -594,7 +647,8 @@
                     <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="c1"># URINARY INFECTION</span>
-                <span class="c1"># Exclude Kidney/Urinary Tract Disorder, High and Intermediate Risk Immunocompromised state, age &lt;= 90 days</span>
+                <span class="c1"># Exclude Kidney/Urinary Tract Disorder,</span>
+                <span class="c1"># High and Intermediate Risk Immunocompromised state, age &lt;= 90 days</span>
                 <span class="n">TAPD18</span><span class="o">=</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;ACSUTID1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
                     <span class="o">~</span><span class="p">(</span>
                         <span class="n">pdf</span><span class="p">[[</span><span class="s2">&quot;KIDNEY&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]]</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
@@ -655,34 +709,35 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="PreventionQualityIndicators.add_acsc_cat_cols"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.add_acsc_cat_cols">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">add_acsc_cat_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PreventionQualityIndicators.add_acsc_cat_cols">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.PreventionQualityIndicators.add_acsc_cat_cols">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_acsc_cat_cols</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        New Column(s):</span>
+<span class="sd">        Add adult ACSC (Ambulatory Care Sensitive Condition) PQI columns.</span>
 
-<span class="sd">            TAPQ01: DIABETES SHORT TERM COMPLICATION</span>
-<span class="sd">            TAPQ02: PERFORATED APPENDIX</span>
-<span class="sd">            TAPQ03: DIABETES LONG TERM COMPLICATION</span>
-<span class="sd">            TAPQ05: COPD</span>
-<span class="sd">            TAPQ07: HYPERTENSION</span>
-<span class="sd">            TAPQ08: CONGESTIVE HEART FAILURE</span>
-<span class="sd">            TAPQ10: DEHYDRATION</span>
-<span class="sd">            TAPQ11: BACTERIAL PNEUMONIA</span>
-<span class="sd">            TAPQ12: URINARY INFECTION</span>
-<span class="sd">            TAPQ13: ANGINA</span>
-<span class="sd">            TAPQ14: DIABETES UNCONTROLLED</span>
-<span class="sd">            TAPQ15: ADULT ASTHMA</span>
-<span class="sd">            TAPQ16: LOWER EXTREMITY AMPUTATION</span>
-<span class="sd">            TAPQ90: OVERALL</span>
-<span class="sd">            TAPQ91: ACUTE</span>
-<span class="sd">            TAPQ92: CHRONIC</span>
+<span class="sd">        Creates TAPQ01-TAPQ16 individual condition indicators and</span>
+<span class="sd">        TAPQ90 (overall), TAPQ91 (acute), TAPQ92 (chronic) composite</span>
+<span class="sd">        indicators with appropriate clinical exclusions applied.</span>
 
-<span class="sd">        :param df:</span>
-<span class="sd">        :return:</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            IP claims DataFrame with diagnosis/procedure group columns.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            DataFrame with ACSC PQI indicator columns appended.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires an IP claims dask DataFrame with diagnosis group columns</span>
+<span class="sd">        &gt;&gt;&gt; df = PreventionQualityIndicators.add_acsc_cat_cols(df)  # doctest: +SKIP</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">################################################################################################################</span>
-        <span class="c1">#########################################   CONSTRUCT ACSC CATEGORIES   ########################################</span>
-        <span class="c1">################################################################################################################</span>
+        <span class="c1"># CONSTRUCT ACSC CATEGORIES</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
                 <span class="n">TAPQ01</span><span class="o">=</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;ACDIASD1&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
@@ -949,9 +1004,7 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="c1">################################################################################################################</span>
-        <span class="c1">#############################   CONSTRUCT AREA LEVEL COMPOSITE INDICATORS   ####################################</span>
-        <span class="c1">################################################################################################################</span>
+        <span class="c1"># CONSTRUCT AREA LEVEL COMPOSITE INDICATORS</span>
         <span class="c1"># OVERALL</span>
         <span class="n">df</span><span class="p">[</span><span class="s2">&quot;TAPQ90&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
             <span class="p">[</span>
@@ -985,17 +1038,21 @@
                 <span class="s2">&quot;TAPQ16&quot;</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">df</span></div></div>
+        <span class="k">return</span> <span class="n">df</span></div>
+</div>
 
 
-<div class="viewcode-block" id="pqirecode"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.pqirecode">[docs]</a><span class="k">def</span> <span class="nf">pqirecode</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">,</span>
-    <span class="n">dx_col_suffix</span><span class="o">=</span><span class="s2">&quot;DIAG_CD_&quot;</span><span class="p">,</span>
-    <span class="n">pr_col_suffix</span><span class="o">=</span><span class="s2">&quot;PRCDR_CD_&quot;</span><span class="p">,</span>
-    <span class="n">prsys_col_suffix</span><span class="o">=</span><span class="s2">&quot;PRCDR_CD_SYS_&quot;</span><span class="p">,</span>
-    <span class="n">logger_name</span><span class="o">=</span><span class="s2">&quot;pqi&quot;</span><span class="p">,</span>
-    <span class="n">lst_keep_cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="p">):</span>
+
+<div class="viewcode-block" id="pqirecode">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators.pqirecode">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pqirecode</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">dx_col_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;DIAG_CD_&quot;</span><span class="p">,</span>
+    <span class="n">pr_col_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PRCDR_CD_&quot;</span><span class="p">,</span>
+    <span class="n">prsys_col_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PRCDR_CD_SYS_&quot;</span><span class="p">,</span>
+    <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pqi&quot;</span><span class="p">,</span>
+    <span class="n">lst_keep_cols</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adds PQI measures to IP claims. Columns added:</span>
 
@@ -1056,6 +1113,12 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dask.DataFrame</span>
+<span class="sd">        Tuple of (adult PQI DataFrame, children PQI DataFrame).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Requires an IP claims dask DataFrame with required columns</span>
+<span class="sd">    &gt;&gt;&gt; df_adult, df_children = pqirecode(df)  # doctest: +SKIP</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">PreventionQualityIndicators</span><span class="o">.</span><span class="n">logger_name</span> <span class="o">=</span> <span class="n">logger_name</span>
@@ -1187,6 +1250,7 @@
         <span class="n">df_children</span><span class="p">,</span> <span class="s2">&quot;MSIS_ID&quot;</span><span class="p">,</span> <span class="n">drop_column</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">df_children</span></div>
+
 </pre></div>
 
            </div>
@@ -1196,7 +1260,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

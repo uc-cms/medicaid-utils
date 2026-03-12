@@ -1,0 +1,199 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quality Measures &amp; Domain Modules &mdash; medicaid_utils 0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tutorial: Extracting a Type 2 Diabetes Cohort" href="../tutorials/diabetes_cohort.html" />
+    <link rel="prev" title="Risk Adjustment &amp; Clinical Algorithms" href="risk_adjustment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            medicaid_utils
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quality Measures &amp; Domain Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#topics-modules">Topics Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#opioid-use-disorder-oud">Opioid Use Disorder (OUD)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ob-gyn">OB/GYN</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#external-data-integration">External Data Integration</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../medicaid_utils.html">medicaid_utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">medicaid_utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quality Measures &amp; Domain Modules</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user_guide/quality_measures.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quality-measures-domain-modules">
+<h1>Quality Measures &amp; Domain Modules<a class="headerlink" href="#quality-measures-domain-modules" title="Link to this heading"></a></h1>
+<p>Beyond general-purpose algorithms, medicaid-utils includes domain-specific modules that
+package covariates and outcome definitions from published Medicaid research.</p>
+<section id="topics-modules">
+<h2>Topics Modules<a class="headerlink" href="#topics-modules" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">topics</span></code> package contains condition-specific variable construction developed for
+peer-reviewed publications.</p>
+<section id="opioid-use-disorder-oud">
+<h3>Opioid Use Disorder (OUD)<a class="headerlink" href="#opioid-use-disorder-oud" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">topics.oud</span></code> module provides:</p>
+<ul class="simple">
+<li><p><strong>Medication detection</strong> – buprenorphine treatment identification via procedure codes and NDC</p></li>
+<li><p><strong>OUD medication flags</strong> – medication-assisted treatment indicators</p></li>
+<li><p><strong>Behavioral health services</strong> – mental health and substance use service identification</p></li>
+<li><p><strong>Care setting classification</strong> – FQHC, outpatient hospital, physician office</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.topics.oud</span><span class="w"> </span><span class="kn">import</span> <span class="n">medication_and_behavioral_health</span> <span class="k">as</span> <span class="n">mbh</span>
+
+<span class="c1"># Flag buprenorphine claims in pharmacy data</span>
+<span class="n">df_rx</span> <span class="o">=</span> <span class="n">mbh</span><span class="o">.</span><span class="n">flag_buprenorphine</span><span class="p">(</span><span class="n">rx_claims</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
+
+<span class="c1"># Flag behavioral health services in outpatient claims</span>
+<span class="n">df_ot</span> <span class="o">=</span> <span class="n">mbh</span><span class="o">.</span><span class="n">flag_behavioral_health</span><span class="p">(</span><span class="n">ot</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="ob-gyn">
+<h3>OB/GYN<a class="headerlink" href="#ob-gyn" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">topics.obgyn</span></code> module provides:</p>
+<ul class="simple">
+<li><p><strong>Delivery outcome identification</strong> – ICD-9 and ICD-10 based delivery detection</p></li>
+<li><p><strong>Preterm birth flags</strong> – gestational age classification</p></li>
+<li><p><strong>Multiple birth detection</strong></p></li>
+<li><p><strong>Provider classification</strong> – religious vs. secular hospital identification</p></li>
+<li><p><strong>Chronic condition comorbidities</strong> – diabetes, hypertension, CKD, depression, COPD, tobacco use</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.topics.obgyn</span><span class="w"> </span><span class="kn">import</span> <span class="n">hospitalization</span>
+
+<span class="c1"># Flag delivery-related hospitalizations</span>
+<span class="n">df_ip</span> <span class="o">=</span> <span class="n">hospitalization</span><span class="o">.</span><span class="n">flag_deliveries</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="external-data-integration">
+<h2>External Data Integration<a class="headerlink" href="#external-data-integration" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">other_datasets</span></code> module integrates external provider and geographic data:</p>
+<ul class="simple">
+<li><p><strong>NPI Registry</strong> – National Provider Identifier lookups</p></li>
+<li><p><strong>HCRIS</strong> – Healthcare Cost Report Information System (hospital cost reports)</p></li>
+<li><p><strong>UDS</strong> – Uniform Data System (health center data)</p></li>
+<li><p><strong>FQHC</strong> – Federally Qualified Health Center provider identification</p></li>
+<li><p><strong>Geographic crosswalks</strong> – RUCA (Rural-Urban Commuting Area), RUCC (Rural-Urban
+Continuum), PCSA (Primary Care Service Area) codes via ZIP code</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.other_datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">fqhc</span><span class="p">,</span> <span class="n">npi</span>
+
+<span class="c1"># Look up FQHC status for providers</span>
+<span class="n">df_fqhc</span> <span class="o">=</span> <span class="n">fqhc</span><span class="o">.</span><span class="n">flag_fqhc_providers</span><span class="p">(</span><span class="n">df_claims</span><span class="p">)</span>
+
+<span class="c1"># Enrich claims with NPI provider information</span>
+<span class="n">df_npi</span> <span class="o">=</span> <span class="n">npi</span><span class="o">.</span><span class="n">lookup_npi</span><span class="p">(</span><span class="n">df_claims</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="risk_adjustment.html" class="btn btn-neutral float-left" title="Risk Adjustment &amp; Clinical Algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../tutorials/diabetes_cohort.html" class="btn btn-neutral float-right" title="Tutorial: Extracting a Type 2 Diabetes Cohort" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

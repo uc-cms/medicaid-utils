@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -66,19 +87,32 @@
            <div itemprop="articleBody">
              
   <h1>Source code for medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
 <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="generate_dxgrp_file"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation.generate_dxgrp_file">[docs]</a><span class="k">def</span> <span class="nf">generate_dxgrp_file</span><span class="p">():</span>
+<div class="viewcode-block" id="generate_dxgrp_file">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation.generate_dxgrp_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_dxgrp_file</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate the PQI diagnosis group reference file.</span>
+
+<span class="sd">    Creates a CSV file (dxgrp.csv) containing ICD-9 diagnosis code groups</span>
+<span class="sd">    used by the Prevention Quality Indicators algorithm. The file is saved</span>
+<span class="sd">    to the package data directory.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; generate_dxgrp_file()  # doctest: +SKIP</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;primary_outcome&quot;</span><span class="p">,</span> <span class="s2">&quot;lst_dx&quot;</span><span class="p">,</span> <span class="s2">&quot;var_name&quot;</span><span class="p">,</span> <span class="s2">&quot;comments&quot;</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Diabetes with Short Term Complications&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -103,11 +137,8 @@
                 <span class="p">),</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Gastroenteritis&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -132,12 +163,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Perforated Appendix&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;5400 &quot;</span><span class="p">,</span> <span class="s2">&quot;5401 &quot;</span><span class="p">]),</span>
@@ -145,12 +173,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Perforated Appendix rate (ACSAPP) - ACSC #2&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Appendicitis (Population at Risk)&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;5400 &quot;</span><span class="p">,</span> <span class="s2">&quot;5401 &quot;</span><span class="p">,</span> <span class="s2">&quot;5409 &quot;</span><span class="p">,</span> <span class="s2">&quot;541  &quot;</span><span class="p">]),</span>
@@ -158,12 +183,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Diabetes with Long Term Complication&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -200,12 +222,9 @@
                 <span class="p">),</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Asthma&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -230,12 +249,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Asthma rate (ACSAST) - ACSC #15 - Adult &quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="p">(</span>
                     <span class="s2">&quot;EXCLUDE: CYSTIC FIBROSIS AND ANOMALIES OF RESPIRATORY&quot;</span>
@@ -271,12 +287,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;COPD (#1)&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -299,12 +312,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;COPD rate (ACCOPD) - ACSC #5&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;COPD (#2)&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;4660 &quot;</span><span class="p">,</span> <span class="s2">&quot;490  &quot;</span><span class="p">]),</span>
@@ -312,12 +322,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Hypertension&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -339,12 +346,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Hypertension rate (ACSHYP) - ACSC #7&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="p">(</span>
                     <span class="s2">&quot;Exclude: Stage I-IV Kidney primary_outcome&quot;</span>
@@ -356,12 +360,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;EXCLUDE: CHRONIC RENAL FAILURE&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -393,12 +394,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Renal Failure&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -408,12 +406,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Congestive Heart Failure&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -449,12 +444,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Congestive Heart Failure rate (ACSCHF) - ACSC #8&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Congestive Heart Failure&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -481,12 +473,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Liveborn (Populaton at Risk)&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -515,12 +504,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Low Birth Weight rate (ACSLBW) - ACSC #9&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Liveborn (Populaton at Risk)&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -530,12 +516,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Liveborn (Populaton at Risk)&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -564,12 +547,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Dehydration&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;2765 &quot;</span><span class="p">,</span> <span class="s2">&quot;27650&quot;</span><span class="p">,</span> <span class="s2">&quot;27651&quot;</span><span class="p">,</span> <span class="s2">&quot;27652&quot;</span><span class="p">]),</span>
@@ -577,12 +557,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Dehydration rate (ACSDEH) - ACSC #10&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Bacterial Pneumonia&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -607,12 +584,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Bacterial Pneumonia rate (ACSBAC) - ACSC #11&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Exclude: Sickle Cell&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -632,12 +606,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;HYPEROSMOLALITY AND /OR HYPERNATREMIA&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;2760 &quot;</span><span class="p">]),</span>
@@ -645,12 +616,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Urinary Infection&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -671,12 +639,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Urinary Infection rate (ACSUTI) - ACSC #12&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;EXCLUDE: IMMUNOCOMPROMISED&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -779,12 +744,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;XCLUDE: KIDNEY OR URINARY TRACT DISORDER&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -822,12 +784,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Angina&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -837,12 +796,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Angina (w/o procedure) rate (ACSANG) - ACSC #13&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Diabetes uncontrolled&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;25002&quot;</span><span class="p">,</span> <span class="s2">&quot;25003&quot;</span><span class="p">]),</span>
@@ -850,12 +806,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;Diabetes uncontrolled rate (ACDIAU) - ACSC #14&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Include only: Diabetes&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -906,12 +859,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Exclude: Trauma&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -936,12 +886,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_dxgroup</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_dxgroup</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;EXCLUDE: TOE AMPUTATION PROCEDURE&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_dx&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;8411 &quot;</span><span class="p">]),</span>
@@ -949,9 +896,7 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">df_pqi_dxgroup</span><span class="p">[</span><span class="s2">&quot;lst_dx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_pqi_dxgroup</span><span class="p">[</span><span class="s2">&quot;lst_dx&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
         <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span>
@@ -963,13 +908,27 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="generate_prgrp_file"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation.generate_prgrp_file">[docs]</a><span class="k">def</span> <span class="nf">generate_prgrp_file</span><span class="p">():</span>
+
+<div class="viewcode-block" id="generate_prgrp_file">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_ip_pqi.html#medicaid_utils.adapted_algorithms.py_ip_pqi.data_generation.generate_prgrp_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_prgrp_file</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate the PQI procedure group reference file.</span>
+
+<span class="sd">    Creates a CSV file (prgrp.csv) containing ICD-9 procedure code groups</span>
+<span class="sd">    used by the Prevention Quality Indicators algorithm. The file is saved</span>
+<span class="sd">    to the package data directory.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; generate_prgrp_file()  # doctest: +SKIP</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;primary_outcome&quot;</span><span class="p">,</span> <span class="s2">&quot;lst_pr&quot;</span><span class="p">,</span> <span class="s2">&quot;var_name&quot;</span><span class="p">,</span> <span class="s2">&quot;comments&quot;</span><span class="p">]</span>
     <span class="p">)</span>
 
-    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">df_pqi_prgrp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_prgrp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Haemodialysis&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_pr&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -979,12 +938,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">df_pqi_prgrp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_prgrp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Exclude: Cardiac Procedures&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_pr&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -1136,12 +1092,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">df_pqi_prgrp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_prgrp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;EXCLUDE: IMMUNOCOMPROMISED&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_pr&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -1180,12 +1133,9 @@
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">df_pqi_prgrp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">df_pqi_prgrp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_pqi_prgrp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">&quot;primary_outcome&quot;</span><span class="p">:</span> <span class="s2">&quot;Lower extremity amputation&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;lst_pr&quot;</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
@@ -1208,9 +1158,7 @@
                 <span class="p">),</span>
             <span class="p">},</span>
             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="p">),</span>
-        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="p">)],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">df_pqi_prgrp</span><span class="p">[</span><span class="s2">&quot;lst_pr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_pqi_prgrp</span><span class="p">[</span><span class="s2">&quot;lst_pr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
         <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
@@ -1218,6 +1166,7 @@
         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;prgrp.csv&quot;</span><span class="p">),</span>
         <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span></div>
+
 
 
 <span class="n">generate_dxgrp_file</span><span class="p">()</span>
@@ -1231,7 +1180,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

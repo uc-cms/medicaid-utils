@@ -1,18 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>medicaid_utils.adapted_algorithms.py_pmca.pmca &mdash; medicaid_utils 0.0.0 documentation</title>
-      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
   
-        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/sphinx_highlight.js"></script>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -23,20 +25,39 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../../index.html" class="icon icon-home"> medicaid_utils
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            medicaid_utils
           </a>
-              <div class="version">
-                0.0.0
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/data_layout.html">Expected Data Layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quickstart.html">Quick Start</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/preprocessing.html">Preprocessing Claims</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/cohort_extraction.html">Cohort Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/diabetes_cohort.html">Tutorial: Extracting a Type 2 Diabetes Cohort</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorials/oud_cohort.html">Tutorial: Extracting an Opioid Use Disorder (OUD) Cohort</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../medicaid_utils.html">medicaid_utils package</a></li>
 </ul>
@@ -54,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../../index.html">Module code</a> &raquo;</li>
-      <li>medicaid_utils.adapted_algorithms.py_pmca.pmca</li>
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">medicaid_utils.adapted_algorithms.py_pmca.pmca</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -77,21 +98,54 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Manoradhan Murugesan&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;manorathan@uchicago.edu&quot;</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
 
 
-<div class="viewcode-block" id="PediatricMedicalComplexity"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_pmca.html#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity">[docs]</a><span class="k">class</span> <span class="nc">PediatricMedicalComplexity</span><span class="p">:</span>
+<div class="viewcode-block" id="PediatricMedicalComplexity">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_pmca.html#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PediatricMedicalComplexity</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This class packages functions to create indicator variables for conditions of interest based on their chronic</span>
 <span class="sd">    nature identified by Seattle Children&#39;s Research Institute subset from conditions defined by diagnostic codes</span>
-<span class="sd">    outlined in the Chronic Illness and Disability Payment System (CDPS) version 5.3&quot;&quot;&quot;</span>
+<span class="sd">    outlined in the Chronic Illness and Disability Payment System (CDPS) version 5.3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">package_folder</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
     <span class="n">data_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">package_folder</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="PediatricMedicalComplexity.create_pmca_condition_counts"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_pmca.html#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.create_pmca_condition_counts">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">create_pmca_condition_counts</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">diag_cd_lst_col</span><span class="p">):</span>
+<div class="viewcode-block" id="PediatricMedicalComplexity.create_pmca_condition_counts">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_pmca.html#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.create_pmca_condition_counts">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_pmca_condition_counts</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">diag_cd_lst_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create PMCA condition counts from diagnosis codes.</span>
+
+<span class="sd">        For each PMCA body system condition and progressive conditions,</span>
+<span class="sd">        counts how many diagnosis codes in the list match, and creates</span>
+<span class="sd">        binary indicator columns (any_{condition}, {condition}_2h).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            Patient-level DataFrame with a diagnosis code list column.</span>
+<span class="sd">        diag_cd_lst_col : str</span>
+<span class="sd">            Name of the column containing comma-separated diagnosis codes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            DataFrame with condition count and indicator columns appended.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires a dask DataFrame with diagnosis code list column</span>
+<span class="sd">        &gt;&gt;&gt; df = PediatricMedicalComplexity.create_pmca_condition_counts(  # doctest: +SKIP</span>
+<span class="sd">        ...     df, &#39;LST_DIAG_CD_RAW&#39;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pdf_conditions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;pmca_condition_codes.csv&quot;</span><span class="p">)</span>
         <span class="p">)</span>
@@ -239,8 +293,36 @@
 
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="PediatricMedicalComplexity.get_pmca_chronic_condition_categories"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_pmca.html#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.get_pmca_chronic_condition_categories">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_pmca_chronic_condition_categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PediatricMedicalComplexity.get_pmca_chronic_condition_categories">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_pmca.html#medicaid_utils.adapted_algorithms.py_pmca.pmca.PediatricMedicalComplexity.get_pmca_chronic_condition_categories">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pmca_chronic_condition_categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign PMCA chronic condition categories.</span>
+
+<span class="sd">        Creates cond_less (less conservative) and cond_more (more</span>
+<span class="sd">        conservative) category columns with values 1 (non-chronic),</span>
+<span class="sd">        2 (non-complex chronic), or 3 (complex chronic).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : dask.DataFrame</span>
+<span class="sd">            DataFrame with PMCA condition indicator columns from</span>
+<span class="sd">            ``create_pmca_condition_counts``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dask.DataFrame</span>
+<span class="sd">            DataFrame with cond_less and cond_more columns appended.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Requires a dask DataFrame with PMCA condition indicator columns</span>
+<span class="sd">        &gt;&gt;&gt; df = PediatricMedicalComplexity.get_pmca_chronic_condition_categories(  # doctest: +SKIP</span>
+<span class="sd">        ...     df)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pdf_conditions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">data_folder</span><span class="p">,</span> <span class="s2">&quot;pmca_condition_codes.csv&quot;</span><span class="p">)</span>
         <span class="p">)</span>
@@ -290,10 +372,14 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">df</span></div></div>
+        <span class="k">return</span> <span class="n">df</span></div>
+</div>
 
 
-<div class="viewcode-block" id="pmca_chronic_conditions"><a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_pmca.html#medicaid_utils.adapted_algorithms.py_pmca.pmca.pmca_chronic_conditions">[docs]</a><span class="k">def</span> <span class="nf">pmca_chronic_conditions</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">diag_cd_lst_col</span><span class="o">=</span><span class="s2">&quot;LST_DIAG_CD_RAW&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="pmca_chronic_conditions">
+<a class="viewcode-back" href="../../../../medicaid_utils.adapted_algorithms.py_pmca.html#medicaid_utils.adapted_algorithms.py_pmca.pmca.pmca_chronic_conditions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pmca_chronic_conditions</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">diag_cd_lst_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;LST_DIAG_CD_RAW&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function implements the Pediatric Medical Complexity Algorithm to identify children with complex and</span>
 <span class="sd">    non-complex chronic conditions using Medicaid claims data and to distinguish them from children with neither</span>
@@ -364,6 +450,11 @@
 <span class="sd">    -------</span>
 <span class="sd">    dask.DataFrame</span>
 
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Requires a patient-level dask DataFrame with diagnosis code list</span>
+<span class="sd">    &gt;&gt;&gt; df = pmca_chronic_conditions(df, &#39;LST_DIAG_CD_RAW&#39;)  # doctest: +SKIP</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">lst_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">PediatricMedicalComplexity</span><span class="o">.</span><span class="n">create_pmca_condition_counts</span><span class="p">(</span>
@@ -381,6 +472,7 @@
     <span class="p">]</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
+
 </pre></div>
 
            </div>
@@ -390,7 +482,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
+    <p>&#169; Copyright 2023-2026, Research Computing Group, Biostatistics Laboratory, The University of Chicago.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
