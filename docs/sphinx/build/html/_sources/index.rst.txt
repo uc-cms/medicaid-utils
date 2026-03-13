@@ -30,7 +30,7 @@ so researchers can focus on their study design rather than data plumbing.
 
 - **Dual-format support** — seamless handling of both MAX (ICD-9 era) and TAF (ICD-10 era) Medicaid claims data
 - **Validated preprocessing** — standardized cleaning, deduplication, and variable construction for inpatient, outpatient, pharmacy, long-term care, and person summary files
-- **8 clinical algorithms** — Elixhauser comorbidity scoring, CDPS-Rx risk adjustment, BETOS classification, Prevention Quality Indicators, NYU/Billings ED classification, PMCA, and low-value care measures
+- **8 clinical algorithms** — Elixhauser comorbidity scoring, CDPS-Rx risk adjustment, BETOS classification, ED PQI, IP PQI, NYU/Billings ED classification, PMCA, and low-value care measures
 - **Flexible cohort extraction** — filter patients by diagnosis codes, procedure codes, prescriptions, and demographic criteria across claim types
 - **Scalable** — Dask-based distributed computing handles state-level and multi-state datasets on laptops, workstations, and HPC clusters
 

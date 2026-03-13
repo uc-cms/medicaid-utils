@@ -170,11 +170,11 @@ class MAXPS(max_file.MAXFile):
 
         This function uses
             - RUCA 3.1 dataset (from
-              https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673).
+              https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/).
               RUCA codes >= 4 denote rural and the rest denote urban as per
               https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1
             - RUCC codes were downloaded from
-              https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372.
+              https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/.
               RUCC codes >= 8 denote rural and the rest denote urban.
             - ZCTAs x zipcode crosswalk from UDSMapper
               (https://udsmapper.org/zip-code-to-zcta-crosswalk/),
@@ -204,7 +204,7 @@ class MAXPS(max_file.MAXFile):
         )
 
         # zip_state_pcsa_ruca_zcta.csv was constructed with RUCA 3.1
-        # (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673),
+        # (from https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/),
         # ZCTAs x zipcode mappings from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),
         # zipcodes from multiple sources, and distance between centroids of zipcodes using NBER data
         # (https://nber.org/distance/2016/gaz/zcta5/gaz2016zcta5centroid.csv)
@@ -246,7 +246,7 @@ class MAXPS(max_file.MAXFile):
         )
 
         # RUCC codes were downloaded from
-        # https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372
+        # https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/
         df_rucc = pd.read_excel(
             os.path.join(zip_folder, "ruralurbancodes2013.xls"),
             sheet_name="Rural-urban Continuum Code 2013",

@@ -113,7 +113,7 @@ Algorithm Summary
      - Elixhauser et al., 1998
      - ``py_elixhauser``
    * - CDPS-Rx Risk Adjustment
-     - Kronick et al., UC San Diego
+     - Kronick et al., 2000, UC San Diego
      - ``py_cdpsmrx``
    * - BETOS Classification
      - CMS Berenson-Eggers Type of Service
@@ -128,7 +128,7 @@ Algorithm Summary
      - Billings, Parikh, Mijanovich, 2000
      - ``py_nyu_billings``
    * - PMCA
-     - Simon et al., Seattle Children's
+     - Simon et al., 2014, Seattle Children's
      - ``py_pmca``
    * - Low-Value Care
      - Charlesworth et al., JAMA Intern Med, 2016

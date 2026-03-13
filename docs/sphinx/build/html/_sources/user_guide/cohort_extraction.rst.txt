@@ -227,14 +227,14 @@ Flagging Prescriptions
 
 .. code-block:: python
 
-   from medicaid_utils.filters.claims import rx
+   from medicaid_utils.filters.claims import rx as rx_filter
 
    # Flag pharmacy claims by NDC codes
-   df_rx_flagged = rx.flag_prescriptions(
+   df_rx_flagged = rx_filter.flag_prescriptions(
        dct_ndc_codes={
            "metformin": ["00093727801", "00093727901"],
        },
-       df_claims=rx.dct_files["base"],
+       df_claims=rx_claims.dct_files["base"],
    )
 
 Filtering Claim Files

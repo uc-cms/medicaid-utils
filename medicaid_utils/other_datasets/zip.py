@@ -121,8 +121,8 @@ def generate_zip_pcsa_ruca_crosswalk():
     df_pcsa_st_zip = pd.read_csv(
         os.path.join(zip_folder, "pcsa_st_zip_fips.csv"), dtype=object
     )
-    # Load RUCA 3.1 dataset from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=4790.9
-    # or https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673)
+    # Load RUCA 3.1 dataset from
+    # https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/
     df_ruca = pd.read_excel(
         os.path.join(zip_folder, "RUCA2010zipcode.xlsx"),
         sheet_name="Data",

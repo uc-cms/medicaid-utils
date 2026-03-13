@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
-    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>medicaid_utils.preprocessing.taf_ps - medicaid-utils</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d75fae25" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
@@ -715,12 +715,13 @@
 <span class="sd">        This function uses</span>
 
 <span class="sd">            - `RUCA 3.1 dataset</span>
-<span class="sd">              &lt;https://www.ers.usda.gov/webdocs/DataFiles/53241</span>
-<span class="sd">              /RUCA2010zipcode.xlsx?v=8673&gt;`_. RUCA codes &gt;= 4 denote rural</span>
+<span class="sd">              &lt;https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/&gt;`_.</span>
+<span class="sd">              RUCA codes &gt;= 4 denote rural</span>
 <span class="sd">              and the rest denote urban as per `Cole, Megan B et al</span>
 <span class="sd">              &lt;https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6286055/#SD1&gt;`_</span>
-<span class="sd">            - `RUCC codes &lt;https://www.ers.usda.gov/webdocs/DataFiles/53251</span>
-<span class="sd">              /ruralurbancodes2013.xls?v=2372&gt;`_. RUCC codes &gt;= 8 denote</span>
+<span class="sd">            - `RUCC codes</span>
+<span class="sd">              &lt;https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/&gt;`_.</span>
+<span class="sd">              RUCC codes &gt;= 8 denote</span>
 <span class="sd">              rural and the rest denote urban.</span>
 <span class="sd">            - ZCTAs x zipcode crosswalk from `UDSMapper</span>
 <span class="sd">              &lt;https://udsmapper.org/zip-code-to-zcta-crosswalk/&gt;`_.</span>
@@ -759,7 +760,7 @@
         <span class="p">)</span>
 
         <span class="c1"># zip_state_pcsa_ruca_zcta.csv was constructed with RUCA 3.1</span>
-        <span class="c1"># (from https://www.ers.usda.gov/webdocs/DataFiles/53241/RUCA2010zipcode.xlsx?v=8673),</span>
+        <span class="c1"># (from https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/),</span>
         <span class="c1"># ZCTAs x zipcode mappings from UDSMapper (https://udsmapper.org/zip-code-to-zcta-crosswalk/),</span>
         <span class="c1"># zipcodes from multiple sources, and distance between centroids of</span>
         <span class="c1"># zipcodes using NBER data</span>
@@ -816,7 +817,7 @@
         <span class="p">)</span>
 
         <span class="c1"># RUCC codes were downloaded from</span>
-        <span class="c1"># https://www.ers.usda.gov/webdocs/DataFiles/53251/ruralurbancodes2013.xls?v=2372</span>
+        <span class="c1"># https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/</span>
         <span class="n">df_rucc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">zip_folder</span><span class="p">,</span> <span class="s2">&quot;ruralurbancodes2013.xls&quot;</span><span class="p">),</span>
             <span class="n">sheet_name</span><span class="o">=</span><span class="s2">&quot;Rural-urban Continuum Code 2013&quot;</span><span class="p">,</span>
