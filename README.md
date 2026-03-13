@@ -1,5 +1,11 @@
 # medicaid-utils
 
+[![CI](https://github.com/uc-cms/medicaid-utils/actions/workflows/pylint.yml/badge.svg)](https://github.com/uc-cms/medicaid-utils/actions/workflows/pylint.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/uc-cms/medicaid-utils/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/uc-cms/medicaid-utils)](https://github.com/uc-cms/medicaid-utils/releases)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://uc-cms.github.io/medicaid-utils/)
+
 A Python toolkit for constructing patient-level analytic files from Medicaid claims data. This package implements validated cleaning routines, variable construction methods, and public-domain clinical measure algorithms for both MAX (Medicaid Analytic eXtract) and TAF (Transformed Medicaid Statistical Information System) file formats.
 
 Built on [Dask](https://www.dask.org/) for scalable, distributed processing of large-scale claims datasets.
@@ -411,6 +417,24 @@ Dataset generation processes developed as part of the following Medicaid researc
 
 9. Dude, A. M., Schueler, K., Schumm, L. P., Murugesan, M., & Stulberg, D. B. (2022). Preconception care and severe maternal morbidity in the United States. *American Journal of Obstetrics & Gynecology MFM*, *4*(2), 100549. https://doi.org/10.1016/j.ajogmf.2021.100549
 
+## Contributing
+
+Contributions are welcome! Please open an [issue](https://github.com/uc-cms/medicaid-utils/issues) or submit a pull request.
+
+```bash
+# Set up development environment
+git clone https://github.com/uc-cms/medicaid-utils.git
+cd medicaid-utils
+pip install -e .
+pip install pylint pytest
+
+# Run tests
+pytest tests/
+
+# Run linter
+pylint medicaid_utils
+```
+
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
@@ -421,12 +445,13 @@ Research Computing Group, Biostatistics Laboratory, The University of Chicago
 
 ## Citation
 
-If you use this package in your research, please cite the repository:
+If you use this package in your research, please cite the repository using the "Cite this repository" button on GitHub, or use:
 
-```
+```bibtex
 @software{medicaid_utils,
   author = {Research Computing Group, Biostatistics Laboratory, University of Chicago},
   title = {medicaid-utils: Python Toolkit for Medicaid Claims Data Analysis},
-  url = {https://github.com/uc-cms/medicaid-utils}
+  url = {https://github.com/uc-cms/medicaid-utils},
+  license = {MIT}
 }
 ```
