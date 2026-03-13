@@ -1,5 +1,6 @@
-import pandas as pd
 import os
+
+import pandas as pd
 
 package_folder, filename = os.path.split(__file__)
 data_folder = os.path.join(package_folder, "data")

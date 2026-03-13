@@ -150,18 +150,14 @@ class PreventionQualityIndicators:
         # VER=version,FOR EXAMPLE "HG15" WOULD REPRESENT CMS DRG, VERSION 15
         # df['DRGVER'] = df['DRGVER'].where(df['DRG_REL_GROUP_IND'].astype(str).str.slice(stop=2) != 'HG',
         #                                   df['DRG_REL_GROUP'].astype(str).str.slice(start=2, stop=4))
-        df_mdc24 = pd.read_excel(
-            open(
-                os.path.join(cls.data_folder, "DRG_MDC_Conversion.xlsx"), "rb"
-            ),
-            sheet_name="MDC24",
-        )
-        df_mdc25 = pd.read_excel(
-            open(
-                os.path.join(cls.data_folder, "DRG_MDC_Conversion.xlsx"), "rb"
-            ),
-            sheet_name="MDC25",
-        )
+        with open(
+            os.path.join(cls.data_folder, "DRG_MDC_Conversion.xlsx"), "rb"
+        ) as f:
+            df_mdc24 = pd.read_excel(f, sheet_name="MDC24")
+        with open(
+            os.path.join(cls.data_folder, "DRG_MDC_Conversion.xlsx"), "rb"
+        ) as f:
+            df_mdc25 = pd.read_excel(f, sheet_name="MDC25")
         df_mdc = df_mdc24.merge(df_mdc25, on="DRG", how="outer")
         df = df.merge(df_mdc, on="DRG", how="left")
         df = dataframe_utils.fix_index(df, "MSIS_ID", drop_column=False)
@@ -248,7 +244,7 @@ class PreventionQualityIndicators:
             (df["DRGVER"] >= 25) & (df["DRG"] == 999)
         )
         df["MDC"] = df["MDC"].where(~(mask_mdc_else & mask_mdc0), 0)
-        # TODO : verify logic : ELSE PUT "INVALID MDC KEY: " KEY " MDC " MDC " DRG " DRG DRGVER;
+        # TODO : verify logic : ELSE PUT "INVALID MDC KEY: " KEY " MDC " MDC " DRG " DRG DRGVER;  # pylint: disable=fixme
         # df['MDC'] = df['MDC'].where(~(mask_mdc & ~mask_mdc0), np.nan)
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -1025,8 +1021,8 @@ def pqirecode(
     ):
         recipes.log_assert(
             col in df.columns,
-            "Dataframe passed as input to pqirecode function must have {0}"
-            " column".format(col),
+            f"Dataframe passed as input to pqirecode function must have {col}"
+            " column",
             logger_name=PreventionQualityIndicators.logger_name,
         )
     df = PreventionQualityIndicators.prepare_cols(

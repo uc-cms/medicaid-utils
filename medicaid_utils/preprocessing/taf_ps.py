@@ -248,7 +248,7 @@ class TAFPS(taf_file.TAFFile):
                                     .str.zfill(3)
                                     .str[1:3]
                                     .astype(int)
-                                    == dct_boe_codes[boe_type]
+                                    == boe_code
                                 ).astype(int)
                                 for col in [
                                     f"MASBOE_CD_{str(mon).zfill(2)}"
@@ -258,7 +258,7 @@ class TAFPS(taf_file.TAFFile):
                         )
                         .sum(axis=1)
                         .astype(int)
-                        for boe_type in dct_boe_codes
+                        for boe_type, boe_code in dct_boe_codes.items()
                     },
                     **{
                         f"mas_{mas_type}_months": np.column_stack(
@@ -271,7 +271,7 @@ class TAFPS(taf_file.TAFFile):
                                     .str.zfill(3)
                                     .str[0]
                                     .astype(int)
-                                    == dct_mas_codes[mas_type]
+                                    == mas_code
                                 ).astype(int)
                                 for col in [
                                     f"MASBOE_CD_{str(mon).zfill(2)}"
@@ -281,7 +281,7 @@ class TAFPS(taf_file.TAFFile):
                         )
                         .sum(axis=1)
                         .astype(int)
-                        for mas_type in dct_mas_codes
+                        for mas_type, mas_code in dct_mas_codes.items()
                     },
                 }
             )

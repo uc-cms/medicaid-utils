@@ -1238,16 +1238,16 @@ def flag_preconception_care(
             9: [
                 code
                 for codeset in [
-                    dct_diag_codes[service]["incl"][9]
-                    for service in dct_diag_codes
+                    service_codes["incl"][9]
+                    for service_codes in dct_diag_codes.values()
                 ]
                 for code in codeset
             ],
             10: [
                 code
                 for codeset in [
-                    dct_diag_codes[service]["incl"][10]
-                    for service in dct_diag_codes
+                    service_codes["incl"][10]
+                    for service_codes in dct_diag_codes.values()
                 ]
                 for code in codeset
             ],
@@ -1821,13 +1821,11 @@ def flag_smm_events(
         smm_within_90_days_of_delivery=pdf_benes.apply(
             lambda x: int(
                 any(
-                    [
-                        (y <= x["delivery_date"] + pd.Timedelta(days=90))
-                        & (y >= x["delivery_date"])
-                        for y in x["smm_dates"]
-                    ]
+                    (y <= x["delivery_date"] + pd.Timedelta(days=90))
+                    & (y >= x["delivery_date"])
+                    for y in x["smm_dates"]
                 )
-                if (type(x["smm_dates"]) == list)
+                if isinstance(x["smm_dates"], list)
                 else False
             ),
             axis=1,
@@ -1835,13 +1833,11 @@ def flag_smm_events(
         smm_no_blood_within_90_days_of_delivery=pdf_benes.apply(
             lambda x: int(
                 any(
-                    [
-                        (y <= x["delivery_date"] + pd.Timedelta(days=90))
-                        & (y >= x["delivery_date"])
-                        for y in x["smm_no_blood_dates"]
-                    ]
+                    (y <= x["delivery_date"] + pd.Timedelta(days=90))
+                    & (y >= x["delivery_date"])
+                    for y in x["smm_no_blood_dates"]
                 )
-                if (type(x["smm_no_blood_dates"]) == list)
+                if isinstance(x["smm_no_blood_dates"], list)
                 else False
             ),
             axis=1,
@@ -1896,7 +1892,7 @@ def calculate_conception(
     ]
     if len(lst_missing_col) > 0:
         df_claims = df_claims.assign(
-            **dict([(col, 0) for col in lst_missing_col])
+            **{col: 0 for col in lst_missing_col}
         )
 
     lst_conception_col = [

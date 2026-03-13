@@ -18,7 +18,7 @@ from medicaid_utils.filters.claims import dx_and_proc
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 
 
-def apply_range_filter(  # pylint: disable=missing-param-doc
+def apply_range_filter(
     tpl_range: tuple,
     df: pd.DataFrame,
     filter_name: str,
@@ -100,7 +100,7 @@ def apply_range_filter(  # pylint: disable=missing-param-doc
     return df
 
 
-def filter_claim_files(  # pylint: disable=missing-param-doc
+def filter_claim_files(
     claim: Union[max_file.MAXFile, taf_file.TAFFile],
     dct_claim_filters: dict,
     tmp_folder: str,
@@ -521,7 +521,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
             logger.warning("%d data is missing for %s", year, state)
             logger.exception(ex)
             continue
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=broad-exception-caught
             logging.critical(ex, exc_info=True)
             continue
 
@@ -876,7 +876,7 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
     shutil.rmtree(dct_data_paths["tmp_folder"], ignore_errors=True)
 
 
-def export_cohort_datasets(  # pylint: disable=missing-param-doc
+def export_cohort_datasets(
     df_cohort: dd.DataFrame,
     year: int,
     state: str,
@@ -895,7 +895,7 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
 
     Parameters
     ----------
-    pdf_cohort : pd.DataFrame
+    df_cohort : dd.DataFrame
         Pandas dataframe with patient IDs (BENE_MSIS) and indicator flag
         denoting inclusion into the cohort (include=1)
     year : int
@@ -966,6 +966,8 @@ def export_cohort_datasets(  # pylint: disable=missing-param-doc
     FileNotFoundError
         Raised when any of file types requested to be imported does not
         exist for the state and year
+    OSError
+        Raised when the cohort file index does not match the claim file index
 
     Examples
     --------

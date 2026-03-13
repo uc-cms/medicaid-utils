@@ -10,12 +10,12 @@ import pandas as pd
 import dask.dataframe as dd
 
 
-def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
+def get_patient_ids_with_conditions(
     dct_diag_codes: dict,
     dct_proc_codes: dict,
     logger_name: str = __file__,
     cms_format: str = "MAX",
-    dct_column_values: dict = {},
+    dct_column_values: Optional[dict] = None,
     **dct_claims: dd.DataFrame,
 ) -> Tuple[pd.DataFrame, Dict[str, pd.DataFrame]]:
     """
@@ -112,6 +112,8 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
     True
 
     """
+    if dct_column_values is None:
+        dct_column_values = {}
     logger = logging.getLogger(logger_name)
     pdf_patient_ids = pd.DataFrame()
     index_col = None
@@ -235,13 +237,13 @@ def get_patient_ids_with_conditions(  # pylint: disable=missing-param-doc
     return pdf_patient_ids, dct_filter_results
 
 
-def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
+def flag_diagnoses_and_procedures(
     dct_diag_codes: dict,
     dct_proc_codes: dict,
     df_claims: dd.DataFrame,
     cms_format: str = "MAX",
     lst_claim_diag_col: List[str] = None,
-    dct_column_values: Optional[dict] = {},
+    dct_column_values: Optional[dict] = None,
 ) -> dd.DataFrame:
     """
     Flags claims based on diagnosis/ procedure codes
@@ -333,6 +335,8 @@ def flag_diagnoses_and_procedures(  # pylint: disable=missing-param-doc
     [1, 1]
 
     """
+    if dct_column_values is None:
+        dct_column_values = {}
     # Validate procedure codes
     dct_invalid_proc_codes = dict(
         filter(

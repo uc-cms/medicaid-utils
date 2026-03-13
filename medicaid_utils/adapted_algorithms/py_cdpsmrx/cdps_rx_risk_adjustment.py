@@ -214,18 +214,16 @@ class CdpsRxRiskAdjustment:
             if len(list(dct_diag_hierarchies_child[level].keys())) != max(
                 list(dct_diag_hierarchies_child[level].keys())
             ):
-                dct_level = dict(
-                    [
-                        (idx + 1, item[1])
-                        for idx, item in enumerate(
-                            list(
-                                sorted(
-                                    dct_diag_hierarchies_child[level].items()
-                                )
+                dct_level = {
+                    idx + 1: item[1]
+                    for idx, item in enumerate(
+                        list(
+                            sorted(
+                                dct_diag_hierarchies_child[level].items()
                             )
                         )
-                    ]
-                )
+                    )
+                }
                 dct_diag_hierarchies_child[level] = dct_level
 
         # Store list of new columns
@@ -253,15 +251,13 @@ class CdpsRxRiskAdjustment:
                 ~df["aid"].isin(["DA", "AA"]),
                 df[lst_diag_cd_col_name].apply(
                     lambda lst_raw_diag: list(
-                        set(
-                            [
-                                dct_adult_diag_var.get(
-                                    diag_cd.strip().upper().replace(".", ""),
-                                    "OTHER",
-                                )
-                                for diag_cd in lst_raw_diag.split(",")
-                            ]
-                        )
+                        {
+                            dct_adult_diag_var.get(
+                                diag_cd.strip().upper().replace(".", ""),
+                                "OTHER",
+                            )
+                            for diag_cd in lst_raw_diag.split(",")
+                        }
                     )
                 ),
             ),
@@ -271,15 +267,13 @@ class CdpsRxRiskAdjustment:
                 ~df["aid"].isin(["DC", "AC"]),
                 df[lst_diag_cd_col_name].apply(
                     lambda lst_raw_diag: list(
-                        set(
-                            [
-                                dct_child_diag_var.get(
-                                    diag_cd.strip().upper().replace(".", ""),
-                                    "OTHER",
-                                )
-                                for diag_cd in lst_raw_diag.split(",")
-                            ]
-                        )
+                        {
+                            dct_child_diag_var.get(
+                                diag_cd.strip().upper().replace(".", ""),
+                                "OTHER",
+                            )
+                            for diag_cd in lst_raw_diag.split(",")
+                        }
                     )
                 ),
             )
@@ -309,23 +303,18 @@ class CdpsRxRiskAdjustment:
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            diag,
-                            (
-                                pdf["aid"].isin(["DA", "AA"])
-                                & pd.DataFrame(
-                                    pdf["LST_ADULT_DIAG_CD"].tolist(),
-                                    index=pdf.index,
-                                )
-                                .isin([diag])
-                                .any(axis=1)
-                            ).astype(int),
+                **{
+                    diag: (
+                        pdf["aid"].isin(["DA", "AA"])
+                        & pd.DataFrame(
+                            pdf["LST_ADULT_DIAG_CD"].tolist(),
+                            index=pdf.index,
                         )
-                        for diag in lst_non_hierarchical_diags_adult
-                    ]
-                )
+                        .isin([diag])
+                        .any(axis=1)
+                    ).astype(int)
+                    for diag in lst_non_hierarchical_diags_adult
+                }
             )
         )
         df = df.map_partitions(
@@ -369,59 +358,48 @@ class CdpsRxRiskAdjustment:
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        item
-                        for sublist in [
-                            [
-                                (
-                                    diag,
-                                    (
-                                        pdf["aid"].isin(["DA", "AA"])
-                                        & pd.DataFrame(
-                                            pdf["LST_ADULT_DIAG_CD"].tolist(),
-                                            index=pdf.index,
-                                        )
-                                        .isin([diag])
-                                        .any(axis=1)
-                                        & (
-                                            (level_order == 1)
-                                            | (
-                                                ~pd.DataFrame(
-                                                    pdf[
-                                                        "LST_ADULT_DIAG_CD"
-                                                    ].tolist(),
-                                                    index=pdf.index,
-                                                )
-                                                .isin(
-                                                    [
-                                                        diag
-                                                        for level_order, diag in sorted(
-                                                            dct_level.items()
-                                                        )[
-                                                            : level_order - 1
-                                                        ]
-                                                    ]
-                                                )
-                                                .any(axis=1)
-                                            )
-                                        )
-                                    ).astype(int),
+                **{
+                    diag: (
+                        pdf["aid"].isin(["DA", "AA"])
+                        & pd.DataFrame(
+                            pdf["LST_ADULT_DIAG_CD"].tolist(),
+                            index=pdf.index,
+                        )
+                        .isin([diag])
+                        .any(axis=1)
+                        & (
+                            (level_order == 1)
+                            | (
+                                ~pd.DataFrame(
+                                    pdf[
+                                        "LST_ADULT_DIAG_CD"
+                                    ].tolist(),
+                                    index=pdf.index,
                                 )
-                                for level_order, diag in sorted(
-                                    dct_level.items()
+                                .isin(
+                                    [
+                                        diag
+                                        for level_order, diag in sorted(
+                                            dct_level.items()
+                                        )[
+                                            : level_order - 1
+                                        ]
+                                    ]
                                 )
-                            ]
-                            for level, dct_level in dct_diag_hierarchies_adult.items()
-                        ]
-                        for item in sublist
-                    ]
-                )
+                                .any(axis=1)
+                            )
+                        )
+                    ).astype(int)
+                    for level, dct_level in dct_diag_hierarchies_adult.items()
+                    for level_order, diag in sorted(
+                        dct_level.items()
+                    )
+                }
             )
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
+                **dict(  # pylint: disable=consider-using-dict-comprehension
                     [
                         item
                         for sublist in [
@@ -518,12 +496,10 @@ class CdpsRxRiskAdjustment:
             )
         )
         df = df.assign(
-            **dict(
-                [
-                    (diag, df[diag].where(~df["aid"].isin(["DC", "AC"]), 0))
-                    for diag in ["CANB", "DIA1H", "DIA1M", "DIA2M", "EYEL"]
-                ]
-            )
+            **{
+                diag: df[diag].where(~df["aid"].isin(["DC", "AC"]), 0)
+                for diag in ["CANB", "DIA1H", "DIA1M", "DIA2M", "EYEL"]
+            }
         )
         df = df.assign(
             PULH=df["PULH"].where(
@@ -540,26 +516,19 @@ class CdpsRxRiskAdjustment:
             NOCDPS=(df[lst_regression_vars].sum(axis=1) == 0).astype(int)
         )
         df = df.assign(
-            **dict(
-                [
-                    (idiag, df[diag].where(df["aid"].isin(["DC"]), 0))
-                    for idiag, diag in zip(
-                        lst_interaction_vars,
-                        [diag[1:] for diag in lst_interaction_vars],
-                    )
-                ]
-            )
+            **{
+                idiag: df[diag].where(df["aid"].isin(["DC"]), 0)
+                for idiag, diag in zip(
+                    lst_interaction_vars,
+                    [diag[1:] for diag in lst_interaction_vars],
+                )
+            }
         )
         df = df.assign(
-            **dict(
-                [
-                    (
-                        diag,
-                        df[diag].where(df["aid"].isin(["DC", "DA"]), np.nan),
-                    )
-                    for diag in lst_interaction_vars
-                ]
-            )
+            **{
+                diag: df[diag].where(df["aid"].isin(["DC", "DA"]), np.nan)
+                for diag in lst_interaction_vars
+            }
         )
         return (
             df[
@@ -645,18 +614,16 @@ class CdpsRxRiskAdjustment:
             ).astype(int),
             LST_NDC_MRX=df[lst_ndc_col_name].apply(
                 lambda lst_ndc: list(
-                    set(
-                        [
-                            dct_ndc_mrx_cat.get(
-                                ndc_cd.strip()
-                                .upper()
-                                .replace(".", "")
-                                .zfill(11),
-                                "OTHER",
-                            )
-                            for ndc_cd in lst_ndc.split(",")
-                        ]
-                    )
+                    {
+                        dct_ndc_mrx_cat.get(
+                            ndc_cd.strip()
+                            .upper()
+                            .replace(".", "")
+                            .zfill(11),
+                            "OTHER",
+                        )
+                        for ndc_cd in lst_ndc.split(",")
+                    }
                 )
             ),
         )
@@ -672,71 +639,55 @@ class CdpsRxRiskAdjustment:
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            mrx,
-                            pd.DataFrame(
-                                pdf["LST_NDC_MRX"].tolist(), index=pdf.index
-                            )
-                            .isin([mrx])
-                            .any(axis=1)
-                            .astype(int),
-                        )
-                        for mrx in lst_non_hierarchical_mrx_cat
-                    ]
-                )
+                **{
+                    mrx: pd.DataFrame(
+                        pdf["LST_NDC_MRX"].tolist(), index=pdf.index
+                    )
+                    .isin([mrx])
+                    .any(axis=1)
+                    .astype(int)
+                    for mrx in lst_non_hierarchical_mrx_cat
+                }
             )
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        item
-                        for sublist in [
-                            [
-                                (
-                                    mrx,
-                                    (
-                                        pd.DataFrame(
-                                            pdf["LST_NDC_MRX"].tolist(),
-                                            index=pdf.index,
-                                        )
-                                        .isin([mrx])
-                                        .any(axis=1)
-                                        & (
-                                            (level_order == 1)
-                                            | (
-                                                ~pd.DataFrame(
-                                                    pdf[
-                                                        "LST_NDC_MRX"
-                                                    ].tolist(),
-                                                    index=pdf.index,
-                                                )
-                                                .isin(
-                                                    [
-                                                        mrx
-                                                        for level_order, mrx in sorted(
-                                                            dct_level.items()
-                                                        )[
-                                                            : level_order - 1
-                                                        ]
-                                                    ]
-                                                )
-                                                .any(axis=1)
-                                            )
-                                        )
-                                    ).astype(int),
+                **{
+                    mrx: (
+                        pd.DataFrame(
+                            pdf["LST_NDC_MRX"].tolist(),
+                            index=pdf.index,
+                        )
+                        .isin([mrx])
+                        .any(axis=1)
+                        & (
+                            (level_order == 1)
+                            | (
+                                ~pd.DataFrame(
+                                    pdf[
+                                        "LST_NDC_MRX"
+                                    ].tolist(),
+                                    index=pdf.index,
                                 )
-                                for level_order, mrx in sorted(
-                                    dct_level.items()
+                                .isin(
+                                    [
+                                        mrx
+                                        for level_order, mrx in sorted(
+                                            dct_level.items()
+                                        )[
+                                            : level_order - 1
+                                        ]
+                                    ]
                                 )
-                            ]
-                            for level, dct_level in dct_mrx_hierarchies.items()
-                        ]
-                        for item in sublist
-                    ]
-                )
+                                .any(axis=1)
+                            )
+                        )
+                    ).astype(int)
+                    for level, dct_level in dct_mrx_hierarchies.items()
+                    for level_order, mrx in sorted(
+                        dct_level.items()
+                    )
+                }
             )
         )
         return (
@@ -985,7 +936,7 @@ class CdpsRxRiskAdjustment:
                         df[score_col_name].where(
                             ~(df["aid"] == "AA"),
                             dct_weights["AA_Intercept"]
-                            + (df[[col for col in lst_cov]] * np_aa_coef).sum(
+                            + (df[list(lst_cov)] * np_aa_coef).sum(
                                 axis=1
                             ),
                         ),
@@ -1001,7 +952,7 @@ class CdpsRxRiskAdjustment:
                         df[score_col_name].where(
                             ~(df["aid"] == "AC"),
                             dct_weights["AC_Intercept"]
-                            + (df[[col for col in lst_cov]] * np_ac_coef).sum(
+                            + (df[list(lst_cov)] * np_ac_coef).sum(
                                 axis=1
                             ),
                         ),
@@ -1018,7 +969,7 @@ class CdpsRxRiskAdjustment:
                             ~((df["aid"] == "DC") | (df["aid"] == "DA")),
                             dct_weights["DADC_Intercept"]
                             + (
-                                df[[col for col in lst_cov]] * np_dadc_coef
+                                df[list(lst_cov)] * np_dadc_coef
                             ).sum(axis=1),
                         ),
                     )

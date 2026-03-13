@@ -72,7 +72,6 @@ class LowValueCare:
     def get_diag_proc_specs(
         cls, pdf_spec: pd.DataFrame, prefix: str
     ) -> Tuple[dict, dict, dict, dict]:
-        # pylint: disable=missing-param-doc
         """
         Returns DX & procedure code specs as dictionary
 
@@ -630,10 +629,6 @@ class LowValueCare:
             Folder where temporary files can be saved
         index_col : str
             Index column name
-
-        Returns
-        -------
-        None
 
         Examples
         --------

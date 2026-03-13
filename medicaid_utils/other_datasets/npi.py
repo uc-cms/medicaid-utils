@@ -1,11 +1,12 @@
 import os
-import pandas as pd
-import dask.dataframe as dd
-from dask import delayed
-import numpy as np
-from math import ceil
 import shutil
+from math import ceil
 from typing import List
+
+import dask.dataframe as dd
+import numpy as np
+import pandas as pd
+from dask import delayed
 
 nppes_lookup_folder = os.path.join(os.path.dirname(__file__), "data", "nppes")
 fara_folder = os.path.join(os.path.dirname(__file__), "data", "fara")
@@ -200,7 +201,6 @@ def generate_npi_taxonomy_mappings(
     (taxonomy_codes.csv)
     :param year:
     :param pq_engine: Parquet engine, fastparquet or pyarrow
-    :return:
     """
     pdf_taxonomy = pd.read_csv(os.path.join(fara_folder, "taxonomy_codes.csv"))
     pdf_taxonomy = pdf_taxonomy.assign(
@@ -215,17 +215,12 @@ def generate_npi_taxonomy_mappings(
     )
 
     df_npi_taxonomy = df_npi_taxonomy.assign(
-        **dict(
-            [
-                (
-                    f"taxonomy_{taxonomy}",
-                    df_npi_taxonomy["taxonomy_code"]
-                    .isin(dct_taxonomy[taxonomy])
-                    .astype(int),
-                )
-                for taxonomy in pdf_taxonomy["taxonomy"]
-            ]
-        )
+        **{
+            f"taxonomy_{taxonomy}": df_npi_taxonomy["taxonomy_code"]
+            .isin(dct_taxonomy[taxonomy])
+            .astype(int)
+            for taxonomy in pdf_taxonomy["taxonomy"]
+        }
     )
     lst_id_col = [
         "npi",
@@ -271,17 +266,12 @@ def generate_npi_taxonomy_mappings(
         index=False,
     )
     df_npi_taxonomy_group = df_npi_taxonomy_group.assign(
-        **dict(
-            [
-                (
-                    f"taxonomy_{taxonomy}",
-                    df_npi_taxonomy_group["taxonomy_group"]
-                    .str.contains("|".join(dct_taxonomy[taxonomy]))
-                    .astype(int),
-                )
-                for taxonomy in pdf_taxonomy["taxonomy"]
-            ]
-        )
+        **{
+            f"taxonomy_{taxonomy}": df_npi_taxonomy_group["taxonomy_group"]
+            .str.contains("|".join(dct_taxonomy[taxonomy]))
+            .astype(int)
+            for taxonomy in pdf_taxonomy["taxonomy"]
+        }
     )
 
     lst_id_col = ["npi", "replacement_npi", "entity", "p_loc_state"]
@@ -309,7 +299,6 @@ def cleanup_raw_npi_files(
     from the flat raw file and creating NPI mappings for a known set of taxonomies
     :param lst_year:
     :param pq_engine: Parquet engine, fastparquet or pyarrow
-    :return:
     """
     for year in lst_year:
         df_npi = dd.read_csv(
@@ -376,147 +365,121 @@ def cleanup_raw_npi_files(
                     "plocstatename": "p_loc_state",
                     "ploczip": "p_loc_zip",
                 },
-                **dict(
-                    [
-                        (
-                            col,
-                            col.replace(
-                                "Healthcare Provider Taxonomy Code_",
-                                "p_tax_code_",
-                            ),
-                        )
-                        for col in df_npi.columns
-                        if col.startswith("Healthcare Provider Taxonomy Code_")
-                    ]
-                    + [
-                        (
-                            col,
-                            col.replace(
-                                "Healthcare Provider Primary Taxonomy Switch_",
-                                "p_prim_tax_",
-                            ),
-                        )
-                        for col in df_npi.columns
-                        if col.startswith(
-                            "Healthcare Provider Primary Taxonomy Switch_"
-                        )
-                    ]
-                    + [
-                        (
-                            col,
-                            col.replace(
-                                "Provider License Number State Code_",
-                                "p_lic_state_",
-                            ),
-                        )
-                        for col in df_npi.columns
-                        if col.startswith(
-                            "Provider License Number State Code_"
-                        )
-                    ]
-                    + [
-                        (
-                            col,
-                            col.replace(
-                                "Other Provider Identifier_", "oth_pid_"
-                            ),
-                        )
-                        for col in df_npi.columns
-                        if col.startswith("Other Provider Identifier_")
-                    ]
-                    + [
-                        (
-                            col,
-                            col.replace(
-                                "Other Provider Identifier Type Code_",
-                                "oth_pid_type_",
-                            ),
-                        )
-                        for col in df_npi.columns
-                        if col.startswith(
-                            "Other Provider Identifier Type Code_"
-                        )
-                    ]
-                    + [
-                        (
-                            col,
-                            col.replace(
-                                "Other Provider Identifier State_",
-                                "oth_pid_st_",
-                            ),
-                        )
-                        for col in df_npi.columns
-                        if col.startswith("Other Provider Identifier State_")
-                    ]
-                    + [
-                        (
-                            col,
-                            col.replace(
-                                "Other Provider Identifier Issuer_",
-                                "oth_pid_iss_",
-                            ),
-                        )
-                        for col in df_npi.columns
-                        if col.startswith("Other Provider Identifier Issuer_")
-                    ]
-                    + [
-                        (
-                            col,
-                            col.replace(
-                                "Healthcare Provider Taxonomy Group_",
-                                "p_tax_group_",
-                            ),
-                        )
-                        for col in df_npi.columns
-                        if col.startswith(
-                            "Healthcare Provider Taxonomy Group_"
-                        )
-                    ]
-                    + [
-                        (col, col.replace("ptaxcode", "p_tax_code_"))
-                        for col in df_npi.columns
-                        if col.startswith("ptaxcode")
-                    ]
-                    + [
-                        (col, col.replace("pprimtax", "p_prim_tax_"))
-                        for col in df_npi.columns
-                        if col.startswith("pprimtax")
-                    ]
-                    + [
-                        (col, col.replace("plicstate", "p_lic_state_"))
-                        for col in df_npi.columns
-                        if col.startswith("plicstate")
-                    ]
-                    + [
-                        (col, col.replace("othpid", "oth_pid_"))
-                        for col in df_npi.columns
-                        if (
-                            col.startswith("othpid")
-                            & (not col.startswith("othpidty"))
-                            & (not col.startswith("othpidiss"))
-                        )
-                    ]
-                    + [
-                        (col, col.replace("othpidty", "oth_pid_type_"))
-                        for col in df_npi.columns
-                        if col.startswith("othpidty")
-                    ]
-                    + [
-                        (col, col.replace("othpidst", "oth_pid_st_"))
-                        for col in df_npi.columns
-                        if col.startswith("othpidst")
-                    ]
-                    + [
-                        (col, col.replace("othpidiss", "oth_pid_iss_"))
-                        for col in df_npi.columns
-                        if col.startswith("othpidiss")
-                    ]
-                    + [
-                        (col, col.replace("ptaxgroup", "p_tax_group_"))
-                        for col in df_npi.columns
-                        if col.startswith("ptaxgroup")
-                    ]
-                ),
+                **{
+                    col: col.replace(
+                        "Healthcare Provider Taxonomy Code_",
+                        "p_tax_code_",
+                    )
+                    for col in df_npi.columns
+                    if col.startswith("Healthcare Provider Taxonomy Code_")
+                },
+                **{
+                    col: col.replace(
+                        "Healthcare Provider Primary Taxonomy Switch_",
+                        "p_prim_tax_",
+                    )
+                    for col in df_npi.columns
+                    if col.startswith(
+                        "Healthcare Provider Primary Taxonomy Switch_"
+                    )
+                },
+                **{
+                    col: col.replace(
+                        "Provider License Number State Code_",
+                        "p_lic_state_",
+                    )
+                    for col in df_npi.columns
+                    if col.startswith(
+                        "Provider License Number State Code_"
+                    )
+                },
+                **{
+                    col: col.replace(
+                        "Other Provider Identifier_", "oth_pid_"
+                    )
+                    for col in df_npi.columns
+                    if col.startswith("Other Provider Identifier_")
+                },
+                **{
+                    col: col.replace(
+                        "Other Provider Identifier Type Code_",
+                        "oth_pid_type_",
+                    )
+                    for col in df_npi.columns
+                    if col.startswith(
+                        "Other Provider Identifier Type Code_"
+                    )
+                },
+                **{
+                    col: col.replace(
+                        "Other Provider Identifier State_",
+                        "oth_pid_st_",
+                    )
+                    for col in df_npi.columns
+                    if col.startswith("Other Provider Identifier State_")
+                },
+                **{
+                    col: col.replace(
+                        "Other Provider Identifier Issuer_",
+                        "oth_pid_iss_",
+                    )
+                    for col in df_npi.columns
+                    if col.startswith("Other Provider Identifier Issuer_")
+                },
+                **{
+                    col: col.replace(
+                        "Healthcare Provider Taxonomy Group_",
+                        "p_tax_group_",
+                    )
+                    for col in df_npi.columns
+                    if col.startswith(
+                        "Healthcare Provider Taxonomy Group_"
+                    )
+                },
+                **{
+                    col: col.replace("ptaxcode", "p_tax_code_")
+                    for col in df_npi.columns
+                    if col.startswith("ptaxcode")
+                },
+                **{
+                    col: col.replace("pprimtax", "p_prim_tax_")
+                    for col in df_npi.columns
+                    if col.startswith("pprimtax")
+                },
+                **{
+                    col: col.replace("plicstate", "p_lic_state_")
+                    for col in df_npi.columns
+                    if col.startswith("plicstate")
+                },
+                **{
+                    col: col.replace("othpid", "oth_pid_")
+                    for col in df_npi.columns
+                    if (
+                        col.startswith("othpid")
+                        & (not col.startswith("othpidty"))
+                        & (not col.startswith("othpidiss"))
+                    )
+                },
+                **{
+                    col: col.replace("othpidty", "oth_pid_type_")
+                    for col in df_npi.columns
+                    if col.startswith("othpidty")
+                },
+                **{
+                    col: col.replace("othpidst", "oth_pid_st_")
+                    for col in df_npi.columns
+                    if col.startswith("othpidst")
+                },
+                **{
+                    col: col.replace("othpidiss", "oth_pid_iss_")
+                    for col in df_npi.columns
+                    if col.startswith("othpidiss")
+                },
+                **{
+                    col: col.replace("ptaxgroup", "p_tax_group_")
+                    for col in df_npi.columns
+                    if col.startswith("ptaxgroup")
+                },
             }
         )
         df_npi = df_npi.set_index("npi")
@@ -543,13 +506,11 @@ def cleanup_raw_npi_files(
             )
             df_othname = df_othname.rename(
                 columns={
-                    **{
-                        "NPI": "npi",
-                        "Provider Other Organization Name": "p_org_name_oth",
-                        "Provider Other Organization Name Type Code": (
-                            "p_org_name_oth_type"
-                        ),
-                    }
+                    "NPI": "npi",
+                    "Provider Other Organization Name": "p_org_name_oth",
+                    "Provider Other Organization Name Type Code": (
+                        "p_org_name_oth_type"
+                    ),
                 }
             )
             df_othname = df_othname.set_index("npi")
@@ -575,36 +536,34 @@ def cleanup_raw_npi_files(
             )
             df_ploc = df_ploc.rename(
                 columns={
-                    **{
-                        "NPI": "npi",
-                        "Provider Secondary Practice Location Address- Address Line 1": (
-                            "p_sec_loc_line_1"
-                        ),
-                        "Provider Secondary Practice Location Address-  Address Line 2": (
-                            "p_sec_loc_line_2"
-                        ),
-                        "Provider Secondary Practice Location Address - City Name": (
-                            "p_sec_loc_city"
-                        ),
-                        "Provider Secondary Practice Location Address - State Name": (
-                            "p_sec_loc_state"
-                        ),
-                        "Provider Secondary Practice Location Address - Postal Code": (
-                            "p_sec_loc_zip"
-                        ),
-                        "Provider Secondary Practice Location Address - Country Code (If outside U.S.)": (
-                            "p_sec_loc_country"
-                        ),
-                        "Provider Secondary Practice Location Address - Telephone Number": (
-                            "p_sec_loc_phone"
-                        ),
-                        "Provider Secondary Practice Location Address - Telephone Extension": (
-                            "p_sec_loc_phone_ext"
-                        ),
-                        "Provider Practice Location Address - Fax Number": (
-                            "p_sec_loc_fax"
-                        ),
-                    }
+                    "NPI": "npi",
+                    "Provider Secondary Practice Location Address- Address Line 1": (
+                        "p_sec_loc_line_1"
+                    ),
+                    "Provider Secondary Practice Location Address-  Address Line 2": (
+                        "p_sec_loc_line_2"
+                    ),
+                    "Provider Secondary Practice Location Address - City Name": (
+                        "p_sec_loc_city"
+                    ),
+                    "Provider Secondary Practice Location Address - State Name": (
+                        "p_sec_loc_state"
+                    ),
+                    "Provider Secondary Practice Location Address - Postal Code": (
+                        "p_sec_loc_zip"
+                    ),
+                    "Provider Secondary Practice Location Address - Country Code (If outside U.S.)": (
+                        "p_sec_loc_country"
+                    ),
+                    "Provider Secondary Practice Location Address - Telephone Number": (
+                        "p_sec_loc_phone"
+                    ),
+                    "Provider Secondary Practice Location Address - Telephone Extension": (
+                        "p_sec_loc_phone_ext"
+                    ),
+                    "Provider Practice Location Address - Fax Number": (
+                        "p_sec_loc_fax"
+                    ),
                 }
             )
             df_ploc = df_ploc.set_index("npi")

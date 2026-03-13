@@ -1,9 +1,10 @@
 """This module has functions used to flag cohort designations used in OB/GYN
 studies"""
-import dask.dataframe as dd
-import pandas as pd
-import numpy as np
 import os
+
+import dask.dataframe as dd
+import numpy as np
+import pandas as pd
 
 data_folder = os.path.join(os.path.dirname(__file__), "data")
 

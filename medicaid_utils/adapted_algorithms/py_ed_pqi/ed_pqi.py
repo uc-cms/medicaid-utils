@@ -48,14 +48,13 @@ def fix_index(
     if (df.index.name != index_name) | (df.divisions[0] is None):
         if index_name not in df.columns:
             if df.index.name != index_name:
-                raise ValueError("{0} not in dataframe".format(index_name))
+                raise ValueError(f"{index_name} not in dataframe")
             df[index_name] = df.index
         df = df.set_index(index_name, drop=drop_column)
+    elif not drop_column:
+        df[index_name] = df.index
     else:
-        if not drop_column:
-            df[index_name] = df.index
-        else:
-            df = df[[col for col in df.columns if col != index_name]]
+        df = df[[col for col in df.columns if col != index_name]]
     return df
 
 
@@ -105,12 +104,12 @@ class EDPreventionQualityIndicators:
         )
         dct_conditions = (
             pdf_icd9_diseases.groupby("condition")["include_icd9"]
-            .apply(lambda x: tuple([str(cd) for cd in x]))
+            .apply(lambda x: tuple(str(cd) for cd in x))
             .to_dict()
         )
         dct_edvst_cat = (
             pdf_icd9_edvsts.groupby("condition")["include_icd9"]
-            .apply(lambda x: tuple([str(cd) for cd in x]))
+            .apply(lambda x: tuple(str(cd) for cd in x))
             .to_dict()
         )
 
@@ -132,7 +131,7 @@ class EDPreventionQualityIndicators:
                                 ]
                                 .apply(
                                     lambda x: x.str.upper().str.startswith(
-                                        dct_conditions[condn]
+                                        dct_conditions[condn]  # pylint: disable=cell-var-from-loop
                                     )
                                 )
                                 .any(axis="columns")
@@ -223,12 +222,10 @@ class EDPreventionQualityIndicators:
             pdf_claims: pd.DataFrame, lst_conditions: List[str]
         ) -> pd.DataFrame:
             return pdf_claims.groupby("MSIS_ID").agg(
-                **dict(
-                    [
-                        ("diag_" + condn, ("diag_" + condn, "max"))
-                        for condn in lst_conditions
-                    ]
-                )
+                **{
+                    "diag_" + condn: ("diag_" + condn, "max")
+                    for condn in lst_conditions
+                }
             )
 
         df_ip_with_indicators = flag_disease_diagnoses(
@@ -265,13 +262,11 @@ class EDPreventionQualityIndicators:
         )
         df_ps = df_ps.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (col, pdf[col].fillna(0))
-                        for col in pdf.columns
-                        if col not in ["Female", "age", "ageday", "MSIS_ID"]
-                    ]
-                )
+                **{
+                    col: pdf[col].fillna(0)
+                    for col in pdf.columns
+                    if col not in ["Female", "age", "ageday", "MSIS_ID"]
+                }
             )
         )
         fix_index(df_ps, "MSIS_ID")
@@ -320,12 +315,12 @@ class EDPreventionQualityIndicators:
         )
         dct_conditions = (
             pdf_icd9_diseases.groupby("condition")["include_icd9"]
-            .apply(lambda x: tuple([str(cd) for cd in x]))
+            .apply(lambda x: tuple(str(cd) for cd in x))
             .to_dict()
         )
         dct_edvst_cat = (
             pdf_icd9_edvsts.groupby("condition")["include_icd9"]
-            .apply(lambda x: tuple([str(cd) for cd in x]))
+            .apply(lambda x: tuple(str(cd) for cd in x))
             .to_dict()
         )
 
@@ -339,7 +334,7 @@ class EDPreventionQualityIndicators:
         fix_index(df_ed, "MSIS_ID")
 
         def mptn_categorise_ed_visits(
-            pdf: pd.DataFrame, dct_edvst_cat: dict, dct_conditions: dict
+            pdf: pd.DataFrame, dct_edvst_cat: dict, _dct_conditions: dict
         ) -> pd.DataFrame:
             # Adding indicator and cost columns for each of PQI ED covered disease conditions
             pdf = pdf.assign(
@@ -553,16 +548,14 @@ class EDPreventionQualityIndicators:
         )
         df_ed = df_ed.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (col, pdf[col].fillna(0))
-                        for col in pdf.columns
-                        if (
-                            col.startswith("edvst")
-                            | col.startswith("valid_edvst")
-                        )
-                    ]
-                )
+                **{
+                    col: pdf[col].fillna(0)
+                    for col in pdf.columns
+                    if (
+                        col.startswith("edvst")
+                        | col.startswith("valid_edvst")
+                    )
+                }
             )
         )
         df_ed = df_ed.map_partitions(
@@ -679,33 +672,28 @@ class EDPreventionQualityIndicators:
         )
         df_ed = df_ed.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
+                **{
+                    claim_type
+                    + "pqi_ed_"
+                    + condn_cat
+                    + "_acsc_"
+                    + agg_type: pdf[
+                        [
                             claim_type
                             + "pqi_ed_"
-                            + condn_cat
-                            + "_acsc_"
-                            + agg_type,
-                            pdf[
-                                [
-                                    claim_type
-                                    + "pqi_ed_"
-                                    + condn
-                                    + "_"
-                                    + agg_type
-                                    for condn in dct_edvst_cat.keys()
-                                    if condn.startswith(condn_cat + "_acsc")
-                                ]
-                            ].sum(axis="columns", min_count=1),
-                        )
-                        for claim_type, agg_type, condn_cat in product(
-                            lst_claimtype,
-                            ["count", "cost"],
-                            ["chronic", "acute"],
-                        )
-                    ]
-                )
+                            + condn
+                            + "_"
+                            + agg_type
+                            for condn in dct_edvst_cat.keys()
+                            if condn.startswith(condn_cat + "_acsc")
+                        ]
+                    ].sum(axis="columns", min_count=1)
+                    for claim_type, agg_type, condn_cat in product(
+                        lst_claimtype,
+                        ["count", "cost"],
+                        ["chronic", "acute"],
+                    )
+                }
             )
         )
         fix_index(df_ed, "MSIS_ID", drop_column=True)

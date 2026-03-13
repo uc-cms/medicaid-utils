@@ -54,31 +54,26 @@ class ElixhauserScoring:
 
         df = df.map_partitions(
             lambda pdf: pdf.assign(
-                **dict(
-                    [
-                        (
-                            "ELX_GRP_" + str(i),
-                            pdf[lst_diag_col_name]
-                            .str.split(",", expand=True)
-                            .apply(
-                                lambda x: x.str.replace(".", "")
-                                .str.strip()
-                                .str.upper()
-                                .str.startswith(
-                                    tuple(
-                                        df_icd_mapping.loc[
-                                            df_icd_mapping["ELX_GRP"] == i,
-                                            "ICD",
-                                        ].values[0]
-                                    )
-                                )
+                **{
+                    "ELX_GRP_" + str(i): pdf[lst_diag_col_name]
+                    .str.split(",", expand=True)
+                    .apply(
+                        lambda x: x.str.replace(".", "")
+                        .str.strip()
+                        .str.upper()
+                        .str.startswith(
+                            tuple(
+                                df_icd_mapping.loc[
+                                    df_icd_mapping["ELX_GRP"] == i,  # pylint: disable=cell-var-from-loop
+                                    "ICD",
+                                ].values[0]
                             )
-                            .any(axis="columns")
-                            .astype(int),
                         )
-                        for i in range(1, 32)
-                    ]
-                )
+                    )
+                    .any(axis="columns")
+                    .astype(int)
+                    for i in range(1, 32)
+                }
             )
         )
         return df

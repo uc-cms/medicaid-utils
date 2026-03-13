@@ -51,7 +51,7 @@ class BetosProcCodes:
 
         """
         betpuf_path = os.path.join(
-            cls.data_folder, "betpuf{0}.txt".format(str(year)[-2:])
+            cls.data_folder, f"betpuf{str(year)[-2:]}.txt"
         )
         if year != 2020:
             pdf_crosswalk = pd.read_csv(
@@ -83,7 +83,7 @@ class BetosProcCodes:
             ][["cpt_code", "betos_code"]]
             pdf_code_lookup = pd.read_csv(
                 os.path.join(
-                    cls.data_folder, "r-me-bet{0}.txt".format(str(year)[-2:])
+                    cls.data_folder, f"r-me-bet{str(year)[-2:]}.txt"
                 ),
                 header=None,
                 sep="=",
@@ -201,12 +201,12 @@ class BetosProcCodes:
         """
         dct_code_lookup = (
             pdf_crosswalk.groupby(["betos_code"])["cpt_code"]
-            .apply(lambda x: tuple(x))
+            .apply(tuple)
             .to_dict()
         )
         dct_cat_lookup = (
             pdf_crosswalk.groupby(["betos_cat"])["cpt_code"]
-            .apply(lambda x: tuple(x))
+            .apply(tuple)
             .to_dict()
         )
         lst_col_to_delete = []
@@ -215,27 +215,22 @@ class BetosProcCodes:
             # Filtering procedure codes with sys code = 1 (CPT) & 6 (HCPCS)
             df = df.map_partitions(
                 lambda pdf: pdf.assign(
-                    **dict(
-                        [
+                    **{
+                        "VALID_" + (col.replace("_SYS", "")): pdf[col.replace("_SYS", "")]
+                        .where(
                             (
-                                "VALID_" + (col.replace("_SYS", "")),
-                                pdf[col.replace("_SYS", "")]
-                                .where(
-                                    (
-                                        pd.to_numeric(
-                                            pdf[col], errors="coerce"
-                                        ).isin([1, 6])
-                                    ),
-                                    "",
-                                )
-                                .str.strip()
-                                .str.upper()
-                                .str.replace(".", ""),
-                            )
-                            for col in pdf.columns
-                            if col.startswith(proc_code_col_prefix + "_SYS")
-                        ]
-                    )
+                                pd.to_numeric(
+                                    pdf[col], errors="coerce"
+                                ).isin([1, 6])
+                            ),
+                            "",
+                        )
+                        .str.strip()
+                        .str.upper()
+                        .str.replace(".", "")
+                        for col in pdf.columns
+                        if col.startswith(proc_code_col_prefix + "_SYS")
+                    }
                 )
             )
             lst_col_to_delete.extend(
@@ -261,24 +256,22 @@ class BetosProcCodes:
                             ].apply(
                                 lambda x: ",".join(
                                     list(
-                                        set(
-                                            [
-                                                betos_code
-                                                for betos_code in list(
-                                                    dct_code_lookup.keys()
+                                        {
+                                            betos_code
+                                            for betos_code in list(
+                                                dct_code_lookup.keys()
+                                            )
+                                            if any(
+                                                cpt_code.strip().startswith(
+                                                    dct_code_lookup[
+                                                        betos_code
+                                                    ]
                                                 )
-                                                if any(
-                                                    cpt_code.strip().startswith(
-                                                        dct_code_lookup[
-                                                            betos_code
-                                                        ]
-                                                    )
-                                                    for cpt_code in ",".join(
-                                                        x
-                                                    ).split(",")
-                                                )
-                                            ]
-                                        )
+                                                for cpt_code in ",".join(
+                                                    x
+                                                ).split(",")
+                                            )
+                                        }
                                     )
                                 ),
                                 axis=1,
@@ -295,24 +288,22 @@ class BetosProcCodes:
                             ].apply(
                                 lambda x: ",".join(
                                     list(
-                                        set(
-                                            [
-                                                betos_cat
-                                                for betos_cat in list(
-                                                    dct_cat_lookup.keys()
+                                        {
+                                            betos_cat
+                                            for betos_cat in list(
+                                                dct_cat_lookup.keys()
+                                            )
+                                            if any(
+                                                cpt_code.strip().startswith(
+                                                    dct_cat_lookup[
+                                                        betos_cat
+                                                    ]
                                                 )
-                                                if any(
-                                                    cpt_code.strip().startswith(
-                                                        dct_cat_lookup[
-                                                            betos_cat
-                                                        ]
-                                                    )
-                                                    for cpt_code in ",".join(
-                                                        x
-                                                    ).split(",")
-                                                )
-                                            ]
-                                        )
+                                                for cpt_code in ",".join(
+                                                    x
+                                                ).split(",")
+                                            )
+                                        }
                                     )
                                 ),
                                 axis=1,

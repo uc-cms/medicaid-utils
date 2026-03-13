@@ -93,7 +93,7 @@ def get_fqhc_crosswalk(start_year, data_folder=fqhc_lookup_folder):
     )
     pdf_fqhc_crosswalk = pdf_fqhc_crosswalk.assign(
         bhcmisid=pdf_fqhc_crosswalk.groupby(["npi"])["bhcmisid"].transform(
-            lambda x: ",".join(x)
+            ",".join
         )
     )
     pdf_fqhc_crosswalk = pdf_fqhc_crosswalk.assign(

@@ -41,7 +41,7 @@ def get_text(root, xpath):
     return ""
 
 
-class USPSAddress(object):
+class USPSAddress:
     """Representation of an United States Postal Service address."""
 
     def __init__(
@@ -60,7 +60,7 @@ class USPSAddress(object):
     def zipcode(self):
         """Returns the zipcode based on whether or not `zip4` is used."""
         if self.zip4:
-            return "%s-%s" % (self.zip5, self.zip4)
+            return f"{self.zip5}-{self.zip4}"
 
         return self.zip5
 
@@ -70,7 +70,7 @@ class USPSAddress(object):
             self.name,
             self.suite,
             self.street,
-            "{0}, {1}  {2}".format(self.city, self.state, self.zipcode()),
+            f"{self.city}, {self.state}  {self.zipcode()}",
         ]
 
         return "\n".join([x for x in lines if x])
@@ -96,24 +96,17 @@ class USPSAddress(object):
             lines = [result["name"]]
 
             if result["suite"]:
-                lines.append("%s %s" % (result["street"], result["suite"]))
+                lines.append(f"{result['street']} {result['suite']}")
             else:
                 lines.append(result["street"])
 
             if result["zip4"]:
                 lines.append(
-                    "%s %s %s-%s"
-                    % (
-                        result["city"],
-                        result["state"],
-                        result["zip5"],
-                        result["zip4"],
-                    )
+                    f"{result['city']} {result['state']} {result['zip5']}-{result['zip4']}"
                 )
             else:
                 lines.append(
-                    "%s %s %s"
-                    % (result["city"], result["state"], result["zip5"])
+                    f"{result['city']} {result['state']} {result['zip5']}"
                 )
 
         self._standardized = " ".join([x for x in lines if x])
@@ -122,7 +115,7 @@ class USPSAddress(object):
         return self._standardized
 
 
-class USPSShippingAPI(object):
+class USPSShippingAPI:
     """
     Representation of the USPS Shipping API
     https://www.usps.com/business/web-tools-apis/address-information-api.htm
@@ -139,7 +132,7 @@ class USPSShippingAPI(object):
         Child classes should override this to return a string appropriate for
         its API.
         """
-        raise Exception("Must override this function!")
+        raise NotImplementedError("Must override this function!")
 
     def send_request(self):
         """
@@ -148,6 +141,7 @@ class USPSShippingAPI(object):
         response = requests.get(
             USPSShippingAPI.url,
             params={"API": self.api, "XML": self._xml_payload()},
+            timeout=30,
         )
 
         root = xml_et.fromstring(response.content)
@@ -185,7 +179,7 @@ class AddressStandardizationWebTool(USPSShippingAPI):
         zip4=None,
         userid=USPS_USERID,
     ):
-        super(AddressStandardizationWebTool, self).__init__(
+        super().__init__(
             userid=userid, api=AddressStandardizationWebTool.api
         )
 

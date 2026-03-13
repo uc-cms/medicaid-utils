@@ -30,24 +30,24 @@ def log_assert(
         source_file, line_no, func = last_stackframe[1:4]
         source = (
             "Traceback (most recent call last):\n"
-            + '  File "%s", line %s, in %s\n    '
-            % (source_file, line_no, func)
+            + f'  File "{source_file}", line {line_no}, in {func}\n    '
         )
         if verbose:
             # include more lines than that where the statement was made
-            source_code = open(source_file).readlines()
+            with open(source_file, encoding="utf-8") as fh:
+                source_code = fh.readlines()
             source += "".join(source_code[line_no - 3:line_no + 1])
         else:
             source += last_stackframe[-2][0].strip()
-        logger.debug("%s\n%s" % (message, source))
-        raise AssertionError("%s\n%s" % (message, source))
+        logger.debug("%s\n%s", message, source)
+        raise AssertionError(f"{message}\n{source}") from None
 
 
 def is_number(x: Any) -> bool:
     try:
         int(float(x))
         return True
-    except Exception:
+    except (ValueError, TypeError):
         return False
 
 
@@ -55,7 +55,7 @@ def convert_to_int_str(x: Any) -> Union[str, Any]:
     try:
         int_val = str(int(float(x)))
         return int_val
-    except Exception:
+    except (ValueError, TypeError):
         return x
 
 

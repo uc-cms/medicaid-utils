@@ -114,16 +114,14 @@ class PediatricMedicalComplexity:
                             condn,
                             pdf[diag_cd_lst_col].apply(
                                 lambda lst_cd: sum(
-                                    [
-                                        int(
-                                            cd.startswith(
-                                                dct_conditions[condn][
-                                                    "include_icd9"
-                                                ]
-                                            )
+                                    int(
+                                        cd.startswith(
+                                            dct_conditions[condn][  # pylint: disable=cell-var-from-loop
+                                                "include_icd9"
+                                            ]
                                         )
-                                        for cd in lst_cd.split(",")
-                                    ]
+                                    )
+                                    for cd in lst_cd.split(",")
                                 )
                             ),
                         )
@@ -134,23 +132,21 @@ class PediatricMedicalComplexity:
                             condn,
                             pdf[diag_cd_lst_col].apply(
                                 lambda lst_cd: sum(
-                                    [
-                                        int(
-                                            cd.startswith(
-                                                dct_conditions[condn][
-                                                    "include_icd9"
+                                    int(
+                                        cd.startswith(
+                                            dct_conditions[condn][  # pylint: disable=cell-var-from-loop
+                                                "include_icd9"
+                                            ]
+                                        )
+                                        & (
+                                            not cd.startswith(
+                                                dct_conditions[condn][  # pylint: disable=cell-var-from-loop
+                                                    "exclude_icd9"
                                                 ]
                                             )
-                                            & (
-                                                not cd.startswith(
-                                                    dct_conditions[condn][
-                                                        "exclude_icd9"
-                                                    ]
-                                                )
-                                            )
                                         )
-                                        for cd in lst_cd.split(",")
-                                    ]
+                                    )
+                                    for cd in lst_cd.split(",")
                                 )
                             ),
                         )
@@ -161,19 +157,17 @@ class PediatricMedicalComplexity:
                             "progressive",
                             pdf[diag_cd_lst_col].apply(
                                 lambda lst_cd: sum(
-                                    [
-                                        int(
-                                            cd.startswith(
-                                                tpl_progressive_include_codes
-                                            )
-                                            & (
-                                                not cd.startswith(
-                                                    tpl_progressive_exclude_codes
-                                                )
+                                    int(
+                                        cd.startswith(
+                                            tpl_progressive_include_codes
+                                        )
+                                        & (
+                                            not cd.startswith(
+                                                tpl_progressive_exclude_codes
                                             )
                                         )
-                                        for cd in lst_cd.split(",")
-                                    ]
+                                    )
+                                    for cd in lst_cd.split(",")
                                 )
                             ),
                         )
@@ -362,9 +356,9 @@ def pmca_chronic_conditions(df: dd.DataFrame, diag_cd_lst_col: str = "LST_DIAG_C
     )
     df = PediatricMedicalComplexity.get_pmca_chronic_condition_categories(df)
     df = df.rename(
-        columns=dict(
-            [(col, "pmca_" + col) for col in ["cond_less", "cond_more"]]
-        )
+        columns={
+            col: "pmca_" + col for col in ["cond_less", "cond_more"]
+        }
     )
     df = df[
         lst_columns

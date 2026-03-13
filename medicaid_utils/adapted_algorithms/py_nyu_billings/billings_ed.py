@@ -408,7 +408,6 @@ class BillingsED:
 def get_nyu_ed_proba(
     df: dd.DataFrame, date_col: str, index_col: str, cms_format: str = "MAX"
 ) -> pd.DataFrame:
-    # pylint: disable=missing-param-doc
     """
     This functions returns probabilities for dxgroup codes in the input dataframe being urgent, preventable, or
     optimally treated ED visits. This function recodes the passed dx codes to a set of dx codes used in (Billings,

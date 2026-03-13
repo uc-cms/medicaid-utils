@@ -1,15 +1,16 @@
-import os
-import requests
-import re
 import glob
 import logging
-from math import ceil
+import os
+import re
 from datetime import datetime
-from fuzzywuzzy import process, fuzz  # pylint: disable=import-error
+from math import ceil
+
 import dask.dataframe as dd
-import pandas as pd
 import numpy as np
+import pandas as pd
+import requests
 import usaddress  # pylint: disable=import-error
+from fuzzywuzzy import process, fuzz  # pylint: disable=import-error
 
 from medicaid_utils.common_utils.usps_address import USPSAddress
 
@@ -60,7 +61,7 @@ def combine_and_clean_hcris_files(logger_name):
         "hclinic_Name": "hclinic_name",
         "Po_Box": "hclinic_po_box",
     }
-    lst_col = list(set(list(dct_col_names.values())))
+    lst_col = list(set(dct_col_names.values()))
     lstdf_hcris = []
     for fname in glob.glob(
         os.path.join(hcris_lookup_folder, "hclinic_provider_info_*.csv")
@@ -108,7 +109,7 @@ def combine_and_clean_hcris_files(logger_name):
     )
     logger.info(
         "%s HCRIS datasets were merged and cleaned, and is saved at %s & %s",
-        ','.join([str(yr) for yr in lst_years]),
+        ','.join(str(yr) for yr in lst_years),
         fname_pickle,
         fname_csv,
     )
@@ -125,7 +126,7 @@ def clean_zip(zipcode):
 
 
 def get_taxonomies(lstdct_tax):
-    return ",".join([dct_tax["code"] for dct_tax in lstdct_tax])
+    return ",".join(dct_tax["code"] for dct_tax in lstdct_tax)
 
 
 def filter_partial_matches(df):
@@ -133,32 +134,30 @@ def filter_partial_matches(df):
     of at least 60"""
     df = df.replace(to_replace=[None, "None"], value=np.nan).fillna("")
     df = df.assign(
-        **dict(
-            [
-                (col, df[col].astype(str))
-                for col in [
-                    "provider_id_state",
-                    "p_loc_line_1",
-                    "p_loc_line_2",
-                    "p_loc_city",
-                    "p_loc_state",
-                    "p_mail_line_1",
-                    "p_mail_line_2",
-                    "p_mail_city",
-                    "p_mail_state",
-                    "hclinic_name",
-                    "hclinic_street_address",
-                    "hclinic_city",
-                    "hclinic_state",
-                    "hclinic_business_address",
-                    "hclinic_business_city",
-                    "hclinic_business_state",
-                    "hclinic_mail_address",
-                    "hclinic_mail_city",
-                    "hclinic_mail_state",
-                ]
+        **{
+            col: df[col].astype(str)
+            for col in [
+                "provider_id_state",
+                "p_loc_line_1",
+                "p_loc_line_2",
+                "p_loc_city",
+                "p_loc_state",
+                "p_mail_line_1",
+                "p_mail_line_2",
+                "p_mail_city",
+                "p_mail_state",
+                "hclinic_name",
+                "hclinic_street_address",
+                "hclinic_city",
+                "hclinic_state",
+                "hclinic_business_address",
+                "hclinic_business_city",
+                "hclinic_business_state",
+                "hclinic_mail_address",
+                "hclinic_mail_city",
+                "hclinic_mail_state",
             ]
-        )
+        }
     )
     df = df.map_partitions(compute_basic_match_purity)
     df = df.loc[
@@ -455,7 +454,7 @@ def flatten_nppes_query_result(pdf):
         ]
         return lst_res
 
-    def expand_query_result(
+    def expand_query_result(  # pylint: disable=too-many-locals
         dct_res,
         target_name,
         target_name2,
@@ -669,7 +668,7 @@ def clean_address(address):
             ).join([dct_address_cleaned[v], k])
         )
     return " ".join(
-        [dct_address_cleaned[k].strip() for k in dct_address_cleaned]
+        [v.strip() for v in dct_address_cleaned.values()]
     )
 
 
@@ -698,14 +697,14 @@ def street_address(address):
             ).join([dct_address_cleaned[v], k])
         )
     return " ".join(
-        [dct_address_cleaned[k].strip() for k in dct_address_cleaned]
+        [v.strip() for v in dct_address_cleaned.values()]
     )
 
 
 def compute_basic_match_purity(pdf):
     """Computes levenshtein distance based similarity scores for address, name & city, and equality match for state"""
 
-    def match_purity(
+    def match_purity(  # pylint: disable=too-many-arguments,too-many-locals
         p_org_name,
         p_org_name_oth,
         provider_id_state,
@@ -876,37 +875,35 @@ def compute_basic_match_purity(pdf):
         pdf = pdf.assign()
     pdf = pdf.replace(to_replace=[None, "None"], value=np.nan).fillna("")
     pdf = pdf.assign(
-        **dict(
-            [
-                (col, pdf[col].str.strip().astype(str))
-                for col in [
-                    "provider_id_state",
-                    "p_loc_line_1",
-                    "p_loc_line_2",
-                    "p_loc_city",
-                    "p_loc_state",
-                    "p_mail_line_1",
-                    "p_mail_line_2",
-                    "p_mail_city",
-                    "p_mail_state",
-                    "hclinic_name",
-                    "hclinic_street_address",
-                    "hclinic_po_box",
-                    "hclinic_city",
-                    "hclinic_state",
-                    "hclinic_site_name",
-                    "hclinic_street_address_line_2",
-                    "hclinic_business_address",
-                    "hclinic_business_state",
-                    "hclinic_business_city",
-                    "hclinic_business_zipcode",
-                    "hclinic_mail_address",
-                    "hclinic_mail_state",
-                    "hclinic_mail_city",
-                    "hclinic_mail_zipcode",
-                ]
+        **{
+            col: pdf[col].str.strip().astype(str)
+            for col in [
+                "provider_id_state",
+                "p_loc_line_1",
+                "p_loc_line_2",
+                "p_loc_city",
+                "p_loc_state",
+                "p_mail_line_1",
+                "p_mail_line_2",
+                "p_mail_city",
+                "p_mail_state",
+                "hclinic_name",
+                "hclinic_street_address",
+                "hclinic_po_box",
+                "hclinic_city",
+                "hclinic_state",
+                "hclinic_site_name",
+                "hclinic_street_address_line_2",
+                "hclinic_business_address",
+                "hclinic_business_state",
+                "hclinic_business_city",
+                "hclinic_business_zipcode",
+                "hclinic_mail_address",
+                "hclinic_mail_state",
+                "hclinic_mail_city",
+                "hclinic_mail_zipcode",
             ]
-        )
+        }
     )
 
     pdf = pdf.merge(
@@ -991,21 +988,16 @@ def process_address_columns(pdf, logger_name, source="hcris"):
         dd.from_pandas(pdf, npartitions=ceil(pdf.shape[0] / 10000))
         .map_partitions(
             lambda pdf_partition: pdf_partition.assign(
-                **dict(
-                    [
-                        (
-                            f"{col}_cleaned",
-                            pdf_partition[col].apply(clean_address),
-                        )
-                        for col in [
-                            "hclinic_address",
-                            "hclinic_business_address",
-                            "hclinic_mail_address",
-                            "p_loc_address",
-                            "p_mail_address",
-                        ]
+                **{
+                    f"{col}_cleaned": pdf_partition[col].apply(clean_address)
+                    for col in [
+                        "hclinic_address",
+                        "hclinic_business_address",
+                        "hclinic_mail_address",
+                        "p_loc_address",
+                        "p_mail_address",
                     ]
-                )
+                }
             )
         )
         .compute()
@@ -1015,23 +1007,18 @@ def process_address_columns(pdf, logger_name, source="hcris"):
         dd.from_pandas(pdf, npartitions=ceil(pdf.shape[0] / 10000))
         .map_partitions(
             lambda pdf_partition: pdf_partition.assign(
-                **dict(
-                    [
-                        (
-                            f"{col}_digits",
-                            pdf_partition[f"{col}_cleaned"]
-                            .str.findall(r"(\d+)")
-                            .str.join(""),
-                        )
-                        for col in [
-                            "hclinic_address",
-                            "hclinic_business_address",
-                            "hclinic_mail_address",
-                            "p_loc_address",
-                            "p_mail_address",
-                        ]
+                **{
+                    f"{col}_digits": pdf_partition[f"{col}_cleaned"]
+                    .str.findall(r"(\d+)")
+                    .str.join("")
+                    for col in [
+                        "hclinic_address",
+                        "hclinic_business_address",
+                        "hclinic_mail_address",
+                        "p_loc_address",
+                        "p_mail_address",
                     ]
-                )
+                }
             )
         )
         .compute()
@@ -1049,12 +1036,10 @@ def process_address_columns(pdf, logger_name, source="hcris"):
         ]
     ]
     pdf_hclinic_addresses = pdf_hclinic_addresses.rename(
-        columns=dict(
-            [
-                (col, col.replace("hclinic_", "").replace("code", ""))
-                for col in pdf_hclinic_addresses
-            ]
-        )
+        columns={
+            col: col.replace("hclinic_", "").replace("code", "")
+            for col in pdf_hclinic_addresses
+        }
     )
     if source == "uds":
         pdf_hclinic_business_addresses = pdf[
@@ -1066,12 +1051,10 @@ def process_address_columns(pdf, logger_name, source="hcris"):
             ]
         ].drop_duplicates()
         pdf_hclinic_business_addresses = pdf_hclinic_business_addresses.rename(
-            columns=dict(
-                [
-                    (col, "_".join(col.split("_")[2:]).replace("code", ""))
-                    for col in pdf_hclinic_business_addresses
-                ]
-            )
+            columns={
+                col: "_".join(col.split("_")[2:]).replace("code", "")
+                for col in pdf_hclinic_business_addresses
+            }
         )
         pdf_hclinic_mail_addresses = pdf[
             [
@@ -1082,12 +1065,10 @@ def process_address_columns(pdf, logger_name, source="hcris"):
             ]
         ].drop_duplicates()
         pdf_hclinic_mail_addresses = pdf_hclinic_mail_addresses.rename(
-            columns=dict(
-                [
-                    (col, "_".join(col.split("_")[2:]).replace("code", ""))
-                    for col in pdf_hclinic_mail_addresses
-                ]
-            )
+            columns={
+                col: "_".join(col.split("_")[2:]).replace("code", "")
+                for col in pdf_hclinic_mail_addresses
+            }
         )
         pdf_hclinic_addresses = (
             pd.concat(
@@ -1106,18 +1087,14 @@ def process_address_columns(pdf, logger_name, source="hcris"):
         ["p_loc_address_cleaned", "p_loc_city", "p_loc_state", "p_loc_zip"]
     ]
     pdf_loc_addresses = pdf_loc_addresses.rename(
-        columns=dict(
-            [(col, col.replace("p_loc_", "")) for col in pdf_loc_addresses]
-        )
+        columns={col: col.replace("p_loc_", "") for col in pdf_loc_addresses}
     )
 
     pdf_mail_addresses = pdf[
         ["p_mail_address_cleaned", "p_mail_city", "p_mail_state", "p_mail_zip"]
     ]
     pdf_mail_addresses = pdf_mail_addresses.rename(
-        columns=dict(
-            [(col, col.replace("p_mail_", "")) for col in pdf_mail_addresses]
-        )
+        columns={col: col.replace("p_mail_", "") for col in pdf_mail_addresses}
     )
 
     pdf_addresses = (
@@ -1189,12 +1166,10 @@ def process_address_columns(pdf, logger_name, source="hcris"):
     pdf = (
         pdf.merge(
             pdf_addresses.rename(
-                columns=dict(
-                    [
-                        (col, f'hclinic_{col.replace("zip", "zipcode")}')
-                        for col in pdf_addresses.columns
-                    ]
-                )
+                columns={
+                    col: f'hclinic_{col.replace("zip", "zipcode")}'
+                    for col in pdf_addresses.columns
+                }
             ),
             on=[
                 f'hclinic_{col.replace("zip", "zipcode")}'
@@ -1204,9 +1179,7 @@ def process_address_columns(pdf, logger_name, source="hcris"):
         )
         .merge(
             pdf_addresses.rename(
-                columns=dict(
-                    [(col, f"p_loc_{col}") for col in pdf_addresses.columns]
-                )
+                columns={col: f"p_loc_{col}" for col in pdf_addresses.columns}
             ),
             on=[
                 f"p_loc_{col}"
@@ -1216,9 +1189,7 @@ def process_address_columns(pdf, logger_name, source="hcris"):
         )
         .merge(
             pdf_addresses.rename(
-                columns=dict(
-                    [(col, f"p_mail_{col}") for col in pdf_addresses.columns]
-                )
+                columns={col: f"p_mail_{col}" for col in pdf_addresses.columns}
             ),
             on=[
                 f"p_mail_{col}"
@@ -1228,15 +1199,10 @@ def process_address_columns(pdf, logger_name, source="hcris"):
         )
         .merge(
             pdf_addresses.rename(
-                columns=dict(
-                    [
-                        (
-                            col,
-                            f'hclinic_business_{col.replace("zip", "zipcode")}',
-                        )
-                        for col in pdf_addresses.columns
-                    ]
-                )
+                columns={
+                    col: f'hclinic_business_{col.replace("zip", "zipcode")}'
+                    for col in pdf_addresses.columns
+                }
             ),
             on=[
                 f'hclinic_business_{col.replace("zip", "zipcode")}'
@@ -1246,12 +1212,10 @@ def process_address_columns(pdf, logger_name, source="hcris"):
         )
         .merge(
             pdf_addresses.rename(
-                columns=dict(
-                    [
-                        (col, f'hclinic_mail_{col.replace("zip", "zipcode")}')
-                        for col in pdf_addresses.columns
-                    ]
-                )
+                columns={
+                    col: f'hclinic_mail_{col.replace("zip", "zipcode")}'
+                    for col in pdf_addresses.columns
+                }
             ),
             on=[
                 f'hclinic_mail_{col.replace("zip", "zipcode")}'
@@ -1269,7 +1233,7 @@ def process_address_columns(pdf, logger_name, source="hcris"):
 def compute_match_purity(pdf):
     """Computes levenshtein distance based similarity scores for address & name columns"""
 
-    def match_purity(
+    def match_purity(  # pylint: disable=too-many-arguments,too-many-locals
         p_org_name,
         p_org_name_oth,
         provider_id_state,
@@ -1742,33 +1706,31 @@ def compute_match_purity(pdf):
         pdf["provider_id_state"] = ""
     pdf = pdf.replace(to_replace=[None, "None"], value=np.nan).fillna("")
     pdf = pdf.assign(
-        **dict(
-            [
-                (col, pdf[col].str.strip())
-                for col in [
-                    "hclinic_post_box_id",
-                    "hclinic_post_box_group_id",
-                    "hclinic_address_no",
-                    "hclinic_occupancy_no",
-                    "hclinic_business_post_box_id",
-                    "hclinic_business_post_box_group_id",
-                    "hclinic_business_address_no",
-                    "hclinic_business_occupancy_no",
-                    "hclinic_mail_post_box_id",
-                    "hclinic_mail_post_box_group_id",
-                    "hclinic_mail_address_no",
-                    "hclinic_mail_occupancy_no",
-                    "p_loc_post_box_id",
-                    "p_loc_post_box_group_id",
-                    "p_loc_address_no",
-                    "p_loc_occupancy_no",
-                    "p_mail_post_box_id",
-                    "p_mail_post_box_group_id",
-                    "p_mail_address_no",
-                    "p_mail_occupancy_no",
-                ]
+        **{
+            col: pdf[col].str.strip()
+            for col in [
+                "hclinic_post_box_id",
+                "hclinic_post_box_group_id",
+                "hclinic_address_no",
+                "hclinic_occupancy_no",
+                "hclinic_business_post_box_id",
+                "hclinic_business_post_box_group_id",
+                "hclinic_business_address_no",
+                "hclinic_business_occupancy_no",
+                "hclinic_mail_post_box_id",
+                "hclinic_mail_post_box_group_id",
+                "hclinic_mail_address_no",
+                "hclinic_mail_occupancy_no",
+                "p_loc_post_box_id",
+                "p_loc_post_box_group_id",
+                "p_loc_address_no",
+                "p_loc_occupancy_no",
+                "p_mail_post_box_id",
+                "p_mail_post_box_group_id",
+                "p_mail_address_no",
+                "p_mail_occupancy_no",
             ]
-        )
+        }
     )
 
     pdf = (
@@ -1868,7 +1830,7 @@ def compute_match_purity(pdf):
 
 
 def compute_door_no_info(pdf):
-    def parse_address(
+    def parse_address(  # pylint: disable=too-many-arguments,too-many-locals
         hclinic_address_cleaned,
         hclinic_standardized_address,
         hclinic_standardized,
@@ -2029,21 +1991,19 @@ def compute_door_no_info(pdf):
         ]
 
     pdf = pdf.assign(
-        **dict(
-            [
-                (col, pdf[col].fillna("").str.strip())
-                for col in "hclinic_address_cleaned,hclinic_standardized_address,"
-                "hclinic_business_address_cleaned,hclinic_business_standardized_address,"
-                "hclinic_mail_address_cleaned,hclinic_mail_standardized_address,"
-                "p_loc_address_cleaned,p_loc_standardized_address,"
-                "p_mail_address_cleaned,p_mail_standardized_address".split(",")
-            ]
-            + [
-                (col, pdf[col].fillna(0).astype(int))
-                for col in "hclinic_standardized,hclinic_business_standardized,hclinic_mail_standardized,"
-                "p_loc_standardized,p_mail_standardized".split(",")
-            ]
-        )
+        **{
+            col: pdf[col].fillna("").str.strip()
+            for col in "hclinic_address_cleaned,hclinic_standardized_address,"
+            "hclinic_business_address_cleaned,hclinic_business_standardized_address,"
+            "hclinic_mail_address_cleaned,hclinic_mail_standardized_address,"
+            "p_loc_address_cleaned,p_loc_standardized_address,"
+            "p_mail_address_cleaned,p_mail_standardized_address".split(",")
+        },
+        **{
+            col: pdf[col].fillna(0).astype(int)
+            for col in "hclinic_standardized,hclinic_business_standardized,hclinic_mail_standardized,"
+            "p_loc_standardized,p_mail_standardized".split(",")
+        },
     )
     pdf = pdf.replace(to_replace=[None, "None"], value=np.nan).fillna("")
 
@@ -2431,9 +2391,10 @@ def fuzzy_match(
             ]
 
             return df_text_based_perfect_matches, df_nppes_source_fuzzy_matched
+    return None
 
 
-def create_npi_fqhc_crosswalk(
+def create_npi_fqhc_crosswalk(  # pylint: disable=too-many-locals
     source: str = "hcris",
     logger_name: str = "fqhc_crosswalk",
 ):
@@ -2467,13 +2428,11 @@ def create_npi_fqhc_crosswalk(
         "hclinic_mail_zipcode",
     ]
     df_source = df_source.assign(
-        **dict(
-            [
-                (col, "")
-                for col in lst_disparate_col
-                if col not in lst_source_col
-            ]
-        )
+        **{
+            col: ""
+            for col in lst_disparate_col
+            if col not in lst_source_col
+        }
     )
 
     lst_year = list(range(2009, datetime.now().year + 1))

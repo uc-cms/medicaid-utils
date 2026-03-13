@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import pandas as pd
-import numpy as np
-import dask.dataframe as dd
-import os
 import csv
-from typing import List, Optional
 import logging
+import os
+from typing import List, Optional
+
+import dask.dataframe as dd
+import numpy as np
+import pandas as pd
 import pyarrow as pa
 
 # sys.path.append("../../medicaid_utils")
@@ -17,10 +18,20 @@ def toggle_datetime_string(
     df: dd.DataFrame, lst_datetime_col: List[str], to_string: bool = True
 ) -> dd.DataFrame:
     """
-    Toggles data columnes in the passed dataframe to string/ datatime types. Inplace updates.
-    :param df: dask dataframe
-    :param to_string bool: True to convert to string, False otherwise
-    :return: None
+    Toggles date columns in the passed dataframe to string/ datetime types.
+
+    Parameters
+    ----------
+    df : dd.DataFrame
+        Dask dataframe
+    lst_datetime_col : list of str
+        List of datetime column names to toggle
+    to_string : bool, default=True
+        True to convert to string, False to convert to datetime
+
+    Returns
+    -------
+    dd.DataFrame
     """
     for col in df.columns:
         if col in lst_datetime_col:
@@ -70,12 +81,10 @@ def copy_ddcols(
 ) -> dd.DataFrame:
     df = df.map_partitions(
         lambda pdf: pdf.assign(
-            **dict(
-                [
-                    (lst_new_names[i], pdf[lst_col[i]])
-                    for i in range(len(lst_col))
-                ]
-            )
+            **{
+                lst_new_names[i]: pdf[lst_col[i]]
+                for i in range(len(lst_col))
+            }
         )
     )
     return df
@@ -124,27 +133,22 @@ dask_groupby_value_counts = dd.Aggregation(
 def safe_convert_int_to_str(df: dd.DataFrame, lst_col: List[str]) -> dd.DataFrame:
     df = df.map_partitions(
         lambda pdf: pdf.assign(
-            **dict(
-                [
-                    (
-                        col,
-                        pdf[col]
-                        .where(~pdf[col].isna(), "")
-                        .astype(str)
-                        .replace(["nan", "None"], "")
-                        .apply(
-                            lambda x: str(int(float(x)))
-                            if (
-                                recipes.is_number(x)
-                                & (("." in x) | ("e" in x) | ("E" in x))
-                                & (x != "")
-                            )
-                            else x
-                        ),
+            **{
+                col: pdf[col]
+                .where(~pdf[col].isna(), "")
+                .astype(str)
+                .replace(["nan", "None"], "")
+                .apply(
+                    lambda x: str(int(float(x)))
+                    if (
+                        recipes.is_number(x)
+                        & (("." in x) | ("e" in x) | ("E" in x))
+                        & (x != "")
                     )
-                    for col in lst_col
-                ]
-            )
+                    else x
+                )
+                for col in lst_col
+            }
         )
     )
     return df
@@ -156,14 +160,13 @@ def fix_index(
     if (df.index.name != index_name) | (df.divisions[0] is None):
         if index_name not in df.columns:
             if df.index.name != index_name:
-                raise ValueError("{0} not in dataframe".format(index_name))
+                raise ValueError(f"{index_name} not in dataframe")
             df[index_name] = df.index
         df = df.set_index(index_name, drop=drop_column)
+    elif not drop_column:
+        df[index_name] = df.index
     else:
-        if not drop_column:
-            df[index_name] = df.index
-        else:
-            df = df[[col for col in df.columns if col != index_name]]
+        df = df[[col for col in df.columns if col != index_name]]
     return df
 
 
@@ -172,59 +175,48 @@ def prepare_dtypes_for_csv(
 ) -> dd.DataFrame:
     df_temp = df_temp.map_partitions(
         lambda pdf: pdf.assign(
-            **dict(
-                [
-                    (col, pdf[col].where(~pdf[col].isna(), "").astype(str))
-                    for col in df_schema.loc[
-                        df_schema["python_type"].isin(["int", "str"])
-                    ]["name"].tolist()
-                ]
-            )
+            **{
+                col: pdf[col].where(~pdf[col].isna(), "").astype(str)
+                for col in df_schema.loc[
+                    df_schema["python_type"].isin(["int", "str"])
+                ]["name"].tolist()
+            }
         )
     )
     df_temp = df_temp.map_partitions(
         lambda pdf: pdf.assign(
-            **dict(
-                [
-                    (col, pdf[col].replace(["nan", "None"], ""))
-                    for col in df_schema.loc[
-                        df_schema["python_type"].isin(["int", "str"])
-                    ]["name"].tolist()
-                ]
-            )
+            **{
+                col: pdf[col].replace(["nan", "None"], "")
+                for col in df_schema.loc[
+                    df_schema["python_type"].isin(["int", "str"])
+                ]["name"].tolist()
+            }
         )
     )
 
     df_temp = df_temp.map_partitions(
         lambda pdf: pdf.assign(
-            **dict(
-                [
-                    (
-                        col,
-                        pdf[col].apply(
-                            lambda x: str(int(float(x)))
-                            if (recipes.is_number(x))
-                            else x
-                        ),
-                    )
-                    for col in df_schema.loc[
-                        df_schema["python_type"].isin(["int", "str"])
-                    ]["name"].tolist()
-                ]
-            )
+            **{
+                col: pdf[col].apply(
+                    lambda x: str(int(float(x)))
+                    if (recipes.is_number(x))
+                    else x
+                )
+                for col in df_schema.loc[
+                    df_schema["python_type"].isin(["int", "str"])
+                ]["name"].tolist()
+            }
         )
     )
 
     df_temp = df_temp.map_partitions(
         lambda pdf: pdf.assign(
-            **dict(
-                [
-                    (col, pd.to_numeric(pdf[col], errors="coerce"))
-                    for col in df_schema.loc[
-                        df_schema["python_type"].isin(["float"])
-                    ]["name"].tolist()
-                ]
-            )
+            **{
+                col: pd.to_numeric(pdf[col], errors="coerce")
+                for col in df_schema.loc[
+                    df_schema["python_type"].isin(["float"])
+                ]["name"].tolist()
+            }
         )
     )
     return df_temp
@@ -235,7 +227,7 @@ def export(
     pq_engine: str,
     output_filename: str,
     pq_location: str,
-    csv_location: str,
+    _csv_location: str,
     lst_datetime_col: List[str],
     is_dask: bool = True,
     n_rows: int = -1,
@@ -245,13 +237,7 @@ def export(
     rewrite: bool = False,
     do_parquet: bool = True,
 ) -> None:
-    """
-    :param df:
-    :param output_filename:
-    :param pq_location:
-    :param is_dask:
-    :return:
-    """
+    """Exports a Dask DataFrame to parquet and/or CSV."""
     if df_schema is None:
         df_schema = pd.DataFrame()
     # df = df.persist()
@@ -277,7 +263,7 @@ def export(
             if not rewrite:
                 recipes.remove_ignore_if_not_exists(pq_location)
             if pq_engine == "pyarrow":
-                logger.info("NROWS: {0}({1})".format(str(n_rows), pq_location))
+                logger.info("NROWS: %s(%s)", n_rows, pq_location)
                 df_sample = df.sample(
                     frac=min(1, 250000 / max(n_rows, 250000)),
                     replace=False,
