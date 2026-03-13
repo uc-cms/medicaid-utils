@@ -394,7 +394,7 @@ New Column(s):</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dest_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Destination folder</p></li>
-<li><p><strong>output_format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>default='csv'</em>) – Export format. Csv is the currently supported format</p></li>
+<li><p><strong>output_format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>default='csv'</em>) – Export format (‘csv’ or ‘parquet’)</p></li>
 <li><p><strong>repartition</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>default=False</em>) – Repartition the dask dataframe</p></li>
 </ul>
 </dd>
@@ -424,8 +424,8 @@ New Column(s):</p>
 <dt>Uses the below as reference:</dt><dd><ul class="simple">
 <li><p>If the patient is a Medicare beneficiary, the general surgeon should bill the level of</p></li>
 </ul>
-<p>ED code (99281-99285). Source: ACS FACS Bulletin, Feb 2013, “Coding for Hospital Admission”.
-- Inpatient files:  Revenue Center Codes 0450-0459, 0981. Source: ResDAC ResConnect Article 144.</p>
+<p>ED code (99281-99285) (<a class="reference external" href="https://web.archive.org/web/20231125185256/https://bulletin.facs.org/2013/02/coding-for-hospital-admission/">https://web.archive.org/web/20231125185256/https://bulletin.facs.org/2013/02/coding-for-hospital-admission/</a>)
+- Inpatient files:  Revenue Center Codes 0450-0459, 0981 (<a class="reference external" href="https://web.archive.org/web/20210303085851/https://www.resdac.org/resconnect/articles/144">https://web.archive.org/web/20210303085851/https://www.resdac.org/resconnect/articles/144</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1058,7 +1058,7 @@ characters and converting them to upper case.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dest_folder</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Destination folder</p></li>
-<li><p><strong>output_format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>default='csv'</em>) – Export format. Csv is the currently supported format</p></li>
+<li><p><strong>output_format</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>default='csv'</em>) – Export format (‘csv’ or ‘parquet’)</p></li>
 <li><p><strong>repartition</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>default=False</em>) – Repartition the dask dataframe</p></li>
 </ul>
 </dd>

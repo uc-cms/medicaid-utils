@@ -235,8 +235,10 @@ df_ot = betos_proc_codes.assign_betos_cat(ot.df, year=2012)
 ```python
 from medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi import get_ed_pqis
 
-# Compute ED Prevention Quality Indicators (requires IP, OT, PS, and ED claims)
-df_pqi = get_ed_pqis(df_ip=ip.df, df_ot=ot.df, df_ps=ps.df, df_ed=ed.df)
+# Compute ED Prevention Quality Indicators
+# df_ed is typically constructed by filtering OT claims for ED visits (ed_use == 1)
+df_ed = ot.df[ot.df["ed_use"] == 1]
+df_pqi = get_ed_pqis(df_ip=ip.df, df_ot=ot.df, df_ps=ps.df, df_ed=df_ed)
 ```
 
 ### Extracting Patient Cohorts
@@ -323,6 +325,7 @@ medicaid_utils/
         recipes.py          # Common data transformations
         links.py            # Data linking utilities
         stats_utils.py      # Statistical functions
+        usps_address.py     # USPS address standardization
 ```
 
 ## Preprocessing Details

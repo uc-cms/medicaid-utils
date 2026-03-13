@@ -478,7 +478,7 @@ many claims were removed at each step</p></li>
 <span class="n">df_flagged</span> <span class="o">=</span> <span class="n">dx_and_proc</span><span class="o">.</span><span class="n">flag_diagnoses_and_procedures</span><span class="p">(</span>
     <span class="n">dct_diag_codes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;diabetes_t2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;incl&quot;</span><span class="p">:</span> <span class="p">{</span><span class="mi">10</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;E11&quot;</span><span class="p">]}}},</span>
     <span class="n">dct_proc_codes</span><span class="o">=</span><span class="p">{},</span>
-    <span class="n">df_claims</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">df_claims</span><span class="o">=</span><span class="n">ip</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">],</span>
     <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -502,7 +502,7 @@ many claims were removed at each step</p></li>
     <span class="n">dct_ndc_codes</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">&quot;metformin&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;00093727801&quot;</span><span class="p">,</span> <span class="s2">&quot;00093727901&quot;</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="n">df_claims</span><span class="o">=</span><span class="n">rx_claims</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">df_claims</span><span class="o">=</span><span class="n">rx</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
 </div>

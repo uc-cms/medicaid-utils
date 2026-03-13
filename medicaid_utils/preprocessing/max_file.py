@@ -234,7 +234,7 @@ class MAXFile:
         dest_folder : str
             Destination folder
         output_format : str, default='csv'
-            Export format. Csv is the currently supported format
+            Export format ('csv' or 'parquet')
         repartition : bool, default=False
             Repartition the dask dataframe
 

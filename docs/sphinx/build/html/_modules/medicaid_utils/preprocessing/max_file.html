@@ -537,7 +537,7 @@
 <span class="sd">        dest_folder : str</span>
 <span class="sd">            Destination folder</span>
 <span class="sd">        output_format : str, default=&#39;csv&#39;</span>
-<span class="sd">            Export format. Csv is the currently supported format</span>
+<span class="sd">            Export format (&#39;csv&#39; or &#39;parquet&#39;)</span>
 <span class="sd">        repartition : bool, default=False</span>
 <span class="sd">            Repartition the dask dataframe</span>
 
@@ -892,15 +892,15 @@
 
 <span class="sd">        Uses the below as reference:</span>
 <span class="sd">            - If the patient is a Medicare beneficiary, the general surgeon should bill the level of</span>
-<span class="sd">            ED code (99281-99285). Source: ACS FACS Bulletin, Feb 2013, &quot;Coding for Hospital Admission&quot;.</span>
-<span class="sd">            - Inpatient files:  Revenue Center Codes 0450-0459, 0981. Source: ResDAC ResConnect Article 144.</span>
+<span class="sd">            ED code (99281-99285) (https://web.archive.org/web/20231125185256/https://bulletin.facs.org/2013/02/coding-for-hospital-admission/)</span>
+<span class="sd">            - Inpatient files:  Revenue Center Codes 0450-0459, 0981 (https://web.archive.org/web/20210303085851/https://www.resdac.org/resconnect/articles/144)</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># reference: If the patient is a Medicare beneficiary, the general surgeon should bill the level of</span>
-        <span class="c1"># ED code (99281-99285). Source: ACS FACS Bulletin, Feb 2013, &quot;Coding for Hospital Admission&quot;.</span>
+        <span class="c1"># ED code (99281-99285). https://web.archive.org/web/20231125185256/https://bulletin.facs.org/2013/02/coding-for-hospital-admission/</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ot&quot;</span><span class="p">,</span> <span class="s2">&quot;ip&quot;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">map_partitions</span><span class="p">(</span>
                 <span class="k">lambda</span> <span class="n">pdf</span><span class="p">:</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
@@ -928,8 +928,8 @@
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ftype</span> <span class="o">==</span> <span class="s2">&quot;ip&quot;</span><span class="p">:</span>
-                <span class="c1"># Inpatient files:  Revenue Center Codes 0450-0459, 0981.</span>
-                <span class="c1"># Source: ResDAC ResConnect Article 144.</span>
+                <span class="c1"># Inpatient files:  Revenue Center Codes 0450-0459, 0981,</span>
+                <span class="c1"># https://web.archive.org/web/20210303085851/https://www.resdac.org/resconnect/articles/144</span>
                 <span class="c1"># TOS - Type of Service</span>
                 <span class="c1"># 11=outpatient hospital ???? not every IP which called outpatient hospital is called ED,</span>
                 <span class="c1"># this may end up with too many ED</span>

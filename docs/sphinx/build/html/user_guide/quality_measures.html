@@ -312,10 +312,10 @@ peer-reviewed publications.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.topics.oud</span><span class="w"> </span><span class="kn">import</span> <span class="n">medication_and_behavioral_health</span> <span class="k">as</span> <span class="n">mbh</span>
 
 <span class="c1"># Flag buprenorphine claims in pharmacy data</span>
-<span class="n">df_rx</span> <span class="o">=</span> <span class="n">mbh</span><span class="o">.</span><span class="n">flag_rx_buprenorphine</span><span class="p">(</span><span class="n">rx_claims</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
+<span class="n">df_rx</span> <span class="o">=</span> <span class="n">mbh</span><span class="o">.</span><span class="n">flag_rx_buprenorphine</span><span class="p">(</span><span class="n">rx</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">])</span>
 
 <span class="c1"># Flag behavioral health treatment in outpatient claims</span>
-<span class="n">df_ot</span> <span class="o">=</span> <span class="n">mbh</span><span class="o">.</span><span class="n">flag_proc_behavioral_health_trtmt</span><span class="p">(</span><span class="n">ot</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
+<span class="n">df_ot</span> <span class="o">=</span> <span class="n">mbh</span><span class="o">.</span><span class="n">flag_proc_behavioral_health_trtmt</span><span class="p">(</span><span class="n">ot</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>
@@ -332,7 +332,7 @@ peer-reviewed publications.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.topics.obgyn</span><span class="w"> </span><span class="kn">import</span> <span class="n">hospitalization</span>
 
 <span class="c1"># Flag delivery-related hospitalizations</span>
-<span class="n">df_ip</span> <span class="o">=</span> <span class="n">hospitalization</span><span class="o">.</span><span class="n">flag_delivery</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">)</span>
+<span class="n">df_ip</span> <span class="o">=</span> <span class="n">hospitalization</span><span class="o">.</span><span class="n">flag_delivery</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">dct_files</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">],</span> <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;TAF&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

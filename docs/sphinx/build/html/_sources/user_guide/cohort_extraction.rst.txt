@@ -209,7 +209,7 @@ Flagging Diagnoses and Procedures
    df_flagged = dx_and_proc.flag_diagnoses_and_procedures(
        dct_diag_codes={"diabetes_t2": {"incl": {10: ["E11"]}}},
        dct_proc_codes={},
-       df_claims=ip.df,
+       df_claims=ip.dct_files["base"],
        cms_format="TAF",
    )
 
@@ -234,7 +234,7 @@ Flagging Prescriptions
        dct_ndc_codes={
            "metformin": ["00093727801", "00093727901"],
        },
-       df_claims=rx_claims.df,
+       df_claims=rx.dct_files["base"],
    )
 
 Filtering Claim Files

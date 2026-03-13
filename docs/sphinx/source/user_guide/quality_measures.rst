@@ -25,10 +25,10 @@ The ``topics.oud`` module provides:
    from medicaid_utils.topics.oud import medication_and_behavioral_health as mbh
 
    # Flag buprenorphine claims in pharmacy data
-   df_rx = mbh.flag_rx_buprenorphine(rx_claims.df)
+   df_rx = mbh.flag_rx_buprenorphine(rx.dct_files["base"])
 
    # Flag behavioral health treatment in outpatient claims
-   df_ot = mbh.flag_proc_behavioral_health_trtmt(ot.df)
+   df_ot = mbh.flag_proc_behavioral_health_trtmt(ot.dct_files["base"])
 
 OB/GYN
 ^^^^^^^
@@ -46,7 +46,7 @@ The ``topics.obgyn`` module provides:
    from medicaid_utils.topics.obgyn import hospitalization
 
    # Flag delivery-related hospitalizations
-   df_ip = hospitalization.flag_delivery(ip.df, cms_format="TAF")
+   df_ip = hospitalization.flag_delivery(ip.dct_files["base"], cms_format="TAF")
 
 External Data Integration
 -------------------------
