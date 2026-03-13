@@ -1,5 +1,5 @@
-dask[dataframe]>=2024.1.0
-distributed>=2024.1.0
+dask[dataframe]>=2024.1.0,<2025.0.0
+distributed>=2024.1.0,<2025.0.0
 numpy>=1.26.0
 pandas>=2.2.0
 pyarrow>=15.0.0
