@@ -275,20 +275,11 @@ class TAFFile:
                 ].index.rename(self.index_col)
         os.makedirs(dest_path_and_fname, exist_ok=True)
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
-        try:
-            self.dct_files[f_subtype].to_parquet(
-                dest_path_and_fname + "_tmp",
-                engine=self.pq_engine,
-                write_index=True,
-            )
-        except Exception:  # pylint: disable=broad-except
-            self.dct_files[f_subtype].to_parquet(
-                dest_path_and_fname + "_tmp",
-                engine={"fastparquet", "pyarrow"}
-                .difference([self.pq_engine])
-                .pop(),
-                write_index=True,
-            )
+        self.dct_files[f_subtype].to_parquet(
+            dest_path_and_fname + "_tmp",
+            engine=self.pq_engine,
+            write_index=True,
+        )
         del self.dct_files[f_subtype]
         shutil.rmtree(dest_path_and_fname, ignore_errors=True)
         os.rename(dest_path_and_fname + "_tmp", dest_path_and_fname)
