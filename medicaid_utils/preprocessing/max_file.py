@@ -571,15 +571,15 @@ class MAXFile:
 
         Uses the below as reference:
             - If the patient is a Medicare beneficiary, the general surgeon should bill the level of
-            ED code (99281-99285). Source: ACS FACS Bulletin, Feb 2013, "Coding for Hospital Admission".
-            - Inpatient files:  Revenue Center Codes 0450-0459, 0981. Source: ResDAC ResConnect Article 144.
+            ED code (99281-99285) (https://web.archive.org/web/20231125185256/https://bulletin.facs.org/2013/02/coding-for-hospital-admission/)
+            - Inpatient files:  Revenue Center Codes 0450-0459, 0981 (https://web.archive.org/web/20210303085851/https://www.resdac.org/resconnect/articles/144)
 
         Returns
         -------
 
         """
         # reference: If the patient is a Medicare beneficiary, the general surgeon should bill the level of
-        # ED code (99281-99285). Source: ACS FACS Bulletin, Feb 2013, "Coding for Hospital Admission".
+        # ED code (99281-99285). https://web.archive.org/web/20231125185256/https://bulletin.facs.org/2013/02/coding-for-hospital-admission/
         if self.ftype in ["ot", "ip"]:
             self.df = self.df.map_partitions(
                 lambda pdf: pdf.assign(
@@ -607,8 +607,8 @@ class MAXFile:
                 )
             )
             if self.ftype == "ip":
-                # Inpatient files:  Revenue Center Codes 0450-0459, 0981.
-                # Source: ResDAC ResConnect Article 144.
+                # Inpatient files:  Revenue Center Codes 0450-0459, 0981,
+                # https://web.archive.org/web/20210303085851/https://www.resdac.org/resconnect/articles/144
                 # TOS - Type of Service
                 # 11=outpatient hospital ???? not every IP which called outpatient hospital is called ED,
                 # this may end up with too many ED
