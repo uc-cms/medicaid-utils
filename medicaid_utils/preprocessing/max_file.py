@@ -185,11 +185,18 @@ class MAXFile:
                 write_index=True,
             )
         except (ArrowInvalid, ArrowTypeError):
+            obj_cols = [
+                c for c in self.df.columns
+                if self.df[c].dtype == "object"
+            ]
+            if obj_cols:
+                self.df = self.df.assign(
+                    **{c: self.df[c].astype(str) for c in obj_cols}
+                )
             self.df.to_parquet(
                 dest_path_and_fname + "_tmp",
                 engine=self.pq_engine,
                 write_index=True,
-                schema="infer",
             )
         del self.df
         shutil.rmtree(dest_path_and_fname, ignore_errors=True)

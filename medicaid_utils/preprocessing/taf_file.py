@@ -283,11 +283,19 @@ class TAFFile:
                 write_index=True,
             )
         except (ArrowInvalid, ArrowTypeError):
+            df = self.dct_files[f_subtype]
+            obj_cols = [
+                c for c in df.columns
+                if df[c].dtype == "object"
+            ]
+            if obj_cols:
+                self.dct_files[f_subtype] = df.assign(
+                    **{c: df[c].astype(str) for c in obj_cols}
+                )
             self.dct_files[f_subtype].to_parquet(
                 dest_path_and_fname + "_tmp",
                 engine=self.pq_engine,
                 write_index=True,
-                schema="infer",
             )
         del self.dct_files[f_subtype]
         shutil.rmtree(dest_path_and_fname, ignore_errors=True)
