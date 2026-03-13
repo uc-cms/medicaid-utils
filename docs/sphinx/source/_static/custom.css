@@ -1,0 +1,9 @@
+/* Minor polish on top of Furo defaults */
+
+pre {
+    border-radius: 6px;
+}
+
+.sig-param {
+    line-height: 1.6;
+}
