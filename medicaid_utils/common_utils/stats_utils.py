@@ -8,7 +8,10 @@ import numpy as np
 import pandas as pd
 import dask.dataframe as dd
 from pandas.api.types import is_numeric_dtype
-from holoviews import opts
+try:
+    from holoviews import opts
+except ImportError:
+    opts = None
 
 
 def cramers_corrected_stat(confusion_matrix: pd.DataFrame) -> float:

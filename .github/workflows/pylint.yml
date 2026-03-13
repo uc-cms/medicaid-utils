@@ -6,6 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
@@ -19,6 +20,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install pylint pytest
         pip install -r requirements.txt
+        pip install -e .
     - name: Analysing the code with pylint
       run: |
         pylint medicaid_utils
