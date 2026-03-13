@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Python module to apply Berenson-Eggors Type of Service (BETOS) categorization for claims"""
+"""Python module to apply Berenson-Eggers Type of Service (BETOS) categorization for claims"""
 __author__ = "Manoradhan Murugesan"
 __email__ = "manorathan@uchicago.edu"
 

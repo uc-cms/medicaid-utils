@@ -370,12 +370,12 @@ ip = max_ip.MAXIP(
 | Algorithm | Reference | Module |
 |-----------|-----------|--------|
 | Elixhauser Comorbidity Index | Elixhauser et al., 1998 | `py_elixhauser` |
-| CDPS-Rx Risk Adjustment | Kronick et al., UC San Diego | `py_cdpsmrx` |
+| CDPS-Rx Risk Adjustment | Kronick et al., 2000, UC San Diego | `py_cdpsmrx` |
 | BETOS Classification | CMS Berenson-Eggers Type of Service | `py_betos` |
 | ED PQI | Davies et al., 2017 | `py_ed_pqi` |
 | IP PQI | AHRQ Prevention Quality Indicators | `py_ip_pqi` |
 | NYU/Billings ED Algorithm | Billings, Parikh, Mijanovich, 2000 | `py_nyu_billings` |
-| PMCA | Simon et al., Seattle Children's | `py_pmca` |
+| PMCA | Simon et al., 2014, Seattle Children's | `py_pmca` |
 | Low-Value Care | Charlesworth et al., JAMA Intern Med, 2016 | `py_low_value_care` |
 
 ## Topics Modules
