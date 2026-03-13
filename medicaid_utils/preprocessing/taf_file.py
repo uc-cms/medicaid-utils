@@ -9,6 +9,7 @@ from typing import Any, Optional
 import numpy as np
 import dask.dataframe as dd
 import pandas as pd
+from pyarrow.lib import ArrowInvalid, ArrowTypeError
 
 from medicaid_utils.common_utils import dataframe_utils, links
 
@@ -275,11 +276,19 @@ class TAFFile:
                 ].index.rename(self.index_col)
         os.makedirs(dest_path_and_fname, exist_ok=True)
         shutil.rmtree(dest_path_and_fname + "_tmp", ignore_errors=True)
-        self.dct_files[f_subtype].to_parquet(
-            dest_path_and_fname + "_tmp",
-            engine=self.pq_engine,
-            write_index=True,
-        )
+        try:
+            self.dct_files[f_subtype].to_parquet(
+                dest_path_and_fname + "_tmp",
+                engine=self.pq_engine,
+                write_index=True,
+            )
+        except (ArrowInvalid, ArrowTypeError):
+            self.dct_files[f_subtype].to_parquet(
+                dest_path_and_fname + "_tmp",
+                engine=self.pq_engine,
+                write_index=True,
+                schema="infer",
+            )
         del self.dct_files[f_subtype]
         shutil.rmtree(dest_path_and_fname, ignore_errors=True)
         os.rename(dest_path_and_fname + "_tmp", dest_path_and_fname)

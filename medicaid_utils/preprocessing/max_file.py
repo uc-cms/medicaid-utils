@@ -7,6 +7,7 @@ from typing import Any, Optional
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
+from pyarrow.lib import ArrowInvalid, ArrowTypeError
 
 from medicaid_utils.common_utils import dataframe_utils, links
 
@@ -177,11 +178,19 @@ class MAXFile:
                     **{f"new_{self.index_col}": self.df.index}
                 ).set_index(f"new_{self.index_col}", sorted=True)
                 self.df.index = self.df.index.rename(self.index_col)
-        self.df.to_parquet(
-            dest_path_and_fname + "_tmp",
-            engine=self.pq_engine,
-            write_index=True,
-        )
+        try:
+            self.df.to_parquet(
+                dest_path_and_fname + "_tmp",
+                engine=self.pq_engine,
+                write_index=True,
+            )
+        except (ArrowInvalid, ArrowTypeError):
+            self.df.to_parquet(
+                dest_path_and_fname + "_tmp",
+                engine=self.pq_engine,
+                write_index=True,
+                schema="infer",
+            )
         del self.df
         shutil.rmtree(dest_path_and_fname, ignore_errors=True)
         os.rename(dest_path_and_fname + "_tmp", dest_path_and_fname)
