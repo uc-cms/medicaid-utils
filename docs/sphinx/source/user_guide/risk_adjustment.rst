@@ -7,7 +7,8 @@ for risk adjustment, procedure classification, and quality measurement.
 Elixhauser Comorbidity Index
 ----------------------------
 
-Flags 31 comorbidity groups from diagnosis codes (Elixhauser et al., 1998).
+Flags 31 comorbidity groups from diagnosis codes (Elixhauser et al., 1998; implementation
+splits hypertension into uncomplicated/complicated, extending the original 30 categories).
 
 .. code-block:: python
 
@@ -19,7 +20,7 @@ CDPS-Rx Risk Adjustment
 ------------------------
 
 Pharmacy-based risk adjustment using the Chronic Illness and Disability Payment System
-(Kronick et al., UC San Diego).
+(Kronick et al., 2000, UC San Diego).
 
 .. code-block:: python
 
@@ -76,7 +77,7 @@ Classifies ED visits by severity and preventability (Billings, Parikh, Mijanovic
 Pediatric Medical Complexity Algorithm (PMCA)
 ---------------------------------------------
 
-Classifies pediatric patients by medical complexity (Simon et al., Seattle Children's).
+Classifies pediatric patients by medical complexity (Simon et al., 2014, Seattle Children's).
 
 .. code-block:: python
 

@@ -168,9 +168,9 @@ dask.config.set(scheduler="threads")  # or "synchronous" for debugging
 
 For detailed documentation on the column names and coding schemes used in Medicaid claims data:
 
-- **MAX documentation**: [CMS MAX General Information](https://www.cms.gov/data-research/statistics-trends-and-reports/medicaid-chip-enrollment-data/medicaid-analytic-extract-max-general-information)
-- **TAF documentation**: [ResDAC TAF](https://resdac.org/cms-data/files/taf)
-- **TAF data dictionary**: [TAF Research Variables](https://resdac.org/cms-data/variables?tid_2%5B%5D=62)
+- **MAX documentation**: [ResDAC MAX Inpatient](https://resdac.org/cms-data/files/max-ip)
+- **TAF documentation**: [ResDAC TAF Inpatient](https://resdac.org/cms-data/files/taf-ip)
+- **TAF data dictionary**: [ResDAC](https://resdac.org/)
 - **RUCA codes**: [USDA Rural-Urban Commuting Area Codes](https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes/)
 - **RUCC codes**: [USDA Rural-Urban Continuum Codes](https://www.ers.usda.gov/data-products/rural-urban-continuum-codes/)
 

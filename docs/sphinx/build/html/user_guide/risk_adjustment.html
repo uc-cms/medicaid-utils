@@ -298,7 +298,8 @@
 for risk adjustment, procedure classification, and quality measurement.</p>
 <section id="elixhauser-comorbidity-index">
 <h2>Elixhauser Comorbidity Index<a class="headerlink" href="#elixhauser-comorbidity-index" title="Link to this heading">¶</a></h2>
-<p>Flags 31 comorbidity groups from diagnosis codes (Elixhauser et al., 1998).</p>
+<p>Flags 31 comorbidity groups from diagnosis codes (Elixhauser et al., 1998; implementation
+splits hypertension into uncomplicated/complicated, extending the original 30 categories).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity</span><span class="w"> </span><span class="kn">import</span> <span class="n">score</span>
 
 <span class="n">df_ip</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">lst_diag_col_name</span><span class="o">=</span><span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
@@ -308,7 +309,7 @@ for risk adjustment, procedure classification, and quality measurement.</p>
 <section id="cdps-rx-risk-adjustment">
 <h2>CDPS-Rx Risk Adjustment<a class="headerlink" href="#cdps-rx-risk-adjustment" title="Link to this heading">¶</a></h2>
 <p>Pharmacy-based risk adjustment using the Chronic Illness and Disability Payment System
-(Kronick et al., UC San Diego).</p>
+(Kronick et al., 2000, UC San Diego).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_cdpsmrx</span><span class="w"> </span><span class="kn">import</span> <span class="n">cdps_rx_risk_adjustment</span>
 
 <span class="n">df_risk</span> <span class="o">=</span> <span class="n">cdps_rx_risk_adjustment</span><span class="o">.</span><span class="n">cdps_rx_risk_adjust</span><span class="p">(</span>
@@ -355,7 +356,7 @@ for risk adjustment, procedure classification, and quality measurement.</p>
 </section>
 <section id="pediatric-medical-complexity-algorithm-pmca">
 <h2>Pediatric Medical Complexity Algorithm (PMCA)<a class="headerlink" href="#pediatric-medical-complexity-algorithm-pmca" title="Link to this heading">¶</a></h2>
-<p>Classifies pediatric patients by medical complexity (Simon et al., Seattle Children’s).</p>
+<p>Classifies pediatric patients by medical complexity (Simon et al., 2014, Seattle Children’s).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_pmca.pmca</span><span class="w"> </span><span class="kn">import</span> <span class="n">pmca_chronic_conditions</span>
 
 <span class="n">df_pmca</span> <span class="o">=</span> <span class="n">pmca_chronic_conditions</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">diag_cd_lst_col</span><span class="o">=</span><span class="s2">&quot;LST_DIAG_CD_RAW&quot;</span><span class="p">)</span>

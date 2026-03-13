@@ -1099,7 +1099,7 @@ def pqirecode(
             "year_of_admission": "YEAR",
         }
     )
-    # https://www.cms.gov/icd10manual/fullcode_cms/P0372.html
+    # CMS ICD-10 Manual, MDC 14 Pregnancy/Childbirth (P0372)
     # 	MDC 14,Logic for ICD-9
     # 	Cesarean Section	765-766
     # 	Vaginal Delivery with O.R. Procedure	767-768
