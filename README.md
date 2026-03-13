@@ -1,6 +1,7 @@
 # medicaid-utils
 
 [![CI](https://github.com/uc-cms/medicaid-utils/actions/workflows/pylint.yml/badge.svg)](https://github.com/uc-cms/medicaid-utils/actions/workflows/pylint.yml)
+[![PyPI](https://img.shields.io/pypi/v/medicaid-utils)](https://pypi.org/project/medicaid-utils/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/uc-cms/medicaid-utils/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/uc-cms/medicaid-utils)](https://github.com/uc-cms/medicaid-utils/releases)
