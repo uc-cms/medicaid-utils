@@ -2391,7 +2391,7 @@ def fuzzy_match(
             ]
 
             return df_text_based_perfect_matches, df_nppes_source_fuzzy_matched
-    return None
+    return pd.DataFrame(), pd.DataFrame()
 
 
 def create_npi_fqhc_crosswalk(  # pylint: disable=too-many-locals

@@ -3,6 +3,7 @@ import os
 import re
 from datetime import datetime
 from math import ceil
+from typing import Optional
 
 import dask.dataframe as dd
 import numpy as np
@@ -2935,12 +2936,12 @@ def fuzzy_match(  # pylint: disable=too-many-locals
                 )
 
             return df_text_based_perfect_matches, df_nppes_source_fuzzy_matched
-    return None
+    return pd.DataFrame(), pd.DataFrame()
 
 
 def create_npi_fqhc_crosswalk(  # pylint: disable=too-many-locals,too-many-statements
     source: str = "hcris",
-    year: int = None,
+    year: Optional[int] = None,
     logger_name: str = "fqhc_crosswalk",
 ):
     """Merge HCRIS, UDS and NPPES and datasets to create FQHC NPI list"""

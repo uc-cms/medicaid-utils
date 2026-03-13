@@ -16,7 +16,7 @@ import requests
 
 load_dotenv()
 # Globals #####################################################################
-USPS_USERID = os.environ["USPS_USERID"]
+USPS_USERID = os.environ.get("USPS_USERID", "")
 
 
 def dump_xml(raw_xml):
@@ -121,7 +121,7 @@ class USPSShippingAPI:
     https://www.usps.com/business/web-tools-apis/address-information-api.htm
     """
 
-    url = "http://production.shippingapis.com/ShippingAPI.dll"
+    url = "https://production.shippingapis.com/ShippingAPI.dll"
 
     def __init__(self, api, userid=USPS_USERID):
         self.userid = userid

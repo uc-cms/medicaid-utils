@@ -61,8 +61,6 @@ class MAXCC(max_file.MAXFile):
             pq_engine=pq_engine,
         )
 
-        if clean:
-            pass
         if preprocess:
             lst_conditions = [
                 col.removesuffix("_COMBINED").lower()

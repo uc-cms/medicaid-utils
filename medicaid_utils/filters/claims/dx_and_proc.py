@@ -127,6 +127,8 @@ def get_patient_ids_with_conditions(
             cms_format,
             dct_column_values=dct_column_values,
         )
+        if df is None:
+            continue
         dct_filter_results[claim_type] = pd.DataFrame(
             {"N": df.shape[0].compute()}, index=[0]
         )
@@ -135,96 +137,95 @@ def get_patient_ids_with_conditions(
             claim_type,
             dct_filter_results[claim_type].N.values[0],
         )
-        if df is not None:
-            df["diag_condn"] = 0
-            df["proc_condn"] = 0
-            if (index_col is not None) and (index_col != df.index.name):
-                raise IndexError(
-                    "Passed claims files do not have the same index"
+        df["diag_condn"] = 0
+        df["proc_condn"] = 0
+        if (index_col is not None) and (index_col != df.index.name):
+            raise IndexError(
+                "Passed claims files do not have the same index"
+            )
+        index_col = df.index.name
+        if bool(dct_diag_codes):
+            df = df.assign(diag_condn=0)
+            lst_diag_col = [
+                col
+                for col in [f"diag_{condn}" for condn in dct_diag_codes]
+                + [
+                    col
+                    for col in dct_column_values
+                    if col.startswith("diag")
+                ]
+                if col in df.columns
+            ]
+            if bool(lst_diag_col):
+                df = df.assign(
+                    diag_condn=df[lst_diag_col].any(axis=1).astype(int)
                 )
-            index_col = df.index.name
-            if bool(dct_diag_codes):
-                df = df.assign(diag_condn=0)
-                lst_diag_col = [
+                lst_col.extend(lst_diag_col)
+        if bool(dct_proc_codes):
+            df = df.assign(proc_condn=0)
+            lst_proc_col = [
+                col
+                for col in [f"proc_{proc}" for proc in dct_proc_codes]
+                + [
                     col
-                    for col in [f"diag_{condn}" for condn in dct_diag_codes]
-                    + [
-                        col
-                        for col in dct_column_values
-                        if col.startswith("diag")
-                    ]
-                    if col in df.columns
+                    for col in dct_column_values
+                    if col.startswith("proc")
                 ]
-                if bool(lst_diag_col):
-                    df = df.assign(
-                        diag_condn=df[lst_diag_col].any(axis=1).astype(int)
-                    )
-                    lst_col.extend(lst_diag_col)
-            if bool(dct_proc_codes):
-                df = df.assign(proc_condn=0)
-                lst_proc_col = [
-                    col
-                    for col in [f"proc_{proc}" for proc in dct_proc_codes]
-                    + [
-                        col
-                        for col in dct_column_values
-                        if col.startswith("proc")
+                if col in df.columns
+            ]
+            if bool(lst_proc_col):
+                df = df.assign(
+                    proc_condn=df[
+                        [f"proc_{proc}" for proc in dct_proc_codes]
                     ]
-                    if col in df.columns
-                ]
-                if bool(lst_proc_col):
-                    df = df.assign(
-                        proc_condn=df[
-                            [f"proc_{proc}" for proc in dct_proc_codes]
-                        ]
-                        .any(axis=1)
-                        .astype(int)
-                    )
-                    lst_col.extend(lst_proc_col)
-            df = df.loc[df[lst_col].any(axis=1)][lst_col + ["service_date"]]
+                    .any(axis=1)
+                    .astype(int)
+                )
+                lst_col.extend(lst_proc_col)
+        df = df.loc[df[lst_col].any(axis=1)][lst_col + ["service_date"]]
+        dct_filter_results[claim_type][
+            "with_conditions_procedures"
+        ] = df.shape[0].compute()
+        logger.info(
+            "Restricting %s to condition diagnoses/ procedures reduces "
+            "the claim count to %d",
+            claim_type,
             dct_filter_results[claim_type][
                 "with_conditions_procedures"
-            ] = df.shape[0].compute()
-            logger.info(
-                "Restricting %s to condition diagnoses/ procedures reduces "
-                "the claim count to %d",
-                claim_type,
-                dct_filter_results[claim_type][
-                    "with_conditions_procedures"
-                ].values[0],
-            )
-            df = df.assign(
+            ].values[0],
+        )
+        df = df.assign(
+            **{
+                f"{col}_date": df["service_date"].where(
+                    df[col] == 1, np.nan
+                )
+                for col in lst_col
+            }
+        )
+        df = df.drop(["service_date"], axis=1)
+        df = df.map_partitions(
+            lambda pdf: pdf.assign(
+                # pylint: disable=cell-var-from-loop
                 **{
-                    f"{col}_date": df["service_date"].where(
-                        df[col] == 1, np.nan
-                    )
+                    f"{col}_date": pdf.groupby(pdf.index)[
+                        f"{col}_date"
+                    ].transform("min")
                     for col in lst_col
                 }
             )
-            df = df.drop(["service_date"], axis=1)
-            df = df.map_partitions(
-                lambda pdf: pdf.assign(
-                    # pylint: disable=cell-var-from-loop
-                    **{
-                        f"{col}_date": pdf.groupby(pdf.index)[
-                            f"{col}_date"
-                        ].transform("min")
-                        for col in lst_col
-                    }
-                )
-            )
-            df = df.groupby(index_col).max().compute().reset_index(drop=False)
-            df = df.rename(
-                columns={
-                    col: f"{claim_type}_{col}"
-                    for col in df.columns
-                    if col != index_col
-                }
-            )
-            pdf_patient_ids = pd.concat(
-                [pdf_patient_ids, df.copy()], ignore_index=True
-            )
-            logger.info("Finished processing %s claims", claim_type)
+        )
+        df = df.groupby(index_col).max().compute().reset_index(drop=False)
+        df = df.rename(
+            columns={
+                col: f"{claim_type}_{col}"
+                for col in df.columns
+                if col != index_col
+            }
+        )
+        pdf_patient_ids = pd.concat(
+            [pdf_patient_ids, df.copy()], ignore_index=True
+        )
+        logger.info("Finished processing %s claims", claim_type)
     if pdf_patient_ids.shape[0] > 0:
         pdf_patient_ids = pdf_patient_ids.groupby(index_col).max()
         pdf_patient_ids = pdf_patient_ids.assign(

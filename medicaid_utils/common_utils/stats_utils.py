@@ -298,7 +298,7 @@ def get_ranksum_table(
                     )
                     for tpl_val in zip(lst_pop_val, lst_pop_metric_ci)
                 ]
-                + [("rho", corr), ("z-statistic", z), ("p-value", z)]
+                + [("rho", corr), ("z-statistic", z), ("p-value", p)]
             ),
             index=[0],
         )
