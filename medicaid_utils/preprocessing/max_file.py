@@ -193,6 +193,12 @@ class MAXFile:
                 self.df = self.df.assign(
                     **{c: self.df[c].astype(str) for c in obj_cols}
                 )
+            idx_name = self.df.index.name
+            if idx_name is not None:
+                self.df = self.df.reset_index()
+                if self.df[idx_name].dtype == "object":
+                    self.df[idx_name] = self.df[idx_name].astype(str)
+                self.df = self.df.set_index(idx_name)
             self.df.to_parquet(
                 dest_path_and_fname + "_tmp",
                 engine=self.pq_engine,

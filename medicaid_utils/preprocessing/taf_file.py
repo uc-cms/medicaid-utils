@@ -289,9 +289,16 @@ class TAFFile:
                 if df[c].dtype == "object"
             ]
             if obj_cols:
-                self.dct_files[f_subtype] = df.assign(
+                df = df.assign(
                     **{c: df[c].astype(str) for c in obj_cols}
                 )
+            idx_name = df.index.name
+            if idx_name is not None:
+                df = df.reset_index()
+                if df[idx_name].dtype == "object":
+                    df[idx_name] = df[idx_name].astype(str)
+                df = df.set_index(idx_name)
+            self.dct_files[f_subtype] = df
             self.dct_files[f_subtype].to_parquet(
                 dest_path_and_fname + "_tmp",
                 engine=self.pq_engine,

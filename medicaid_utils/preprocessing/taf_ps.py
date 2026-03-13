@@ -934,14 +934,16 @@ class TAFPS(taf_file.TAFFile):
                     ].astype(str),
                     sep="",
                 ),
-            )
+            ),
+            meta=df_base._meta.assign(total_enrolled_months=0, enrolled_months=""),
         )
         df_base = df_base.map_partitions(
             lambda pdf: pdf.assign(
                 max_continuous_enrolment=pdf["enrolled_months"].apply(
-                    lambda x: max(len(s) for s in x.split("0"))
+                    lambda x: max(len(s) for s in str(x).split("0"))
                 )
-            )
+            ),
+            meta=df_base._meta.assign(max_continuous_enrolment=0),
         )
         df_base = df_base.drop(
             columns=[f"enrollment_mon_{mon}" for mon in range(1, 13)]
@@ -1038,6 +1040,12 @@ class TAFPS(taf_file.TAFFile):
                     },
                 }
             )
+            _mc_meta = df_mc._meta.assign(
+                **{f"mc_{mc_type}_months": "" for mc_type in [
+                    "comp", "behav_health", "pccm", "comp_or_pccm"]},
+                **{f"total_mc_{mc_type}_months": 0 for mc_type in [
+                    "comp", "behav_health", "pccm", "comp_or_pccm"]},
+            )
             df_mc = df_mc.map_partitions(
                 lambda pdf: pdf.assign(
                     **{
@@ -1075,17 +1083,22 @@ class TAFPS(taf_file.TAFFile):
                             ]
                         },
                     }
-                )
+                ),
+                meta=_mc_meta,
             )
             df_mc = df_mc.map_partitions(
                 lambda pdf: pdf.assign(
                     **{
                         f"max_continuous_mc_{mc_type}_enrollment": pdf[
                             f"mc_{mc_type}_months"
-                        ].apply(lambda x: max(len(s) for s in x.split("0")))
+                        ].apply(lambda x: max(len(s) for s in str(x).split("0")))
                         for mc_type in ["comp", "comp_or_pccm"]
                     }
-                )
+                ),
+                meta=df_mc._meta.assign(
+                    **{f"max_continuous_mc_{mc_type}_enrollment": 0
+                       for mc_type in ["comp", "comp_or_pccm"]}
+                ),
             )
             df_mc = df_mc.drop(
                 columns=[
@@ -1352,6 +1365,12 @@ class TAFPS(taf_file.TAFFile):
         >>> ps.flag_ffs_months()  # doctest: +SKIP
         """
         df_base = self.dct_files["base"]
+        _ffs_meta = df_base._meta.assign(
+            ffs_months="",
+            ffs_no_mc_behav_health_months="",
+            ffs_no_mc_pccm_months="",
+            ffs_no_mc_comp_or_pccm_months="",
+        )
         df_base = df_base.map_partitions(
             lambda pdf: pdf.assign(
                 **{
@@ -1420,7 +1439,8 @@ class TAFPS(taf_file.TAFFile):
                         axis=1,
                     ),
                 }
-            )
+            ),
+            meta=_ffs_meta,
         )
         df_base = df_base.assign(
             **{
@@ -1438,12 +1458,16 @@ class TAFPS(taf_file.TAFFile):
         df_base = df_base.map_partitions(
             lambda pdf: pdf.assign(
                 max_continuous_ffs_enrollment=pdf["ffs_months"].apply(
-                    lambda x: max(len(s) for s in x.split("0"))
+                    lambda x: max(len(s) for s in str(x).split("0"))
                 ),
                 max_continuous_ffs_no_mc_comp_or_pccm_enrollment=pdf[
                     "ffs_no_mc_comp_or_pccm_months"
-                ].apply(lambda x: max(len(s) for s in x.split("0"))),
-            )
+                ].apply(lambda x: max(len(s) for s in str(x).split("0"))),
+            ),
+            meta=df_base._meta.assign(
+                max_continuous_ffs_enrollment=0,
+                max_continuous_ffs_no_mc_comp_or_pccm_enrollment=0,
+            ),
         )
         self.dct_files["base"] = df_base
         self.cache_results("base")

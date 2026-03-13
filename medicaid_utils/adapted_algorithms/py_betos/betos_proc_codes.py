@@ -213,6 +213,11 @@ class BetosProcCodes:
         if claim_type == "medicaid":
             proc_code_col_prefix = str(proc_code_prefix)
             # Filtering procedure codes with sys code = 1 (CPT) & 6 (HCPCS)
+            valid_col_names = {
+                "VALID_" + col.replace("_SYS", ""): ""
+                for col in df.columns
+                if col.startswith(proc_code_col_prefix + "_SYS")
+            }
             df = df.map_partitions(
                 lambda pdf: pdf.assign(
                     **{
@@ -231,7 +236,8 @@ class BetosProcCodes:
                         for col in pdf.columns
                         if col.startswith(proc_code_col_prefix + "_SYS")
                     }
-                )
+                ),
+                meta=df._meta.assign(**valid_col_names),
             )
             lst_col_to_delete.extend(
                 [
@@ -268,7 +274,7 @@ class BetosProcCodes:
                                                     ]
                                                 )
                                                 for cpt_code in ",".join(
-                                                    x
+                                                    x.fillna("").astype(str)
                                                 ).split(",")
                                             )
                                         }
@@ -300,7 +306,7 @@ class BetosProcCodes:
                                                     ]
                                                 )
                                                 for cpt_code in ",".join(
-                                                    x
+                                                    x.fillna("").astype(str)
                                                 ).split(",")
                                             )
                                         }
@@ -311,7 +317,8 @@ class BetosProcCodes:
                         ),
                     ]
                 )
-            )
+            ),
+            meta=df._meta.assign(lst_betos_code="", lst_betos_cat=""),
         )
 
         df = df[[col for col in df.columns if col not in lst_col_to_delete]]

@@ -106,6 +106,14 @@ class PediatricMedicalComplexity:
             for condn in dct_conditions.keys()
             if condn not in lst_conditions_with_exclude_codes
         ]
+        _condition_order = (
+            lst_conditions_without_exclude_codes
+            + lst_conditions_with_exclude_codes
+            + ["progressive"]
+        )
+        _meta_conditions = df._meta.assign(
+            **{condn: 0 for condn in _condition_order}
+        )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
                 **dict(
@@ -173,9 +181,18 @@ class PediatricMedicalComplexity:
                         )
                     ]
                 )
-            )
+            ),
+            meta=_meta_conditions,
         )
 
+        _indicator_cols = {
+            "any_" + condn: 0
+            for condn in list(dct_conditions.keys()) + ["progressive"]
+        }
+        _indicator_cols.update(
+            {condn + "_2h": 0 for condn in dct_conditions.keys()}
+        )
+        _meta_indicators = df._meta.assign(**_indicator_cols)
         df = df.map_partitions(
             lambda pdf: pdf.assign(
                 **dict(
@@ -189,7 +206,8 @@ class PediatricMedicalComplexity:
                         for condn in dct_conditions.keys()
                     ]
                 )
-            )
+            ),
+            meta=_meta_indicators,
         )
 
         return df
@@ -238,7 +256,8 @@ class PediatricMedicalComplexity:
                 scount_more=pdf[
                     [condn + "_2h" for condn in lst_conditions]
                 ].sum(axis="columns"),
-            )
+            ),
+            meta=df._meta.assign(scount_less=0, scount_more=0),
         )
 
         df = df.map_partitions(
@@ -267,7 +286,8 @@ class PediatricMedicalComplexity:
                     [3, 2],
                     default=1,
                 ),
-            )
+            ),
+            meta=df._meta.assign(cond_less=0, cond_more=0),
         )
 
         return df

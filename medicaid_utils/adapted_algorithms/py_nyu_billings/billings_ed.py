@@ -438,6 +438,10 @@ def get_nyu_ed_proba(
     principal_diag_col_name = (
         "DIAG_CD_1" if (cms_format == "MAX") else "DGNS_CD_1"
     )
+    _billings_cols = [
+        "unclassified", "injury", "drug", "psych", "alcohol",
+        "peds_acs_ed", "ne", "epct", "edcnpa", "edcnnpa",
+    ]
     df = df.map_partitions(
         lambda pdf: pd.concat(
             [
@@ -462,7 +466,14 @@ def get_nyu_ed_proba(
                 ),
             ],
             axis=1,
-        )
+        ),
+        meta=df._meta.assign(**{c: 0.0 for c in _billings_cols}),
+    )
+    _agg_cols = ["injury", "drug", "psych", "alcohol", "adult",
+                  "ne", "epct", "edcnpa", "edcnnpa", "peds_acs_ed"]
+    _agg_meta = pd.DataFrame(
+        {c: pd.Series(dtype="float64") for c in _agg_cols},
+        index=pd.MultiIndex.from_tuples([], names=[index_col, date_col]),
     )
     df = df.map_partitions(
         lambda pdf: pdf.groupby([index_col, date_col]).agg(
@@ -477,7 +488,8 @@ def get_nyu_ed_proba(
                 ]
                 + [(col, "min") for col in ["peds_acs_ed"]]
             )
-        )
+        ),
+        meta=_agg_meta,
     )
 
     df = df.assign(

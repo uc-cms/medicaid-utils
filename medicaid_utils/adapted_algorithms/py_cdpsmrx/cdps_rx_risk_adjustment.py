@@ -98,7 +98,7 @@ class CdpsRxRiskAdjustment:
         return df, lst_age_and_gender_cols
 
     @classmethod
-    def add_cdps_category_cols(
+    def add_cdps_category_cols(  # pylint: disable=too-many-locals
         cls, df: dd.DataFrame, lst_diag_cd_col_name: str
     ) -> Tuple[dd.DataFrame, List[str]]:
         """
@@ -256,9 +256,9 @@ class CdpsRxRiskAdjustment:
                                 diag_cd.strip().upper().replace(".", ""),
                                 "OTHER",
                             )
-                            for diag_cd in lst_raw_diag.split(",")
+                            for diag_cd in str(lst_raw_diag).split(",")
                         }
-                    )
+                    ) if pd.notna(lst_raw_diag) else []
                 ),
             ),
         )
@@ -272,9 +272,9 @@ class CdpsRxRiskAdjustment:
                                 diag_cd.strip().upper().replace(".", ""),
                                 "OTHER",
                             )
-                            for diag_cd in lst_raw_diag.split(",")
+                            for diag_cd in str(lst_raw_diag).split(",")
                         }
-                    )
+                    ) if pd.notna(lst_raw_diag) else []
                 ),
             )
         )
@@ -299,7 +299,11 @@ class CdpsRxRiskAdjustment:
                         )
                     ).astype(int)
                 )
-            )
+            ),
+            meta=df._meta.assign(OTHER=0),
+        )
+        _meta_adult_nh = df._meta.assign(
+            **{diag: 0 for diag in lst_non_hierarchical_diags_adult}
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -315,7 +319,11 @@ class CdpsRxRiskAdjustment:
                     ).astype(int)
                     for diag in lst_non_hierarchical_diags_adult
                 }
-            )
+            ),
+            meta=_meta_adult_nh,
+        )
+        _meta_child_nh = df._meta.assign(
+            **{diag: 0 for diag in lst_non_hierarchical_diags_child}
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -354,7 +362,15 @@ class CdpsRxRiskAdjustment:
                         if diag in lst_non_hierarchical_diags_adult
                     ]
                 )
-            )
+            ),
+            meta=_meta_child_nh,
+        )
+        _meta_adult_h = df._meta.assign(
+            **{
+                diag: 0
+                for dct_level in dct_diag_hierarchies_adult.values()
+                for diag in dct_level.values()
+            }
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -395,7 +411,15 @@ class CdpsRxRiskAdjustment:
                         dct_level.items()
                     )
                 }
-            )
+            ),
+            meta=_meta_adult_h,
+        )
+        _meta_child_h = df._meta.assign(
+            **{
+                diag: 0
+                for dct_level in dct_diag_hierarchies_child.values()
+                for diag in dct_level.values()
+            }
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -493,7 +517,8 @@ class CdpsRxRiskAdjustment:
                         for item in sublist
                     ]
                 )
-            )
+            ),
+            meta=_meta_child_h,
         )
         df = df.assign(
             **{
@@ -622,9 +647,9 @@ class CdpsRxRiskAdjustment:
                             .zfill(11),
                             "OTHER",
                         )
-                        for ndc_cd in lst_ndc.split(",")
+                        for ndc_cd in str(lst_ndc).split(",")
                     }
-                )
+                ) if pd.notna(lst_ndc) else []
             ),
         )
         df = df.map_partitions(
@@ -635,7 +660,11 @@ class CdpsRxRiskAdjustment:
                 .isin(["OTHER"])
                 .any(axis=1)
                 .astype(int)
-            )
+            ),
+            meta=df._meta.assign(OTHER=0),
+        )
+        _meta_mrx_nh = df._meta.assign(
+            **{mrx: 0 for mrx in lst_non_hierarchical_mrx_cat}
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -648,7 +677,15 @@ class CdpsRxRiskAdjustment:
                     .astype(int)
                     for mrx in lst_non_hierarchical_mrx_cat
                 }
-            )
+            ),
+            meta=_meta_mrx_nh,
+        )
+        _meta_mrx_h = df._meta.assign(
+            **{
+                mrx: 0
+                for dct_level in dct_mrx_hierarchies.values()
+                for mrx in dct_level.values()
+            }
         )
         df = df.map_partitions(
             lambda pdf: pdf.assign(
@@ -688,7 +725,8 @@ class CdpsRxRiskAdjustment:
                         dct_level.items()
                     )
                 }
-            )
+            ),
+            meta=_meta_mrx_h,
         )
         return (
             df[[col for col in df.columns if col not in ["LST_NDC_MRX"]]],
