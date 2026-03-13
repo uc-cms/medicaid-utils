@@ -16,7 +16,7 @@ setuptools.setup(
         "Research Computing Group, Biostatistics Laboratory, The University of"
         " Chicago"
     ),
-    author_email="manorathan@uchicago.edu",  # This should be changed to group email,
+    author_email="manorathan@uchicago.edu",
     description=(
         "Python toolkit for Medicaid claims data analysis — preprocessing, cleaning,"
         " risk adjustment, quality measures, and patient-level file construction"

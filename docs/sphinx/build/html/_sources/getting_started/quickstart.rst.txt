@@ -1,8 +1,75 @@
 Quick Start
 ===========
 
-This page walks through the basic workflow: loading claims, cleaning them, and
-extracting a patient cohort.
+This page walks through the basic workflow: setting up a Dask cluster, loading claims,
+cleaning them, and extracting a patient cohort.
+
+Setting Up a Dask Cluster
+--------------------------
+
+medicaid-utils uses `Dask <https://www.dask.org/>`_ for distributed computation. All
+DataFrames in the package are lazy Dask DataFrames -- operations are deferred until
+``.compute()`` is called. Set up a Dask cluster before loading claims for best performance.
+
+Local Cluster (Single Machine)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For workstations with sufficient RAM (recommended: 64 GB+ for state-level data):
+
+.. code-block:: python
+
+   from dask.distributed import Client, LocalCluster
+
+   # Create a local cluster with 8 workers, 8 GB each
+   cluster = LocalCluster(
+       n_workers=8,
+       threads_per_worker=1,    # Avoids GIL contention with pandas
+       memory_limit="8GB",
+   )
+   client = Client(cluster)
+   print(client.dashboard_link)  # Opens Dask dashboard for monitoring
+
+SLURM / HPC Cluster
+^^^^^^^^^^^^^^^^^^^^
+
+For high-performance computing environments, use
+`dask-jobqueue <https://jobqueue.dask.org/>`_:
+
+.. code-block:: python
+
+   from dask_jobqueue import SLURMCluster
+   from dask.distributed import Client
+
+   cluster = SLURMCluster(
+       cores=4,
+       memory="32GB",
+       processes=1,
+       walltime="04:00:00",
+       queue="standard",
+   )
+   cluster.scale(jobs=10)  # Request 10 SLURM jobs
+   client = Client(cluster)
+
+Without a Cluster
+^^^^^^^^^^^^^^^^^
+
+If no distributed client is created, Dask defaults to its **synchronous scheduler**, which
+processes partitions sequentially. This works for small datasets or debugging:
+
+.. code-block:: python
+
+   import dask
+   dask.config.set(scheduler="threads")  # or "synchronous" for debugging
+
+Tips
+^^^^
+
+- **Monitor progress**: The Dask dashboard (typically at ``http://localhost:8787``) shows
+  task progress, memory usage, and worker status
+- **Memory management**: Use ``tmp_folder`` when loading claims to cache intermediate
+  results to disk and reduce memory pressure
+- **Partition size**: Aim for partitions of 50--200 MB each. The package handles
+  partitioning automatically based on the input Parquet files
 
 Loading and Cleaning Claims
 ---------------------------

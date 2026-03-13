@@ -143,7 +143,7 @@ After extracting the cohort, you can add Elixhauser comorbidity scores:
 .. code-block:: python
 
    from medicaid_utils.preprocessing import taf_ip
-   from medicaid_utils.adapted_algorithms.py_elixhauser import elixhauser_comorbidity
+   from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import score
 
    # Load the exported IP claims
    ip = taf_ip.TAFIP(
@@ -152,9 +152,9 @@ After extracting the cohort, you can add Elixhauser comorbidity scores:
        clean=False, preprocess=False,
    )
 
-   # Flag Elixhauser comorbidities
-   df_ip = elixhauser_comorbidity.flag_comorbidities(
-       ip.dct_files["base"], claim_type="taf"
+   # Compute Elixhauser comorbidity score
+   df_ip = score(
+       ip.dct_files["base"], lst_diag_col_name="LST_DIAG_CD", cms_format="TAF"
    )
 
 Running Multiple States

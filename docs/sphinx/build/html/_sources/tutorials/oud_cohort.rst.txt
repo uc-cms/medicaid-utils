@@ -109,7 +109,7 @@ After extraction, use the pharmacy claims to identify buprenorphine treatment:
        ],
    }
 
-   df_rx_flagged = rx.flag_prescriptions(dct_ndc, df_rx)
+   df_rx_flagged = rx.flag_prescriptions(dct_ndc_codes=dct_ndc, df_claims=df_rx)
 
 Step 5: Flag Behavioral Health Services
 -----------------------------------------
@@ -120,9 +120,9 @@ Use the OUD topics module for additional variable construction:
 
    from medicaid_utils.topics.oud import medication_and_behavioral_health as mbh
 
-   # Flag behavioral health services in outpatient claims
+   # Flag behavioral health treatment in outpatient claims
    df_ot = dd.read_parquet("/output/oud_cohort/ot/")
-   df_ot_bh = mbh.flag_behavioral_health(df_ot)
+   df_ot_bh = mbh.flag_proc_behavioral_health_trtmt(df_ot)
 
 Step 6: Identify FQHC Providers
 ---------------------------------
@@ -133,7 +133,8 @@ Identify which patients received care at Federally Qualified Health Centers:
 
    from medicaid_utils.other_datasets import fqhc
 
-   df_ot_fqhc = fqhc.flag_fqhc_providers(df_ot)
+   # Get FQHC NPI crosswalk for identifying FQHC providers
+   pdf_fqhc_crosswalk = fqhc.get_fqhc_crosswalk(start_year=2016)
 
 Combining with Diagnosis-Only Extraction
 -----------------------------------------

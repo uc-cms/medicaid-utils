@@ -21,5 +21,7 @@ keywords:
   - public health
   - real-world evidence
 license: MIT
-url: "https://github.com/uc-cms/medicaid-utils"
+version: "0.0.0"
+date-released: "2023-01-01"
+url: "https://uc-cms.github.io/medicaid-utils/"
 repository-code: "https://github.com/uc-cms/medicaid-utils"

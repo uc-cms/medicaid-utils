@@ -11,9 +11,9 @@ Flags 31 comorbidity groups from diagnosis codes (Elixhauser et al., 1998).
 
 .. code-block:: python
 
-   from medicaid_utils.adapted_algorithms.py_elixhauser import elixhauser_comorbidity
+   from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import score
 
-   df_ip = elixhauser_comorbidity.flag_comorbidities(ip.df, claim_type="max")
+   df_ip = score(ip.df, lst_diag_col_name="LST_DIAG_CD", cms_format="MAX")
 
 CDPS-Rx Risk Adjustment
 ------------------------
@@ -26,7 +26,7 @@ Pharmacy-based risk adjustment using the Chronic Illness and Disability Payment 
    from medicaid_utils.adapted_algorithms.py_cdpsmrx import cdps_rx_risk_adjustment
 
    df_risk = cdps_rx_risk_adjustment.cdps_rx_risk_adjust(
-       df_rx, year=2012, index_col="MSIS_ID"
+       df, lst_diag_col_name="LST_DIAG_CD", lst_ndc_col_name="LST_NDC"
    )
 
 BETOS Procedure Classification
@@ -47,9 +47,9 @@ Flags potentially preventable emergency department visits (Davies et al., 2017).
 
 .. code-block:: python
 
-   from medicaid_utils.adapted_algorithms.py_ed_pqi import ed_pqi
+   from medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi import get_ed_pqis
 
-   df_ed = ed_pqi.flag_potentially_preventable_ed_visits(ot.df, year=2012)
+   df_ed = get_ed_pqis(df_ip, df_ot, df_ps, df_ed, restrict_months=False)
 
 Inpatient PQI
 -------------
@@ -58,9 +58,9 @@ AHRQ Prevention Quality Indicators for inpatient admissions.
 
 .. code-block:: python
 
-   from medicaid_utils.adapted_algorithms.py_ip_pqi import ip_pqi
+   from medicaid_utils.adapted_algorithms.py_ip_pqi.prevention_quality_indicators import pqirecode
 
-   df_ip_pqi = ip_pqi.flag_ip_pqi(ip.df, year=2012)
+   df_adult, df_children = pqirecode(ip.df)
 
 NYU/Billings ED Classification
 -------------------------------
@@ -69,9 +69,9 @@ Classifies ED visits by severity and preventability (Billings, Parikh, Mijanovic
 
 .. code-block:: python
 
-   from medicaid_utils.adapted_algorithms.py_nyu_billings import nyu_billings
+   from medicaid_utils.adapted_algorithms.py_nyu_billings.billings_ed import get_nyu_ed_proba
 
-   df_nyu = nyu_billings.classify_ed_visits(ot.df, year=2012)
+   pdf_nyu = get_nyu_ed_proba(df_ed, date_col="srvc_bgn_date", index_col="MSIS_ID", cms_format="MAX")
 
 Pediatric Medical Complexity Algorithm (PMCA)
 ---------------------------------------------
@@ -80,9 +80,9 @@ Classifies pediatric patients by medical complexity (Simon et al., Seattle Child
 
 .. code-block:: python
 
-   from medicaid_utils.adapted_algorithms.py_pmca import pmca
+   from medicaid_utils.adapted_algorithms.py_pmca.pmca import pmca_chronic_conditions
 
-   df_pmca = pmca.classify_complexity(ip.df, year=2012)
+   df_pmca = pmca_chronic_conditions(df, diag_cd_lst_col="LST_DIAG_CD_RAW")
 
 Low-Value Care
 --------------
@@ -91,10 +91,11 @@ Identifies low-value care services (Charlesworth et al., JAMA Intern Med, 2016).
 
 .. code-block:: python
 
-   from medicaid_utils.adapted_algorithms.py_low_value_care import low_value_care
+   from medicaid_utils.adapted_algorithms.py_low_value_care.low_value_care import construct_low_value_care_measures
 
-   df_lvc = low_value_care.flag_low_value_care(
-       pdf_dates, lvc_specs, lst_conditions
+   pdf_lvc = construct_low_value_care_measures(
+       state="AL", year=2012, lst_bene_msis_filter=[], index_col="BENE_MSIS",
+       max_data_root="/data/max", out_folder="/output"
    )
 
 Algorithm Summary

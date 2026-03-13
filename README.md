@@ -207,19 +207,18 @@ ps = taf_ps.TAFPS(year=2016, state="WY", data_root="/path/to/data")
 ### Applying Risk Adjustment
 
 ```python
-from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import ElixhauserScoring
+from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import score
 
-# Flag Elixhauser comorbidity groups on inpatient claims
-# lst_diag_col_name: list of diagnosis column names in the DataFrame
-lst_diag_cols = [col for col in ip.df.columns if col.startswith("DIAG_CD_")]
-df_ip = ElixhauserScoring.flag_comorbidities(ip.df, lst_diag_cols, cms_format="MAX")
+# Compute Elixhauser comorbidity score from a bene-level DataFrame
+# lst_diag_col_name: name of the column containing comma-separated diagnosis codes
+df_ip = score(ip.df, lst_diag_col_name="LST_DIAG_CD", cms_format="MAX")
 ```
 
 ```python
 from medicaid_utils.adapted_algorithms.py_cdpsmrx import cdps_rx_risk_adjustment
 
-# Compute CDPS-Rx risk scores from a DataFrame with diagnosis and NDC columns
-df_risk = cdps_rx_risk_adjustment.cdps_rx_risk_adjust(df_rx)
+# Compute CDPS-Rx risk scores from a patient-level DataFrame with diagnosis and NDC columns
+df_risk = cdps_rx_risk_adjustment.cdps_rx_risk_adjust(df, lst_diag_col_name="LST_DIAG_CD", lst_ndc_col_name="LST_NDC")
 ```
 
 ### Classifying Procedure Codes with BETOS
@@ -234,12 +233,10 @@ df_ot = betos_proc_codes.assign_betos_cat(ot.df, year=2012)
 ### Identifying Preventable ED Visits
 
 ```python
-from medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi import EDPreventionQualityIndicators
+from medicaid_utils.adapted_algorithms.py_ed_pqi.ed_pqi import get_ed_pqis
 
-# Flag potentially preventable ED visits (requires ED claims and person summary)
-df_pqi = EDPreventionQualityIndicators.flag_potentially_preventable_ed_visits(
-    df_ed=ot.df, df_ps=ps.df
-)
+# Compute ED Prevention Quality Indicators (requires IP, OT, PS, and ED claims)
+df_pqi = get_ed_pqis(df_ip=ip.df, df_ot=ot.df, df_ps=ps.df, df_ed=ed.df)
 ```
 
 ### Extracting Patient Cohorts

@@ -68,10 +68,9 @@ Apply Elixhauser comorbidity scoring:
 
 .. code-block:: python
 
-   from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import ElixhauserScoring
+   from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import score
 
-   lst_diag_cols = [col for col in ip.df.columns if col.startswith("DIAG_CD_")]
-   df_scored = ElixhauserScoring.flag_comorbidities(ip.df, lst_diag_cols, cms_format="MAX")
+   df_scored = score(ip.df, lst_diag_col_name="LST_DIAG_CD", cms_format="MAX")
 
 .. toctree::
    :maxdepth: 2
