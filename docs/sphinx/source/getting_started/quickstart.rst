@@ -29,6 +29,10 @@ For workstations with sufficient RAM (recommended: 64 GB+ for state-level data):
    client = Client(cluster)
    print(client.dashboard_link)  # Opens Dask dashboard for monitoring
 
+.. code-block:: text
+
+   http://127.0.0.1:8787/status
+
 SLURM / HPC Cluster
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -85,6 +89,14 @@ MAX format (ICD-9 era):
 
    # Access the cleaned Dask DataFrame
    df_ip = ip.df
+   print(df_ip.columns.tolist()[:8])
+
+.. code-block:: text
+
+   ['BENE_ID', 'MSIS_ID', 'STATE_CD', 'SRVC_BGN_DT', 'SRVC_END_DT',
+    'DIAG_CD_1', 'DIAG_CD_2', 'PRCDR_CD_1']
+
+.. code-block:: python
 
    # Load outpatient claims with IP overlap flagging
    ot = max_ot.MAXOT(year=2012, state="WY", data_root="/path/to/data")
@@ -101,6 +113,25 @@ TAF format (ICD-10 era):
 
    ip = taf_ip.TAFIP(year=2019, state="AL", data_root="/path/to/data")
    ps = taf_ps.TAFPS(year=2019, state="AL", data_root="/path/to/data")
+
+Verify Your Setup
+^^^^^^^^^^^^^^^^^
+
+After loading, verify everything is working:
+
+.. code-block:: python
+
+   print(f"Partitions: {ip.df.npartitions}")
+   print(f"Columns: {len(ip.df.columns)}")
+   print(f"Rows (approx): {len(ip.df):,}")
+
+.. code-block:: text
+
+   Partitions: 4
+   Columns: 52
+   Rows (approx): 12,847
+
+If this runs without errors, your installation and data layout are correct.
 
 What Cleaning Does
 ^^^^^^^^^^^^^^^^^^

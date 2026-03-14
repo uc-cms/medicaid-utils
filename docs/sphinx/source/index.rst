@@ -5,6 +5,28 @@ medicaid-utils: Python Toolkit for Medicaid Claims Data Analysis
    :description: Open-source Python toolkit for analyzing Medicaid claims data from CMS. Preprocessing, cohort extraction, risk adjustment, and quality measures for MAX and TAF files. Built on Dask for scalable health services research.
    :keywords: medicaid, claims data, CMS, TAF, MAX, health services research, observational study, cohort extraction, risk adjustment, elixhauser, python, dask, epidemiology, healthcare analytics, medicaid analytic extract
 
+|pypi| |python| |ci| |license| |docs|
+
+.. |pypi| image:: https://img.shields.io/pypi/v/medicaid-utils
+   :target: https://pypi.org/project/medicaid-utils/
+   :alt: PyPI version
+
+.. |python| image:: https://img.shields.io/badge/python-3.11%2B-blue.svg
+   :target: https://www.python.org/downloads/
+   :alt: Python 3.11+
+
+.. |ci| image:: https://github.com/uc-cms/medicaid-utils/actions/workflows/pylint.yml/badge.svg
+   :target: https://github.com/uc-cms/medicaid-utils/actions/workflows/pylint.yml
+   :alt: CI
+
+.. |license| image:: https://img.shields.io/badge/License-MIT-green.svg
+   :target: https://github.com/uc-cms/medicaid-utils/blob/master/LICENSE
+   :alt: License: MIT
+
+.. |docs| image:: https://img.shields.io/badge/docs-GitHub%20Pages-blue
+   :target: https://uc-cms.github.io/medicaid-utils/
+   :alt: Documentation
+
 **medicaid-utils** is an open-source Python toolkit for constructing patient-level
 analytic files from Medicaid claims data. It implements validated cleaning routines,
 variable construction methods, and public-domain clinical algorithms for both
@@ -83,6 +105,7 @@ see :doc:`user_guide/max_vs_taf`):
    getting_started/references
    getting_started/faq
    getting_started/glossary
+   getting_started/publications
 
 .. toctree::
    :maxdepth: 2

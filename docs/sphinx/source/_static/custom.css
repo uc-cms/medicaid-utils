@@ -7,3 +7,32 @@ pre {
 .sig-param {
     line-height: 1.6;
 }
+
+/* Improve focus visibility for keyboard navigation (accessibility) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 2px;
+}
+
+/* Ensure admonition text meets WCAG contrast ratios */
+.admonition p {
+    line-height: 1.6;
+}
+
+/* Better spacing for badge images on landing page */
+.document img[alt="PyPI version"],
+.document img[alt="Python 3.11+"],
+.document img[alt="CI"],
+.document img[alt="License: MIT"],
+.document img[alt="Documentation"] {
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+/* Improve table readability */
+table.docutils td,
+table.docutils th {
+    padding: 8px 12px;
+}

@@ -34,6 +34,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_copybutton",
     "sphinx_sitemap",
+    "sphinxext.opengraph",
 ]
 
 templates_path = ["_templates"]
@@ -49,6 +50,27 @@ sitemap_url_scheme = "{link}"
 
 pygments_style = "friendly"
 pygments_dark_style = "monokai"
+
+# -- SEO meta tags -----------------------------------------------------------
+
+html_meta = {
+    "description": (
+        "Open-source Python toolkit for analyzing Medicaid claims data from CMS. "
+        "Preprocessing, cohort extraction, risk adjustment, and quality measures "
+        "for MAX and TAF files. Built on Dask for scalable health services research."
+    ),
+    "keywords": (
+        "medicaid, claims data, CMS, TAF, MAX, health services research, "
+        "observational study, cohort extraction, risk adjustment, elixhauser, "
+        "python, dask, epidemiology, healthcare analytics"
+    ),
+}
+
+# -- Open Graph (social sharing) ---------------------------------------------
+
+ogp_site_url = "https://uc-cms.github.io/medicaid-utils/"
+ogp_site_name = "medicaid-utils"
+ogp_description_length = 200
 
 # -- Options for HTML output -------------------------------------------------
 
