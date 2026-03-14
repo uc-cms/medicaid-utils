@@ -62,7 +62,8 @@ Usage
 - **MAX files:** ``ip.df`` (single DataFrame)
 - **TAF files:** ``ip.dct_files["base"]`` (dict of sub-file DataFrames)
 
-See :doc:`../user_guide/max_vs_taf` for details.
+In both cases, the DataFrame is indexed by ``BENE_MSIS``, a composite ID constructed as
+``STATE_CD-HAS_BENE-(BENE_ID or MSIS_ID)``. See :doc:`../user_guide/max_vs_taf` for details.
 
 **Why are operations slow without** ``.compute()`` **?**
 

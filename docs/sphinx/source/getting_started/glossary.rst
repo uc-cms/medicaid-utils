@@ -42,7 +42,7 @@ MAX Column Names
 =============================== =============================================
 Column                          Description
 =============================== =============================================
-``MSIS_ID``                     Beneficiary ID
+``MSIS_ID``                     State-assigned beneficiary ID (unique within state and year)
 ``DIAG_CD_1`` – ``DIAG_CD_9``  Diagnosis codes
 ``PRCDR_CD_1`` – ``PRCDR_CD_6`` Procedure codes
 ``PRCDR_CD_SYS_1`` – ``PRCDR_CD_SYS_6`` Procedure coding system (1=CPT, 6=ICD-9, 7=ICD-10-PCS)
@@ -59,7 +59,7 @@ TAF Column Names
 =============================== =============================================
 Column                          Description
 =============================== =============================================
-``BENE_MSIS``                   Beneficiary ID
+``BENE_MSIS``                   Composite beneficiary ID constructed by medicaid-utils: ``STATE_CD-HAS_BENE-(BENE_ID or MSIS_ID)``
 ``DGNS_CD_1`` – ``DGNS_CD_12`` Diagnosis codes
 ``ADMTG_DGNS_CD``               Admitting diagnosis
 ``PRCDR_CD_1`` – ``PRCDR_CD_6`` Procedure codes

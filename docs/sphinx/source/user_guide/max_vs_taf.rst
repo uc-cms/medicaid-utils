@@ -7,17 +7,18 @@ their differences is essential for working with Medicaid claims data.
 Overview
 --------
 
-================= ========================================== ==========================================
-Feature           MAX (Medicaid Analytic eXtract)            TAF (T-MSIS Analytic Files)
-================= ========================================== ==========================================
-Years available   1999–2015                                  2014–present
-Diagnosis coding  Primarily ICD-9-CM                         Primarily ICD-10-CM
-File structure    Single flat file per claim type             Multiple sub-files per claim type
-Beneficiary ID    ``MSIS_ID``                                ``BENE_MSIS`` (or ``MSIS_ID``)
-Claim types       IP, OT, PS, CC                             IP, OT, LT, RX, DE (person summary)
-Diagnosis cols    ``DIAG_CD_1`` – ``DIAG_CD_9``              ``DGNS_CD_1`` – ``DGNS_CD_12``
-Procedure cols    ``PRCDR_CD_1`` – ``PRCDR_CD_6``            ``PRCDR_CD_1`` – ``PRCDR_CD_6``, ``LINE_PRCDR_CD``
-================= ========================================== ==========================================
+================= ============================================== ==============================================
+Feature           MAX (Medicaid Analytic eXtract)                TAF (T-MSIS Analytic Files)
+================= ============================================== ==============================================
+Years available   1999–2015                                      2014–present
+Diagnosis coding  Primarily ICD-9-CM                              Primarily ICD-10-CM
+File structure    Single flat file per claim type                  Multiple sub-files per claim type
+Beneficiary ID    ``BENE_MSIS`` (constructed; see below)          ``BENE_MSIS`` (constructed; see below)
+CMS claim types   IP, OT, RX, PS, CC                              IP, OT, LT, RX, DE (person summary)
+Supported types   IP, OT, PS, CC                                  IP, OT, LT, RX, PS
+Diagnosis cols    ``DIAG_CD_1`` – ``DIAG_CD_9``                   ``DGNS_CD_1`` – ``DGNS_CD_12``
+Procedure cols    ``PRCDR_CD_1`` – ``PRCDR_CD_6``                 ``PRCDR_CD_1`` – ``PRCDR_CD_6``, ``LINE_PRCDR_CD``
+================= ============================================== ==============================================
 
 Accessing DataFrames
 --------------------
@@ -154,7 +155,27 @@ Which Format Should I Use?
 - **ICD-9 studies (pre-October 2015):** Use MAX data
 - **ICD-10 studies (post-October 2015):** Use TAF data
 - **Cross-era studies:** Use both, with ICD-9 and ICD-10 code mappings in your ``dct_diag_proc_codes``
-- **Pharmacy studies:** TAF only (MAX does not have a dedicated RX file type)
+- **Pharmacy studies:** TAF preferred (medicaid-utils implements TAF RX preprocessing
+  via ``TAFRX``; MAX RX data exists in CMS but is not yet supported in the package)
+
+Beneficiary ID (``BENE_MSIS``)
+------------------------------
+
+``BENE_MSIS`` is a composite identifier **constructed by medicaid-utils** (not a raw CMS
+column). It applies to both MAX and TAF:
+
+::
+
+   BENE_MSIS = STATE_CD + "-" + HAS_BENE + "-" + (BENE_ID or MSIS_ID)
+
+- **BENE_ID** — CMS-assigned, intended to be unique across states and years
+- **MSIS_ID** — State-assigned, unique only within a state and year
+- **HAS_BENE** — ``1`` if ``BENE_ID`` exists, ``0`` otherwise (falls back to ``MSIS_ID``)
+
+Example: ``"AL-1-123456789"`` (Alabama, has BENE_ID, ID is 123456789)
+
+The ``index_col`` parameter on all claim classes defaults to ``"BENE_MSIS"`` but can be
+set to ``"MSIS_ID"`` or another column if needed.
 
 .. seealso::
 
