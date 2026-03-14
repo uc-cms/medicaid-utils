@@ -33,6 +33,7 @@ extensions = [
     "sphinx.ext.githubpages",
     "sphinx.ext.napoleon",
     "sphinx_copybutton",
+    "sphinx_sitemap",
 ]
 
 templates_path = ["_templates"]
@@ -40,6 +41,11 @@ source_suffix = ".rst"
 master_doc = "index"
 language = "en"
 exclude_patterns = []
+
+# Google Search Console verification + sitemap
+html_extra_path = ["googlef63886eaa754b15d.html"]
+html_baseurl = "https://uc-cms.github.io/medicaid-utils/"
+sitemap_url_scheme = "{link}"
 
 pygments_style = "friendly"
 pygments_dark_style = "monokai"
