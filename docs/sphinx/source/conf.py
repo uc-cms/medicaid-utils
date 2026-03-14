@@ -55,6 +55,7 @@ pygments_dark_style = "monokai"
 html_theme = "furo"
 html_title = "medicaid-utils"
 html_static_path = ["_static"]
+html_favicon = "_static/favicon.svg"
 html_css_files = ["custom.css"]
 
 html_theme_options = {
