@@ -1,14 +1,11 @@
 Publications
 ============
 
-medicaid-utils grew out of research computing infrastructure built for
-peer-reviewed Medicaid health services research. The cleaning routines,
-cohort extraction logic, and clinical algorithms in this package were
-developed and validated through the studies below.
+The preprocessing routines, cohort extraction logic, and clinical algorithms
+in medicaid-utils drew inspiration from the methods used in the following
+peer-reviewed studies.
 
 ----
-
-.. rubric:: 2025
 
 Liu, A., Hernandez, V., Stulberg, D., Schumm, P., Murugesan, M.,
 McHugh, A., & Dude, A. (2025). Short-interval pregnancy following
@@ -16,8 +13,6 @@ delivery in Catholic-affiliated versus non-Catholic-affiliated hospitals
 among patients insured through the Medicaid program. *Perspectives on
 Sexual and Reproductive Health*, *57*\ (3), 321--328.
 `https://doi.org/10.1111/psrh.70021 <https://doi.org/10.1111/psrh.70021>`_
-
-.. rubric:: 2024
 
 Wan, W., Murugesan, M., Nocon, R. S., Bolton, J., Konetzka, R. T.,
 Chin, M. H., & Huang, E. S. (2024). Comparison of two propensity
@@ -40,15 +35,11 @@ hospitals among California Medicaid enrollees. *Contraception*, *131*,
 110308.
 `https://doi.org/10.1016/j.contraception.2023.110308 <https://doi.org/10.1016/j.contraception.2023.110308>`_
 
-.. rubric:: 2023
-
 Timtim, E., Murugesan, M., Blair, M. P., & Rodriguez, S. H. (2023).
 Association of health insurance status with severity and treatment among
 infants with retinopathy of prematurity. *Journal of Pediatric
 Ophthalmology and Strabismus*, *60*\ (6), e75--e78.
 `https://doi.org/10.3928/01913913-20231026-01 <https://doi.org/10.3928/01913913-20231026-01>`_
-
-.. rubric:: 2022
 
 Peterson, L., Murugesan, M., Nocon, R., Hoang, H., Bolton, J.,
 Laiteerapong, N., Pollack, H., & Marsh, J. (2022). Health care use and
