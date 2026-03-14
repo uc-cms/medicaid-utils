@@ -174,8 +174,8 @@ column). It applies to both MAX and TAF:
 
 Example: ``"AL-1-123456789"`` (Alabama, has BENE_ID, ID is 123456789)
 
-The ``index_col`` parameter on all claim classes defaults to ``"BENE_MSIS"`` but can be
-set to ``"MSIS_ID"`` or another column if needed.
+The ``index_col`` parameter on all claim classes accepts any of the three IDs:
+``"BENE_MSIS"``, ``"BENE_ID"``, or ``"MSIS_ID"``. The default is ``"BENE_MSIS"``.
 
 .. seealso::
 
