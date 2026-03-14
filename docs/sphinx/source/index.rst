@@ -64,7 +64,8 @@ Extract a Type 2 diabetes cohort:
        cms_format="MAX",
    )
 
-Apply Elixhauser comorbidity scoring:
+Apply Elixhauser comorbidity scoring (requires constructing ``LST_DIAG_CD`` first —
+see :doc:`user_guide/max_vs_taf`):
 
 .. code-block:: python
 

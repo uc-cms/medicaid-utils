@@ -24,7 +24,11 @@ beneficiary's residence ZIP code.
 After preprocessing, the DataFrame includes:
 
 - ``rural`` — 1 if rural, 0 if non-rural, -1 if unknown
-- ``ruca_code`` or ``rucc_code`` — the underlying classification code
+- ``ruca_code`` — the RUCA classification code (always created)
+- ``rucc_code`` — the RUCC classification code (always created)
+
+The ``rural_method`` parameter controls which code is used to compute the ``rural``
+column, but both code columns are always present.
 
 RUCA Codes
 ^^^^^^^^^^

@@ -83,8 +83,9 @@ Concurrent Benzodiazepine and Opioid Prescriptions
 ---------------------------------------------------
 
 :func:`~medicaid_utils.topics.oud.medication_and_behavioral_health.flag_rx_benzos_opioids`
-identifies concurrent benzodiazepine and opioid prescriptions. Creates an
-``rx_benzo_and_opioid`` column:
+identifies benzodiazepine and opioid prescriptions. Creates three columns:
+``rx_benzodiazepines``, ``rx_opioids``, and ``rx_benzo_and_opioid`` (1 when both
+are present):
 
 .. code-block:: python
 

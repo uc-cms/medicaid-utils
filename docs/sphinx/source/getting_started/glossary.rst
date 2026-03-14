@@ -78,8 +78,8 @@ Columns added by medicaid-utils during preprocessing or algorithm execution:
 ============================== =============================================
 Column                         Description
 ============================== =============================================
-``LST_DIAG_CD``                Comma-separated list of all diagnosis codes per beneficiary. MAX: created during preprocessing. TAF: created by calling ``gather_bene_level_diag_ndc_codes()``
-``LST_NDC``                    Comma-separated list of all NDC codes per beneficiary. MAX: created during preprocessing. TAF: created by calling ``gather_bene_level_diag_ndc_codes()``
+``LST_DIAG_CD``                Comma-separated list of all diagnosis codes per beneficiary. MAX: must be constructed from ``DIAG_CD_*`` columns. TAF: created by ``gather_bene_level_diag_ndc_codes()`` on ``dct_files["base_diag_codes"]``
+``LST_NDC``                    Comma-separated list of all NDC codes per beneficiary. TAF: created by ``gather_bene_level_diag_ndc_codes()`` on ``dct_files["line_ndc_codes"]``
 ``ed_use``                     1 if claim is an ED visit (any criterion)
 ``ed_cpt``                     1 if ED identified via CPT codes (99281–99285)
 ``ed_ub92``                    1 if ED identified via UB-92 revenue codes

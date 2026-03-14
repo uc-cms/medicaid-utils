@@ -87,13 +87,21 @@ Add Elixhauser Comorbidity Scores
 
    from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import score
 
-   # For MAX data (LST_DIAG_CD is constructed during preprocessing)
+   # For MAX data — first construct LST_DIAG_CD from individual diagnosis columns
+   diag_cols = [c for c in ip.df.columns if c.startswith("DIAG_CD_")]
+   ip.df = ip.df.map_partitions(
+       lambda pdf: pdf.assign(
+           LST_DIAG_CD=pdf[diag_cols].apply(
+               lambda row: ",".join(v for v in row if v and str(v).strip()), axis=1
+           )
+       )
+   )
    df_with_elix = score(ip.df, lst_diag_col_name="LST_DIAG_CD", cms_format="MAX")
 
-   # For TAF data — first gather diagnosis codes into a list column
-   ip.gather_bene_level_diag_ndc_codes()  # creates LST_DIAG_CD on dct_files["base"]
+   # For TAF data — gather diagnosis codes (creates LST_DIAG_CD on "base_diag_codes")
+   ip.gather_bene_level_diag_ndc_codes()
    df_with_elix = score(
-       ip.dct_files["base"],
+       ip.dct_files["base_diag_codes"],
        lst_diag_col_name="LST_DIAG_CD",
        cms_format="TAF",
    )

@@ -91,20 +91,33 @@ File Suffix          Description                               Dict Key
 Gathering Diagnosis Codes
 -------------------------
 
-A key difference between MAX and TAF: the ``LST_DIAG_CD`` column (a comma-separated
-list of all diagnosis codes per beneficiary) is created automatically during MAX
-preprocessing, but must be explicitly generated for TAF files.
+Several algorithms (Elixhauser, CDPS-Rx, PMCA) expect a ``LST_DIAG_CD`` column — a
+comma-separated string of all diagnosis codes per beneficiary. This column is **not**
+created automatically by either MAX or TAF preprocessing; it must be constructed
+explicitly.
+
+**MAX** — construct from individual diagnosis columns:
 
 .. code-block:: python
 
-   # MAX — LST_DIAG_CD is already on ip.df after preprocessing
    ip = max_ip.MAXIP(year=2012, state="WY", data_root="/data/cms")
-   assert "LST_DIAG_CD" in ip.df.columns
+   diag_cols = [c for c in ip.df.columns if c.startswith("DIAG_CD_")]
+   ip.df = ip.df.map_partitions(
+       lambda pdf: pdf.assign(
+           LST_DIAG_CD=pdf[diag_cols].apply(
+               lambda row: ",".join(v for v in row if v and str(v).strip()), axis=1
+           )
+       )
+   )
 
-   # TAF — must call gather_bene_level_diag_ndc_codes() first
+**TAF** — use ``gather_bene_level_diag_ndc_codes()``, which creates
+``LST_DIAG_CD`` on ``dct_files["base_diag_codes"]`` (not ``"base"``):
+
+.. code-block:: python
+
    ip = taf_ip.TAFIP(year=2019, state="AL", data_root="/data/cms")
-   ip.gather_bene_level_diag_ndc_codes()  # creates LST_DIAG_CD on dct_files["base"]
-   assert "LST_DIAG_CD" in ip.dct_files["base"].columns
+   ip.gather_bene_level_diag_ndc_codes()
+   df_diag = ip.dct_files["base_diag_codes"]  # has LST_DIAG_CD, LST_DIAG_CD_RAW
 
 This step is required before using algorithms that expect ``LST_DIAG_CD``, such as
 Elixhauser comorbidity scoring.
@@ -118,12 +131,11 @@ Most functions accept a ``cms_format`` parameter:
 
    from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import score
 
-   # MAX
+   # MAX (after constructing LST_DIAG_CD — see above)
    score(ip.df, lst_diag_col_name="LST_DIAG_CD", cms_format="MAX")
 
-   # TAF
-   ip.gather_bene_level_diag_ndc_codes()
-   score(ip.dct_files["base"], lst_diag_col_name="LST_DIAG_CD", cms_format="TAF")
+   # TAF (after calling gather_bene_level_diag_ndc_codes())
+   score(ip.dct_files["base_diag_codes"], lst_diag_col_name="LST_DIAG_CD", cms_format="TAF")
 
 Cohort Extraction
 -----------------

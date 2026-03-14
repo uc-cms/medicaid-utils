@@ -209,8 +209,8 @@ ps = taf_ps.TAFPS(year=2016, state="WY", data_root="/path/to/data")
 ```python
 from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import score
 
-# Compute Elixhauser comorbidity score from a bene-level DataFrame
-# lst_diag_col_name: name of the column containing comma-separated diagnosis codes
+# Requires a LST_DIAG_CD column (comma-separated diagnosis codes)
+# For MAX, construct from DIAG_CD_* columns; for TAF, call gather_bene_level_diag_ndc_codes()
 df_ip = score(ip.df, lst_diag_col_name="LST_DIAG_CD", cms_format="MAX")
 ```
 

@@ -398,9 +398,9 @@ def extract_cohort(  # pylint: disable=too-many-locals, missing-param-doc
         Apply dx proc filter to IP file only
     cms_format : {'MAX', 'TAF'}
         CMS file format.
-    clean_exports : bool, default=False
+    clean_exports : bool, default=True
         Should the exported datasets be cleaned?
-    preprocess_exports : bool, default=False
+    preprocess_exports : bool, default=True
         Should the exported datasets be preprocessed?
     export_format : str, default=csv
         Format of exported files

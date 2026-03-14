@@ -49,7 +49,7 @@ For high-performance computing environments, use ``dask-jobqueue``:
    cluster = SLURMCluster(
        cores=4,
        memory="32GB",
-       processes=4,
+       processes=1,
        walltime="04:00:00",
        queue="standard",
    )
@@ -65,9 +65,9 @@ For PBS/Torque environments, substitute ``PBSCluster``:
    cluster = PBSCluster(
        cores=4,
        memory="32GB",
-       processes=4,
+       processes=1,
        walltime="04:00:00",
-       resource_spec="nodes=1:ppn=4",
+       queue="batch",
    )
 
 Without a Cluster

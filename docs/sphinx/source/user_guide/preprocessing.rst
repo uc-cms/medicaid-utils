@@ -53,7 +53,7 @@ All claim classes follow the same constructor pattern:
 For MAX files, the cleaned DataFrame is available at ``ip.df``.
 
 For TAF files, sub-file DataFrames are in ``ip.dct_files`` (keyed by subtype:
-``"base"``, ``"line"``, ``"occr"``, ``"dx"``, ``"ndc"``).
+``"base"``, ``"line"``, ``"occurrence_code"``, ``"base_diag_codes"``, ``"line_ndc_codes"``).
 
 Factory Methods
 ---------------
