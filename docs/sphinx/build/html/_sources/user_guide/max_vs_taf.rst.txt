@@ -13,7 +13,7 @@ Feature           MAX (Medicaid Analytic eXtract)                TAF (T-MSIS Ana
 Years available   1999–2015                                      2014–present
 Diagnosis coding  Primarily ICD-9-CM                              Primarily ICD-10-CM
 File structure    Single flat file per claim type                  Multiple sub-files per claim type
-Beneficiary ID    ``BENE_MSIS`` (constructed; see below)          ``BENE_MSIS`` (constructed; see below)
+Beneficiary ID    ``BENE_MSIS``, ``BENE_ID``, or ``MSIS_ID``      ``BENE_MSIS``, ``BENE_ID``, or ``MSIS_ID``
 CMS claim types   IP, OT, RX, PS, CC                              IP, OT, LT, RX, DE (person summary)
 Supported types   IP, OT, PS, CC                                  IP, OT, LT, RX, PS
 Diagnosis cols    ``DIAG_CD_1`` – ``DIAG_CD_9``                   ``DGNS_CD_1`` – ``DGNS_CD_12``
