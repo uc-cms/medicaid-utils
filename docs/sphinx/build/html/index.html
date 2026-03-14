@@ -6,6 +6,7 @@
 <meta content="Open-source Python toolkit for analyzing Medicaid claims data from CMS. Preprocessing, cohort extraction, risk adjustment, and quality measures for MAX and TAF files. Built on Dask for scalable health services research." name="description" />
 <meta content="medicaid, claims data, CMS, TAF, MAX, health services research, observational study, cohort extraction, risk adjustment, elixhauser, python, dask, epidemiology, healthcare analytics, medicaid analytic extract" name="keywords" />
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Installation" href="getting_started/installation.html">
+        <link rel="canonical" href="https://uc-cms.github.io/medicaid-utils/index.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>medicaid-utils</title>
@@ -210,6 +211,8 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started/data_layout.html">Expected Data Layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started/quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started/references.html">CMS Data Dictionary References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/faq.html">FAQ &amp; Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/glossary.html">Glossary &amp; Column Reference</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
@@ -217,6 +220,12 @@
 <li class="toctree-l1"><a class="reference internal" href="user_guide/cohort_extraction.html">Cohort Extraction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_guide/risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/max_vs_taf.html">MAX vs TAF: CMS File Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/common_recipes.html">Common Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/scaling_with_dask.html">Scaling with Dask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/geographic_data.html">Geographic Data &amp; Rural-Urban Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/obgyn_module.html">OB/GYN Topic Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/oud_module.html">Opioid Use Disorder (OUD) Topic Module</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
@@ -347,7 +356,8 @@ so researchers can focus on their study design rather than data plumbing.</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Apply Elixhauser comorbidity scoring:</p>
+<p>Apply Elixhauser comorbidity scoring (requires constructing <code class="docutils literal notranslate"><span class="pre">LST_DIAG_CD</span></code> first —
+see <a class="reference internal" href="user_guide/max_vs_taf.html"><span class="doc">MAX vs TAF: CMS File Formats</span></a>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity</span><span class="w"> </span><span class="kn">import</span> <span class="n">score</span>
 
 <span class="n">df_scored</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">lst_diag_col_name</span><span class="o">=</span><span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
@@ -379,6 +389,22 @@ so researchers can focus on their study design rather than data plumbing.</p>
 <li class="toctree-l2"><a class="reference internal" href="getting_started/references.html#geographic-classification">Geographic Classification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started/references.html#provider-data">Provider Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started/references.html#column-name-conventions">Column Name Conventions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/faq.html">FAQ &amp; Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/faq.html#general">General</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/faq.html#data-setup">Data &amp; Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/faq.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/faq.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/faq.html#contributing">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started/glossary.html">Glossary &amp; Column Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/glossary.html#acronyms">Acronyms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/glossary.html#max-column-names">MAX Column Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/glossary.html#taf-column-names">TAF Column Names</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/glossary.html#derived-columns">Derived Columns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started/glossary.html#cms-data-resources">CMS Data Resources</a></li>
 </ul>
 </li>
 </ul>
@@ -419,6 +445,62 @@ so researchers can focus on their study design rather than data plumbing.</p>
 <li class="toctree-l1"><a class="reference internal" href="user_guide/quality_measures.html">Quality Measures &amp; Domain Modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/quality_measures.html#topics-modules">Topics Modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/quality_measures.html#external-data-integration">External Data Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/max_vs_taf.html">MAX vs TAF: CMS File Formats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/max_vs_taf.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/max_vs_taf.html#accessing-dataframes">Accessing DataFrames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/max_vs_taf.html#taf-dictionary-keys">TAF Dictionary Keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/max_vs_taf.html#gathering-diagnosis-codes">Gathering Diagnosis Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/max_vs_taf.html#specifying-format">Specifying Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/max_vs_taf.html#cohort-extraction">Cohort Extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/max_vs_taf.html#which-format-should-i-use">Which Format Should I Use?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/max_vs_taf.html#beneficiary-id-bene-msis">Beneficiary ID (<code class="docutils literal notranslate"><span class="pre">BENE_MSIS</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/common_recipes.html">Common Recipes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/common_recipes.html#load-claims-and-compute-statistics">Load Claims and Compute Statistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/common_recipes.html#flag-multiple-conditions">Flag Multiple Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/common_recipes.html#identify-patients-with-conditions">Identify Patients with Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/common_recipes.html#flag-pharmacy-claims-by-ndc">Flag Pharmacy Claims by NDC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/common_recipes.html#add-elixhauser-comorbidity-scores">Add Elixhauser Comorbidity Scores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/common_recipes.html#classify-ed-visits-by-severity">Classify ED Visits by Severity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/common_recipes.html#identify-fqhc-providers">Identify FQHC Providers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/common_recipes.html#export-processed-claims">Export Processed Claims</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/common_recipes.html#run-multi-state-analysis">Run Multi-State Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/scaling_with_dask.html">Scaling with Dask</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/scaling_with_dask.html#local-cluster">Local Cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/scaling_with_dask.html#slurm-hpc-clusters">SLURM / HPC Clusters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/scaling_with_dask.html#without-a-cluster">Without a Cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/scaling_with_dask.html#performance-tips">Performance Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/geographic_data.html">Geographic Data &amp; Rural-Urban Classification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/geographic_data.html#rural-urban-classification-via-person-summary">Rural-Urban Classification via Person Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/geographic_data.html#zip-crosswalk-module">ZIP Crosswalk Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/obgyn_module.html">OB/GYN Topic Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/obgyn_module.html#module-structure">Module Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/obgyn_module.html#delivery-flagging">Delivery Flagging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/obgyn_module.html#abnormal-pregnancy-outcomes">Abnormal Pregnancy Outcomes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/obgyn_module.html#maternal-morbidity">Maternal Morbidity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/obgyn_module.html#prenatal-and-preconception-care">Prenatal and Preconception Care</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/obgyn_module.html#conception-date-estimation">Conception Date Estimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/obgyn_module.html#chronic-condition-comorbidities">Chronic Condition Comorbidities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/obgyn_module.html#cohort-indicators">Cohort Indicators</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/oud_module.html">Opioid Use Disorder (OUD) Topic Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/oud_module.html#module-structure">Module Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/oud_module.html#medication-assisted-treatment-mat">Medication-Assisted Treatment (MAT)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/oud_module.html#behavioral-health-services">Behavioral Health Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/oud_module.html#concurrent-benzodiazepine-and-opioid-prescriptions">Concurrent Benzodiazepine and Opioid Prescriptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/oud_module.html#care-setting-classification">Care Setting Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/oud_module.html#co-occurring-conditions">Co-Occurring Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/oud_module.html#example-full-oud-analysis-pipeline">Example: Full OUD Analysis Pipeline</a></li>
 </ul>
 </li>
 </ul>

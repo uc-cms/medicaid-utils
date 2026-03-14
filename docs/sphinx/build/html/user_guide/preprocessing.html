@@ -3,7 +3,8 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Cohort Extraction" href="cohort_extraction.html"><link rel="prev" title="CMS Data Dictionary References" href="../getting_started/references.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Cohort Extraction" href="cohort_extraction.html"><link rel="prev" title="Glossary &amp; Column Reference" href="../getting_started/glossary.html">
+        <link rel="canonical" href="https://uc-cms.github.io/medicaid-utils/user_guide/preprocessing.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>Preprocessing Claims - medicaid-utils</title>
@@ -208,6 +209,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/data_layout.html">Expected Data Layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/references.html">CMS Data Dictionary References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/faq.html">FAQ &amp; Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/glossary.html">Glossary &amp; Column Reference</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul class="current">
@@ -215,6 +218,12 @@
 <li class="toctree-l1"><a class="reference internal" href="cohort_extraction.html">Cohort Extraction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="max_vs_taf.html">MAX vs TAF: CMS File Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_recipes.html">Common Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling_with_dask.html">Scaling with Dask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geographic_data.html">Geographic Data &amp; Rural-Urban Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="obgyn_module.html">OB/GYN Topic Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oud_module.html">Opioid Use Disorder (OUD) Topic Module</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
@@ -380,7 +389,7 @@ files into Dask DataFrames and applies validated cleaning and variable construct
 </div>
 <p>For MAX files, the cleaned DataFrame is available at <code class="docutils literal notranslate"><span class="pre">ip.df</span></code>.</p>
 <p>For TAF files, sub-file DataFrames are in <code class="docutils literal notranslate"><span class="pre">ip.dct_files</span></code> (keyed by subtype:
-<code class="docutils literal notranslate"><span class="pre">&quot;base&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;line&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;occr&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;dx&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ndc&quot;</span></code>).</p>
+<code class="docutils literal notranslate"><span class="pre">&quot;base&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;line&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;occurrence_code&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;base_diag_codes&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;line_ndc_codes&quot;</span></code>).</p>
 </section>
 <section id="factory-methods">
 <h2>Factory Methods<a class="headerlink" href="#factory-methods" title="Link to this heading">¶</a></h2>
@@ -437,14 +446,14 @@ missing date of birth and duplicate records:</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="../getting_started/references.html">
+          <a class="prev-page" href="../getting_started/glossary.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">CMS Data Dictionary References</div>
+                <div class="title">Glossary &amp; Column Reference</div>
                 
               </div>
             </a>

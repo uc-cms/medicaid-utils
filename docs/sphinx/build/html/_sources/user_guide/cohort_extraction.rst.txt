@@ -193,6 +193,29 @@ After extraction, the export folder contains:
   many claims were removed at each step
 - Exported claim files in the requested format (CSV or Parquet)
 
+Cohort File Columns
+^^^^^^^^^^^^^^^^^^^
+
+The ``cohort_{STATE}_{YEAR}.csv`` file (indexed by ``BENE_MSIS``) contains:
+
+================================= ====================================================
+Column Pattern                    Description
+================================= ====================================================
+``include``                       1 if patient included in final cohort, 0 if excluded
+``YEAR``                          Claim year
+``STATE_CD``                      State code
+``birth_date``                    Date of birth (merged from PS)
+``{type}_diag_{condition}``       1 if condition found in claim type (e.g., ``ip_diag_diabetes_t2``)
+``{type}_diag_{condition}_date``  Date of first occurrence
+``{type}_proc_{procedure}``       1 if procedure found in claim type
+``{type}_proc_{procedure}_date``  Date of first occurrence
+``{type}_diag_condn``             1 if ANY diagnosis condition matched
+``{type}_proc_condn``             1 if ANY procedure condition matched
+================================= ====================================================
+
+Where ``{type}`` is the claim type (``ip``, ``ot``, ``ot_line``), ``{condition}`` comes
+from your ``dct_diag_codes`` keys, and ``{procedure}`` comes from your ``dct_proc_codes`` keys.
+
 Lower-Level Functions
 ---------------------
 

@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Quality Measures &amp; Domain Modules" href="quality_measures.html"><link rel="prev" title="Cohort Extraction" href="cohort_extraction.html">
+        <link rel="canonical" href="https://uc-cms.github.io/medicaid-utils/user_guide/risk_adjustment.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>Risk Adjustment &amp; Clinical Algorithms - medicaid-utils</title>
@@ -208,6 +209,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/data_layout.html">Expected Data Layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/references.html">CMS Data Dictionary References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/faq.html">FAQ &amp; Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/glossary.html">Glossary &amp; Column Reference</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul class="current">
@@ -215,6 +218,12 @@
 <li class="toctree-l1"><a class="reference internal" href="cohort_extraction.html">Cohort Extraction</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Risk Adjustment &amp; Clinical Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="max_vs_taf.html">MAX vs TAF: CMS File Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_recipes.html">Common Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling_with_dask.html">Scaling with Dask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geographic_data.html">Geographic Data &amp; Rural-Urban Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="obgyn_module.html">OB/GYN Topic Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oud_module.html">Opioid Use Disorder (OUD) Topic Module</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
@@ -302,6 +311,7 @@ for risk adjustment, procedure classification, and quality measurement.</p>
 splits hypertension into uncomplicated/complicated, extending the original 30 categories).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity</span><span class="w"> </span><span class="kn">import</span> <span class="n">score</span>
 
+<span class="c1"># Requires LST_DIAG_CD column — see &quot;MAX vs TAF&quot; guide for construction</span>
 <span class="n">df_ip</span> <span class="o">=</span> <span class="n">score</span><span class="p">(</span><span class="n">ip</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">lst_diag_col_name</span><span class="o">=</span><span class="s2">&quot;LST_DIAG_CD&quot;</span><span class="p">,</span> <span class="n">cms_format</span><span class="o">=</span><span class="s2">&quot;MAX&quot;</span><span class="p">)</span>
 </pre></div>
 </div>

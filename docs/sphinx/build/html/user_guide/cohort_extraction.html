@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Risk Adjustment &amp; Clinical Algorithms" href="risk_adjustment.html"><link rel="prev" title="Preprocessing Claims" href="preprocessing.html">
+        <link rel="canonical" href="https://uc-cms.github.io/medicaid-utils/user_guide/cohort_extraction.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>Cohort Extraction - medicaid-utils</title>
@@ -208,6 +209,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/data_layout.html">Expected Data Layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started/references.html">CMS Data Dictionary References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/faq.html">FAQ &amp; Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/glossary.html">Glossary &amp; Column Reference</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul class="current">
@@ -215,6 +218,12 @@
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Cohort Extraction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="risk_adjustment.html">Risk Adjustment &amp; Clinical Algorithms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quality_measures.html">Quality Measures &amp; Domain Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="max_vs_taf.html">MAX vs TAF: CMS File Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common_recipes.html">Common Recipes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scaling_with_dask.html">Scaling with Dask</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geographic_data.html">Geographic Data &amp; Rural-Urban Classification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="obgyn_module.html">OB/GYN Topic Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oud_module.html">Opioid Use Disorder (OUD) Topic Module</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
@@ -466,6 +475,53 @@ and date of birth</p></li>
 many claims were removed at each step</p></li>
 <li><p>Exported claim files in the requested format (CSV or Parquet)</p></li>
 </ul>
+<section id="cohort-file-columns">
+<h3>Cohort File Columns<a class="headerlink" href="#cohort-file-columns" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">cohort_{STATE}_{YEAR}.csv</span></code> file (indexed by <code class="docutils literal notranslate"><span class="pre">BENE_MSIS</span></code>) contains:</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column Pattern</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">include</span></code></p></td>
+<td><p>1 if patient included in final cohort, 0 if excluded</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">YEAR</span></code></p></td>
+<td><p>Claim year</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">STATE_CD</span></code></p></td>
+<td><p>State code</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">birth_date</span></code></p></td>
+<td><p>Date of birth (merged from PS)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{type}_diag_{condition}</span></code></p></td>
+<td><p>1 if condition found in claim type (e.g., <code class="docutils literal notranslate"><span class="pre">ip_diag_diabetes_t2</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{type}_diag_{condition}_date</span></code></p></td>
+<td><p>Date of first occurrence</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{type}_proc_{procedure}</span></code></p></td>
+<td><p>1 if procedure found in claim type</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{type}_proc_{procedure}_date</span></code></p></td>
+<td><p>Date of first occurrence</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{type}_diag_condn</span></code></p></td>
+<td><p>1 if ANY diagnosis condition matched</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{type}_proc_condn</span></code></p></td>
+<td><p>1 if ANY procedure condition matched</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Where <code class="docutils literal notranslate"><span class="pre">{type}</span></code> is the claim type (<code class="docutils literal notranslate"><span class="pre">ip</span></code>, <code class="docutils literal notranslate"><span class="pre">ot</span></code>, <code class="docutils literal notranslate"><span class="pre">ot_line</span></code>), <code class="docutils literal notranslate"><span class="pre">{condition}</span></code> comes
+from your <code class="docutils literal notranslate"><span class="pre">dct_diag_codes</span></code> keys, and <code class="docutils literal notranslate"><span class="pre">{procedure}</span></code> comes from your <code class="docutils literal notranslate"><span class="pre">dct_proc_codes</span></code> keys.</p>
+</section>
 </section>
 <section id="lower-level-functions">
 <h2>Lower-Level Functions<a class="headerlink" href="#lower-level-functions" title="Link to this heading">¶</a></h2>
@@ -594,7 +650,10 @@ many claims were removed at each step</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#data-paths">Data Paths</a></li>
-<li><a class="reference internal" href="#output-files">Output Files</a></li>
+<li><a class="reference internal" href="#output-files">Output Files</a><ul>
+<li><a class="reference internal" href="#cohort-file-columns">Cohort File Columns</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#lower-level-functions">Lower-Level Functions</a><ul>
 <li><a class="reference internal" href="#flagging-diagnoses-and-procedures">Flagging Diagnoses and Procedures</a></li>
 <li><a class="reference internal" href="#flagging-prescriptions">Flagging Prescriptions</a></li>

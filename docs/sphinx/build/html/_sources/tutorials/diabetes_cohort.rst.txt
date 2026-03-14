@@ -152,9 +152,10 @@ After extracting the cohort, you can add Elixhauser comorbidity scores:
        clean=False, preprocess=False,
    )
 
-   # Compute Elixhauser comorbidity score
+   # Gather diagnosis codes, then compute Elixhauser comorbidity score
+   ip.gather_bene_level_diag_ndc_codes()
    df_ip = score(
-       ip.dct_files["base"], lst_diag_col_name="LST_DIAG_CD", cms_format="TAF"
+       ip.dct_files["base_diag_codes"], lst_diag_col_name="LST_DIAG_CD", cms_format="TAF"
    )
 
 Running Multiple States

@@ -14,6 +14,7 @@ splits hypertension into uncomplicated/complicated, extending the original 30 ca
 
    from medicaid_utils.adapted_algorithms.py_elixhauser.elixhauser_comorbidity import score
 
+   # Requires LST_DIAG_CD column — see "MAX vs TAF" guide for construction
    df_ip = score(ip.df, lst_diag_col_name="LST_DIAG_CD", cms_format="MAX")
 
 CDPS-Rx Risk Adjustment
