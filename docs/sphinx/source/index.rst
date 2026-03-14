@@ -80,6 +80,8 @@ Apply Elixhauser comorbidity scoring:
    getting_started/data_layout
    getting_started/quickstart
    getting_started/references
+   getting_started/faq
+   getting_started/glossary
 
 .. toctree::
    :maxdepth: 2
@@ -89,6 +91,12 @@ Apply Elixhauser comorbidity scoring:
    user_guide/cohort_extraction
    user_guide/risk_adjustment
    user_guide/quality_measures
+   user_guide/max_vs_taf
+   user_guide/common_recipes
+   user_guide/scaling_with_dask
+   user_guide/geographic_data
+   user_guide/obgyn_module
+   user_guide/oud_module
 
 .. toctree::
    :maxdepth: 2
