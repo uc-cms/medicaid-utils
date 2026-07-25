@@ -442,7 +442,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## Authors
 
-Research Computing Group, Biostatistics Laboratory, The University of Chicago
+Manu Murugesan, Research Computing Group, Biostatistics Laboratory, The University of Chicago
 
 ## Citation
 
@@ -450,9 +450,10 @@ If you use this package in your research, please cite the repository using the "
 
 ```bibtex
 @software{medicaid_utils,
-  author = {Research Computing Group, Biostatistics Laboratory, University of Chicago},
+  author = {Murugesan, Manu},
   title = {medicaid-utils: Python Toolkit for Medicaid Claims Data Analysis},
   url = {https://github.com/uc-cms/medicaid-utils},
+  organization = {Research Computing Group, Biostatistics Laboratory, University of Chicago},
   license = {MIT}
 }
 ```
