@@ -44,7 +44,10 @@ language = "en"
 exclude_patterns = []
 
 # Google Search Console verification + sitemap
-html_extra_path = ["googlef63886eaa754b15d.html"]
+html_extra_path = [
+    "googlef63886eaa754b15d.html",
+    "google23a482f9f921d3db.html",
+]
 html_baseurl = "https://uc-cms.github.io/medicaid-utils/"
 sitemap_url_scheme = "{link}"
 
